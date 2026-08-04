@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LE-GRA MVP | Project Overview</title>
+  <style>
+    :root {
+      --paper: #f4f1e8;
+      --ink: #13212c;
+      --muted: #57636d;
+      --line: rgba(19, 33, 44, 0.16);
+      --panel: rgba(255, 255, 255, 0.58);
+      --signal: #c6542b;
+      --signal-soft: #e79e67;
+      --field: #6d8a7f;
+      --deep: #203747;
+      --shadow: 0 24px 70px rgba(20, 28, 34, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(231, 158, 103, 0.26), transparent 34%),
+        radial-gradient(circle at 85% 18%, rgba(109, 138, 127, 0.22), transparent 28%),
+        linear-gradient(180deg, #f7f3ea 0%, #efe7d7 100%);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(19, 33, 44, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(19, 33, 44, 0.035) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 82%);
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 60px;
+      position: relative;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0 28px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .topbar .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .topbar .tag::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 0 6px rgba(198, 84, 43, 0.12);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 26px;
+      align-items: stretch;
+    }
+
+    .hero-copy,
+    .hero-panel,
+    .section-card,
+    .roadmap,
+    .footer-note {
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-copy {
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-copy::after {
+      content: "LE-GRA";
+      position: absolute;
+      right: -14px;
+      bottom: -22px;
+      font-size: clamp(4rem, 14vw, 10rem);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      color: rgba(19, 33, 44, 0.05);
+      line-height: 0.85;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      color: var(--signal);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 42px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 8vw, 5.8rem);
+      max-width: 10ch;
+    }
+
+    .hero-copy p {
+      max-width: 60ch;
+      margin: 22px 0 0;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--deep);
+    }
+
+    .hero-panel {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      background:
+        linear-gradient(180deg, rgba(32, 55, 71, 0.96), rgba(17, 32, 42, 0.98)),
+        var(--deep);
+      color: #f7f1e8;
+    }
+
+    .hero-panel h2 {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+
+    .hero-panel p {
+      margin: 0;
+      color: rgba(247, 241, 232, 0.84);
+      line-height: 1.7;
+    }
+
+    .metric-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric {
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.8rem;
+      font-family: Georgia, "Times New Roman", serif;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      font-size: 0.95rem;
+      color: rgba(247, 241, 232, 0.72);
+    }
+
+    .sections {
+      display: grid;
+      gap: 22px;
+      margin-top: 24px;
+    }
+
+    .section-card {
+      padding: 28px;
+      position: relative;
+    }
+
+    .section-card h2 {
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      margin-bottom: 16px;
+    }
+
+    .section-card p,
+    .section-card li {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--deep);
+    }
+
+    .idea-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .idea-block {
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.48);
+      border: 1px solid var(--line);
+    }
+
+    .idea-block h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .progress-board {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-top: 16px;
+    }
+
+    .progress-list,
+    .status-box,
+    .roadmap-step {
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.44);
+      border: 1px solid var(--line);
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 0;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .status-box h3,
+    .progress-list h3,
+    .roadmap h2 {
+      margin-bottom: 12px;
+      font-size: 1.25rem;
+    }
+
+    .status-box .signal {
+      display: inline-block;
+      padding: 5px 10px;
+      margin-bottom: 14px;
+      background: rgba(198, 84, 43, 0.12);
+      color: var(--signal);
+      font-weight: 700;
+      border: 1px solid rgba(198, 84, 43, 0.2);
+    }
+
+    .status-box p + p {
+      margin-top: 12px;
+    }
+
+    .roadmap {
+      padding: 30px 28px;
+      margin-top: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .roadmap::before {
+      content: "";
+      position: absolute;
+      left: 36px;
+      top: 88px;
+      bottom: 36px;
+      width: 1px;
+      background: linear-gradient(180deg, var(--signal), rgba(19, 33, 44, 0.08));
+    }
+
+    .roadmap-steps {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .roadmap-step {
+      position: relative;
+      padding-left: 72px;
+    }
+
+    .roadmap-step::before {
+      content: attr(data-step);
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      background: var(--signal);
+      color: white;
+      font-weight: 700;
+      font-size: 0.92rem;
+      border-radius: 50%;
+      box-shadow: 0 10px 22px rgba(198, 84, 43, 0.24);
+    }
+
+    .roadmap-step h3 {
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .footer-note strong {
+      color: var(--ink);
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .progress-board,
+      .idea-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .roadmap::before {
+        left: 28px;
+      }
+
+      .roadmap-step {
+        padding-left: 64px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 20px, 1120px);
+        padding-top: 18px;
+      }
+
+      .hero-copy,
+      .hero-panel,
+      .section-card,
+      .roadmap,
+      .footer-note {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      h1 {
+        font-size: 2.6rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <div class="tag">Research Prototype Overview</div>
+      <div>Updated on July 30, 2026</div>
+    </div>
+
+    <section class="hero">
+      <article class="hero-copy">
+        <div class="eyebrow">5G Vehicular Multicast</div>
+        <h1>LE-GRA MVP</h1>
+        <p>
+          LE-GRA is a research prototype for <strong>Learning-based Embedding Grouping and
+          Resource Allocation</strong>. The project asks a focused question: can learned
+          user representations group vehicular multicast users more effectively than
+          simple CQI-only rules, especially when radio conditions look similar at the
+          wideband level but differ in resource cost and temporal behavior?
+        </p>
+      </article>
+
+      <aside class="hero-panel">
+        <div>
+          <h2>Current Snapshot</h2>
+          <p>
+            The project has already moved beyond concept drafting. A full synthetic
+            research pipeline is running end-to-end, baseline comparisons are available,
+            and follow-up experiments have started to test allocation strategy and a
+            graph-based grouping alternative.
+          </p>
+        </div>
+
+        <div class="metric-list">
+          <div class="metric">
+            <strong>MVP complete</strong>
+            <span>Scenario generation, teacher labeling, embedding learning, evaluation</span>
+          </div>
+          <div class="metric">
+            <strong>3 experiment lines</strong>
+            <span>Main LE-GRA, DP vs greedy, pairwise graph grouping</span>
+          </div>
+          <div class="metric">
+            <strong>Next challenge</strong>
+            <span>Turn the learned method into the strongest performer, not just a working one</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="sections">
+      <section class="section-card">
+        <div class="eyebrow">Core Idea</div>
+        <h2>Why this project matters</h2>
+        <p>
+          Traditional MBS grouping often relies on raw CQI or similarly shallow radio
+          indicators. That works in clean settings, but it can miss important structure:
+          two users may share similar current CQI while still needing very different
+          RB costs because their RB-level profiles, mobility trends, and playback history
+          are not the same.
+        </p>
+        <p>
+          LE-GRA tries to bridge that gap. Instead of grouping users only by one visible
+          metric, it learns a richer embedding from channel history, RB statistics,
+          mobility cues, and quality-related resource cost. The expected benefit is more
+          meaningful multicast grouping and better downstream resource allocation under
+          an RB budget.
+        </p>
+
+        <div class="idea-grid">
+          <div class="idea-block">
+            <h3>Input view</h3>
+            <p>Use CQI history, RB-level rates, mobility features, and resource-cost vectors instead of only current CQI.</p>
+          </div>
+          <div class="idea-block">
+            <h3>Teacher signal</h3>
+            <p>Generate pseudo-labels with an offline utility-driven teacher that searches grouping boundaries and solves video assignment with DP.</p>
+          </div>
+          <div class="idea-block">
+            <h3>Learning target</h3>
+            <p>Train a model to place users with similar multicast value into nearby representation space, then cluster them for allocation.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="eyebrow">Current Progress</div>
+        <h2>What has been completed so far</h2>
+
+        <div class="progress-board">
+          <div class="progress-list">
+            <h3>Implemented work</h3>
+            <ul>
+              <li>Built a synthetic vehicular MBS scenario generator with aligned, ambiguous, and mixed modes.</li>
+              <li>Constructed offline teacher grouping with contiguous boundary search over users sorted by service difficulty.</li>
+              <li>Integrated exact dynamic programming for group-level video-quality assignment under RB budget.</li>
+              <li>Implemented an MLP embedding model trained with pairwise contrastive loss.</li>
+              <li>Compared multiple baselines: no grouping, CQI k-means, resource-cost k-means, multi-feature k-means, offline teacher, and LE-GRA.</li>
+              <li>Added a separate experiment comparing DP allocation against a greedy allocator.</li>
+              <li>Added a second exploratory route using pairwise same-group prediction plus graph clustering.</li>
+            </ul>
+          </div>
+
+          <div class="status-box">
+            <div class="signal">Progress Assessment</div>
+            <h3>Current stage</h3>
+            <p>
+              This project is no longer at the idea stage. It is already a functioning
+              <strong>research MVP with experiments</strong>.
+            </p>
+            <p>
+              The strongest result so far is that the <strong>teacher + DP framework is clearly validated</strong>.
+              The learned model is operational, but it has not yet consistently surpassed
+              the strongest handcrafted or teacher-based baselines.
+            </p>
+          </div>
+        </div>
+
+        <div class="idea-grid" style="margin-top: 18px;">
+          <div class="idea-block">
+            <h3>Main MVP result</h3>
+            <p>LE-GRA runs end-to-end and can be evaluated fairly against baseline grouping methods on the same backend.</p>
+          </div>
+          <div class="idea-block">
+            <h3>Allocation result</h3>
+            <p>Exact DP outperforms greedy allocation, especially when good grouping candidates are available.</p>
+          </div>
+          <div class="idea-block">
+            <h3>Modeling result</h3>
+            <p>The pairwise graph idea is implemented, but it is still exploratory rather than the new best method.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="roadmap">
+      <div class="eyebrow">Future Plan</div>
+      <h2>Where the project should go next</h2>
+      <div class="roadmap-steps">
+        <article class="roadmap-step" data-step="01">
+          <h3>Strengthen the learning method</h3>
+          <p>
+            Improve representation quality with better labeling strategy, stronger model
+            training, more stable validation, and ablation studies that show exactly when
+            learned grouping beats CQI-only or resource-cost baselines.
+          </p>
+        </article>
+
+        <article class="roadmap-step" data-step="02">
+          <h3>Expand the experiment design</h3>
+          <p>
+            Run sensitivity studies for group count, scenario ambiguity, RB budget, and
+            switching penalty. These results will make the argument more research-ready
+            and reveal where performance saturates.
+          </p>
+        </article>
+
+        <article class="roadmap-step" data-step="03">
+          <h3>Move toward realistic traces</h3>
+          <p>
+            Replace purely synthetic generation with Simu5G or OMNeT++ traces so the
+            project is grounded in more realistic vehicular channel behavior and traffic
+            conditions.
+          </p>
+        </article>
+
+        <article class="roadmap-step" data-step="04">
+          <h3>Connect to the full system design</h3>
+          <p>
+            Integrate the MVP with the intended k-GBRM phase-2 allocation logic and turn
+            the current prototype into a closer match for the final thesis or paper system.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer-note">
+      <div><strong>Project position:</strong> validated MVP, active optimization stage</div>
+      <div><strong>Key message:</strong> the pipeline is real; the next milestone is proving the learned method is worth using</div>
+    </footer>
+  </main>
+</body>
+</html>

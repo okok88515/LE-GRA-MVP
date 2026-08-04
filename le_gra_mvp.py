@@ -62,6 +62,9 @@ class Scenario:
     rb_rates: np.ndarray
     rb_available: int
     previous_quality: np.ndarray
+    distance: np.ndarray
+    speed: np.ndarray
+    direction_to_gnb: np.ndarray
     dispersion: str
 
 
@@ -210,27 +213,58 @@ def generate_scenario(
     else:
         rb_available = int(0.65 * n_rbs)
 
-    features = np.column_stack(
-        [
-            # Per-VU model input. These are what the MLP sees.
-            cqi_history,
-            rb_stats,
-            distance / 600.0,
-            speed / 45.0,
-            direction_to_gnb,
-            cost_vec / n_rbs,
-        ]
-    ).astype(np.float32)
-
-    return Scenario(
-        features=features,
+    scenario = Scenario(
+        features=np.empty((n_users, 0), dtype=np.float32),
         cqi_history=cqi_history,
         cqi_now=cqi_now,
         rb_rates=rb_rates,
         rb_available=rb_available,
         previous_quality=previous_quality,
+        distance=distance,
+        speed=speed,
+        direction_to_gnb=direction_to_gnb,
         dispersion=dispersion,
     )
+    scenario.features = build_feature_matrix(scenario, feature_mode="full")
+    return scenario
+
+
+def build_feature_matrix(scenario: Scenario, feature_mode: str) -> np.ndarray:
+    """Build per-user feature vectors for the requested ablation setting."""
+
+    rb_stats = np.column_stack(
+        [
+            scenario.rb_rates.mean(axis=1),
+            scenario.rb_rates.min(axis=1),
+            scenario.rb_rates.max(axis=1),
+            scenario.rb_rates.std(axis=1),
+        ]
+    )
+    cost_vec = user_resource_cost_vector(scenario.rb_rates) / scenario.rb_rates.shape[1]
+    mobility = np.column_stack(
+        [
+            scenario.distance / 600.0,
+            scenario.speed / 45.0,
+            scenario.direction_to_gnb,
+        ]
+    )
+
+    if feature_mode == "history_only":
+        features = [scenario.cqi_history]
+    elif feature_mode == "history_cost":
+        features = [scenario.cqi_history, cost_vec]
+    elif feature_mode == "full":
+        features = [scenario.cqi_history, rb_stats, mobility, cost_vec]
+    else:
+        raise ValueError(f"Unknown feature_mode: {feature_mode}")
+    return np.column_stack(features).astype(np.float32)
+
+
+def apply_feature_mode(train: list[Scenario], test: list[Scenario], feature_mode: str) -> None:
+    """Rebuild scenario features for one ablation setting before normalization."""
+
+    for scenario in train + test:
+        scenario.features = build_feature_matrix(scenario, feature_mode)
 
 
 def generate_cqi_ambiguous_rb_cqi(cqi_now: np.ndarray, direction_to_gnb: np.ndarray, n_rbs: int) -> np.ndarray:
@@ -671,6 +705,26 @@ def evaluate_method(
     )
 
 
+def default_methods(
+    max_groups: int,
+    switch_beta: float,
+    model: MLPEncoder,
+    include_multifeature_baseline: bool = False,
+) -> dict[str, Callable[[Scenario], list[list[int]]]]:
+    """Return the default comparison set for the main research storyline."""
+
+    methods = {
+        "No grouping": lambda s: no_grouping(s),
+        "CQI k-means": lambda s: cqi_kmeans_grouping(s, max_groups, switch_beta),
+        "Resource-cost k-means": lambda s: resource_cost_kmeans_grouping(s, max_groups, switch_beta),
+        "Offline teacher": lambda s: offline_teacher_groups(s, max_groups, switch_beta),
+        "LE-GRA MVP": lambda s: learned_grouping(s, model, max_groups, switch_beta),
+    }
+    if include_multifeature_baseline:
+        methods["Multi-feature k-means"] = lambda s: multi_feature_kmeans_grouping(s, max_groups, switch_beta)
+    return methods
+
+
 def main() -> None:
     """CLI entry point.
 
@@ -690,6 +744,17 @@ def main() -> None:
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument("--switch-beta", type=float, default=0.5)
     parser.add_argument("--scenario-mode", choices=["aligned", "ambiguous", "mixed"], default="mixed")
+    parser.add_argument(
+        "--feature-mode",
+        choices=["history_only", "history_cost", "full"],
+        default="full",
+        help="Feature ablation mode for the learned LE-GRA model.",
+    )
+    parser.add_argument(
+        "--include-multifeature-baseline",
+        action="store_true",
+        help="Include the multi-feature k-means sanity-check baseline in addition to the core comparison set.",
+    )
     parser.add_argument("--seed", type=int, default=9)
     args = parser.parse_args()
 
@@ -703,6 +768,7 @@ def main() -> None:
         generate_scenario(args.users, args.rbs, random.choice(dispersions), args.scenario_mode)
         for _ in range(args.test_scenarios)
     ]
+    apply_feature_mode(train, test, args.feature_mode)
     normalize_features(train, test)
 
     print("Generating offline-teacher pseudo-labels...")
@@ -725,16 +791,15 @@ def main() -> None:
             losses.append(model.train_step(train[idx].features, teacher_labels[idx]))
         print(f"epoch={epoch:02d} contrastive_loss={np.mean(losses):.4f}")
 
-    methods = {
-        "No grouping": lambda s: no_grouping(s),
-        "CQI k-means": lambda s: cqi_kmeans_grouping(s, args.max_groups, args.switch_beta),
-        "Resource-cost k-means": lambda s: resource_cost_kmeans_grouping(s, args.max_groups, args.switch_beta),
-        "Multi-feature k-means": lambda s: multi_feature_kmeans_grouping(s, args.max_groups, args.switch_beta),
-        "Offline teacher": lambda s: offline_teacher_groups(s, args.max_groups, args.switch_beta),
-        "LE-GRA MVP": lambda s: learned_grouping(s, model, args.max_groups, args.switch_beta),
-    }
+    methods = default_methods(
+        args.max_groups,
+        args.switch_beta,
+        model,
+        include_multifeature_baseline=args.include_multifeature_baseline,
+    )
 
     print("\nEvaluation over synthetic test scenarios")
+    print(f"feature_mode={args.feature_mode}")
     print("method, utility, ADR(kbps), RB_util, avg_switching, fairness, avg_groups")
     for name, fn in methods.items():
         result = evaluate_method(test, fn, args.switch_beta)

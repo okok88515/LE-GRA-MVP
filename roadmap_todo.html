@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LE-GRA MVP Roadmap</title>
+  <style>
+    :root {
+      --bg: #eef3f1;
+      --paper: #fbfcf7;
+      --ink: #162127;
+      --muted: #5e6b6d;
+      --line: rgba(22, 33, 39, 0.12);
+      --accent: #d85c3a;
+      --accent-soft: #f3c5b3;
+      --green: #376b62;
+      --green-soft: #d5e6de;
+      --gold: #a67c2c;
+      --gold-soft: #efe4c4;
+      --shadow: 0 22px 60px rgba(18, 29, 33, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      background:
+        linear-gradient(135deg, rgba(216, 92, 58, 0.08), transparent 28%),
+        linear-gradient(210deg, rgba(55, 107, 98, 0.10), transparent 30%),
+        var(--bg);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0,
+          transparent 78px,
+          rgba(22, 33, 39, 0.03) 78px,
+          rgba(22, 33, 39, 0.03) 79px
+        );
+      opacity: 0.7;
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+      position: relative;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .hero,
+    .summary,
+    .track,
+    .focus,
+    .footer {
+      background: rgba(251, 252, 247, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "ROADMAP";
+      position: absolute;
+      right: -10px;
+      bottom: -14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3.4rem, 11vw, 7rem);
+      letter-spacing: -0.05em;
+      color: rgba(22, 33, 39, 0.05);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 38px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      letter-spacing: -0.03em;
+      line-height: 1.06;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 7vw, 5.2rem);
+      max-width: 9ch;
+    }
+
+    .hero p {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      font-size: 1.03rem;
+      line-height: 1.82;
+      color: #27363d;
+    }
+
+    .summary {
+      padding: 26px;
+      display: grid;
+      gap: 14px;
+      background:
+        linear-gradient(180deg, rgba(22, 33, 39, 0.96), rgba(35, 55, 62, 0.96));
+      color: #f6f7f3;
+    }
+
+    .summary p {
+      margin: 0;
+      line-height: 1.76;
+      color: rgba(246, 247, 243, 0.8);
+    }
+
+    .status-chip {
+      display: inline-block;
+      padding: 6px 10px;
+      width: fit-content;
+      background: rgba(216, 92, 58, 0.16);
+      border: 1px solid rgba(216, 92, 58, 0.22);
+      color: #ffd9cf;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-item {
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .summary-item strong {
+      display: block;
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 24px;
+    }
+
+    .track,
+    .focus {
+      padding: 28px;
+    }
+
+    .track-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: baseline;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+
+    .track-header span {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .task-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .task {
+      padding: 16px 16px 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .task.green {
+      border-left-color: var(--green);
+    }
+
+    .task.gold {
+      border-left-color: var(--gold);
+    }
+
+    .task h3 {
+      font-size: 1.14rem;
+      margin-bottom: 8px;
+    }
+
+    .task p {
+      margin: 0;
+      line-height: 1.75;
+      color: #2d3d42;
+      font-size: 0.97rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta span {
+      font-size: 0.82rem;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--muted);
+    }
+
+    .focus {
+      display: grid;
+      gap: 18px;
+    }
+
+    .focus-card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .focus-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .focus-card p,
+    .focus-card li {
+      margin: 0;
+      color: #314046;
+      line-height: 1.75;
+      font-size: 0.97rem;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding: 22px 24px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .footer-block {
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .footer-block strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    .footer-block p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.94rem;
+    }
+
+    @media (max-width: 940px) {
+      .masthead,
+      .layout,
+      .footer {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 18px, 1160px);
+        padding-top: 18px;
+      }
+
+      .hero,
+      .summary,
+      .track,
+      .focus,
+      .footer {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="masthead">
+      <article class="hero">
+        <div class="eyebrow">Research Execution Plan</div>
+        <h1>LE-GRA MVP 待辦 Roadmap</h1>
+        <p>
+          這份頁面是給目前這個專案的實戰工作板。目標不是再擴充更多分支，
+          而是把研究主線收斂成一個能回答問題、能對老師交代、也能往論文延伸的結果。
+        </p>
+        <p>
+          你的核心任務可以濃縮成一句話：
+          <strong>先證明 LE-GRA 在哪些情境下有明確價值，再決定要不要把系統擴展到更真實的資料與更大的方法設計。</strong>
+        </p>
+      </article>
+
+      <aside class="summary">
+        <div class="status-chip">Updated: August 4, 2026</div>
+        <h2>現在的判斷</h2>
+        <p>
+          專案已經完成 MVP 與初步實驗，但目前最需要的不是新功能，而是
+          <strong>主實驗、ablation、優勢區間</strong> 這三件事情的收斂。
+        </p>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <strong>主線保留</strong>
+            <p>Offline teacher -> learned grouping -> DP allocation -> baseline comparison</p>
+          </div>
+          <div class="summary-item">
+            <strong>支線降權</strong>
+            <p>Pairwise graph 先當補充實驗，不搶主論述</p>
+          </div>
+          <div class="summary-item">
+            <strong>下一個里程碑</strong>
+            <p>拿到一組可以說明「何時有效、為何有效」的乾淨結果</p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="layout">
+      <section class="track">
+        <div class="track-header">
+          <h2>今天先做</h2>
+          <span>先把研究地基釘好</span>
+        </div>
+        <div class="task-list">
+          <article class="task">
+            <h3>1. 固定主比較組</h3>
+            <p>
+              先把實驗比較方法鎖定為 `No grouping`、`CQI k-means`、
+              `Resource-cost k-means`、`Offline teacher`、`LE-GRA`。
+              `Pairwise graph` 先保留，但移到補充區。
+            </p>
+            <div class="meta">
+              <span>目的：避免主線分散</span>
+              <span>輸出：固定方法清單</span>
+            </div>
+          </article>
+
+          <article class="task green">
+            <h3>2. 定義標準實驗矩陣</h3>
+            <p>
+              決定之後每次都要跑的條件組合：`aligned / ambiguous / mixed`
+              搭配 `Kmax = 3, 4, 5, 6`，並固定 random seeds 與主要參數。
+            </p>
+            <div class="meta">
+              <span>目的：建立可比較結果</span>
+              <span>輸出：實驗參數表</span>
+            </div>
+          </article>
+
+          <article class="task gold">
+            <h3>3. 規劃最小必要 ablation</h3>
+            <p>
+              先拆成三版：
+              `CQI/history only`、`+ resource-cost`、`full feature`。
+              這一步是證明方法價值的關鍵。
+            </p>
+            <div class="meta">
+              <span>目的：回答學到了什麼</span>
+              <span>輸出：ablation 設計草案</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="focus">
+        <div class="track-header">
+          <h2>本週待辦</h2>
+          <span>把主結果做乾淨</span>
+        </div>
+
+        <article class="focus-card">
+          <h3>重跑主實驗</h3>
+          <ul>
+            <li>對每個 scenario mode 跑完整 baseline 比較。</li>
+            <li>每組條件至少跑多個 seed，避免單次結果過度偶然。</li>
+            <li>整理成同一格式的 csv，欄位固定。</li>
+          </ul>
+        </article>
+
+        <article class="focus-card">
+          <h3>補齊 sensitivity</h3>
+          <ul>
+            <li>先做 `Kmax` 敏感度。</li>
+            <li>如果時間夠，再做 RB budget 與 switch penalty。</li>
+            <li>目標是找出效能飽和點，而不是只多畫幾張圖。</li>
+          </ul>
+        </article>
+
+        <article class="focus-card">
+          <h3>產出一版可報告表格</h3>
+          <ul>
+            <li>主表：方法比較。</li>
+            <li>副表：ablation。</li>
+            <li>圖：至少一張能看出 ambiguous 場景差異的圖。</li>
+          </ul>
+        </article>
+      </section>
+    </section>
+
+    <section class="layout">
+      <section class="track">
+        <div class="track-header">
+          <h2>下週要做</h2>
+          <span>開始回答為什麼</span>
+        </div>
+        <div class="task-list">
+          <article class="task">
+            <h3>1. 找出 LE-GRA 的優勢區間</h3>
+            <p>
+              不要求它所有設定都贏，但要明確定位它在哪些條件下比
+              `CQI-only` 或簡單 handcrafted baseline 更有優勢。
+            </p>
+            <div class="meta">
+              <span>目標：找到可論述的亮點</span>
+            </div>
+          </article>
+
+          <article class="task green">
+            <h3>2. 分析失敗情況</h3>
+            <p>
+              如果 LE-GRA 沒贏，要拆解原因：
+              teacher 是否太強、contrastive loss 是否與 utility 錯位、
+              k-means head 是否限制太多。
+            </p>
+            <div class="meta">
+              <span>目標：決定下一步改哪裡</span>
+            </div>
+          </article>
+
+          <article class="task gold">
+            <h3>3. 寫出三句研究論述</h3>
+            <p>
+              把研究故事壓縮成：
+              `問題是什麼`、`現有方法缺什麼`、`你的方法在哪種情況有效`。
+            </p>
+            <div class="meta">
+              <span>目標：讓報告與論文開頭更穩</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="focus">
+        <div class="track-header">
+          <h2>本月方向</h2>
+          <span>決定要收斂還是擴張</span>
+        </div>
+
+        <article class="focus-card">
+          <h3>若主線穩定成立</h3>
+          <p>
+            開始往更 realistic 的資料來源推進，例如接 Simu5G / OMNeT++
+            traces，或逐步貼近你真正想做的 phase-2 allocation。
+          </p>
+        </article>
+
+        <article class="focus-card">
+          <h3>若主線仍不夠強</h3>
+          <p>
+            只發散一個方向，不要多開：
+            優先考慮改 `loss` 或 `grouping head`，例如讓學習目標更接近最終 utility。
+          </p>
+        </article>
+
+        <article class="focus-card">
+          <h3>不要優先投入的事</h3>
+          <ul>
+            <li>不要先花大量時間做產品化介面。</li>
+            <li>不要同時開太多新模型分支。</li>
+            <li>不要急著全面重寫工程框架，除非研究結論已經成形。</li>
+          </ul>
+        </article>
+      </section>
+    </section>
+
+    <section class="footer">
+      <div class="footer-block">
+        <strong>先收斂</strong>
+        <p>把主實驗、ablation、優勢區間做完整，這比增加更多方法更重要。</p>
+      </div>
+      <div class="footer-block">
+        <strong>再發散</strong>
+        <p>只有在知道瓶頸在哪裡之後，才選一條支線去調整 loss、head 或資料來源。</p>
+      </div>
+      <div class="footer-block">
+        <strong>下一步建議</strong>
+        <p>先從標準化實驗矩陣開始，因為那會決定你後面每一個判斷是不是站得住腳。</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
