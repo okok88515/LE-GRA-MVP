@@ -158,6 +158,11 @@ def evaluate_method(scenarios, grouping_fn, switch_beta):
     return {
         "utility": float(np.mean([r.utility for r in results])),
         "adr_kbps": float(np.mean([r.adr_kbps for r in results])),
+        "used_spectral_efficiency": float(np.mean([r.used_spectral_efficiency for r in results])),
+        "system_spectral_efficiency": float(np.mean([r.system_spectral_efficiency for r in results])),
+        "served_ratio": float(np.mean([r.served_ratio for r in results])),
+        "unserved_ratio": float(np.mean([r.unserved_ratio for r in results])),
+        "average_quality": float(np.mean([r.average_quality for r in results])),
         "rb_utilization": float(np.mean([r.rb_utilization for r in results])),
         "avg_switching": float(np.mean([r.avg_switching for r in results])),
         "fairness": float(np.mean([r.fairness for r in results])),

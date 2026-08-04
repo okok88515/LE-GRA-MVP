@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+smoke_test_results/
+load_smoke_results/
+load_smoke_results_v2/

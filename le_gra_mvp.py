@@ -23,6 +23,7 @@ import numpy as np
 
 
 VIDEO_BITRATES_KBPS = np.array([200, 550, 1500, 3000, 5800, 7500], dtype=float)
+RB_BANDWIDTH_KHZ = 180.0
 
 # 3GPP-like CQI spectral efficiencies in bits/s/Hz.
 CQI_TO_EFF = np.array(
@@ -74,6 +75,11 @@ class EvalResult:
 
     utility: float
     adr_kbps: float
+    used_spectral_efficiency: float
+    system_spectral_efficiency: float
+    served_ratio: float
+    unserved_ratio: float
+    average_quality: float
     rb_utilization: float
     avg_switching: float
     fairness: float
@@ -93,8 +99,7 @@ def cqi_to_rate_kbps(cqi: np.ndarray) -> np.ndarray:
     """
 
     cqi_int = np.clip(np.rint(cqi).astype(int), 1, 15)
-    rb_bandwidth_khz = 180.0
-    return CQI_TO_EFF[cqi_int] * rb_bandwidth_khz
+    return CQI_TO_EFF[cqi_int] * RB_BANDWIDTH_KHZ
 
 
 def rb_needed(sorted_rates_kbps: np.ndarray, target_kbps: float) -> int | None:
@@ -135,6 +140,7 @@ def generate_scenario(
     dispersion: str,
     scenario_mode: str = "mixed",
     dynamic_rb: bool = True,
+    rb_budget_ratio: float | None = None,
 ) -> Scenario:
     """Generate one synthetic vehicular MBS scenario.
 
@@ -208,7 +214,11 @@ def generate_scenario(
             len(VIDEO_BITRATES_KBPS) - 1,
         )
 
-    if dynamic_rb:
+    if rb_budget_ratio is not None:
+        if not 0.0 < rb_budget_ratio <= 1.0:
+            raise ValueError("rb_budget_ratio must be in the interval (0, 1]")
+        rb_available = max(1, int(round(rb_budget_ratio * n_rbs)))
+    elif dynamic_rb:
         rb_available = int(np.random.uniform(0.45, 0.85) * n_rbs)
     else:
         rb_available = int(0.65 * n_rbs)
@@ -354,6 +364,11 @@ def allocate_and_evaluate(
         return EvalResult(
             utility=-2.0,
             adr_kbps=0.0,
+            used_spectral_efficiency=0.0,
+            system_spectral_efficiency=0.0,
+            served_ratio=0.0,
+            unserved_ratio=1.0,
+            average_quality=0.0,
             rb_utilization=0.0,
             avg_switching=0.0,
             fairness=0.0,
@@ -395,6 +410,15 @@ def allocate_and_evaluate(
     user_bitrate = np.zeros(len(scenario.cqi_now), dtype=float)
     served = best_user_quality >= 0
     user_bitrate[served] = VIDEO_BITRATES_KBPS[best_user_quality[served]]
+    used_spectral_efficiency = (
+        float(user_bitrate.sum() / (best_used_rb * RB_BANDWIDTH_KHZ))
+        if best_used_rb > 0
+        else 0.0
+    )
+    system_spectral_efficiency = float(
+        user_bitrate.sum() / (scenario.rb_available * RB_BANDWIDTH_KHZ)
+    )
+    average_quality = float(best_user_quality[served].mean()) if np.any(served) else 0.0
 
     switching = np.zeros(len(scenario.cqi_now), dtype=float)
     switching[served] = np.abs(best_user_quality[served] - scenario.previous_quality[served]) / (
@@ -403,6 +427,11 @@ def allocate_and_evaluate(
     return EvalResult(
         utility=best_utility,
         adr_kbps=float(user_bitrate.mean()),
+        used_spectral_efficiency=used_spectral_efficiency,
+        system_spectral_efficiency=system_spectral_efficiency,
+        served_ratio=float(served.mean()),
+        unserved_ratio=float(1.0 - served.mean()),
+        average_quality=average_quality,
         rb_utilization=float(best_used_rb / max(1, scenario.rb_available)),
         avg_switching=float(switching.mean()),
         fairness=jain_fairness(user_bitrate),
@@ -698,6 +727,11 @@ def evaluate_method(
     return EvalResult(
         utility=float(np.mean([r.utility for r in results])),
         adr_kbps=float(np.mean([r.adr_kbps for r in results])),
+        used_spectral_efficiency=float(np.mean([r.used_spectral_efficiency for r in results])),
+        system_spectral_efficiency=float(np.mean([r.system_spectral_efficiency for r in results])),
+        served_ratio=float(np.mean([r.served_ratio for r in results])),
+        unserved_ratio=float(np.mean([r.unserved_ratio for r in results])),
+        average_quality=float(np.mean([r.average_quality for r in results])),
         rb_utilization=float(np.mean([r.rb_utilization for r in results])),
         avg_switching=float(np.mean([r.avg_switching for r in results])),
         fairness=float(np.mean([r.fairness for r in results])),
@@ -743,6 +777,12 @@ def main() -> None:
     parser.add_argument("--max-groups", type=int, default=5)
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument("--switch-beta", type=float, default=0.5)
+    parser.add_argument(
+        "--rb-budget-ratio",
+        type=float,
+        default=0.40,
+        help="Available RBs as a fraction of total RBs (default: 0.40).",
+    )
     parser.add_argument("--scenario-mode", choices=["aligned", "ambiguous", "mixed"], default="mixed")
     parser.add_argument(
         "--feature-mode",
@@ -761,11 +801,17 @@ def main() -> None:
     set_seed(args.seed)
     dispersions = ["high", "mid", "low"]
     train = [
-        generate_scenario(args.users, args.rbs, random.choice(dispersions), args.scenario_mode)
+        generate_scenario(
+            args.users, args.rbs, random.choice(dispersions), args.scenario_mode,
+            rb_budget_ratio=args.rb_budget_ratio,
+        )
         for _ in range(args.train_scenarios)
     ]
     test = [
-        generate_scenario(args.users, args.rbs, random.choice(dispersions), args.scenario_mode)
+        generate_scenario(
+            args.users, args.rbs, random.choice(dispersions), args.scenario_mode,
+            rb_budget_ratio=args.rb_budget_ratio,
+        )
         for _ in range(args.test_scenarios)
     ]
     apply_feature_mode(train, test, args.feature_mode)
@@ -800,13 +846,22 @@ def main() -> None:
 
     print("\nEvaluation over synthetic test scenarios")
     print(f"feature_mode={args.feature_mode}")
-    print("method, utility, ADR(kbps), RB_util, avg_switching, fairness, avg_groups")
+    print(
+        "method, utility, ADR(kbps), used_SE(bit/s/Hz), system_SE(bit/s/Hz), "
+        "served_ratio, unserved_ratio, avg_quality, RB_util, avg_switching, "
+        "fairness, avg_groups"
+    )
     for name, fn in methods.items():
         result = evaluate_method(test, fn, args.switch_beta)
         print(
             f"{name}, "
             f"{result.utility:.4f}, "
             f"{result.adr_kbps:.1f}, "
+            f"{result.used_spectral_efficiency:.3f}, "
+            f"{result.system_spectral_efficiency:.3f}, "
+            f"{result.served_ratio:.3f}, "
+            f"{result.unserved_ratio:.3f}, "
+            f"{result.average_quality:.2f}, "
             f"{result.rb_utilization:.3f}, "
             f"{result.avg_switching:.3f}, "
             f"{result.fairness:.3f}, "

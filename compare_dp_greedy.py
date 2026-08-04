@@ -84,6 +84,16 @@ def greedy_allocate_and_evaluate(
     return mvp.EvalResult(
         utility=mvp.compute_qoe_utility(user_quality, scenario, switch_beta),
         adr_kbps=float(user_bitrate.mean()),
+        used_spectral_efficiency=(
+            float(user_bitrate.sum() / (used_rb * mvp.RB_BANDWIDTH_KHZ))
+            if used_rb > 0 else 0.0
+        ),
+        system_spectral_efficiency=float(
+            user_bitrate.sum() / (scenario.rb_available * mvp.RB_BANDWIDTH_KHZ)
+        ),
+        served_ratio=float(served.mean()),
+        unserved_ratio=float(1.0 - served.mean()),
+        average_quality=float(user_quality[served].mean()) if np.any(served) else 0.0,
         rb_utilization=float(used_rb / max(1, scenario.rb_available)),
         avg_switching=float(switching.mean()),
         fairness=mvp.jain_fairness(user_bitrate),

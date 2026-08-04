@@ -55,6 +55,32 @@ Scenario modes:
   RB-level profiles, mobility trends, and previous video quality.
 - `mixed`: half aligned, half ambiguous.
 
+## Resource Pressure and Spectral Efficiency
+
+For a single run, set the available-RB ratio explicitly. For example, a heavy
+load with 10% of the configured RBs available is:
+
+```powershell
+python .\le_gra_mvp.py --rb-budget-ratio 0.10
+```
+
+The standard matrix exposes three reproducible load levels:
+
+- `light`: 50% of RBs available,
+- `medium`: 25% of RBs available,
+- `heavy`: 10% of RBs available.
+
+```powershell
+python .\run_standard_matrix.py --load-levels light medium heavy
+```
+
+Results include two multicast-aware spectral-efficiency metrics. Used-bandwidth
+SE divides successfully delivered user bitrate by the bandwidth actually used;
+system SE uses all currently available RB bandwidth as the denominator. The
+latter is the primary metric for fixed-bandwidth comparisons. Interpret both
+together with `served_ratio`, `unserved_ratio`, and `average_quality`, so a
+method cannot appear strong merely by serving fewer users or lowering quality.
+
 ## Notes
 
 This is intentionally simple. It is meant to validate the research pipeline,
