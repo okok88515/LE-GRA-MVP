@@ -24,6 +24,7 @@ MAIN_METHODS = [
     "No grouping",
     "CQI k-means",
     "Resource-cost k-means",
+    "Multi-feature k-means",
     "Offline teacher",
     "LE-GRA MVP",
 ]
@@ -116,19 +117,52 @@ def train_model(
     return model
 
 
-def evaluate_main_methods(
-    train: list[mvp.Scenario],
-    test: list[mvp.Scenario],
+def diagnostic_row(
+    scenario: mvp.Scenario,
+    teacher_groups: list[list[int]],
+    predicted_groups: list[list[int]],
+    method: str,
+    scenario_mode: str,
+    load_level: str,
+    seed: int,
+    kmax: int,
     feature_mode: str,
+) -> dict:
+    """Summarize how closely a predicted grouping matches the teacher."""
+
+    n_users = len(scenario.cqi_now)
+    teacher_ids = mvp.group_ids_from_groups(teacher_groups, n_users)
+    predicted_ids = mvp.group_ids_from_groups(predicted_groups, n_users)
+    return {
+        "scenario_mode": scenario_mode,
+        "load_level": load_level,
+        "rb_budget_ratio": LOAD_RATIOS[load_level],
+        "seed": seed,
+        "kmax": kmax,
+        "feature_mode": feature_mode,
+        "method": method,
+        "pairwise_accuracy": mvp.pairwise_same_group_accuracy(teacher_ids, predicted_ids),
+        "ari": mvp.adjusted_rand_index(teacher_ids, predicted_ids),
+        "nmi": mvp.normalized_mutual_information(teacher_ids, predicted_ids),
+        "teacher_groups": len(teacher_groups),
+        "predicted_groups": len(predicted_groups),
+    }
+
+
+def evaluate_main_methods(
+    test: list[mvp.Scenario],
+    model: mvp.MLPEncoder,
     max_groups: int,
     switch_beta: float,
-    epochs: int,
     progress_label: str,
 ) -> list[dict]:
-    model = train_model(
-        train, test, feature_mode, max_groups, switch_beta, epochs, progress_label
+    methods = mvp.default_methods(
+        max_groups,
+        switch_beta,
+        model,
+        include_multifeature_baseline=True,
+        multifeature_feature_mode="full",
     )
-    methods = mvp.default_methods(max_groups, switch_beta, model)
     rows = []
     for method_index, method_name in enumerate(MAIN_METHODS, start=1):
         progress(
@@ -155,8 +189,54 @@ def evaluate_main_methods(
     return rows
 
 
-def run_main_matrix(args) -> list[dict]:
+def evaluate_teacher_imitation(
+    test: list[mvp.Scenario],
+    model: mvp.MLPEncoder,
+    max_groups: int,
+    switch_beta: float,
+    feature_mode: str,
+    scenario_mode: str,
+    load_level: str,
+    seed: int,
+    progress_label: str,
+) -> list[dict]:
+    """Compare student/baseline groupings against teacher partitions."""
+
+    methods = {
+        "Multi-feature k-means": lambda s: mvp.multi_feature_kmeans_grouping(
+            s, max_groups, switch_beta, feature_mode="full"
+        ),
+        "LE-GRA MVP": lambda s: mvp.learned_grouping(s, model, max_groups, switch_beta),
+    }
+
     rows = []
+    for scenario_idx, scenario in enumerate(test, start=1):
+        progress(
+            f"[{progress_label}] Teacher-imitation diagnostics "
+            f"{scenario_idx}/{len(test)}"
+        )
+        teacher_groups = mvp.offline_teacher_groups(scenario, max_groups, switch_beta)
+        for method_name, grouping_fn in methods.items():
+            predicted_groups = grouping_fn(scenario)
+            rows.append(
+                diagnostic_row(
+                    scenario,
+                    teacher_groups,
+                    predicted_groups,
+                    method=method_name,
+                    scenario_mode=scenario_mode,
+                    load_level=load_level,
+                    seed=seed,
+                    kmax=max_groups,
+                    feature_mode=feature_mode,
+                )
+            )
+    return rows
+
+
+def run_main_matrix(args) -> tuple[list[dict], list[dict]]:
+    rows = []
+    diagnostic_rows = []
     total_jobs = (
         len(args.scenario_modes) * len(args.load_levels)
         * len(args.kmax_values) * len(args.seeds)
@@ -173,13 +253,20 @@ def run_main_matrix(args) -> list[dict]:
                     )
                     progress(f"\n[{label}] Starting")
                     train, test = generate_splits(args, scenario_mode, seed, load_level)
-                    for row in evaluate_main_methods(
+                    model = train_model(
                         train,
                         test,
-                        feature_mode="full",
+                        feature_mode=args.main_feature_mode,
                         max_groups=max_groups,
                         switch_beta=args.switch_beta,
                         epochs=args.epochs,
+                        progress_label=label,
+                    )
+                    for row in evaluate_main_methods(
+                        test,
+                        model,
+                        max_groups=max_groups,
+                        switch_beta=args.switch_beta,
                         progress_label=label,
                     ):
                         row.update(
@@ -192,7 +279,20 @@ def run_main_matrix(args) -> list[dict]:
                             }
                         )
                         rows.append(row)
-    return rows
+                    diagnostic_rows.extend(
+                        evaluate_teacher_imitation(
+                            test,
+                            model,
+                            max_groups=max_groups,
+                            switch_beta=args.switch_beta,
+                            feature_mode=args.main_feature_mode,
+                            scenario_mode=scenario_mode,
+                            load_level=load_level,
+                            seed=seed,
+                            progress_label=label,
+                        )
+                    )
+    return rows, diagnostic_rows
 
 
 def run_ablation(args) -> list[dict]:
@@ -288,6 +388,12 @@ def main() -> None:
         nargs="+",
         default=["history_only", "history_cost", "full"],
     )
+    parser.add_argument(
+        "--main-feature-mode",
+        choices=["history_only", "history_cost", "full"],
+        default="history_cost",
+        help="Feature mode used by LE-GRA in the main comparison matrix.",
+    )
     parser.add_argument("--ablation-kmax", type=int, default=5)
     parser.add_argument("--out-dir", type=Path, default=Path("standard_matrix_results"))
     args = parser.parse_args()
@@ -300,17 +406,20 @@ def main() -> None:
         f"ablation jobs: {len(args.scenario_modes) * len(args.load_levels) * len(args.seeds) * len(args.feature_modes)}"
     )
 
-    matrix_rows = run_main_matrix(args)
+    matrix_rows, diagnostic_rows = run_main_matrix(args)
     progress("\nMain comparison matrix complete; starting feature ablation")
     ablation_rows = run_ablation(args)
 
     matrix_path = args.out_dir / "main_comparison_matrix.csv"
     ablation_path = args.out_dir / "feature_ablation.csv"
+    diagnostic_path = args.out_dir / "teacher_imitation_diagnostics.csv"
     write_csv(matrix_path, matrix_rows)
     write_csv(ablation_path, ablation_rows)
+    write_csv(diagnostic_path, diagnostic_rows)
 
     print(f"Saved {matrix_path}")
     print(f"Saved {ablation_path}")
+    print(f"Saved {diagnostic_path}")
 
     metric_summary = {}
     for row in matrix_rows:
@@ -356,6 +465,25 @@ def main() -> None:
                     and row["feature_mode"] == feature_mode
                 ]
                 print(f"  {FEATURE_MODE_LABELS[feature_mode]}: {np.mean(values):.4f}")
+
+    print("\nTeacher-imitation diagnostics summary")
+    for scenario_mode in args.scenario_modes:
+        for load_level in args.load_levels:
+            for method_name in ["Multi-feature k-means", "LE-GRA MVP"]:
+                subset = [
+                    row for row in diagnostic_rows
+                    if row["scenario_mode"] == scenario_mode
+                    and row["load_level"] == load_level
+                    and row["method"] == method_name
+                ]
+                if not subset:
+                    continue
+                print(
+                    f"  scenario={scenario_mode}, load={load_level}, method={method_name}: "
+                    f"pairwise_acc={np.mean([r['pairwise_accuracy'] for r in subset]):.4f}, "
+                    f"ARI={np.mean([r['ari'] for r in subset]):.4f}, "
+                    f"NMI={np.mean([r['nmi'] for r in subset]):.4f}"
+                )
 
 
 if __name__ == "__main__":

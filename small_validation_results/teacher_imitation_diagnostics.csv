@@ -1,0 +1,7 @@
+scenario_mode,load_level,rb_budget_ratio,seed,kmax,feature_mode,method,pairwise_accuracy,ari,nmi,teacher_groups,predicted_groups
+ambiguous,medium,0.25,9,3,history_cost,Multi-feature k-means,0.9166666666666666,0.0,0.0,2,1
+ambiguous,medium,0.25,9,3,history_cost,LE-GRA MVP,0.9166666666666666,0.0,0.0,2,1
+ambiguous,medium,0.25,9,3,history_cost,Multi-feature k-means,0.6123188405797102,0.21897810218978103,0.38901110908585784,3,2
+ambiguous,medium,0.25,9,3,history_cost,LE-GRA MVP,0.6739130434782609,0.32919254658385094,0.46207670548539104,3,3
+ambiguous,medium,0.25,9,3,history_cost,Multi-feature k-means,1.0,1.0,1.0,1,1
+ambiguous,medium,0.25,9,3,history_cost,LE-GRA MVP,1.0,1.0,1.0,1,1

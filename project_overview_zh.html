@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LE-GRA MVP | 中文研究總覽</title>
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --paper: rgba(255, 251, 244, 0.82);
+      --ink: #18242c;
+      --muted: #58646c;
+      --line: rgba(24, 36, 44, 0.14);
+      --accent: #bb5431;
+      --accent-soft: rgba(187, 84, 49, 0.12);
+      --deep: #21404f;
+      --green: #6d836f;
+      --shadow: 0 26px 72px rgba(22, 31, 37, 0.13);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(187, 84, 49, 0.18), transparent 30%),
+        radial-gradient(circle at 88% 16%, rgba(109, 131, 111, 0.18), transparent 28%),
+        linear-gradient(180deg, #f7f2e9 0%, #ece3d4 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(24, 36, 44, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24, 36, 44, 0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.78), transparent 82%);
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+      position: relative;
+    }
+
+    .topbar,
+    .footer-note {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .topbar {
+      padding-bottom: 24px;
+    }
+
+    .tag,
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.86rem;
+    }
+
+    .tag::before,
+    .eyebrow::before {
+      content: "";
+      width: 42px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+      gap: 24px;
+    }
+
+    .card,
+    .hero-panel,
+    .footer-note {
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.62);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+
+    .card,
+    .hero-panel {
+      padding: 28px;
+    }
+
+    .hero-copy {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-copy::after {
+      content: "脈絡";
+      position: absolute;
+      right: 4px;
+      bottom: -18px;
+      font-size: clamp(4rem, 12vw, 8rem);
+      font-weight: 800;
+      color: rgba(24, 36, 44, 0.05);
+      letter-spacing: -0.08em;
+      line-height: 0.9;
+    }
+
+    .hero-panel {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      background:
+        linear-gradient(180deg, rgba(33, 64, 79, 0.97), rgba(18, 33, 41, 0.98));
+      color: #f7f1e8;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: "PMingLiU", "Times New Roman", serif;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 7vw, 5.2rem);
+      max-width: 8ch;
+    }
+
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      margin-bottom: 14px;
+    }
+
+    h3 {
+      font-size: 1.12rem;
+      margin-bottom: 10px;
+    }
+
+    p,
+    li {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--deep);
+    }
+
+    .hero-panel p,
+    .hero-panel li {
+      color: rgba(247, 241, 232, 0.86);
+    }
+
+    .sections {
+      display: grid;
+      gap: 22px;
+      margin-top: 24px;
+    }
+
+    .grid-3,
+    .grid-2,
+    .summary-band {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .grid-3,
+    .summary-band {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .block,
+    .timeline-step {
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.48);
+      border: 1px solid var(--line);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .timeline-step {
+      position: relative;
+      padding-left: 72px;
+    }
+
+    .timeline-step::before {
+      content: attr(data-step);
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 10px 22px rgba(187, 84, 49, 0.24);
+    }
+
+    .formula {
+      margin-top: 12px;
+      padding: 14px 16px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(187, 84, 49, 0.18);
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 0.95rem;
+      overflow-x: auto;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      padding: 20px 24px;
+    }
+
+    .footer-note strong {
+      color: var(--ink);
+    }
+
+    @media (max-width: 960px) {
+      .hero,
+      .grid-3,
+      .grid-2,
+      .summary-band {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 18px, 1160px);
+        padding-top: 18px;
+      }
+
+      .card,
+      .hero-panel,
+      .footer-note {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .timeline-step {
+        padding-left: 64px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <div class="tag">Chinese Research Overview</div>
+      <div>更新於 2026 年 8 月 5 日</div>
+    </div>
+
+    <section class="hero">
+      <article class="card hero-copy">
+        <div class="eyebrow">LE-GRA 故事版</div>
+        <h1>把研究脈絡講成人話</h1>
+        <p>
+          這個專案在做的事情，可以先簡單理解成一句話：
+          我們想知道，在 5G vehicular multicast 裡，使用者分群能不能不只看
+          `CQI`，而是學到一種更接近「真正資源需求」的分法。
+        </p>
+        <p>
+          因為現實裡常常會出現一種狀況：兩個人表面上 `CQI` 很像，但實際上要把影片穩定送給他們，
+          所需要的 `RB cost`、歷史波動、移動趨勢都不一樣。LE-GRA 的想法就是，
+          不要只看表面的好壞，而是試著學出更深一層的 grouping 結構。
+        </p>
+      </article>
+
+      <aside class="hero-panel">
+        <div>
+          <h2>現在可以先記住的重點</h2>
+          <p>
+            這個研究不是還在空想階段。teacher、student、DP backend、ablation、
+            diagnostics 都已經跑起來，而且最新一次 `after_grad_fix` 重跑後，
+            LE-GRA 已經在部分條件下贏過主要 baseline。
+          </p>
+        </div>
+        <div>
+          <h3>目前最重要的三個結論</h3>
+          <ul>
+            <li>`offline teacher + DP` 這條主線是對的，而且很強。</li>
+            <li>`resource-cost` feature 的價值很明確。</li>
+            <li>learner 修正後有進步，但在 `ambiguous` 場景還沒完全站穩。</li>
+          </ul>
+        </div>
+      </aside>
+    </section>
+
+    <div class="sections">
+      <section class="card">
+        <div class="eyebrow">研究故事</div>
+        <h2>整個研究是怎麼一路長出來的</h2>
+        <div class="timeline">
+          <article class="timeline-step" data-step="01">
+            <h3>先造出可控的世界</h3>
+            <p>
+              你先用 synthetic scenario 去模擬 vehicular MBS，讓每個使用者都有
+              `CQI history`、`RB-level rate`、mobility、以及不同品質等級對應的資源成本。
+            </p>
+          </article>
+          <article class="timeline-step" data-step="02">
+            <h3>再做一個很強但很慢的老師</h3>
+            <p>
+              `offline teacher` 不是線上部署用的演算法，而是用來產生高品質 pseudo-label。
+              它會先依照 service difficulty 排序，再搜尋可能的 grouping 邊界，最後用 exact DP
+              算出哪種 grouping 的 utility 最好。
+            </p>
+          </article>
+          <article class="timeline-step" data-step="03">
+            <h3>接著訓練 student 去學這個老師</h3>
+            <p>
+              LE-GRA 的 learner 會把使用者特徵映射成 embedding，再用 `k-means`
+              做分群。研究的核心問題就是：這個 learned embedding，有沒有比手工 feature
+              baseline 更會學到 teacher 的 grouping 邏輯？
+            </p>
+          </article>
+          <article class="timeline-step" data-step="04">
+            <h3>最後統一丟進同一個 DP backend 評分</h3>
+            <p>
+              不管前面是 `CQI k-means`、`Resource-cost k-means`、`Multi-feature k-means`
+              還是 LE-GRA，最後都用同一套 DP allocation 來算 utility。這樣才能公平比較，
+              不會把 grouping 好壞和 allocator 差異混在一起。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">為什麼 teacher 不找最佳解</div>
+        <h2>不是不想找，而是全域最佳解真的太貴</h2>
+        <p>
+          這個問題你前面已經抓得很準：為什麼 offline teacher 不直接找全域最佳 grouping？
+          答案就是，真的會太慢。
+        </p>
+        <div class="grid-2">
+          <div class="block">
+            <h3>如果找全域最佳解</h3>
+            <p>要枚舉所有可能 partition，搜尋空間是：</p>
+            <div class="formula">&Sigma; S(n, k)</div>
+            <p>
+              其中 `S(n, k)` 是 Stirling number of the second kind。這個量級對中型 scenario
+              來說就已經很難反覆拿來做 teacher labeling，更不用說還要配合訓練。
+            </p>
+          </div>
+          <div class="block">
+            <h3>現在的 teacher 做法</h3>
+            <p>先排序，再只搜尋 contiguous cut，候選數變成：</p>
+            <div class="formula">&Sigma; C(n - 1, k - 1)</div>
+            <p>
+              在固定 `Kmax` 的情況下，這個搜尋是 polynomial in `n`，雖然仍然不便宜，
+              但已經進入「可跑、可重現、可拿來訓練」的範圍。
+            </p>
+          </div>
+        </div>
+        <p>
+          所以你可以把現在的 teacher 理解成一個
+          <strong>可計算、可解釋、夠強的 constrained optimum</strong>。
+          它不是理論上的全域最佳解，但它是很好的 supervision target，
+          也正因為如此，LE-GRA 才有研究價值。
+        </p>
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">什麼叫 ablation</div>
+        <h2>不是多跑幾組而已，是拆開問「到底哪個部件有用」</h2>
+        <p>
+          `ablation` 的意思，不是把模型亂拆，而是有目的地拿掉某些資訊或設計，
+          看結果會怎麼變。它的目的是回答：
+          <strong>這個方法有效，到底是因為哪個部分真的有貢獻？</strong>
+        </p>
+        <div class="grid-3">
+          <div class="block">
+            <h3>`history_only`</h3>
+            <p>只看 CQI history，代表最簡化的 learned input。</p>
+          </div>
+          <div class="block">
+            <h3>`history_cost`</h3>
+            <p>在 CQI history 上加入 resource-cost，測試成本資訊到底有沒有幫助。</p>
+          </div>
+          <div class="block">
+            <h3>`full`</h3>
+            <p>再把 RB statistics 與 mobility 加進去，檢查更多 feature 能不能再推高表現。</p>
+          </div>
+        </div>
+        <p>
+          目前看起來，`history_only` 已經大致可以排除；真正值得競爭的是
+          `history_cost` 和 `full`。這代表 `resource-cost` 的價值很扎實，
+          同時也表示 richer feature 並不一定有問題，問題更可能在 learner 能不能把它們學好。
+        </p>
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">最新結果</div>
+        <h2>`after_grad_fix` 之後，到底改變了什麼</h2>
+        <p>
+          這輪最重要的背景是：LE-GRA learner 先修正了 embedding L2 normalization 的梯度。
+          這不是單純 code cleanup，而是會直接改變訓練方向的 correctness fix。
+        </p>
+        <div class="summary-band">
+          <div class="block">
+            <h3>有明顯變好的地方</h3>
+            <p>
+              在 `aligned/light` 與 `aligned/medium`，LE-GRA 已經贏過 `CQI k-means`、
+              `Resource-cost k-means` 和 `Multi-feature k-means`。
+            </p>
+          </div>
+          <div class="block">
+            <h3>還沒完全解掉的地方</h3>
+            <p>
+              `ambiguous` 場景仍然最難，LE-GRA 雖然更接近強 baseline，但還沒有穩定形成明顯優勢。
+            </p>
+          </div>
+          <div class="block">
+            <h3>研究結論的更新</h3>
+            <p>
+              以前比較像「LE-GRA 有概念但還沒證明自己」；現在已經進一步變成
+              「learner 真的有價值，但還需要更強才能在 ambiguity 下站穩」。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">名詞對照</div>
+        <h2>你現在最常碰到的術語，到底各自代表什麼</h2>
+        <div class="summary-band">
+          <div class="block">
+            <h3>aligned</h3>
+            <p>wideband CQI 和 RB-level 行為大致一致，代表比較「乾淨」、比較容易的場景。</p>
+          </div>
+          <div class="block">
+            <h3>ambiguous</h3>
+            <p>wideband CQI 看起來相近，但實際 RB profile、mobility、歷史行為不同，這才是 LE-GRA 真正要證明自己的地方。</p>
+          </div>
+          <div class="block">
+            <h3>baseline</h3>
+            <p>拿來公平比較的方法，例如 `No grouping`、`CQI k-means`、`Resource-cost k-means`、`Multi-feature k-means`。</p>
+          </div>
+        </div>
+        <div class="summary-band">
+          <div class="block">
+            <h3>pairwise_accuracy</h3>
+            <p>看 student 與 teacher 對「兩個使用者應不應該分在同一群」的判斷有多一致。</p>
+          </div>
+          <div class="block">
+            <h3>ARI</h3>
+            <p>Adjusted Rand Index，用來衡量兩個 clustering 的結構相似度，會校正隨機一致的影響。</p>
+          </div>
+          <div class="block">
+            <h3>NMI</h3>
+            <p>Normalized Mutual Information，看兩個 clustering 共享多少資訊，越高代表越像。</p>
+          </div>
+        </div>
+        <div class="summary-band">
+          <div class="block">
+            <h3>utility</h3>
+            <p>主要 QoE 指標，綜合 bitrate 效益、switching penalty 與未服務懲罰。</p>
+          </div>
+          <div class="block">
+            <h3>DP allocation</h3>
+            <p>dynamic programming allocator，在既定 grouping 下找最好的品質配置。</p>
+          </div>
+          <div class="block">
+            <h3>offline teacher</h3>
+            <p>很強但很慢的 supervision source，不是線上部署法，而是研究中的參考上界。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">現在該做什麼</div>
+        <h2>下一步不要亂擴，而是先把 learner 打磨好</h2>
+        <div class="grid-3">
+          <div class="block">
+            <h3>1. 先把這輪結果當新基線</h3>
+            <p>未來報告與討論，主結論應改引用 `medium_matrix_results_v2_after_grad_fix`。</p>
+          </div>
+          <div class="block">
+            <h3>2. 主攻 ambiguous 場景</h3>
+            <p>因為 aligned 已經開始看到價值，真正還沒跨過去的門檻在 ambiguity。</p>
+          </div>
+          <div class="block">
+            <h3>3. 做 learner-focused 改進</h3>
+            <p>優先考慮 validation selection、pair sampling、margin 與 epoch sweep，而不是先把矩陣加大。</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer-note">
+      <div><strong>一句話定位：</strong>teacher 已經很強，student 已經進步，但 learner 還需要在 ambiguous 場景證明自己。</div>
+      <div><strong>現在最值得做的事：</strong>集中火力修 learner，而不是先擴大實驗規模。</div>
+    </footer>
+  </main>
+</body>
+</html>

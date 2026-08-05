@@ -405,7 +405,7 @@
   <main class="page">
     <div class="topbar">
       <div class="tag">Research Prototype Overview</div>
-      <div>Updated on July 30, 2026</div>
+      <div>Updated on August 5, 2026</div>
     </div>
 
     <section class="hero">
@@ -425,10 +425,10 @@
         <div>
           <h2>Current Snapshot</h2>
           <p>
-            The project has already moved beyond concept drafting. A full synthetic
-            research pipeline is running end-to-end, baseline comparisons are available,
-            and follow-up experiments have started to test allocation strategy and a
-            graph-based grouping alternative.
+            The project now has a post-fix medium experiment rerun. After correcting
+            the learner's embedding-normalization gradient, LE-GRA improved enough to
+            beat CQI, resource-cost, and multi-feature k-means in aligned light and
+            aligned medium settings, while ambiguous settings remain the hardest case.
           </p>
         </div>
 
@@ -443,7 +443,7 @@
           </div>
           <div class="metric">
             <strong>Next challenge</strong>
-            <span>Turn the learned method into the strongest performer, not just a working one</span>
+            <span>Make the learner win reliably in ambiguous scenarios, not only in aligned ones</span>
           </div>
         </div>
       </aside>
@@ -532,6 +532,88 @@
           </div>
         </div>
       </section>
+
+      <section class="section-card">
+        <div class="eyebrow">Latest Evidence</div>
+        <h2>What the August 5 rerun changed</h2>
+        <p>
+          The latest medium matrix rerun matters because it was executed after a learner
+          correctness fix: backpropagation through embedding L2 normalization now uses
+          the proper analytic gradient. This was not a cosmetic cleanup. It changed the
+          research conclusion.
+        </p>
+        <p>
+          Before the fix, LE-GRA looked consistently competitive but rarely stronger than
+          the best handcrafted baselines. After the fix, LE-GRA became the best non-teacher
+          method in <strong>aligned/light</strong> and <strong>aligned/medium</strong>. It still
+          does not dominate ambiguous settings, but the learner now shows real value instead
+          of only theoretical promise.
+        </p>
+
+        <div class="idea-grid">
+          <div class="idea-block">
+            <h3>Clear improvement</h3>
+            <p>LE-GRA now beats CQI k-means, resource-cost k-means, and multi-feature k-means in aligned light and aligned medium conditions.</p>
+          </div>
+          <div class="idea-block">
+            <h3>Still unresolved</h3>
+            <p>Ambiguous scenarios remain the research bottleneck. There the learned embedding is improved, but not yet a stable winner.</p>
+          </div>
+          <div class="idea-block">
+            <h3>Updated takeaway</h3>
+            <p>The bottleneck is no longer “does the learner matter at all?” but “how do we make the learner robust under ambiguity?”</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="eyebrow">Teacher Design</div>
+        <h2>Why the offline teacher does not use the global optimum</h2>
+        <p>
+          A natural question is why the offline teacher does not search the true
+          global-best grouping among all possible user partitions. The reason is
+          not that a stronger teacher is undesirable. The reason is that the full
+          search space grows explosively with the number of users, so a global
+          optimum is computationally unrealistic even for moderate scenario sizes.
+        </p>
+        <p>
+          If there are <strong>n</strong> users, then a true unrestricted teacher
+          would need to evaluate every partition from 1 to <strong>Kmax</strong>
+          groups. That search count follows
+          <strong>&Sigma; S(n, k)</strong>, where <strong>S(n, k)</strong> is the
+          Stirling number of the second kind. This is exponential in practice. By
+          contrast, the current teacher first sorts users by resource-cost score
+          and only searches contiguous cuts on that sorted line. The candidate
+          count becomes <strong>&Sigma; C(n - 1, k - 1)</strong>, which is still
+          expensive but polynomial in <strong>n</strong> when <strong>Kmax</strong>
+          is fixed.
+        </p>
+
+        <div class="idea-grid">
+          <div class="idea-block">
+            <h3>Global optimum</h3>
+            <p>Search every possible partition of users. This is the cleanest theoretical target, but the search space grows too fast to support repeated scenario generation and training.</p>
+          </div>
+          <div class="idea-block">
+            <h3>Current offline teacher</h3>
+            <p>Sort users by service difficulty, search all contiguous boundaries up to Kmax, and use exact DP to score each candidate grouping under the RB budget.</p>
+          </div>
+          <div class="idea-block">
+            <h3>Research value</h3>
+            <p>This gives a strong, stable, and computable supervision signal. The teacher is not globally optimal, but it is a constrained optimum inside a realistic and interpretable grouping structure.</p>
+          </div>
+        </div>
+
+        <p style="margin-top: 18px;">
+          In other words, the teacher is designed as a
+          <strong>tractable near-optimal supervisor</strong>. Its role is to
+          generate high-quality pseudo-labels and define an upper reference for
+          the student model, not to act as a deployable real-time algorithm.
+          This is exactly what gives LE-GRA research value: if the student can
+          learn to approach this strong offline teacher with much lower online
+          decision cost, then the learned method becomes meaningful.
+        </p>
+      </section>
     </div>
 
     <section class="roadmap">
@@ -539,45 +621,44 @@
       <h2>Where the project should go next</h2>
       <div class="roadmap-steps">
         <article class="roadmap-step" data-step="01">
-          <h3>Strengthen the learning method</h3>
+          <h3>Strengthen the learner</h3>
           <p>
-            Improve representation quality with better labeling strategy, stronger model
-            training, more stable validation, and ablation studies that show exactly when
-            learned grouping beats CQI-only or resource-cost baselines.
+            Focus on model-selection and training quality: validation-based checkpointing,
+            better pair sampling, and small sweeps over margin, hidden size, learning rate,
+            and epochs to improve ambiguous-scene behavior.
           </p>
         </article>
 
         <article class="roadmap-step" data-step="02">
-          <h3>Expand the experiment design</h3>
+          <h3>Stress-test ambiguity first</h3>
           <p>
-            Run sensitivity studies for group count, scenario ambiguity, RB budget, and
-            switching penalty. These results will make the argument more research-ready
-            and reveal where performance saturates.
+            Keep aligned cases as sanity checks, but shift experiment attention toward
+            ambiguous scenarios where hand-crafted grouping and learned grouping are most
+            meaningfully separated.
           </p>
         </article>
 
         <article class="roadmap-step" data-step="03">
-          <h3>Move toward realistic traces</h3>
+          <h3>Scale only after the learner is credible</h3>
           <p>
-            Replace purely synthetic generation with Simu5G or OMNeT++ traces so the
-            project is grounded in more realistic vehicular channel behavior and traffic
-            conditions.
+            Do not jump immediately to larger `Kmax`, more seeds, or much bigger matrices.
+            First make sure the learner has a stable claim over strong non-teacher baselines.
           </p>
         </article>
 
         <article class="roadmap-step" data-step="04">
-          <h3>Connect to the full system design</h3>
+          <h3>Then move toward realism</h3>
           <p>
-            Integrate the MVP with the intended k-GBRM phase-2 allocation logic and turn
-            the current prototype into a closer match for the final thesis or paper system.
+            Once the learner story is convincing, connect the prototype to richer traces,
+            broader system design, and the later thesis or paper architecture.
           </p>
         </article>
       </div>
     </section>
 
     <footer class="footer-note">
-      <div><strong>Project position:</strong> validated MVP, active optimization stage</div>
-      <div><strong>Key message:</strong> the pipeline is real; the next milestone is proving the learned method is worth using</div>
+      <div><strong>Project position:</strong> validated MVP, post-fix learner improvement stage</div>
+      <div><strong>Key message:</strong> the pipeline is real; the next milestone is making LE-GRA robust in ambiguous conditions</div>
     </footer>
   </main>
 </body>

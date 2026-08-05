@@ -530,6 +530,86 @@ def pairwise_labels(groups: list[list[int]], n_users: int) -> np.ndarray:
     return (group_id[:, None] == group_id[None, :]).astype(np.float32)
 
 
+def group_ids_from_groups(groups: list[list[int]], n_users: int) -> np.ndarray:
+    """Convert grouping lists into one cluster-id label per user."""
+
+    group_ids = np.full(n_users, -1, dtype=int)
+    for group_idx, group in enumerate(groups):
+        group_ids[group] = group_idx
+    return group_ids
+
+
+def pairwise_same_group_accuracy(true_group_ids: np.ndarray, pred_group_ids: np.ndarray) -> float:
+    """Return pairwise same/different-group accuracy between two partitions."""
+
+    true_same = true_group_ids[:, None] == true_group_ids[None, :]
+    pred_same = pred_group_ids[:, None] == pred_group_ids[None, :]
+    upper = np.triu_indices(len(true_group_ids), k=1)
+    return float(np.mean(true_same[upper] == pred_same[upper]))
+
+
+def _contingency_matrix(true_group_ids: np.ndarray, pred_group_ids: np.ndarray) -> np.ndarray:
+    """Build the contingency matrix used by partition comparison metrics."""
+
+    true_labels, true_inverse = np.unique(true_group_ids, return_inverse=True)
+    pred_labels, pred_inverse = np.unique(pred_group_ids, return_inverse=True)
+    contingency = np.zeros((len(true_labels), len(pred_labels)), dtype=np.int64)
+    for true_idx, pred_idx in zip(true_inverse, pred_inverse):
+        contingency[true_idx, pred_idx] += 1
+    return contingency
+
+
+def adjusted_rand_index(true_group_ids: np.ndarray, pred_group_ids: np.ndarray) -> float:
+    """Compute the adjusted Rand index without relying on sklearn."""
+
+    contingency = _contingency_matrix(true_group_ids, pred_group_ids)
+    n = int(contingency.sum())
+    if n <= 1:
+        return 1.0
+
+    def comb2(values: np.ndarray) -> float:
+        return float(np.sum(values * (values - 1) / 2.0))
+
+    sum_comb = comb2(contingency)
+    sum_rows = comb2(contingency.sum(axis=1))
+    sum_cols = comb2(contingency.sum(axis=0))
+    total_pairs = n * (n - 1) / 2.0
+    expected = (sum_rows * sum_cols) / total_pairs if total_pairs > 0 else 0.0
+    max_index = 0.5 * (sum_rows + sum_cols)
+    denom = max_index - expected
+    if abs(denom) < 1e-12:
+        return 1.0
+    return float((sum_comb - expected) / denom)
+
+
+def normalized_mutual_information(true_group_ids: np.ndarray, pred_group_ids: np.ndarray) -> float:
+    """Compute NMI with geometric-mean normalization."""
+
+    contingency = _contingency_matrix(true_group_ids, pred_group_ids).astype(float)
+    n = contingency.sum()
+    if n <= 0:
+        return 0.0
+
+    row_probs = contingency.sum(axis=1) / n
+    col_probs = contingency.sum(axis=0) / n
+    mutual_info = 0.0
+    for i in range(contingency.shape[0]):
+        for j in range(contingency.shape[1]):
+            pij = contingency[i, j] / n
+            if pij <= 0:
+                continue
+            expected = max(row_probs[i] * col_probs[j], 1e-12)
+            mutual_info += pij * math.log(pij / expected)
+
+    row_entropy = -float(np.sum(row_probs[row_probs > 0] * np.log(row_probs[row_probs > 0])))
+    col_entropy = -float(np.sum(col_probs[col_probs > 0] * np.log(col_probs[col_probs > 0])))
+    if row_entropy <= 1e-12 and col_entropy <= 1e-12:
+        return 1.0
+    denom = math.sqrt(max(row_entropy * col_entropy, 1e-12))
+    score = float(mutual_info / denom)
+    return float(np.clip(score, 0.0, 1.0))
+
+
 class MLPEncoder:
     """Small NumPy MLP that maps VU features to learned embeddings.
 
@@ -547,21 +627,22 @@ class MLPEncoder:
         self.w3 = np.random.normal(0, 0.10, size=(hidden_dim, embedding_dim))
         self.b3 = np.zeros(embedding_dim)
 
-    def forward(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Forward pass: features -> hidden layers -> normalized embedding."""
+    def forward(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Forward pass: features -> hidden layers -> raw and normalized embeddings."""
 
         h1_pre = x @ self.w1 + self.b1
         h1 = np.maximum(0, h1_pre)
         h2_pre = h1 @ self.w2 + self.b2
         h2 = np.maximum(0, h2_pre)
         z_raw = h2 @ self.w3 + self.b3
-        z = z_raw / (np.linalg.norm(z_raw, axis=1, keepdims=True) + 1e-8)
-        return h1, h2, z
+        norms = np.linalg.norm(z_raw, axis=1, keepdims=True) + 1e-8
+        z = z_raw / norms
+        return h1, h2, z_raw, z
 
     def embed(self, x: np.ndarray) -> np.ndarray:
         """Return only the embeddings used by k-means grouping."""
 
-        _, _, z = self.forward(x)
+        _, _, _, z = self.forward(x)
         return z
 
     def train_step(self, x: np.ndarray, same_group: np.ndarray, margin: float = 1.0) -> float:
@@ -574,7 +655,7 @@ class MLPEncoder:
         pairs at least `margin` apart.
         """
 
-        h1, h2, z = self.forward(x)
+        h1, h2, z_raw, z = self.forward(x)
         n_users = len(x)
         dz = np.zeros_like(z)
         loss = 0.0
@@ -613,10 +694,15 @@ class MLPEncoder:
         loss /= len(pairs)
         dz /= len(pairs)
 
-        # Approximate backprop through L2 normalization. Good enough for MVP.
-        dw3 = h2.T @ dz
-        db3 = dz.sum(axis=0)
-        dh2 = dz @ self.w3.T
+        # Backprop through L2 normalization:
+        # y = x / ||x||, so dL/dx = (g - y * <y, g>) / ||x||
+        norms = np.linalg.norm(z_raw, axis=1, keepdims=True) + 1e-8
+        projection = np.sum(dz * z, axis=1, keepdims=True)
+        dz_raw = (dz - z * projection) / norms
+
+        dw3 = h2.T @ dz_raw
+        db3 = dz_raw.sum(axis=0)
+        dh2 = dz_raw @ self.w3.T
         dh2[h2 <= 0] = 0
         dw2 = h1.T @ dh2
         db2 = dh2.sum(axis=0)
@@ -693,7 +779,12 @@ def resource_cost_kmeans_grouping(scenario: Scenario, max_groups: int, switch_be
     return best_kmeans_groups(scenario, cost_vec, max_groups, switch_beta)
 
 
-def multi_feature_kmeans_grouping(scenario: Scenario, max_groups: int, switch_beta: float) -> list[list[int]]:
+def multi_feature_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    feature_mode: str = "full",
+) -> list[list[int]]:
     """Baseline: k-means directly on the normalized full feature vector.
 
     This is an important sanity-check baseline. It answers:
@@ -701,7 +792,11 @@ def multi_feature_kmeans_grouping(scenario: Scenario, max_groups: int, switch_be
     more features than CQI-only k-means?"
     """
 
-    return best_kmeans_groups(scenario, scenario.features, max_groups, switch_beta)
+    representation = build_feature_matrix(scenario, feature_mode)
+    mean = representation.mean(axis=0)
+    std = representation.std(axis=0) + 1e-6
+    normalized = ((representation - mean) / std).astype(np.float32)
+    return best_kmeans_groups(scenario, normalized, max_groups, switch_beta)
 
 
 def learned_grouping(
@@ -744,6 +839,7 @@ def default_methods(
     switch_beta: float,
     model: MLPEncoder,
     include_multifeature_baseline: bool = False,
+    multifeature_feature_mode: str = "full",
 ) -> dict[str, Callable[[Scenario], list[list[int]]]]:
     """Return the default comparison set for the main research storyline."""
 
@@ -755,7 +851,9 @@ def default_methods(
         "LE-GRA MVP": lambda s: learned_grouping(s, model, max_groups, switch_beta),
     }
     if include_multifeature_baseline:
-        methods["Multi-feature k-means"] = lambda s: multi_feature_kmeans_grouping(s, max_groups, switch_beta)
+        methods["Multi-feature k-means"] = lambda s: multi_feature_kmeans_grouping(
+            s, max_groups, switch_beta, feature_mode=multifeature_feature_mode
+        )
     return methods
 
 
