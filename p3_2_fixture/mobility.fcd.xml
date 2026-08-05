@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fcd-export>
+  <timestep time="0.0"><vehicle id="veh0" x="10" y="0" angle="270" speed="10"/><vehicle id="veh1" x="20" y="0" angle="90" speed="5"/></timestep>
+  <timestep time="0.1"><vehicle id="veh0" x="9" y="0" angle="270" speed="10"/><vehicle id="veh1" x="20.5" y="0" angle="90" speed="5"/></timestep>
+  <timestep time="0.2"><vehicle id="veh0" x="8" y="0" angle="270" speed="10"/><vehicle id="veh1" x="21" y="0" angle="90" speed="5"/></timestep>
+  <timestep time="0.3"><vehicle id="veh0" x="7" y="0" angle="270" speed="10"/><vehicle id="veh1" x="21.5" y="0" angle="90" speed="5"/></timestep>
+  <timestep time="0.4"><vehicle id="veh0" x="6" y="0" angle="270" speed="10"/><vehicle id="veh1" x="22" y="0" angle="90" speed="5"/></timestep>
+  <timestep time="0.5"><vehicle id="veh0" x="5" y="0" angle="270" speed="10"/><vehicle id="veh1" x="22.5" y="0" angle="90" speed="5"/></timestep>
+</fcd-export>

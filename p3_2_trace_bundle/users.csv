@@ -1,0 +1,5 @@
+scenario_id,ue_id,user_index,cqi_t_minus_4,cqi_t_minus_3,cqi_t_minus_2,cqi_t_minus_1,cqi_now_raw,cqi_now,previous_quality,distance_m,speed_mps,direction_to_gnb,x_m,y_m,rsrp_dbm,rsrq_db,wideband_sinr_db,mcs
+simu5g_00000000,veh0,0,8.0,9.0,10.0,11.0,12.0,12,4,6.0,10.0,1.0,6.0,0.0,-91.0,-9.0,9.0,17
+simu5g_00000000,veh1,1,10.0,9.0,8.0,7.0,6.0,6,1,22.0,5.0,-1.0,22.0,0.0,-94.0,-13.0,4.0,7
+simu5g_00000001,veh0,0,9.0,10.0,11.0,12.0,13.0,13,4,5.0,10.0,1.0,5.0,0.0,-90.0,-8.0,10.0,19
+simu5g_00000001,veh1,1,9.0,8.0,7.0,6.0,5.0,5,1,22.5,5.0,-1.0,22.5,0.0,-95.0,-14.0,3.0,5

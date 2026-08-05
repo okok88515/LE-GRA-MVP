@@ -397,6 +397,25 @@ approaching/receding/stopped direction cases, and deterministic filtering. See
 P3.2 must add actual Simu5G serving-cell/radio state and must not fabricate CQI,
 SINR, RB rates, RB budget, or previous quality in the mobility adapter.
 
+## P3.2 Simu5G Radio Join Update (2026-08-05)
+
+P3.2 defines normalized `radio_users.csv` and `radio_rbs.csv` contracts in
+`SIMU5G_RADIO_SCHEMA.md`. `simu5g_trace_io.py` joins these tables with P3.1
+mobility by exact simulation timestamp and stable UE ID, uses Simu5G serving
+association, creates five-step CQI histories, validates scenario-level RB
+configuration and complete per-UE RB vectors, and emits a P3.0 full bundle.
+
+The deterministic fixture passed end-to-end: two post-warmup scenarios, four
+user rows, sixteen RB rows, correct CQI histories, time-varying RB budget,
+`history_cost_quality` reconstruction, P3.0 loading, and offline-teacher
+execution. Removing one RB observation was correctly rejected.
+
+This remains format-level integration because OMNeT++/INET/Simu5G are not
+installed locally. See `P3_2_SIMU5G_RADIO_JOIN_ZH.md`, `p3_2_fixture/`,
+`p3_2_trace_bundle/`, and `run_simu5g_join_test.py`. Next is P3.3 environment
+bring-up and inspection of actual Simu5G `.vec/.sca` signals before choosing
+configuration-only extraction versus a custom recorder.
+
 ## Suggested Prompt on the Next Computer
 
 ```text

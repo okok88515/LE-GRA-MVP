@@ -106,6 +106,20 @@ The staging tables deliberately omit radio and QoE values until the P3.2
 Simu5G join. See `SUMO_MOBILITY_SCHEMA.md` and verify the adapter with
 `python -u .\run_sumo_mobility_test.py`.
 
+Join normalized Simu5G radio exports with SUMO mobility and produce a complete
+P3.0 bundle with:
+
+```powershell
+python -u .\join_sumo_simu5g.py `
+  --mobility-dir sumo_mobility_staging `
+  --radio-dir simu5g_radio_export `
+  --min-users 24 --max-users 24 `
+  --out-dir sumo_simu5g_trace_bundle
+```
+
+The required radio tables are defined in `SIMU5G_RADIO_SCHEMA.md`. Run
+`python -u .\run_simu5g_join_test.py` for the P3.2 format-level acceptance test.
+
 Scenario modes:
 
 - `aligned`: RB-level rates are strongly aligned with wideband CQI.
