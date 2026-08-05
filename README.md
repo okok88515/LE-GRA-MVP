@@ -120,6 +120,13 @@ python -u .\join_sumo_simu5g.py `
 The required radio tables are defined in `SIMU5G_RADIO_SCHEMA.md`. Run
 `python -u .\run_simu5g_join_test.py` for the P3.2 format-level acceptance test.
 
+P3.3 has also run the official Simu5G NR `Single-UE` tutorial in a dedicated
+`opp_env` WSL installation. See `P3_3_ENVIRONMENT_BRINGUP_ZH.md` and the
+`p3_3_*.sh` scripts for the exact environment checks, tutorial run, and signal
+audit. Native results expose CQI, SINR, served-block, HARQ, and throughput
+signals; a custom recorder is still required for the complete per-UE/per-RB
+counterfactual rate matrix used by the offline teacher.
+
 Scenario modes:
 
 - `aligned`: RB-level rates are strongly aligned with wideband CQI.

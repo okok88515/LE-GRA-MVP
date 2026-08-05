@@ -416,6 +416,27 @@ installed locally. See `P3_2_SIMU5G_RADIO_JOIN_ZH.md`, `p3_2_fixture/`,
 bring-up and inspection of actual Simu5G `.vec/.sca` signals before choosing
 configuration-only extraction versus a custom recorder.
 
+## P3.3 Simu5G Environment Bring-up Update (2026-08-05)
+
+The local environment is now real rather than format-only. The official
+`opp_env` WSL image was imported as `LE-GRA-opp-env`, and
+`opp_env install simu5g-1.4.3` built OMNeT++ 6.4.0, INET 4.6.0, and Simu5G
+1.4.3. The official NR `Single-UE` tutorial completed its 10-second simulation
+(92,628 events) and produced non-empty `.sca`, `.vec`, and `.vci` files.
+
+Actual signal inspection found standard vectors for `averageCqiDl/Ul`,
+`measuredSinrDl/Ul`, `rcvdSinrDl/Ul`, `avgServedBlocksDl/Ul`, HARQ, and MAC/RLC
+throughput. This is enough for wideband CQI history and diagnostics, but not for
+the complete per-UE/per-RB counterfactual achievable-rate matrix required by
+the P3.2 schema and offline teacher. `avgServedBlocks` only reports realized
+allocation and must not be used as a substitute.
+
+See `P3_3_ENVIRONMENT_BRINGUP_ZH.md` and `p3_3_*.sh`. Next is P3.4: implement a
+minimal Simu5G recorder/exporter for stable UE identity, serving gNB, RB budget,
+and per-UE/per-logical-band achievable rate, then validate a tiny single-cell
+trace through the existing P3.2 joiner. Do not expand seeds, Kmax, or the
+experiment matrix yet.
+
 ## Suggested Prompt on the Next Computer
 
 ```text

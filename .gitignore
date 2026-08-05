@@ -3,3 +3,4 @@ __pycache__/
 smoke_test_results/
 load_smoke_results/
 load_smoke_results_v2/
+.sim-env/
