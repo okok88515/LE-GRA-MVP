@@ -79,6 +79,19 @@ python -u .\run_context_study.py
 See `P2_6_CONTEXT_STUDY_ZH.md`; the current leading feature candidate is
 `history_cost_quality`.
 
+## SUMO/Simu5G Trace Interface
+
+The simulator boundary is defined in `TRACE_SCHEMA.md`. A trace bundle contains
+`scenarios.csv`, `users.csv`, and `rb_rates.csv`; load it with `trace_io.py`.
+Verify the interface and offline-teacher invariance with:
+
+```powershell
+python -u .\run_trace_roundtrip.py
+```
+
+See `P3_0_TRACE_INTERFACE_ZH.md` for the P3.0 acceptance results and remaining
+Simu5G export risks.
+
 Scenario modes:
 
 - `aligned`: RB-level rates are strongly aligned with wideband CQI.

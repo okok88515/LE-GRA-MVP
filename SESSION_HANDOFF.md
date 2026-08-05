@@ -359,6 +359,26 @@ See `P2_6_CONTEXT_STUDY_ZH.md`, `p2_6_context_comparison.csv`,
 `history_cost_quality` as the leading learner feature candidate, but retain the
 old baseline and do not overwrite the formal matrix yet.
 
+## P3.0 Trace-interface Update (2026-08-05)
+
+P3.0 defines the versioned three-table contract for future SUMO/Simu5G traces:
+`scenarios.csv`, `users.csv`, and `rb_rates.csv`. See `TRACE_SCHEMA.md` for
+columns, units, sources, invariants, and trajectory-aware split requirements.
+`trace_io.py` exports and validates/loads the bundle without serializing derived
+learner features or fabricating unavailable Simu5G measurements.
+
+The acceptance test in `run_trace_roundtrip.py` passed on six mixed light/medium
+ambiguous scenarios. All allocation-relevant arrays had max absolute error 0.0,
+and offline-teacher K, exact partition, and utility were identical before and
+after CSV round-trip for all 6/6 scenarios. A deliberately removed RB row was
+also rejected by the loader. See `P3_0_TRACE_INTERFACE_ZH.md` and the example
+`p3_0_roundtrip_bundle/`.
+
+Next is P3.1: implement a SUMO mobility exporter that populates stable UE IDs,
+timestamps, positions, speed, distance, and direction in this schema. P3.2 then
+adds Simu5G radio and per-RB/subband output. Do not alter the learner interface
+to accommodate simulator-specific formats.
+
 ## Suggested Prompt on the Next Computer
 
 ```text

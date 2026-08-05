@@ -1,0 +1,7 @@
+schema_version,scenario_id,timestamp_s,serving_gnb,rb_available,total_rbs,dispersion
+1.0,scenario_000000,0.0,gnb_0,50,100,mid
+1.0,scenario_000001,0.1,gnb_0,25,100,low
+1.0,scenario_000002,0.2,gnb_0,50,100,mid
+1.0,scenario_000003,0.30000000000000004,gnb_0,25,100,mid
+1.0,scenario_000004,0.4,gnb_0,50,100,high
+1.0,scenario_000005,0.5,gnb_0,25,100,high
