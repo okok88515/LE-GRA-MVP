@@ -437,6 +437,33 @@ and per-UE/per-logical-band achievable rate, then validate a tiny single-cell
 trace through the existing P3.2 joiner. Do not expand seeds, Kmax, or the
 experiment matrix yet.
 
+## P3.4 Simu5G Per-Band Radio Exporter Update (2026-08-06)
+
+P3.4 patches `LteMacEnb::macHandleFeedbackPkt` at the point where the serving
+gNB receives ALLBANDS CQI. For every UE and logical band, the recorder calls
+Simu5G's NR AMC `computeBitsPerRbBackground` and writes CQI plus transport-block
+bits per slot. This is counterfactual channel capacity available before actual
+scheduler allocation, not realized throughput. The source modification is
+versioned as `simu5g_p3_4_radio_recorder.patch` and can be reapplied/rebuilt with
+`p3_4_apply_and_build.sh`.
+
+Both actual tests passed. The 2-second Single-UE case produced 2,004 complete
+raw rows. The official 5-UE case with background interference produced 10,020
+raw rows, 1,670 complete six-band UE snapshots, CQIs 9/13/14/15, and distinct
+NR TBS values 608/984/1128/1160 bits per slot. The Python exporter binned the
+feedback at 0.1 seconds and produced 105 normalized user rows plus 630 RB rows.
+
+All assumptions are written to `export_metadata.json`: 1 ms slot for the
+numerology-0 tutorial, 50% study RB budget, logical-band RB abstraction, and
+constant previous quality 3 explicitly marked as an experiment control rather
+than a measured video state. See `P3_4_SIMU5G_RADIO_EXPORTER_ZH.md` and
+`p3_4_actual_radio/`.
+
+Next is P3.5, not a larger learner matrix: build a tiny coupled SUMO+Simu5G
+scenario, establish stable vehicle-to-node IDs and one timestamp source, then
+export measured video quality. Only after the coupled bundle passes the P3.2
+joiner and teacher should learner training use it.
+
 ## Suggested Prompt on the Next Computer
 
 ```text

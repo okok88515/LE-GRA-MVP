@@ -127,6 +127,20 @@ audit. Native results expose CQI, SINR, served-block, HARQ, and throughput
 signals; a custom recorder is still required for the complete per-UE/per-RB
 counterfactual rate matrix used by the offline teacher.
 
+P3.4 supplies that matrix with a versioned Simu5G patch and normalized
+exporter. Apply/build the recorder with `p3_4_apply_and_build.sh`, run either
+small scenario with `p3_4_run_recorder.sh` or
+`p3_4_run_multi_ue_recorder.sh`, and validate the captured radio data with:
+
+```powershell
+python -u .\run_p3_4_export_test.py
+python -u .\run_p3_4_multi_ue_validation.py
+```
+
+See `P3_4_SIMU5G_RADIO_EXPORTER_ZH.md`. P3.4 is a real-radio acceptance step,
+not yet a complete SUMO+Simu5G training corpus; stable cross-simulator IDs,
+shared timestamps, and measured video quality remain P3.5 work.
+
 Scenario modes:
 
 - `aligned`: RB-level rates are strongly aligned with wideband CQI.

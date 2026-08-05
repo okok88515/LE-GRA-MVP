@@ -57,3 +57,16 @@ must be the achievable payload rate under the chosen MCS/BLER/overhead model.
    module paths and vehicle IDs differ.
 7. Missing required physical data causes rejection, never random imputation.
 
+## P3.4 native recorder
+
+The versioned `simu5g_p3_4_radio_recorder.patch` records raw ALLBANDS feedback
+at the serving gNB MAC as timestamp, Simu5G UE/gNB node IDs, logical-band
+index, CQI, and NR transport-block bits per slot. The recorder obtains payload
+from Simu5G's `NrAmc::computeBitsPerRbBackground`, rather than from realized
+scheduler throughput or the MVP's synthetic CQI table.
+
+`simu5g_raw_radio_export.py` converts this raw table to the normalized CSVs. It
+requires explicit slot duration, RB-budget ratio, and previous-quality control.
+Its `export_metadata.json` records these assumptions. P3.4 treats one Simu5G
+logical band as one schema RB; a different carrier abstraction must document
+and update this mapping.
