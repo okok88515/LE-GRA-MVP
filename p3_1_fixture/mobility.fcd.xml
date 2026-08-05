@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fcd-export>
+    <timestep time="0.0">
+        <vehicle id="veh0" x="10.0" y="0.0" angle="270.0" speed="10.0" lane="west_0" pos="10.0" slope="0.0" type="car"/>
+        <vehicle id="veh1" x="20.0" y="0.0" angle="90.0" speed="5.0" lane="west_0" pos="20.0" slope="0.0" type="car"/>
+        <vehicle id="veh2" x="90.0" y="0.0" angle="90.0" speed="10.0" lane="east_0" pos="10.0" slope="0.0" type="car"/>
+    </timestep>
+    <timestep time="0.1">
+        <vehicle id="veh0" x="9.0" y="0.0" angle="270.0" speed="10.0" lane="west_0" pos="9.0" slope="0.0" type="car"/>
+        <vehicle id="veh1" x="20.5" y="0.0" angle="90.0" speed="5.0" lane="west_0" pos="20.5" slope="0.0" type="car"/>
+        <vehicle id="veh2" x="91.0" y="0.0" angle="90.0" speed="10.0" lane="east_0" pos="9.0" slope="0.0" type="car"/>
+        <vehicle id="veh3" x="80.0" y="0.0" angle="270.0" speed="0.0" lane="east_0" pos="20.0" slope="0.0" type="truck"/>
+    </timestep>
+</fcd-export>

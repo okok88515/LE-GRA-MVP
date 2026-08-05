@@ -1,0 +1,8 @@
+scenario_id,timestamp_s,serving_gnb,ue_id,trajectory_step,x_m,y_m,speed_mps,angle_deg,distance_m,direction_to_gnb,lane_id,lane_position_m,slope_deg,vehicle_type,user_index
+sumo_00000000,0.0,gnb_east,veh2,0,90.0,0.0,10.0,90.0,10.0,1.0,east_0,10.0,0.0,car,0
+sumo_00000001,0.0,gnb_west,veh0,0,10.0,0.0,10.0,270.0,10.0,1.0,west_0,10.0,0.0,car,0
+sumo_00000001,0.0,gnb_west,veh1,0,20.0,0.0,5.0,90.0,20.0,-1.0,west_0,20.0,0.0,car,1
+sumo_00000002,0.1,gnb_east,veh2,1,91.0,0.0,10.0,90.0,9.0,1.0,east_0,9.0,0.0,car,0
+sumo_00000002,0.1,gnb_east,veh3,0,80.0,0.0,0.0,270.0,20.0,0.0,east_0,20.0,0.0,truck,1
+sumo_00000003,0.1,gnb_west,veh0,1,9.0,0.0,10.0,270.0,9.0,1.0,west_0,9.0,0.0,car,0
+sumo_00000003,0.1,gnb_west,veh1,1,20.5,0.0,5.0,90.0,20.5,-1.0,west_0,20.5,0.0,car,1

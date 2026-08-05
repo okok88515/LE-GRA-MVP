@@ -1,0 +1,5 @@
+mobility_schema_version,scenario_id,timestamp_s,serving_gnb,user_count
+1.0,sumo_00000000,0.0,gnb_east,1
+1.0,sumo_00000001,0.0,gnb_west,2
+1.0,sumo_00000002,0.1,gnb_east,2
+1.0,sumo_00000003,0.1,gnb_west,2

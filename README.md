@@ -92,6 +92,20 @@ python -u .\run_trace_roundtrip.py
 See `P3_0_TRACE_INTERFACE_ZH.md` for the P3.0 acceptance results and remaining
 Simu5G export risks.
 
+Convert SUMO FCD mobility output into P3.1 staging tables with:
+
+```powershell
+python -u .\sumo_fcd_to_mobility.py `
+  --fcd path\to\mobility.fcd.xml `
+  --gnbs path\to\gnbs.csv `
+  --min-users 24 --max-users 24 `
+  --out-dir sumo_mobility_staging
+```
+
+The staging tables deliberately omit radio and QoE values until the P3.2
+Simu5G join. See `SUMO_MOBILITY_SCHEMA.md` and verify the adapter with
+`python -u .\run_sumo_mobility_test.py`.
+
 Scenario modes:
 
 - `aligned`: RB-level rates are strongly aligned with wideband CQI.

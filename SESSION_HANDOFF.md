@@ -379,6 +379,24 @@ timestamps, positions, speed, distance, and direction in this schema. P3.2 then
 adds Simu5G radio and per-RB/subband output. Do not alter the learner interface
 to accommodate simulator-specific formats.
 
+## P3.1 SUMO Mobility Adapter Update (2026-08-05)
+
+P3.1 is implemented as a dependency-free parser for official SUMO FCD XML.
+`sumo_mobility_io.py` assigns each UE to the nearest configured gNB, creates
+synchronized `(timestamp, gNB)` snapshots, preserves stable vehicle IDs and
+trajectory steps, and computes distance and direction-to-gNB. Deterministic
+min/max user filtering supports fixed-size 24-UE studies.
+
+The local machine does not currently have SUMO, TraCI, or sumolib installed, so
+the acceptance claim is deliberately limited to format-level integration. The
+fixture test passed FCD parsing, nearest-gNB assignment, stable trajectories,
+approaching/receding/stopped direction cases, and deterministic filtering. See
+`SUMO_MOBILITY_SCHEMA.md`, `P3_1_SUMO_MOBILITY_ADAPTER_ZH.md`,
+`sumo_fcd_to_mobility.py`, and `p3_1_fixture/`.
+
+P3.2 must add actual Simu5G serving-cell/radio state and must not fabricate CQI,
+SINR, RB rates, RB budget, or previous quality in the mobility adapter.
+
 ## Suggested Prompt on the Next Computer
 
 ```text
