@@ -258,13 +258,32 @@ def build_feature_matrix(scenario: Scenario, feature_mode: str) -> np.ndarray:
             scenario.direction_to_gnb,
         ]
     )
+    # Scenario context is repeated per user so the point-wise encoder can
+    # condition its embedding on resource pressure and switching state.
+    quality_context = (
+        scenario.previous_quality / (len(VIDEO_BITRATES_KBPS) - 1)
+    )[:, None]
+    load_context = np.full(
+        (len(scenario.cqi_now), 1),
+        scenario.rb_available / scenario.rb_rates.shape[1],
+        dtype=float,
+    )
+    context = np.column_stack([quality_context, load_context])
 
     if feature_mode == "history_only":
         features = [scenario.cqi_history]
     elif feature_mode == "history_cost":
         features = [scenario.cqi_history, cost_vec]
+    elif feature_mode == "history_cost_quality":
+        features = [scenario.cqi_history, cost_vec, quality_context]
+    elif feature_mode == "history_cost_load":
+        features = [scenario.cqi_history, cost_vec, load_context]
+    elif feature_mode == "history_cost_context":
+        features = [scenario.cqi_history, cost_vec, context]
     elif feature_mode == "full":
         features = [scenario.cqi_history, rb_stats, mobility, cost_vec]
+    elif feature_mode == "full_context":
+        features = [scenario.cqi_history, rb_stats, mobility, cost_vec, context]
     else:
         raise ValueError(f"Unknown feature_mode: {feature_mode}")
     return np.column_stack(features).astype(np.float32)
@@ -620,6 +639,11 @@ class MLPEncoder:
 
     def __init__(self, input_dim: int, hidden_dim: int, embedding_dim: int, lr: float):
         self.lr = lr
+        self.selected_epoch = 0
+        self.selection_validation_loss = float("nan")
+        self.pair_sampling = "random_balanced"
+        self.last_pair_stats: dict[str, float] = {}
+        self.training_pair_stats: dict[str, float] = {}
         self.w1 = np.random.normal(0, 0.10, size=(input_dim, hidden_dim))
         self.b1 = np.zeros(hidden_dim)
         self.w2 = np.random.normal(0, 0.10, size=(hidden_dim, hidden_dim))
@@ -645,7 +669,51 @@ class MLPEncoder:
         _, _, _, z = self.forward(x)
         return z
 
-    def train_step(self, x: np.ndarray, same_group: np.ndarray, margin: float = 1.0) -> float:
+    def get_state(self) -> dict[str, np.ndarray]:
+        """Return a detached copy of all trainable parameters."""
+
+        return {
+            "w1": self.w1.copy(),
+            "b1": self.b1.copy(),
+            "w2": self.w2.copy(),
+            "b2": self.b2.copy(),
+            "w3": self.w3.copy(),
+            "b3": self.b3.copy(),
+        }
+
+    def set_state(self, state: dict[str, np.ndarray]) -> None:
+        """Restore trainable parameters saved by :meth:`get_state`."""
+
+        for name, value in state.items():
+            setattr(self, name, value.copy())
+
+    def contrastive_loss(
+        self,
+        x: np.ndarray,
+        same_group: np.ndarray,
+        margin: float = 1.0,
+    ) -> float:
+        """Evaluate deterministic all-pairs contrastive loss without updating."""
+
+        z = self.embed(x)
+        losses = []
+        for i in range(len(x)):
+            for j in range(i + 1, len(x)):
+                dist = float(np.linalg.norm(z[i] - z[j]))
+                if same_group[i, j] > 0.5:
+                    losses.append(dist**2)
+                else:
+                    losses.append(max(0.0, margin - dist) ** 2)
+        return float(np.mean(losses)) if losses else 0.0
+
+    def train_step(
+        self,
+        x: np.ndarray,
+        same_group: np.ndarray,
+        margin: float = 1.0,
+        pair_sampling: str = "random_balanced",
+        max_pairs_per_class: int = 160,
+    ) -> float:
         """One scenario-level contrastive training step.
 
         Positive pairs are VUs that the teacher placed in the same group.
@@ -668,10 +736,34 @@ class MLPEncoder:
                     positive_pairs.append((i, j))
                 else:
                     negative_pairs.append((i, j))
+        if pair_sampling not in {"random_balanced", "hard_negative"}:
+            raise ValueError(f"Unsupported pair_sampling: {pair_sampling}")
         random.shuffle(positive_pairs)
-        random.shuffle(negative_pairs)
-        pairs = positive_pairs[:160] + negative_pairs[:160]
+        selected_positive = positive_pairs[:max_pairs_per_class]
+        if pair_sampling == "hard_negative":
+            # Teacher-negative pairs that are currently closest in embedding
+            # space provide the strongest signal near/inside the margin.
+            negative_pairs.sort(key=lambda pair: float(np.linalg.norm(z[pair[0]] - z[pair[1]])))
+        else:
+            random.shuffle(negative_pairs)
+        selected_negative = negative_pairs[:max_pairs_per_class]
+        pairs = selected_positive + selected_negative
         random.shuffle(pairs)
+
+        negative_distances = [
+            float(np.linalg.norm(z[i] - z[j])) for i, j in selected_negative
+        ]
+        self.last_pair_stats = {
+            "positive_pairs": float(len(selected_positive)),
+            "negative_pairs": float(len(selected_negative)),
+            "active_negative_ratio": (
+                float(np.mean(np.asarray(negative_distances) < margin))
+                if negative_distances else 0.0
+            ),
+            "mean_selected_negative_distance": (
+                float(np.mean(negative_distances)) if negative_distances else float("nan")
+            ),
+        }
 
         for i, j in pairs:
             diff = z[i] - z[j]
@@ -720,13 +812,16 @@ class MLPEncoder:
         return float(loss)
 
 
-def kmeans(x: np.ndarray, k: int, max_iter: int = 40) -> list[list[int]]:
-    """Minimal k-means used as the clustering head."""
+def _kmeans_once(
+    x: np.ndarray,
+    k: int,
+    rng: np.random.Generator,
+    max_iter: int,
+) -> tuple[list[list[int]], float]:
+    """Run one deterministic-from-RNG k-means initialization."""
 
     n = len(x)
-    if k <= 1:
-        return [list(range(n))]
-    centers = x[np.random.choice(n, size=k, replace=False)].copy()
+    centers = x[rng.choice(n, size=k, replace=False)].copy()
     labels = np.zeros(n, dtype=int)
     for _ in range(max_iter):
         distances = ((x[:, None, :] - centers[None, :, :]) ** 2).sum(axis=2)
@@ -740,7 +835,48 @@ def kmeans(x: np.ndarray, k: int, max_iter: int = 40) -> list[list[int]]:
             break
         labels = new_labels
         centers = new_centers
-    return [np.where(labels == cluster_id)[0].tolist() for cluster_id in range(k) if np.any(labels == cluster_id)]
+    final_distances = ((x[:, None, :] - centers[None, :, :]) ** 2).sum(axis=2)
+    inertia = float(np.sum(final_distances[np.arange(n), labels]))
+    groups = [
+        np.where(labels == cluster_id)[0].tolist()
+        for cluster_id in range(k)
+        if np.any(labels == cluster_id)
+    ]
+    return groups, inertia
+
+
+def kmeans(
+    x: np.ndarray,
+    k: int,
+    max_iter: int = 40,
+    n_init: int = 10,
+    seed: int = 0,
+) -> list[list[int]]:
+    """Deterministic multi-start k-means used as the clustering head.
+
+    Every call with the same representation and arguments returns the same
+    partition. Multiple initializations reduce sensitivity to a single random
+    center choice; the partition with the lowest inertia is retained.
+    """
+
+    n = len(x)
+    if k <= 1:
+        return [list(range(n))]
+    if not 1 <= k <= n:
+        raise ValueError("k must be between 1 and the number of samples")
+    if n_init < 1:
+        raise ValueError("n_init must be at least 1")
+
+    rng = np.random.default_rng(seed)
+    best_groups: list[list[int]] | None = None
+    best_inertia = float("inf")
+    for _ in range(n_init):
+        groups, inertia = _kmeans_once(x, k, rng, max_iter)
+        if inertia < best_inertia:
+            best_inertia = inertia
+            best_groups = groups
+    assert best_groups is not None
+    return best_groups
 
 
 def best_kmeans_groups(
@@ -748,13 +884,20 @@ def best_kmeans_groups(
     representation: np.ndarray,
     max_groups: int,
     switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
 ) -> list[list[int]]:
     """Try k=1..Kmax and choose the grouping with best DP-evaluated utility."""
 
     best_groups = [list(range(len(scenario.cqi_now)))]
     best_utility = -1e9
     for k in range(1, max_groups + 1):
-        groups = kmeans(representation, k)
+        groups = kmeans(
+            representation,
+            k,
+            n_init=kmeans_n_init,
+            seed=kmeans_seed + k,
+        )
         result = allocate_and_evaluate(groups, scenario, switch_beta)
         if result.utility > best_utility:
             best_utility = result.utility
@@ -766,17 +909,36 @@ def no_grouping(scenario: Scenario, *_args) -> list[list[int]]:
     return [list(range(len(scenario.cqi_now)))]
 
 
-def cqi_kmeans_grouping(scenario: Scenario, max_groups: int, switch_beta: float) -> list[list[int]]:
+def cqi_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+) -> list[list[int]]:
     """Baseline: k-means directly on raw current CQI."""
 
-    return best_kmeans_groups(scenario, scenario.cqi_now.reshape(-1, 1).astype(float), max_groups, switch_beta)
+    return best_kmeans_groups(
+        scenario,
+        scenario.cqi_now.reshape(-1, 1).astype(float),
+        max_groups,
+        switch_beta,
+        kmeans_n_init=kmeans_n_init,
+    )
 
 
-def resource_cost_kmeans_grouping(scenario: Scenario, max_groups: int, switch_beta: float) -> list[list[int]]:
+def resource_cost_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+) -> list[list[int]]:
     """Baseline: k-means on each VU's resource-cost vector."""
 
     cost_vec = user_resource_cost_vector(scenario.rb_rates)
-    return best_kmeans_groups(scenario, cost_vec, max_groups, switch_beta)
+    return best_kmeans_groups(
+        scenario, cost_vec, max_groups, switch_beta,
+        kmeans_n_init=kmeans_n_init,
+    )
 
 
 def multi_feature_kmeans_grouping(
@@ -784,6 +946,7 @@ def multi_feature_kmeans_grouping(
     max_groups: int,
     switch_beta: float,
     feature_mode: str = "full",
+    kmeans_n_init: int = 10,
 ) -> list[list[int]]:
     """Baseline: k-means directly on the normalized full feature vector.
 
@@ -796,7 +959,10 @@ def multi_feature_kmeans_grouping(
     mean = representation.mean(axis=0)
     std = representation.std(axis=0) + 1e-6
     normalized = ((representation - mean) / std).astype(np.float32)
-    return best_kmeans_groups(scenario, normalized, max_groups, switch_beta)
+    return best_kmeans_groups(
+        scenario, normalized, max_groups, switch_beta,
+        kmeans_n_init=kmeans_n_init,
+    )
 
 
 def learned_grouping(
@@ -804,21 +970,22 @@ def learned_grouping(
     model: MLPEncoder,
     max_groups: int,
     switch_beta: float,
+    kmeans_n_init: int = 10,
 ) -> list[list[int]]:
     """Proposed MVP: MLP embedding -> k-means -> DP utility selection."""
 
     embeddings = model.embed(scenario.features)
-    return best_kmeans_groups(scenario, embeddings, max_groups, switch_beta)
+    return best_kmeans_groups(
+        scenario, embeddings, max_groups, switch_beta,
+        kmeans_n_init=kmeans_n_init,
+    )
 
 
-def evaluate_method(
-    scenarios: list[Scenario],
-    grouping_fn: Callable[[Scenario], list[list[int]]],
-    switch_beta: float,
-) -> EvalResult:
-    """Evaluate one grouping method over a list of scenarios."""
+def aggregate_eval_results(results: list[EvalResult]) -> EvalResult:
+    """Average a non-empty list of per-scenario evaluation results."""
 
-    results = [allocate_and_evaluate(grouping_fn(s), s, switch_beta) for s in scenarios]
+    if not results:
+        raise ValueError("results must not be empty")
     return EvalResult(
         utility=float(np.mean([r.utility for r in results])),
         adr_kbps=float(np.mean([r.adr_kbps for r in results])),
@@ -834,25 +1001,44 @@ def evaluate_method(
     )
 
 
+def evaluate_method(
+    scenarios: list[Scenario],
+    grouping_fn: Callable[[Scenario], list[list[int]]],
+    switch_beta: float,
+) -> EvalResult:
+    """Evaluate one grouping method over a list of scenarios."""
+
+    results = [allocate_and_evaluate(grouping_fn(s), s, switch_beta) for s in scenarios]
+    return aggregate_eval_results(results)
+
+
 def default_methods(
     max_groups: int,
     switch_beta: float,
     model: MLPEncoder,
     include_multifeature_baseline: bool = False,
     multifeature_feature_mode: str = "full",
+    kmeans_n_init: int = 10,
 ) -> dict[str, Callable[[Scenario], list[list[int]]]]:
     """Return the default comparison set for the main research storyline."""
 
     methods = {
         "No grouping": lambda s: no_grouping(s),
-        "CQI k-means": lambda s: cqi_kmeans_grouping(s, max_groups, switch_beta),
-        "Resource-cost k-means": lambda s: resource_cost_kmeans_grouping(s, max_groups, switch_beta),
+        "CQI k-means": lambda s: cqi_kmeans_grouping(
+            s, max_groups, switch_beta, kmeans_n_init
+        ),
+        "Resource-cost k-means": lambda s: resource_cost_kmeans_grouping(
+            s, max_groups, switch_beta, kmeans_n_init
+        ),
         "Offline teacher": lambda s: offline_teacher_groups(s, max_groups, switch_beta),
-        "LE-GRA MVP": lambda s: learned_grouping(s, model, max_groups, switch_beta),
+        "LE-GRA MVP": lambda s: learned_grouping(
+            s, model, max_groups, switch_beta, kmeans_n_init
+        ),
     }
     if include_multifeature_baseline:
         methods["Multi-feature k-means"] = lambda s: multi_feature_kmeans_grouping(
-            s, max_groups, switch_beta, feature_mode=multifeature_feature_mode
+            s, max_groups, switch_beta, feature_mode=multifeature_feature_mode,
+            kmeans_n_init=kmeans_n_init,
         )
     return methods
 
@@ -876,6 +1062,18 @@ def main() -> None:
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument("--switch-beta", type=float, default=0.5)
     parser.add_argument(
+        "--pair-sampling",
+        choices=["random_balanced", "hard_negative"],
+        default="random_balanced",
+    )
+    parser.add_argument("--pairs-per-class", type=int, default=160)
+    parser.add_argument(
+        "--kmeans-n-init",
+        type=int,
+        default=10,
+        help="Deterministic k-means initializations per candidate k.",
+    )
+    parser.add_argument(
         "--rb-budget-ratio",
         type=float,
         default=0.40,
@@ -884,7 +1082,7 @@ def main() -> None:
     parser.add_argument("--scenario-mode", choices=["aligned", "ambiguous", "mixed"], default="mixed")
     parser.add_argument(
         "--feature-mode",
-        choices=["history_only", "history_cost", "full"],
+        choices=["history_only", "history_cost", "history_cost_quality", "history_cost_load", "history_cost_context", "full", "full_context"],
         default="full",
         help="Feature ablation mode for the learned LE-GRA model.",
     )
@@ -895,6 +1093,9 @@ def main() -> None:
     )
     parser.add_argument("--seed", type=int, default=9)
     args = parser.parse_args()
+
+    if args.pairs_per_class <= 0:
+        parser.error("--pairs-per-class must be positive")
 
     set_seed(args.seed)
     dispersions = ["high", "mid", "low"]
@@ -932,7 +1133,12 @@ def main() -> None:
         random.shuffle(order)
         losses = []
         for idx in order:
-            losses.append(model.train_step(train[idx].features, teacher_labels[idx]))
+            losses.append(model.train_step(
+                train[idx].features,
+                teacher_labels[idx],
+                pair_sampling=args.pair_sampling,
+                max_pairs_per_class=args.pairs_per_class,
+            ))
         print(f"epoch={epoch:02d} contrastive_loss={np.mean(losses):.4f}")
 
     methods = default_methods(
@@ -940,6 +1146,7 @@ def main() -> None:
         args.switch_beta,
         model,
         include_multifeature_baseline=args.include_multifeature_baseline,
+        kmeans_n_init=args.kmeans_n_init,
     )
 
     print("\nEvaluation over synthetic test scenarios")

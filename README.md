@@ -48,6 +48,37 @@ To stress-test CQI-only grouping, run CQI-ambiguous scenarios:
 python .\le_gra_mvp.py --scenario-mode ambiguous
 ```
 
+The standard matrix also exposes experimental pair sampling for learner-focused
+studies. For a genuine hard-negative comparison with 24 users, use a pair cap
+below the number of available negative pairs, for example:
+
+```powershell
+python .\run_standard_matrix.py --scenario-modes ambiguous --load-levels light medium `
+  --kmax-values 3 --pair-sampling hard_negative --pairs-per-class 64
+```
+
+The formal default remains `random_balanced` with 160 pairs per class. See
+`P2_HARD_NEGATIVE_STUDY_ZH.md` before changing that default.
+
+To audit the synthetic inputs and teacher-label landscape without training the
+learner, run:
+
+```powershell
+python -u .\run_data_audit.py
+```
+
+The current findings and interpretation are documented in
+`P2_5_DATA_AUDIT_ZH.md`.
+
+The bounded P2.6 mixed-load context comparison can be reproduced with:
+
+```powershell
+python -u .\run_context_study.py
+```
+
+See `P2_6_CONTEXT_STUDY_ZH.md`; the current leading feature candidate is
+`history_cost_quality`.
+
 Scenario modes:
 
 - `aligned`: RB-level rates are strongly aligned with wideband CQI.
@@ -80,6 +111,17 @@ system SE uses all currently available RB bandwidth as the denominator. The
 latter is the primary metric for fixed-bandwidth comparisons. Interpret both
 together with `served_ratio`, `unserved_ratio`, and `average_quality`, so a
 method cannot appear strong merely by serving fewer users or lowering quality.
+
+The clustering head uses deterministic multi-start k-means by default. Change
+the number of initializations for focused studies with:
+
+```powershell
+python .\run_standard_matrix.py --kmeans-n-init 10
+```
+
+Main evaluation and teacher-imitation diagnostics reuse the same cached
+groupings, so their reported utility and partition-agreement metrics refer to
+the exact same clustering result.
 
 ## Notes
 

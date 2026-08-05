@@ -1,0 +1,13 @@
+metric,light,medium
+scenario_count,180,180
+teacher_k1_count,0,12
+teacher_k2_count,27,63
+teacher_k3_count,153,105
+teacher_gain_over_no_group_mean,0.088934,0.119901
+top1_top2_gap_mean,0.001850,0.003249
+top1_top2_exact_tie_ratio,0.211111,0.172222
+near_optimal_within_0.005_mean,85.244444,17.255556
+nearest_neighbor_same_teacher_group,0.706713,0.793287
+same_cqi_pairs_per_scenario,49.955556,49.955556
+same_cqi_same_teacher_group_ratio,0.733737,0.820039
+singleton_group_ratio,0.076023,0.112583

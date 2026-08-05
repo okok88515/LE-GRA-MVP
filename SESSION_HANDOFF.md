@@ -242,6 +242,123 @@ next bottleneck is still learner diagnosis rather than more runs.
 5. Only after learner quality stabilizes should you expand `Kmax`, seeds, or
    total scenario counts.
 
+## P0 Validation-selection Update (2026-08-05)
+
+A focused ambiguous-only study compared fixed training against validation-based
+epoch selection with select-then-refit:
+
+- loads: light and medium,
+- seeds: 9, 17, 23,
+- train/test: 40/20,
+- Kmax: 3,
+- epochs: 12,
+- feature mode: `history_cost`,
+- validation fraction: 0 versus 0.2.
+
+Validation selection improved LE-GRA utility in only 1/6 load/seed slices. It
+slightly increased mean pairwise accuracy and ARI but decreased mean NMI, and
+the teacher utility gap improved in only one slice. The current contrastive
+validation loss is therefore not a reliable selection criterion for final
+utility or partition quality.
+
+See `P0_VALIDATION_STUDY_ZH.md`, `p0_validation_comparison.csv`, and the two
+`p0_validation_fraction_*` result directories. Validation support remains in
+the code as an experimental option, but its CLI default is 0.0 so the formal
+baseline is unchanged.
+
+The next priority is P1: deterministic multi-start k-means, reuse of groupings
+between evaluation and diagnostics, and explicit `test_index`/selected-group
+logging. Do not expand the formal experiment matrix before P1 is complete.
+
+## P1 Deterministic k-means Update (2026-08-05)
+
+P1 is complete and passed. The clustering head now uses deterministic
+multi-start k-means (`n_init=10` by default), main evaluation and diagnostics
+reuse the exact same cached groupings, and diagnostics include `test_index`.
+
+In the ambiguous light/medium study, `n_init=10` improved LE-GRA utility in 5/6
+load/seed slices. Mean utility increased from 0.8139 to 0.8163 on light load and
+from 0.7645 to 0.7702 on medium load. The improvement also benefited strong
+baselines, so ambiguous/medium remains unresolved: LE-GRA reached 0.7702 versus
+0.7740 for Multi-feature k-means.
+
+See `P1_DETERMINISTIC_KMEANS_STUDY_ZH.md`, `p1_kmeans_comparison.csv`, and the
+two `p1_kmeans_n_init_*` result directories. The next priority is P2:
+learner-focused hard-negative/group-balanced pair sampling with explicit pair
+statistics. Do not expand the formal matrix before P2.
+
+Interpretation: P1 separates clustering noise from learner quality. Multi-start
+tries several seeded centroid initializations and keeps the lowest-inertia
+partition; deterministic seeding makes repeated runs reproducible. Its 5/6
+slice improvement validates the measurement fix, but because Multi-feature
+k-means also improved and still leads on ambiguous/medium, P1 is not evidence
+that the learner bottleneck is solved.
+
+## P2 Hard-negative Sampling Update (2026-08-05)
+
+P2 implemented `random_balanced` and `hard_negative` pair sampling plus explicit
+pair diagnostics. A pilot exposed that the old cap of 160 pairs/class selected
+nearly every negative pair for 24 users, so the valid controlled comparison uses
+64 pairs/class while leaving the formal default at 160.
+
+On ambiguous/light, hard-negative reduced mean LE-GRA utility by 0.00199. On
+ambiguous/medium it increased mean utility by 0.00343, but this was driven by
+seed 23 (+0.01049) and was not stable across seeds. In contrast, all six mean
+teacher-imitation comparisons (pairwise accuracy, ARI, NMI across light and
+medium) improved. P2 therefore partially passes as a learner mechanism, but it
+does not become the default: better partition imitation is still not reliably
+turning into downstream utility.
+
+See `P2_HARD_NEGATIVE_STUDY_ZH.md`, `p2_hard_negative_comparison.csv`,
+`p2_random_balanced_64/`, and `p2_hard_negative_64/`. The next learner-focused
+step should test semi-hard/mixed sampling or utility-aware pair weighting on the
+same bounded matrix, not expand Kmax or seed count.
+
+## P2.5 Data Audit Update (2026-08-05)
+
+Before further learner tuning, a bounded audit was run on 360 ambiguous
+scenarios (light/medium, seeds 9/17/23, train/test 40/20, Kmax=3). It found a
+more fundamental input-sufficiency problem: no feature mode includes
+`rb_available`, although teacher grouping depends on resource pressure, and no
+feature mode includes `previous_quality`, although teacher utility directly
+uses it for switching penalty. Ambiguous generation also adds random variation
+to previous quality, creating target information the learner cannot observe.
+
+For identical user/channel draws under light versus medium load, teacher K is
+the same only 58.3% of the time and the exact partition only 18.3% of the time.
+Teacher labels are also often non-unique in utility: the mean top-1/top-2 gap is
+0.00185 on light and 0.00325 on medium; light has an average of 85/277 candidate
+partitions within 0.005 of the optimum. High-dispersion scenarios drive nearly
+all meaningful grouping gain, while many mid/low-dispersion partitions differ
+very little in utility.
+
+See `P2_5_DATA_AUDIT_ZH.md`, `p2_5_data_audit_summary.csv`, and the six detailed
+CSVs under `p2_5_data_audit/`. The next priority is to add normalized load and
+previous-quality context, then run a bounded mixed-load learner comparison.
+After input sufficiency is fixed, investigate regret-aware/soft supervision and
+then calibrate the generator with real channel and mobility traces.
+
+## P2.6 Decision-context Update (2026-08-05)
+
+P2.6 trained one learner jointly on paired light+medium ambiguous scenarios and
+ablated the two missing context variables. Adding normalized previous quality
+was the decisive change: it improved LE-GRA utility in all 6 load/seed slices,
+raising light mean from 0.81549 to 0.82602 and medium from 0.76881 to 0.77569.
+This beats Multi-feature k-means (0.81467 light, 0.77400 medium) and
+Resource-cost k-means (0.81858 light, 0.77201 medium) in the bounded study.
+
+Load context alone was nearly neutral (light -0.00001, medium +0.00173), while
+adding both contexts was positive but weaker than previous quality alone. The
+likely reason is architectural: previous quality is user-specific and directly
+enters teacher switching utility, whereas RB budget is a scenario-wide scalar
+repeated for every user and has little direct effect on k-means relative
+geometry. It may require scenario-level conditioning or a separate K head.
+
+See `P2_6_CONTEXT_STUDY_ZH.md`, `p2_6_context_comparison.csv`,
+`p2_6_context_study/`, and `p2_6_context_ablation/`. Treat
+`history_cost_quality` as the leading learner feature candidate, but retain the
+old baseline and do not overwrite the formal matrix yet.
+
 ## Suggested Prompt on the Next Computer
 
 ```text
