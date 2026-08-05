@@ -464,21 +464,45 @@ scenario, establish stable vehicle-to-node IDs and one timestamp source, then
 export measured video quality. Only after the coupled bundle passes the P3.2
 joiner and teacher should learner training use it.
 
+## P3.5 One-Clock SUMO + Simu5G Coupling Update (2026-08-06)
+
+P3.5 created a separate compatible workspace with OMNeT++ 6.3.0, INET 4.6.0,
+Veins 5.3.1/veins_inet, Simu5G 1.4.3, and SUMO 1.22.0. The official Simu5G NR
+cars `VoIP-DL` scenario completed a six-second TraCI-coupled run. SUMO vehicle
+creation/mobility and Simu5G radio therefore share one OMNeT event timeline.
+
+Two versioned recorder extensions join state by OMNeT module full path instead
+of assuming insertion order. The observed mappings were SUMO `0` ->
+`Highway.car[0]` -> Simu5G `2049` and SUMO `1` -> `Highway.car[1]` -> Simu5G
+`2050`. Final bundle UE IDs are only `0` and `1`.
+
+The run produced 67 mobility rows and 27,950 radio rows, all radio observations
+having complete 25-band vectors. Common 0.1-second bins yielded 67 normalized
+radio users and 1,675 RB rows. After five-step CQI warm-up, the unchanged P3.2
+joiner produced 55 scenarios, 59 user rows, and 1,475 RB rows; all 55 scenarios
+ran through the offline teacher. `run_p3_5_coupled_test.py` verifies mapping,
+timestamps, band completeness, join counts, metadata, and teacher execution.
+
+This remains an integration artifact, not training evidence: only two cars are
+present, CQI is always 15, and previous quality is still an explicit constant
+control rather than measured video state. See `P3_5_SUMO_SIMU5G_COUPLING_ZH.md`.
+P3.6 should first create informative channel/resource variation and record real
+video quality, audit those data, and only then run a learner-focused real-trace
+experiment. Do not expand Kmax, seeds, or the whole matrix yet.
+
 ## Suggested Prompt on the Next Computer
 
-```text
-Please read SESSION_HANDOFF.md and the three CSV files under
-medium_matrix_results_v2_after_grad_fix. Then inspect the current implementation
-in `le_gra_mvp.py` and `run_standard_matrix.py`. Continue the LE-GRA research
-from the recommended next steps. Do not expand the matrix blindly. Focus first
-on learner improvements that may help in ambiguous scenarios.
-```
+Use the complete Traditional-Chinese prompt in `NEXT_SESSION_PROMPT.md`. The
+next phase is P3.6 coupled-data audit, informative scenario design, and measured
+video quality. It is no longer appropriate to begin by modifying the learner or
+expanding the synthetic standard matrix.
 
 ## Repository State at Handoff
 
-The code changes implementing progress output, load levels, dual SE metrics,
-service/quality metrics, multi-feature diagnostics, the corrected normalization
-gradient, and this handoff should travel together with the
-`medium_matrix_results_v2_after_grad_fix` evidence. Older smoke-test
-directories are useful for local sanity checks but are not the main research
-artifact.
+Git contains all source patches, reproducible scripts, raw evidence, normalized
+radio output, and the final P3.5 coupled bundle. It does not contain the WSL/Nix
+simulator installations. On a new computer, first run the pure-Python
+`run_p3_5_coupled_test.py` against committed evidence; only install the P3.5
+runtime when a new coupled simulation must be generated. The current primary
+research artifacts are `medium_matrix_results_v2_after_grad_fix/`,
+`p3_4_actual_radio/`, and `p3_5_coupled_bundle/`.

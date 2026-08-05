@@ -12,5 +12,5 @@
   "previous_quality_source": "explicit_experiment_control_not_video_measurement",
   "rb_abstraction": "Simu5G logical band",
   "sinr_source": "not_exported_in_p3_4",
-  "ue_id_source": "Simu5G_internal_node_id"
+  "ue_id_source": "SUMO_external_id_joined_by_OMNeT_module_path"
 }

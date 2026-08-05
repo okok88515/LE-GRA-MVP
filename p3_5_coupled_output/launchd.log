@@ -1,0 +1,30 @@
+DEBUG:root:Logging to /home/opp_env/p3_5_workspace/p3_5_coupled_output/launchd.log
+INFO:root:Listening on port 9999
+INFO:root:Detaching to run as daemon
+INFO:root:Fork successful. PID is 313
+DEBUG:root:Connection from 127.0.0.1 on port 45890
+DEBUG:root:Handling connection from 127.0.0.1 on port 45890
+DEBUG:root:Got TraCI message of length 2
+DEBUG:root:Got TraCI command of length 1
+DEBUG:root:Got TraCI command 0x0
+DEBUG:root:Got CMD_GETVERSION
+DEBUG:root:Got TraCI message of length 324
+DEBUG:root:Got TraCI command of length 319
+DEBUG:root:Got TraCI command 0x75
+DEBUG:root:Got CMD_FILE_SEND for "b'sumo-launchd.launch.xml'"
+DEBUG:root:Got CMD_FILE_SEND with data "b'<launch>\n  <copy file="heterogeneous.net.xml"/>\n  <copy file="heterogeneous.rou.xml"/>\n  <copy file="heterogeneous.sumocfg" type="config"/>\n  <copy file="gui-settings.xml"/>\n  <basedir path="/home/opp_env/p3_5_workspace/simu5g-1.4.3/simulations/nr/cars/"/>\n  <seed value="0"/>\n</launch>\n'"
+DEBUG:root:Creating temporary directory...
+DEBUG:root:Temporary dir is /tmp/nix-shell.EWBBEb/sumo-launchd-tmp-127mhe38
+DEBUG:root:Base dir is /home/opp_env/p3_5_workspace/simu5g-1.4.3/simulations/nr/cars/
+DEBUG:root:Seed is 0
+DEBUG:root:Finding free port number...
+DEBUG:root:Claiming lock on port
+DEBUG:root:...found port 51585
+INFO:root:Starting SUMO (sumo -c heterogeneous.sumocfg) on port 51585, seed 0
+DEBUG:root:Connecting to SUMO (sumo -c heterogeneous.sumocfg) on port 51585 (try 1)
+DEBUG:root:Error ([Errno 111] Connection refused)
+DEBUG:root:Connecting to SUMO (sumo -c heterogeneous.sumocfg) on port 51585 (try 2)
+DEBUG:root:Releasing lock on port
+DEBUG:root:Starting proxy mode
+DEBUG:root:Done with proxy mode
+DEBUG:root:Done with proxy mode, killing SUMO

@@ -1,0 +1,17 @@
+diff --git a/src/simu5g/stack/mac/LteMacEnb.cc b/src/simu5g/stack/mac/LteMacEnb.cc
+--- a/src/simu5g/stack/mac/LteMacEnb.cc
++++ b/src/simu5g/stack/mac/LteMacEnb.cc
+@@ -931,10 +931,10 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pktAux)
+             if (!fb.isEmptyFeedback() && fb.hasBandCqi()) {
+                 const auto& codewords = fb.getBandCqi();
+                 if (!codewords.empty() && !codewords.front().empty()) {
+-                    const char *ueModulePath = binder_->getModuleByMacNodeId(
+-                            srcNodeId)->getFullPath().c_str();
++                    std::string ueModulePath = binder_->getModuleByMacNodeId(
++                            srcNodeId)->getFullPath();
+                     recordLeGraDlBandState(simTime(), srcNodeId, nodeId_,
+-                            ueModulePath, lteInfo->getCarrierFrequency(), codewords.front(), amc_);
++                            ueModulePath.c_str(), lteInfo->getCarrierFrequency(), codewords.front(), amc_);
+                     recorded = true;
+                     break;
+                 }

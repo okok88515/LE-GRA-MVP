@@ -137,9 +137,28 @@ python -u .\run_p3_4_export_test.py
 python -u .\run_p3_4_multi_ue_validation.py
 ```
 
-See `P3_4_SIMU5G_RADIO_EXPORTER_ZH.md`. P3.4 is a real-radio acceptance step,
-not yet a complete SUMO+Simu5G training corpus; stable cross-simulator IDs,
-shared timestamps, and measured video quality remain P3.5 work.
+See `P3_4_SIMU5G_RADIO_EXPORTER_ZH.md`. P3.4 was a real-radio acceptance step,
+not a complete SUMO+Simu5G training corpus. P3.5 resolves stable
+cross-simulator IDs and shared timestamps; measured video quality remains
+P3.6 work.
+
+P3.5 now provides a one-clock SUMO+Veins+Simu5G smoke path. Install/check the
+separate compatible environment with `p3_5_install_environment.sh` and
+`p3_5_check_environment.sh`, apply the two recorders, run the official NR cars
+case, and verify the final bundle with:
+
+```powershell
+python -u .\run_p3_5_coupled_test.py
+```
+
+See `P3_5_SUMO_SIMU5G_COUPLING_ZH.md`. This proves coupling and trace integrity;
+the two-vehicle, all-CQI-15 smoke trace is deliberately not treated as a
+learner-training corpus. Real video quality and a more informative channel/load
+scenario remain the next data-quality milestone.
+
+For cross-computer continuation, read `SESSION_HANDOFF.md`, then use the exact
+prompt in `NEXT_SESSION_PROMPT.md`. `P3_6_NEXT_STEPS_ZH.md` defines the next
+data-quality gates before any real-trace learner experiment is allowed.
 
 Scenario modes:
 

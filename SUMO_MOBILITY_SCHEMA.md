@@ -72,3 +72,15 @@ The adapter therefore computes the unit heading as
 5. P3.2 must join Simu5G radio output by timestamp, gNB, and UE ID before
    creating the required P3.0 `scenarios/users/rb_rates` bundle.
 
+## P3.5 coupled TraCI source
+
+P3.5 adds a native alternative to offline FCD parsing. A versioned
+`VeinsInetMobility` patch records SUMO external ID, OMNeT module full path,
+position, speed, and the shared OMNeT simulation timestamp at every TraCI
+update. The module path joins this mobility state to the P3.5-extended Simu5G
+radio recorder; the final `ue_id` remains the SUMO external ID.
+
+This is stronger than post-hoc nearest-time alignment because SUMO, Veins, and
+Simu5G run in one event timeline. `build_p3_5_coupled_bundle.py` retains only
+common 0.1-second mobility/radio bins and then emits this schema's staging
+tables before invoking the unchanged P3.2 joiner.

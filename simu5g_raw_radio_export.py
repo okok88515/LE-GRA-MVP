@@ -50,6 +50,7 @@ def export_raw_radio(
     snapshot_period_s: float,
     rb_budget_ratio: float,
     previous_quality: int,
+    ue_id_by_module: dict[str, str] | None = None,
 ) -> dict[str, int]:
     if slot_duration_ms <= 0:
         raise ValueError("slot_duration_ms must be positive")
@@ -67,9 +68,16 @@ def export_raw_radio(
     )
     for row in raw_rows:
         timestamp = Decimal(row["timestamp_s"])
+        if ue_id_by_module is None:
+            ue_id = f"ue_{row['ue_node_id']}"
+        else:
+            module_path = row.get("ue_module_path", "")
+            if module_path not in ue_id_by_module:
+                raise ValueError(f"No SUMO ID mapping for module path: {module_path!r}")
+            ue_id = ue_id_by_module[module_path]
         key = (
             _bin_time(timestamp, period),
-            f"ue_{row['ue_node_id']}",
+            ue_id,
             f"gnb_{row['gnb_node_id']}",
         )
         snapshots[key][timestamp].append(row)
@@ -152,6 +160,10 @@ def export_raw_radio(
         "previous_quality_source": "explicit_experiment_control_not_video_measurement",
         "rb_abstraction": "Simu5G logical band",
         "sinr_source": "not_exported_in_p3_4",
+        "ue_id_source": (
+            "Simu5G_internal_node_id" if ue_id_by_module is None
+            else "SUMO_external_id_joined_by_OMNeT_module_path"
+        ),
     }
     (out_dir / "export_metadata.json").write_text(
         json.dumps(metadata, indent=2) + "\n", encoding="utf-8"

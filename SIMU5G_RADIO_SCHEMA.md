@@ -70,3 +70,9 @@ requires explicit slot duration, RB-budget ratio, and previous-quality control.
 Its `export_metadata.json` records these assumptions. P3.4 treats one Simu5G
 logical band as one schema RB; a different carrier abstraction must document
 and update this mapping.
+
+P3.5 extends the raw recorder with `ue_module_path`. A coupled Veins mobility
+recorder emits the same OMNeT module path together with the SUMO external
+vehicle ID. `build_p3_5_coupled_bundle.py` requires this mapping to be
+one-to-one and uses the SUMO external ID as the final normalized `ue_id`;
+Simu5G internal node IDs are retained only as raw provenance.

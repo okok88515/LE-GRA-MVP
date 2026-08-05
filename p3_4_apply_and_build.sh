@@ -2,9 +2,11 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-workspace=/home/opp_env/default_workspace
+workspace="${LEGRA_OPP_WORKSPACE:-/home/opp_env/default_workspace}"
 simu5g_root="$workspace/simu5g-1.4.3"
 target="$simu5g_root/src/simu5g/stack/mac/LteMacEnb.cc"
+project_spec="${LEGRA_OPP_PROJECTS:-simu5g-1.4.3}"
+read -r -a projects <<< "$project_spec"
 
 source /home/opp_env/.venv/bin/activate
 source /home/opp_env/.nix-profile/etc/profile.d/nix.sh
@@ -17,9 +19,9 @@ else
 fi
 
 cd "$workspace"
-opp_env run simu5g-1.4.3 --no-isolated -c '
-  cd /home/opp_env/default_workspace/simu5g-1.4.3/src
+opp_env run --workspace "$workspace" "${projects[@]}" --no-isolated -c "
+  cd '$simu5g_root/src'
   make MODE=release -j2
   test -s libsimu5g.so
   echo P3_4_BUILD_OK
-'
+"
