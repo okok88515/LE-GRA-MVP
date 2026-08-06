@@ -10,6 +10,7 @@ if __name__ == "__main__":
         "p3_6_coupled_output",
         "p3_6_gnbs.csv",
         "p3_6_coupled_bundle",
+        previous_quality_mode="deterministic_controller",
     )
     print("P3.6 coupled bundle:")
     for name, value in counts.items():

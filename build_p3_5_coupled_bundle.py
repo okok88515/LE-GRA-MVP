@@ -48,6 +48,7 @@ def build_coupled_bundle(
     slot_duration_ms: float = 1.0,
     rb_budget_ratio: float = 0.5,
     previous_quality: int = 3,
+    previous_quality_mode: str = "constant",
 ) -> dict[str, int]:
     raw_dir, out_dir = Path(raw_dir), Path(out_dir)
     raw_mobility = _read(raw_dir / "raw_mobility.csv")
@@ -98,6 +99,7 @@ def build_coupled_bundle(
             snapshot_period_s=snapshot_period_s,
             rb_budget_ratio=rb_budget_ratio,
             previous_quality=previous_quality,
+            previous_quality_mode=previous_quality_mode,
             ue_id_by_module=module_to_sumo,
         )
     radio_users = _read(radio_dir / "radio_users.csv")
