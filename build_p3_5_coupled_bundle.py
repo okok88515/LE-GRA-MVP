@@ -73,6 +73,19 @@ def build_coupled_bundle(
     ]
     if not filtered_radio:
         raise ValueError("No common mobility/radio timestamps")
+    latest_raw_timestamp: dict[tuple[Decimal, str], Decimal] = {}
+    for row in filtered_radio:
+        key = (_bin(row["timestamp_s"], period), row["ue_module_path"])
+        timestamp = Decimal(row["timestamp_s"])
+        prior = latest_raw_timestamp.get(key)
+        if prior is None or timestamp > prior:
+            latest_raw_timestamp[key] = timestamp
+    filtered_radio = [
+        row for row in filtered_radio
+        if Decimal(row["timestamp_s"]) == latest_raw_timestamp[
+            (_bin(row["timestamp_s"], period), row["ue_module_path"])
+        ]
+    ]
 
     radio_dir = out_dir / "radio"
     with tempfile.TemporaryDirectory(prefix="legra_p3_5_radio_") as temp_dir:

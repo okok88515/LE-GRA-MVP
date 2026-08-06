@@ -12,7 +12,7 @@ diff --git a/subprojects/veins_inet/src/veins_inet/VeinsInetMobility.cc b/subpro
  #include "veins_inet/VeinsInetMobility.h"
  
  #include "inet/common/INETMath.h"
-@@ -30,4 +34,41 @@ namespace veins {
+@@ -30,6 +34,43 @@ namespace veins {
  
  using namespace inet::units::values;
  
@@ -26,7 +26,8 @@ diff --git a/subprojects/veins_inet/src/veins_inet/VeinsInetMobility.cc b/subpro
 +    if (outputPath == nullptr || outputPath[0] == '\0')
 +        return;
 +    if (externalId.find(',') != std::string::npos)
-+        throw omnetpp::cRuntimeError("SUMO vehicle ID contains a comma: %s", externalId.c_str());
++        throw omnetpp::cRuntimeError("SUMO vehicle ID contains a comma: %s",
++                externalId.c_str());
 +
 +    static std::ofstream output;
 +    static std::string activePath;
@@ -34,12 +35,15 @@ diff --git a/subprojects/veins_inet/src/veins_inet/VeinsInetMobility.cc b/subpro
 +        activePath = outputPath;
 +        output.open(activePath, std::ios::out | std::ios::trunc);
 +        if (!output)
-+            throw omnetpp::cRuntimeError("Cannot open LE-GRA mobility recorder output: %s", outputPath);
++            throw omnetpp::cRuntimeError(
++                    "Cannot open LE-GRA mobility recorder output: %s",
++                    outputPath);
 +        output << "timestamp_s,sumo_vehicle_id,ue_module_path,x_m,y_m,speed_mps\n";
 +        output << std::setprecision(15);
 +    }
 +    else if (activePath != outputPath) {
-+        throw omnetpp::cRuntimeError("LEGRA_MOBILITY_RAW_CSV changed during the simulation");
++        throw omnetpp::cRuntimeError(
++                "LEGRA_MOBILITY_RAW_CSV changed during the simulation");
 +    }
 +
 +    output << timestamp.dbl() << ','
@@ -54,7 +58,7 @@ diff --git a/subprojects/veins_inet/src/veins_inet/VeinsInetMobility.cc b/subpro
 +} // namespace
 +
  Register_Class(VeinsInetMobility);
-@@ -65,4 +106,7 @@ void VeinsInetMobility::nextPosition(const inet::Coord& position, std::string road_id, double speed, double angle)
+@@ -65,6 +106,9 @@ void VeinsInetMobility::nextPosition(const inet::Coord& position, std::string road_id, double speed, double angle)
      lastVelocity = inet::Coord(cos(angle), -sin(angle)) * speed;
      lastOrientation = inet::Quaternion(inet::EulerAngles(rad(-angle), rad(0.0), rad(0.0)));
  

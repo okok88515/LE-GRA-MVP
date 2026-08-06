@@ -1,40 +1,87 @@
 diff --git a/src/simu5g/stack/mac/LteMacEnb.cc b/src/simu5g/stack/mac/LteMacEnb.cc
 --- a/src/simu5g/stack/mac/LteMacEnb.cc
 +++ b/src/simu5g/stack/mac/LteMacEnb.cc
-@@ -52,7 +52,7 @@ namespace {
+@@ -9,5 +9,8 @@
+ //
  
- void recordLeGraDlBandState(simtime_t timestamp, MacNodeId ueId,
--        MacNodeId gnbId, GHz carrierFrequency, const CqiVector& bandCqi,
--        LteAmc *amc)
++#include <cstdlib>
++#include <fstream>
++#include <iomanip>
+ #include <string>
+ 
+ #include <inet/common/ModuleAccess.h>
+@@ -43,6 +46,47 @@ Define_Module(LteMacEnb);
+ 
+ using namespace omnetpp;
+ 
++namespace {
++
++void recordLeGraDlBandState(simtime_t timestamp, MacNodeId ueId,
 +        MacNodeId gnbId, const char *ueModulePath, GHz carrierFrequency,
 +        const CqiVector& bandCqi, LteAmc *amc)
- {
-     const char *outputPath = std::getenv("LEGRA_RADIO_RAW_CSV");
-     if (outputPath == nullptr || outputPath[0] == '\0')
-@@ -66,6 +66,6 @@ void recordLeGraDlBandState(simtime_t timestamp, MacNodeId ueId,
-         if (!output)
-             throw cRuntimeError("Cannot open LE-GRA radio recorder output: %s", outputPath);
--        output << "timestamp_s,ue_node_id,gnb_node_id,band_index,cqi,tbs_bits_per_slot,total_bands\n";
++{
++    const char *outputPath = std::getenv("LEGRA_RADIO_RAW_CSV");
++    if (outputPath == nullptr || outputPath[0] == '\0')
++        return;
++
++    static std::ofstream output;
++    static std::string activePath;
++    if (!output.is_open()) {
++        activePath = outputPath;
++        output.open(activePath, std::ios::out | std::ios::trunc);
++        if (!output)
++            throw cRuntimeError("Cannot open LE-GRA radio recorder output: %s", outputPath);
 +        output << "timestamp_s,ue_node_id,gnb_node_id,ue_module_path,band_index,cqi,tbs_bits_per_slot,total_bands\n";
-         output << std::setprecision(15);
-     }
-     else if (activePath != outputPath) {
-@@ -81,6 +81,7 @@ void recordLeGraDlBandState(simtime_t timestamp, MacNodeId ueId,
-         output << timestamp.dbl() << ','
-                << ueId << ','
-                << gnbId << ','
++        output << std::setprecision(15);
++    }
++    else if (activePath != outputPath) {
++        throw cRuntimeError("LEGRA_RADIO_RAW_CSV changed during the simulation");
++    }
++
++    for (Band band = 0; band < bandCqi.size(); ++band) {
++        Cqi cqi = bandCqi[band];
++        unsigned int bitsPerSlot = amc->computeBitsPerRbBackground(
++                cqi, DL, carrierFrequency);
++        output << timestamp.dbl() << ','
++               << ueId << ','
++               << gnbId << ','
 +               << ueModulePath << ','
-                << band << ','
-                << cqi << ','
-                << bitsPerSlot << ','
-@@ -933,6 +934,8 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pktAux)
-                 const auto& codewords = fb.getBandCqi();
-                 if (!codewords.empty() && !codewords.front().empty()) {
++               << band << ','
++               << cqi << ','
++               << bitsPerSlot << ','
++               << bandCqi.size() << '\n';
++    }
++    output.flush();
++}
++
++} // namespace
++
+ /*********************
+ * PUBLIC FUNCTIONS
+ *********************/
+@@ -878,6 +922,24 @@ void LteMacEnb::macHandleFeedbackPkt(cPacket *pktAux)
+             }
+         }
+     }
++    for (const auto& fbv : fbMapDl) {
++        bool recorded = false;
++        for (const auto& fb : fbv) {
++            if (!fb.isEmptyFeedback() && fb.hasBandCqi()) {
++                const auto& codewords = fb.getBandCqi();
++                if (!codewords.empty() && !codewords.front().empty()) {
 +                    std::string ueModulePath = binder_->getModuleByMacNodeId(
 +                            srcNodeId)->getFullPath();
-                     recordLeGraDlBandState(simTime(), srcNodeId, nodeId_,
--                            lteInfo->getCarrierFrequency(), codewords.front(), amc_);
-+                            ueModulePath.c_str(), lteInfo->getCarrierFrequency(), codewords.front(), amc_);
-                     recorded = true;
-                     break;
-                 }
++                    recordLeGraDlBandState(simTime(), srcNodeId, nodeId_,
++                            ueModulePath.c_str(), lteInfo->getCarrierFrequency(),
++                            codewords.front(), amc_);
++                    recorded = true;
++                    break;
++                }
++            }
++        }
++        if (recorded)
++            break;
++    }
+     for (auto& fbv : fbMapUl) {
+         for (auto& fb : fbv) {
+             if (!fb.isEmptyFeedback())

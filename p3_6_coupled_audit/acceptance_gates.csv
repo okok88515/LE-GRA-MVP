@@ -1,7 +1,7 @@
 gate,passed,observed,target,note
-multi_ue_snapshots_at_least_5,0,4,>= 5,P3.6 requires enough multi-UE snapshots to study grouping.
-cqi_not_fully_saturated,0,"unique=1, saturation=1.000000",unique > 1 and saturation < 0.95,All-CQI-15 traces are not informative for learner ambiguity.
-per_band_dispersion_present,0,max_range_kbps=0.000000,> 0,"Need intra-profile variation, not flat per-band rates."
-ambiguous_pairs_present,0,0,> 0,Need same/similar-CQI but different RB-profile user pairs.
+multi_ue_snapshots_at_least_5,1,614,>= 5,P3.6 requires enough multi-UE snapshots to study grouping.
+cqi_not_fully_saturated,1,"unique=4, saturation=0.712140",unique > 1 and saturation < 0.95,All-CQI-15 traces are not informative for learner ambiguity.
+per_band_dispersion_present,1,max_range_kbps=856.000000,> 0,"Need intra-profile variation, not flat per-band rates."
+ambiguous_pairs_present,1,1944,> 0,Need same/similar-CQI but different RB-profile user pairs.
 measured_previous_quality,0,explicit_experiment_control_not_video_measurement,not explicit experiment control,P3.6 must use measured or defensible adaptive video state.
 teacher_validation,1,1,1,"P3.2 join, P3.0 load, and offline teacher passed."
