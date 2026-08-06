@@ -1,0 +1,5 @@
+ratio_tag,rb_budget_ratio,teacher_scenarios,positive_snapshot_count,positive_family_count,new_positive_family_count_vs_rb_032,max_teacher_gain_vs_single
+rb_032,0.32,875,24,1,0,0.038608503576809006
+rb_028,0.28,875,9,3,2,0.05303698023995784
+rb_024,0.24,875,3,2,2,0.023566426033575172
+rb_020,0.2,875,0,0,0,1.1102230246251565e-16

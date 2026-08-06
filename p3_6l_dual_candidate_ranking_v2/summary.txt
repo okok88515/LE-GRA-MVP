@@ -1,0 +1,3 @@
+audit_csv=p3_6i2_teacher_audit\full_bundle\scenario_teacher_decisions.csv
+candidate_family_count=15
+top_family=1|2|4|5 @ gnb_2

@@ -1,0 +1,6 @@
+rank,family_tag,target_ue_ids,serving_gnb,primary_weak_ue_id,decoy_ue_id,window_start_s,window_end_s,target_scenario_count,target_positive_gain_count,target_max_gain_vs_single,target_mean_gain_vs_single,window_scenario_count,window_positive_gain_count,window_multi_group_count,window_max_gain_vs_single,window_mean_gain_vs_single,full_bundle_positive_gain_count,full_bundle_positive_gain_ratio,focus_positive_segment_count,summary_rank
+1,rank1_1_2_4_5_gnb_2,1|2|4|5,gnb_2,2,4,23.0,23.9,10,0,0.000000000000,0.000000000000,10,0,6,0.000000000000,0.000000000000,9,0.010843373493975903,2,1
+2,rank2_0_1_15_2_3_4_5_gnb_1,0|1|15|2|3|4|5,gnb_1,15,4,38.0,43.6,57,3,0.057159402144,0.002857970107,57,0,0,0.000000000000,0.000000000000,9,0.010843373493975903,2,2
+4,rank4_0_1_15_2_3_4_gnb_1,0|1|15|2|3|4,gnb_1,15,3,36.0,37.9,20,0,0.000000000000,0.000000000000,20,0,0,0.000000000000,0.000000000000,9,0.010843373493975903,2,3
+5,rank5_31_4_5_6_7_gnb_2,31|4|5|6|7,gnb_2,5,6,30.5,35.9,35,0,0.000000000000,0.000000000000,35,0,0,0.000000000000,0.000000000000,9,0.010843373493975903,2,4
+9,rank9_0_1_2_3_4_gnb_2,0|1|2|3|4,gnb_2,4,3,17.0,20.9,40,0,0.000000000000,0.000000000000,40,0,0,0.000000000000,0.000000000000,3,0.0036144578313253013,1,5

@@ -1,0 +1,2 @@
+variant_count=6
+best_variant=start_43_2_same

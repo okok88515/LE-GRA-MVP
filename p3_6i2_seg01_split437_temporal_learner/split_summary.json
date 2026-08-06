@@ -1,0 +1,33 @@
+{
+  "bundle_dir": "p3_6i2_coupled_bundle\\bundle",
+  "feature_mode": "history_cost_quality",
+  "max_groups": 3,
+  "seed": 9,
+  "min_users": 2,
+  "focus_ue_ids": [
+    "0",
+    "1",
+    "15",
+    "2",
+    "3",
+    "4",
+    "5"
+  ],
+  "background_train_ue_ids": [
+    "31",
+    "6",
+    "7"
+  ],
+  "background_train_scenarios": 150,
+  "focus_train_scenarios": 527,
+  "focus_test_scenarios": 2,
+  "focus_train_positive_gain_count": 7,
+  "focus_test_positive_gain_count": 2,
+  "train_window_end": 43.7,
+  "test_window_start": 43.8,
+  "test_window_end": 43.9,
+  "rb_budget_ratio": 0.28,
+  "selected_epoch": 12,
+  "selection_validation_loss": 0.00047992110362449794,
+  "pair_sampling": "random_balanced"
+}

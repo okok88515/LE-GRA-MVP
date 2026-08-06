@@ -1,0 +1,6 @@
+<launch>
+  <copy file="heterogeneous.net.xml"/>
+  <copy file="targeted_family_conservative.rou.xml"/>
+  <copy file="targeted_family_conservative.sumocfg" type="config"/>
+  <copy file="gui-settings.xml"/>
+</launch>

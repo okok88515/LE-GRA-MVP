@@ -1,0 +1,33 @@
+{
+  "bundle_dir": "p3_6k4_decoy_history_bundle\\bundle",
+  "feature_mode": "history_cost_quality",
+  "max_groups": 3,
+  "seed": 9,
+  "min_users": 2,
+  "focus_ue_ids": [
+    "3",
+    "4",
+    "5",
+    "6"
+  ],
+  "background_train_ue_ids": [
+    "0",
+    "1",
+    "15",
+    "2",
+    "31",
+    "7"
+  ],
+  "background_train_scenarios": 721,
+  "focus_train_scenarios": 130,
+  "focus_test_scenarios": 4,
+  "focus_train_positive_gain_count": 4,
+  "focus_test_positive_gain_count": 4,
+  "train_window_end": 29.5,
+  "test_window_start": 29.6,
+  "test_window_end": 29.9,
+  "rb_budget_ratio": 0.28,
+  "selected_epoch": 11,
+  "selection_validation_loss": 0.0015791576816499358,
+  "pair_sampling": "random_balanced"
+}

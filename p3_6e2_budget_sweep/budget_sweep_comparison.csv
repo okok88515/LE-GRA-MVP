@@ -1,0 +1,4 @@
+rb_budget_ratio,tag,bundle_scenarios,bundle_users,teacher_scenarios,multi_ue_snapshot_count,active_ues_median,cqi_saturation_ratio,ambiguous_pair_count,ambiguous_pair_ratio,handover_count,quality_switch_count,full_multi_group_count,full_multi_group_ratio,full_positive_gain_count,full_positive_gain_ratio,full_max_teacher_gain_vs_single,test_multi_group_count,test_multi_group_ratio,test_positive_gain_count,test_positive_gain_ratio,test_max_teacher_gain_vs_single,test_ue_ids
+0.5,rb_050,875,3077,875,820,3.000000,0.472863,1649,0.326405,14,75,4,0.004878048780487805,0,0.0,1.1102230246251565e-16,0,0.0,0,0.0,0.0,15|2|31
+0.4,rb_040,875,3077,875,820,3.000000,0.472863,1649,0.326405,14,44,0,0.0,0,0.0,1.1102230246251565e-16,0,0.0,0,0.0,0.0,15|2|31
+0.32,rb_032,875,3077,875,820,3.000000,0.472863,1649,0.326405,14,93,24,0.02926829268292683,24,0.02926829268292683,0.038608503576809006,0,0.0,0,0.0,0.0,15|2|31

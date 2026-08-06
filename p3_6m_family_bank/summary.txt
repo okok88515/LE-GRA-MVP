@@ -1,0 +1,3 @@
+ranking_csv=C:\Users\Weber\Documents\LE-GRA-MVP\p3_6l_dual_candidate_ranking_v2\top10_dual_candidate_family_ranking.csv
+selected_family_count=5
+best_family=1|2|4|5 @ gnb_2

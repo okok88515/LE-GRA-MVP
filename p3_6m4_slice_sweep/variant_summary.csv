@@ -1,0 +1,7 @@
+variant,window_start_s,target_scenario_count,multi_group_count,positive_gain_count,positive_dualweak_count,max_gain_vs_single,first_positive_time_s,rank
+start_43_2_same,43.2,60,3,3,3,0.032424870721,43.7,1
+start_43_3_same,43.3,60,3,3,3,0.032424870721,43.7,2
+start_43_3_medium,43.3,60,3,3,3,0.032424870721,43.7,3
+baseline_m2_like,43.4,60,3,3,3,0.032424870721,43.7,4
+start_43_4_medium,43.4,60,3,3,3,0.032424870721,43.7,5
+start_43_4_stronger,43.4,60,3,3,3,0.032424870721,43.7,6

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LE-GRA MVP | P3.6 研究結論</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --paper: rgba(255, 252, 247, 0.84);
+      --ink: #17232c;
+      --muted: #58646d;
+      --line: rgba(23, 35, 44, 0.14);
+      --accent: #c45a2f;
+      --accent-soft: rgba(196, 90, 47, 0.12);
+      --deep: #23404d;
+      --green: #6f8777;
+      --shadow: 0 24px 64px rgba(18, 28, 35, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 10%, rgba(196, 90, 47, 0.17), transparent 28%),
+        radial-gradient(circle at 86% 16%, rgba(111, 135, 119, 0.16), transparent 26%),
+        linear-gradient(180deg, #f8f4ec 0%, #ede3d4 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(23, 35, 44, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 35, 44, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 84%);
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+      position: relative;
+    }
+
+    .topbar,
+    .footer-note {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .topbar {
+      padding-bottom: 22px;
+    }
+
+    .tag,
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.84rem;
+    }
+
+    .tag::before,
+    .eyebrow::before {
+      content: "";
+      width: 42px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .hero,
+    .section-card,
+    .footer-note,
+    .highlight-band {
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.62);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .hero-copy,
+    .hero-side,
+    .section-card,
+    .footer-note {
+      padding: 28px;
+    }
+
+    .hero-copy {
+      position: relative;
+    }
+
+    .hero-copy::after {
+      content: "P3.6";
+      position: absolute;
+      right: 6px;
+      bottom: -16px;
+      font-size: clamp(4rem, 12vw, 8rem);
+      font-weight: 800;
+      letter-spacing: -0.08em;
+      line-height: 0.9;
+      color: rgba(23, 35, 44, 0.05);
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      background: linear-gradient(180deg, rgba(35, 64, 77, 0.97), rgba(18, 33, 42, 0.98));
+      color: #f8f1e6;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: "PMingLiU", "Times New Roman", serif;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    h1 {
+      font-size: clamp(2.7rem, 6vw, 4.8rem);
+      max-width: 9ch;
+    }
+
+    h2 {
+      font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+      margin-bottom: 14px;
+    }
+
+    h3 {
+      font-size: 1.08rem;
+      margin-bottom: 8px;
+    }
+
+    p,
+    li {
+      font-size: 1rem;
+      line-height: 1.82;
+      color: var(--deep);
+    }
+
+    .hero-side p,
+    .hero-side li {
+      color: rgba(248, 241, 230, 0.86);
+    }
+
+    .sections {
+      display: grid;
+      gap: 22px;
+      margin-top: 24px;
+    }
+
+    .grid-3,
+    .grid-2,
+    .summary-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .grid-3,
+    .summary-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .block,
+    .summary-tile,
+    .timeline-step {
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--line);
+    }
+
+    .summary-tile strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1.7rem;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .timeline-step {
+      position: relative;
+      padding-left: 72px;
+    }
+
+    .timeline-step::before {
+      content: attr(data-step);
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 10px 22px rgba(196, 90, 47, 0.22);
+    }
+
+    .highlight-band {
+      margin-top: 20px;
+      padding: 22px 24px;
+      border-left: 4px solid var(--accent);
+      background:
+        linear-gradient(180deg, rgba(196, 90, 47, 0.08), rgba(196, 90, 47, 0.03)),
+        var(--paper);
+    }
+
+    .claim {
+      margin-top: 12px;
+      padding: 14px 16px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(196, 90, 47, 0.18);
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.75;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    @media (max-width: 960px) {
+      .hero,
+      .grid-3,
+      .grid-2,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 18px, 1120px);
+        padding-top: 18px;
+      }
+
+      .hero-copy,
+      .hero-side,
+      .section-card,
+      .footer-note {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .timeline-step {
+        padding-left: 64px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <div class="tag">Research Conclusion</div>
+      <div>更新日期：2026-08-06</div>
+    </div>
+
+    <section class="hero">
+      <article class="hero-copy">
+        <div class="eyebrow">LE-GRA MVP</div>
+        <h1>P3.6 研究結論整理</h1>
+        <p>
+          這份結論稿聚焦在 P3.6 的核心問題：LE-GRA 在 coupled trace 上到底是
+          「學不起來」，還是只是先前沒有拿到真正 informative 的 supervision。
+        </p>
+        <p>
+          目前的證據顯示，真正的瓶頸不是 learner 在真實樣態資料上完全失效，
+          而是研究流程必須先成功建立、保留、並對齊到會讓 offline teacher
+          願意 split 的場景窗口。當這個條件成立後，LE-GRA 在多個 focused temporal
+          slices 上都可以完整重現 teacher。
+        </p>
+      </article>
+
+      <aside class="hero-side">
+        <div>
+          <h2>一句話總結</h2>
+          <p>
+            P3.6 最重要的發現不是「再換更強 learner」，而是
+            <strong>先找到真正有正增益 split 的 coupled regime</strong>。
+          </p>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-tile">
+            <strong>2</strong>
+            <span>Recovered positive segments in P3.6i-2</span>
+          </div>
+          <div class="summary-tile">
+            <strong>7</strong>
+            <span>Candidate temporal slices mined</span>
+          </div>
+          <div class="summary-tile">
+            <strong>1.0</strong>
+            <span>LE-GRA teacher imitation on seg_01 / seg_02</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="sections">
+      <section class="section-card">
+        <h2>研究問題與答案</h2>
+        <div class="grid-2">
+          <div class="block">
+            <h3>原本的問題</h3>
+            <p>
+              在早期 coupled learner 測試裡，LE-GRA 看起來沒有明顯優勢，
+              甚至容易讓人懷疑它在真實 trace-like regime 上是不是學不起來。
+            </p>
+          </div>
+          <div class="block">
+            <h3>現在的答案</h3>
+            <p>
+              現在比較合理的答案是：不是 LE-GRA 本身完全失效，而是先前 train/test
+              split 沒有對齊到真實存在的 split-gain regime，所以 supervision 本身不夠 informative。
+            </p>
+          </div>
+        </div>
+        <div class="claim">
+          可以主張的核心結論：只要 train side 與 test side 都落在真實存在的 positive-gain split regime 上，
+          LE-GRA 可以在 coupled trace 的 focused temporal slices 上完整重現 offline teacher。
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>證據鏈</h2>
+        <div class="timeline">
+          <div class="timeline-step" data-step="1">
+            <h3>P3.6e：先把 split pressure 做出來</h3>
+            <p>
+              在 `rb_budget_ratio = 0.32` 時，首次穩定出現真正的 positive-gain teacher split，
+              表示 coupled scenario 不是完全無法產生有用 supervision，而是要先把資源壓力調到對的位置。
+            </p>
+          </div>
+          <div class="timeline-step" data-step="2">
+            <h3>P3.6f：第一次 focused learner 失敗，暴露 supervision mismatch</h3>
+            <p>
+              當測試 slice 有 split gain、但 train side 幾乎沒有正增益 supervision 時，
+              learner 表現就不會穩。這一輪更像是 protocol 問題，而不是演算法直接失敗。
+            </p>
+          </div>
+          <div class="timeline-step" data-step="3">
+            <h3>P3.6g：重新設計 train-side supervision 後成功</h3>
+            <p>
+              在 `0|1|2|3` 的 focused temporal window 上，只要 train/test 都對齊到同一段 split regime，
+              LE-GRA 與 teacher 完全對齊，證明 learner 並非不能學。
+            </p>
+          </div>
+          <div class="timeline-step" data-step="4">
+            <h3>P3.6i：激進 redesign 反而把 regime 破壞掉</h3>
+            <p>
+              把 northbound spacing 拉得太開之後，positive split family 全部消失，
+              顯示 informative regime 對 traffic overlap 與 cross-traffic 結構非常敏感。
+            </p>
+          </div>
+          <div class="timeline-step" data-step="5">
+            <h3>P3.6i-2：保守 redesign 把 regime 救回來</h3>
+            <p>
+              恢復原本節奏、只做溫和 speed ladder 之後，又找回 `2` 段 positive segments、
+              `7` 個 candidate slices，代表真正重要的是保住互動結構，而不是單純把人拉開。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>最強實驗證據</h2>
+        <div class="grid-2">
+          <div class="block">
+            <h3>seg_02：`0|1|2|3|4 @ gnb_2`</h3>
+            <ul>
+              <li>時間窗：`18.7s ~ 19.2s`</li>
+              <li>測試切法：train 到 `18.9s`，test `19.0s ~ 19.2s`</li>
+              <li>LE-GRA utility = Teacher utility = `0.6191`</li>
+              <li>Pairwise = ARI = NMI = `1.0`</li>
+            </ul>
+          </div>
+          <div class="block">
+            <h3>seg_01：`0|1|15|2|3|4|5 @ gnb_1`</h3>
+            <ul>
+              <li>時間窗：`43.7s ~ 43.9s`</li>
+              <li>兩個切法都成功：`43.7 -> 43.8~43.9`、`43.8 -> 43.9`</li>
+              <li>LE-GRA utility = Teacher utility = `0.6043`</li>
+              <li>Pairwise = ARI = NMI = `1.0`</li>
+            </ul>
+          </div>
+        </div>
+        <div class="highlight-band">
+          <h3>為什麼 seg_01 很重要</h3>
+          <p>
+            `seg_01` 不只是另一段成功的 slice。它包含 cross-traffic 使用者 `15`，
+            發生在 `gnb_1`，而且 teacher gain (`0.05716`) 也明顯大於 `seg_02` (`0.01190`)。
+            也就是說，LE-GRA 成功重現的不是單一偶然 family，而是更高增益、結構更複雜的一段 split regime。
+          </p>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>這份研究現在可以怎麼說</h2>
+        <div class="grid-3">
+          <div class="block">
+            <h3>可以主張</h3>
+            <p>
+              LE-GRA 在 coupled trace-like regime 中不是失效的。
+              當 train/test 真正對齊到 positive-gain supervision 時，
+              它可以在多個 temporal slices 上完整重現 teacher。
+            </p>
+          </div>
+          <div class="block">
+            <h3>也可以主張</h3>
+            <p>
+              場景設計本身是研究核心的一部分。Informative split regime
+              並不是自動存在，而是需要保留 overlap、cross-traffic、
+              channel ambiguity 與 resource pressure 的互動。
+            </p>
+          </div>
+          <div class="block">
+            <h3>還不能主張</h3>
+            <p>
+              目前還不能說 LE-GRA 已經穩定優於強 hand-crafted baseline，
+              因為 Multi-feature 在這些 focused slices 上也同樣完美對齊 teacher。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>真正的研究價值</h2>
+        <p>
+          這一輪工作的價值，不只是多跑出幾個好看的分數，而是把整個研究脈絡釐清了：
+          問題不在於「演算法是不是完全沒用」，而在於
+          <strong>先前的 supervision pipeline 並沒有穩定地把 learner 帶進真正重要的 decision regime</strong>。
+        </p>
+        <p>
+          換句話說，P3.6 已經把研究焦點從「再試一個 learner trick」往前推到更成熟的問題定義：
+          什麼樣的場景條件會讓 teacher 真正傾向 split，
+          而 learner 又如何在那種 regime 上穩定泛化。
+        </p>
+      </section>
+
+      <section class="section-card">
+        <h2>下一步怎麼寫進後續工作</h2>
+        <div class="grid-2">
+          <div class="block">
+            <h3>短期下一步</h3>
+            <ul>
+              <li>整理成正式實驗章節，固定引用 `seg_01`、`seg_02`、`P3.6g` 三段證據。</li>
+              <li>做一份跨 slice 的 summary table，比較 family、teacher gain、LE-GRA imitation。</li>
+              <li>把「aggressive redesign 失敗、conservative redesign 成功」寫成設計 insight。</li>
+            </ul>
+          </div>
+          <div class="block">
+            <h3>中期研究方向</h3>
+            <ul>
+              <li>擴充更多 focused slices，但維持「先確認 supervision regime」的原則。</li>
+              <li>再比較 LE-GRA 與 Multi-feature 在更多 recovered regimes 上的穩定度。</li>
+              <li>等 protocol 穩定後，再談更大矩陣、更多 seeds 或 learner 改版。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer-note">
+      <div>
+        <strong>目前最精準的報告收斂句：</strong>
+        P3.6 顯示 LE-GRA 的主要瓶頸不是 coupled trace 上完全失效，而是需要先成功建構並對齊到真正有正增益的 split-supervision regime。
+      </div>
+      <div>
+        建議搭配檔案：
+        `P3_6I_2_CONSERVATIVE_REDESIGN_ZH.md`、
+        `P3_6G_TRAIN_SIDE_SUPERVISION_REDESIGN_ZH.md`、
+        `SESSION_HANDOFF.md`
+      </div>
+    </div>
+  </main>
+</body>
+</html>

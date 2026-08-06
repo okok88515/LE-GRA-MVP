@@ -1,0 +1,3 @@
+segment_id,ue_ids,serving_gnb,user_count,start_time_s,end_time_s,snapshot_count,mean_gain_vs_single,max_gain_vs_single,min_cqi_range,max_cqi_range,min_resource_cost_range,max_resource_cost_range
+seg_01,0|1|15|2|3|4|5,gnb_1,7,43.7,43.9,3,0.032424870721,0.032424870721,8.0,8.0,2.166667,2.333333
+seg_02,0|1|2|3|4,gnb_2,5,18.7,19.2,6,0.011900924527,0.011900924527,5.0,6.0,1.000000,1.000000

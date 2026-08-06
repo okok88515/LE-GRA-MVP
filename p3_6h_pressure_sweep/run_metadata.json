@@ -1,0 +1,29 @@
+{
+  "ratios": [
+    0.32,
+    0.28,
+    0.24,
+    0.2
+  ],
+  "raw_dir": "C:\\Users\\Weber\\Documents\\LE-GRA-MVP\\p3_6e_coupled_output",
+  "gnbs_csv": "C:\\Users\\Weber\\Documents\\LE-GRA-MVP\\p3_6e_gnbs.csv",
+  "previous_quality_mode": "deterministic_controller_heterogeneous",
+  "top_near_miss_families": [
+    {
+      "ue_ids": "1|2|3|4|5|6",
+      "serving_gnb": "gnb_2"
+    },
+    {
+      "ue_ids": "2|3|4|5|6",
+      "serving_gnb": "gnb_2"
+    },
+    {
+      "ue_ids": "0|1|2|3|4|5",
+      "serving_gnb": "gnb_2"
+    },
+    {
+      "ue_ids": "3|31|4|5|6",
+      "serving_gnb": "gnb_2"
+    }
+  ]
+}

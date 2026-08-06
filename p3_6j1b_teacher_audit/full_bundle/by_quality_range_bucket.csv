@@ -1,0 +1,5 @@
+quality_range_bucket,scenario_count,multi_group_count,multi_group_ratio,mean_teacher_group_count,mean_teacher_gain_vs_single,max_teacher_gain_vs_single
+0,727,0,0.0,1.0,0.0,0.0
+1,98,6,0.061224489795918366,1.0612244897959184,0.0007286280322676975,0.011900924527039058
+2,2,0,0.0,1.0,0.0,0.0
+3+,3,3,1.0,2.0,0.028587973572286374,0.028587973572286374

@@ -1,0 +1,2 @@
+scenario_id,timestamp_s,serving_gnb,user_count,ue_ids
+simu5g_00000598,31.2,gnb_2,5,3|31|4|5|6

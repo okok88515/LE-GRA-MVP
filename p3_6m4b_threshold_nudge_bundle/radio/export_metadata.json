@@ -1,0 +1,58 @@
+{
+  "schema": "legra-simu5g-radio-export-v1",
+  "source": "Simu5G LteMacEnb ALLBANDS feedback",
+  "rate_source": "Simu5G NrAmc::computeBitsPerRbBackground",
+  "rate_formula": "rate_kbps = tbs_bits_per_slot / slot_duration_ms",
+  "slot_duration_ms": 1.0,
+  "snapshot_period_s": 0.1,
+  "snapshot_rule": "latest complete UE feedback in each floor-aligned time bin; if multiple gNB observations remain for one UE/time bin, keep the latest raw timestamp",
+  "rb_budget_ratio": 0.28,
+  "rb_budget_rule": "round(total_logical_bands * ratio), clipped to [1, total]",
+  "previous_quality": 3,
+  "previous_quality_mode": "deterministic_controller_heterogeneous",
+  "previous_quality_source": "deterministic_heterogeneous_adaptation_controller_from_radio_capacity_and_cell_load",
+  "rb_abstraction": "Simu5G logical band",
+  "sinr_source": "not_exported_in_p3_4",
+  "ue_id_source": "SUMO_external_id_joined_by_OMNeT_module_path",
+  "collapsed_same_bin_duplicates": 0,
+  "quality_controller": {
+    "type": "ewma_buffer_adaptation_heterogeneous",
+    "bitrates_kbps": [
+      200.0,
+      550.0,
+      1500.0,
+      3000.0,
+      5800.0,
+      7500.0
+    ],
+    "effective_capacity_rule": "sum(top rb_available per-band rates) divided by active UE count in the same (timestamp, serving_gnb) snapshot",
+    "ewma_rule": "per-UE alpha profile; uniform mode uses 0.65 * previous + 0.35 * current",
+    "buffer_range_s": [
+      0.0,
+      12.0
+    ],
+    "initial_quality": {
+      "conservative": 0,
+      "balanced": 1,
+      "aggressive": 2
+    },
+    "initial_buffer_s": {
+      "conservative": 3.2,
+      "balanced": 2.0,
+      "aggressive": 1.1
+    }
+  },
+  "postprocess_variant": {
+    "name": "p3_6m4b_threshold_nudge_bundle",
+    "base_bundle": "p3_6m2_positive_family_decoy_bundle",
+    "target_family": "0|1|15|2|3|4|5@gnb_1",
+    "target_timestamp_s": 43.6,
+    "intent": "nudge only ue15 at 43.6s so the existing decoy-positive regime may extend one step earlier without redesigning the whole window",
+    "ue15_rate_factors": {
+      ">=1128_kbps": 0.58,
+      ">=984_kbps": 0.55,
+      "else": 0.68
+    },
+    "ue15_cqi_now_raw_delta": -4.0
+  }
+}

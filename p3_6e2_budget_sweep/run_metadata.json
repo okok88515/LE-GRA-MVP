@@ -1,0 +1,13 @@
+{
+  "raw_dir": "p3_6e_coupled_output",
+  "gnbs_csv": "p3_6e_gnbs.csv",
+  "budget_ratios": [
+    0.5,
+    0.4,
+    0.32
+  ],
+  "feature_mode": "history_cost_quality",
+  "switch_beta": 0.5,
+  "min_users": 2,
+  "test_ue_count": 3
+}
