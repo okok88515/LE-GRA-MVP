@@ -231,6 +231,21 @@ def train_trace_model(
     epochs: int,
     pair_sampling: str,
     pairs_per_class: int,
+    supervision_weight_mode: str,
+    hard_positive_scale: float,
+    hard_negative_scale: float,
+    scenario_weight_mode: str,
+    positive_gain_boost: int,
+    multigroup_boost: int,
+    prototype_weight: float,
+    prototype_margin: float,
+    membership_weight: float,
+    candidate_membership_weight: float,
+    candidate_top_k: int,
+    candidate_secondary_scale: float,
+    focus_support_indices: list[int] | None,
+    focus_only_warmup_epochs: int,
+    grouping_mode: str,
     progress_label: str,
 ) -> mvp.MLPEncoder:
     started = matrix.time.perf_counter()
@@ -243,10 +258,50 @@ def train_trace_model(
     )
     teacher_groups = []
     teacher_labels = []
+    teacher_pair_weights = []
+    teacher_hard_group_targets = []
+    teacher_candidate_targets = []
+    teacher_candidate_target_weights = []
+    scenario_repeat_factors = []
     for index, scenario in enumerate(train, start=1):
         groups = mvp.offline_teacher_groups(scenario, max_groups, switch_beta)
         teacher_groups.append(groups)
         teacher_labels.append(mvp.pairwise_labels(groups, len(scenario.cqi_now)))
+        teacher_pair_weights.append(
+            mvp.pairwise_supervision_weights(
+                scenario,
+                groups,
+                mode=supervision_weight_mode,
+                hard_positive_scale=hard_positive_scale,
+                hard_negative_scale=hard_negative_scale,
+            )
+        )
+        teacher_hard_group_targets.append(
+            mvp.hardest_group_membership(scenario, groups)
+        )
+        candidate_target, candidate_target_weights = mvp.candidate_conditioned_membership_targets(
+            scenario,
+            groups,
+            top_k=candidate_top_k,
+            secondary_scale=candidate_secondary_scale,
+        )
+        teacher_candidate_targets.append(candidate_target)
+        teacher_candidate_target_weights.append(candidate_target_weights)
+        teacher_result = mvp.allocate_and_evaluate(groups, scenario, switch_beta)
+        single_result = mvp.allocate_and_evaluate(
+            [list(range(len(scenario.cqi_now)))],
+            scenario,
+            switch_beta,
+        )
+        repeat_factor = 1
+        if scenario_weight_mode == "positive_multigroup_focus":
+            if len(groups) > 1:
+                repeat_factor = max(repeat_factor, multigroup_boost)
+            if teacher_result.utility - single_result.utility > 1e-9:
+                repeat_factor = max(repeat_factor, positive_gain_boost)
+        elif scenario_weight_mode != "uniform":
+            raise ValueError(f"Unsupported scenario_weight_mode: {scenario_weight_mode}")
+        scenario_repeat_factors.append(repeat_factor)
         matrix.progress(
             f"{prefix}Teacher labels {index}/{len(train)} "
             f"({matrix.time.perf_counter() - started:.1f}s elapsed)"
@@ -261,9 +316,23 @@ def train_trace_model(
     best_state = model.get_state()
     best_loss = float("inf")
     best_epoch = 0
+    train_schedule = [
+        idx
+        for idx, repeat_factor in enumerate(scenario_repeat_factors)
+        for _ in range(repeat_factor)
+    ]
+    focus_support_index_set = set(focus_support_indices or [])
+    focus_train_schedule = [
+        idx
+        for idx in train_schedule
+        if idx in focus_support_index_set
+    ]
     matrix.progress(f"{prefix}Training model (0/{epochs} epochs)")
     for epoch in range(1, epochs + 1):
-        order = list(range(len(train)))
+        if focus_only_warmup_epochs > 0 and epoch <= focus_only_warmup_epochs:
+            order = list(focus_train_schedule)
+        else:
+            order = list(train_schedule)
         matrix.random.shuffle(order)
         losses = []
         epoch_pair_stats = []
@@ -271,8 +340,16 @@ def train_trace_model(
             losses.append(model.train_step(
                 train[idx].features,
                 teacher_labels[idx],
+                pair_weights=teacher_pair_weights[idx],
+                hard_group_target=teacher_hard_group_targets[idx],
+                candidate_target=teacher_candidate_targets[idx],
+                candidate_target_weights=teacher_candidate_target_weights[idx],
                 pair_sampling=pair_sampling,
                 max_pairs_per_class=pairs_per_class,
+                prototype_margin=prototype_margin,
+                prototype_weight=prototype_weight,
+                membership_weight=membership_weight,
+                candidate_membership_weight=candidate_membership_weight,
             ))
             epoch_pair_stats.append(model.last_pair_stats.copy())
         loss = float(np.mean(losses)) if losses else 0.0
@@ -285,14 +362,24 @@ def train_trace_model(
                 key: float(np.nanmean([stats[key] for stats in epoch_pair_stats]))
                 for key in epoch_pair_stats[0]
             }
+            pair_stats["schedule_examples"] = float(len(order))
+            pair_stats["boosted_scenarios"] = float(
+                sum(1 for factor in scenario_repeat_factors if factor > 1)
+            )
+            pair_stats["warmup_epoch"] = float(
+                focus_only_warmup_epochs > 0 and epoch <= focus_only_warmup_epochs
+            )
             model.training_pair_stats = pair_stats
             stats_msg = (
                 f"pairs=+{pair_stats['positive_pairs']:.1f}/-{pair_stats['negative_pairs']:.1f}, "
+                f"priority_neg={pair_stats['priority_negative_pairs']:.2f}, "
                 f"active_neg={pair_stats['active_negative_ratio']:.3f}, "
                 f"neg_dist={pair_stats['mean_selected_negative_distance']:.3f}"
             )
         else:
             stats_msg = "pairs=empty"
+        if focus_only_warmup_epochs > 0 and epoch <= focus_only_warmup_epochs:
+            stats_msg += f", warmup_focus_only=1"
         matrix.progress(
             f"{prefix}Epoch {epoch}/{epochs}, train_loss={loss:.4f}, "
             f"best_epoch={best_epoch} {stats_msg} "
@@ -302,6 +389,20 @@ def train_trace_model(
     model.selected_epoch = best_epoch
     model.selection_validation_loss = best_loss
     model.pair_sampling = pair_sampling
+    model.supervision_weight_mode = supervision_weight_mode
+    model.hard_positive_scale = hard_positive_scale
+    model.hard_negative_scale = hard_negative_scale
+    model.scenario_weight_mode = scenario_weight_mode
+    model.positive_gain_boost = positive_gain_boost
+    model.multigroup_boost = multigroup_boost
+    model.prototype_weight = prototype_weight
+    model.prototype_margin = prototype_margin
+    model.membership_weight = membership_weight
+    model.candidate_membership_weight = candidate_membership_weight
+    model.candidate_top_k = candidate_top_k
+    model.candidate_secondary_scale = candidate_secondary_scale
+    model.focus_only_warmup_epochs = focus_only_warmup_epochs
+    model.grouping_mode = grouping_mode
     matrix.progress(
         f"{prefix}Restored best epoch {best_epoch} "
         f"(training_loss={best_loss:.4f})"
@@ -392,10 +493,38 @@ def evaluate_trace_methods(
             "selected_epoch": model.selected_epoch,
             "selection_validation_loss": model.selection_validation_loss,
             "pair_sampling": model.pair_sampling,
+            "supervision_weight_mode": getattr(model, "supervision_weight_mode", "uniform"),
+            "hard_positive_scale": getattr(model, "hard_positive_scale", 1.0),
+            "hard_negative_scale": getattr(model, "hard_negative_scale", 1.0),
+            "scenario_weight_mode": getattr(model, "scenario_weight_mode", "uniform"),
+            "positive_gain_boost": getattr(model, "positive_gain_boost", 1),
+            "multigroup_boost": getattr(model, "multigroup_boost", 1),
+            "prototype_weight": getattr(model, "prototype_weight", 0.0),
+            "prototype_margin": getattr(model, "prototype_margin", 1.0),
+            "membership_weight": getattr(model, "membership_weight", 0.0),
+            "candidate_membership_weight": getattr(model, "candidate_membership_weight", 0.0),
+            "candidate_top_k": getattr(model, "candidate_top_k", 0),
+            "candidate_secondary_scale": getattr(model, "candidate_secondary_scale", 0.0),
+            "grouping_mode": getattr(model, "grouping_mode", "kmeans_embedding"),
             "train_positive_pairs": model.training_pair_stats.get("positive_pairs", float("nan")),
             "train_negative_pairs": model.training_pair_stats.get("negative_pairs", float("nan")),
             "train_active_negative_ratio": model.training_pair_stats.get("active_negative_ratio", float("nan")),
             "train_mean_negative_distance": model.training_pair_stats.get("mean_selected_negative_distance", float("nan")),
+            "train_mean_positive_weight": model.training_pair_stats.get("mean_positive_weight", float("nan")),
+            "train_mean_negative_weight": model.training_pair_stats.get("mean_negative_weight", float("nan")),
+            "train_hard_group_positive_pairs": model.training_pair_stats.get("hard_group_positive_pairs", float("nan")),
+            "train_hard_group_negative_pairs": model.training_pair_stats.get("hard_group_negative_pairs", float("nan")),
+            "train_priority_positive_pairs": model.training_pair_stats.get("priority_positive_pairs", float("nan")),
+            "train_priority_negative_pairs": model.training_pair_stats.get("priority_negative_pairs", float("nan")),
+            "train_schedule_examples": model.training_pair_stats.get("schedule_examples", float("nan")),
+            "train_boosted_scenarios": model.training_pair_stats.get("boosted_scenarios", float("nan")),
+            "train_prototype_positive_terms": model.training_pair_stats.get("prototype_positive_terms", float("nan")),
+            "train_prototype_negative_terms": model.training_pair_stats.get("prototype_negative_terms", float("nan")),
+            "train_membership_terms": model.training_pair_stats.get("membership_terms", float("nan")),
+            "train_candidate_membership_terms": model.training_pair_stats.get("candidate_membership_terms", float("nan")),
+            "train_candidate_membership_weight": model.training_pair_stats.get("candidate_membership_weight", float("nan")),
+            "train_candidate_secondary_weight_mean": model.training_pair_stats.get("candidate_secondary_weight_mean", float("nan")),
+            "train_mean_weak_score": model.training_pair_stats.get("mean_weak_score", float("nan")),
         })
     return rows, grouping_cache
 
@@ -462,6 +591,19 @@ def main() -> None:
     parser.add_argument("--validation-fraction", type=float, default=0.0)
     parser.add_argument("--pair-sampling", default="random_balanced")
     parser.add_argument("--pairs-per-class", type=int, default=160)
+    parser.add_argument("--supervision-weight-mode", default="uniform")
+    parser.add_argument("--hard-positive-scale", type=float, default=2.5)
+    parser.add_argument("--hard-negative-scale", type=float, default=1.5)
+    parser.add_argument("--scenario-weight-mode", default="uniform")
+    parser.add_argument("--positive-gain-boost", type=int, default=4)
+    parser.add_argument("--multigroup-boost", type=int, default=2)
+    parser.add_argument("--prototype-weight", type=float, default=0.0)
+    parser.add_argument("--prototype-margin", type=float, default=1.0)
+    parser.add_argument("--membership-weight", type=float, default=0.0)
+    parser.add_argument("--candidate-membership-weight", type=float, default=0.0)
+    parser.add_argument("--candidate-top-k", type=int, default=2)
+    parser.add_argument("--candidate-secondary-scale", type=float, default=2.0)
+    parser.add_argument("--grouping-mode", default="kmeans_embedding")
     parser.add_argument("--kmeans-n-init", type=int, default=10)
     parser.add_argument("--test-ue-count", type=int, default=3)
     parser.add_argument("--test-ue-ids", nargs="*", default=None)
@@ -514,6 +656,21 @@ def main() -> None:
         epochs=args.epochs,
         pair_sampling=args.pair_sampling,
         pairs_per_class=args.pairs_per_class,
+        supervision_weight_mode=args.supervision_weight_mode,
+        hard_positive_scale=args.hard_positive_scale,
+        hard_negative_scale=args.hard_negative_scale,
+        scenario_weight_mode=args.scenario_weight_mode,
+        positive_gain_boost=args.positive_gain_boost,
+        multigroup_boost=args.multigroup_boost,
+        prototype_weight=args.prototype_weight,
+        prototype_margin=args.prototype_margin,
+        membership_weight=args.membership_weight,
+        candidate_membership_weight=args.candidate_membership_weight,
+        candidate_top_k=args.candidate_top_k,
+        candidate_secondary_scale=args.candidate_secondary_scale,
+        focus_support_indices=None,
+        focus_only_warmup_epochs=0,
+        grouping_mode=args.grouping_mode,
         progress_label=label,
     )
     method_rows, grouping_cache = evaluate_trace_methods(
@@ -564,6 +721,16 @@ def main() -> None:
         "selected_epoch": model.selected_epoch,
         "selection_validation_loss": model.selection_validation_loss,
         "pair_sampling": model.pair_sampling,
+        "supervision_weight_mode": getattr(model, "supervision_weight_mode", "uniform"),
+        "hard_positive_scale": getattr(model, "hard_positive_scale", 1.0),
+        "hard_negative_scale": getattr(model, "hard_negative_scale", 1.0),
+        "scenario_weight_mode": getattr(model, "scenario_weight_mode", "uniform"),
+        "positive_gain_boost": getattr(model, "positive_gain_boost", 1),
+        "multigroup_boost": getattr(model, "multigroup_boost", 1),
+        "prototype_weight": getattr(model, "prototype_weight", 0.0),
+        "prototype_margin": getattr(model, "prototype_margin", 1.0),
+        "membership_weight": getattr(model, "membership_weight", 0.0),
+        "grouping_mode": getattr(model, "grouping_mode", "kmeans_embedding"),
     }
     (args.out_dir / "split_summary.json").write_text(
         json.dumps(split_summary, indent=2) + "\n",

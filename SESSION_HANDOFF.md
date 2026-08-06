@@ -2316,7 +2316,704 @@ Updated best next direction after `P3.6m-4`:
 - keep `43.7s ~ 43.9s` as the main dual-weak evaluation regime
 - move to `P3.6m-5`:
   - learner-side supervision redesign so `LE-GRA` can learn the secondary weak
-    candidate and finally separate from `Multi-feature`
+  candidate and finally separate from `Multi-feature`
+
+### P3.6m-5 learner-side supervision redesign v1
+
+`P3.6m-5` has now started with the first bounded supervision-only change.
+
+Formal note:
+
+- `P3_6M_5_SUPERVISION_REDESIGN_V1_ZH.md`
+
+Formal output:
+
+- `p3_6m5_teacher_hard_group_v1/`
+
+Design:
+
+- keep the existing learner architecture unchanged
+- keep the same main regime and protocol as `P3.6m-4b`
+  - bundle: `p3_6m4b_threshold_nudge_bundle/bundle`
+  - train window end: `43.6s`
+  - test window: `43.7s ~ 43.9s`
+- change only the supervision
+  - new mode: `teacher_hard_group`
+  - upweight positive pairs inside the teacher's hardest group
+  - upweight negative pairs between the hardest group and other groups
+
+Purpose:
+
+- not just "teach split"
+- explicitly emphasize the weak-group identity that should contain
+  `{ue15, ue4}`
+
+Critical result:
+
+- the main comparison did **not** move
+- ordering remains:
+  - `teacher > LE-GRA = multi-feature = CQI = resource-cost > no-group`
+- utilities remain:
+  - `Offline teacher = 0.579609048805`
+  - `LE-GRA = 0.579083105194`
+
+Teacher-imitation diagnostics also remain unchanged on all 3 test snapshots:
+
+- `pairwise_accuracy = 0.714285714286`
+- `ARI = 0.416666666667`
+- `NMI = 0.428140178120`
+
+So `LE-GRA` still collapses to the old `ue15`-only isolation pattern and does
+not yet recover the teacher's dual-weak weak-group identity `{ue15, ue4}`.
+
+Most important new evidence from `v1`:
+
+- train-side hardest-group positive supervision is present
+- hardest-group negative supervision is almost absent
+
+Measured train statistics:
+
+- `train_positive_pairs = 6.2219`
+- `train_negative_pairs = 0.0444`
+- `train_mean_positive_weight = 2.4845`
+- `train_mean_negative_weight = 1.5`
+- `train_hard_group_positive_pairs = 6.1464`
+- `train_hard_group_negative_pairs = 0.0444`
+
+Interpretation:
+
+- weighting alone is not enough
+- the more precise bottleneck is now supervision coverage, especially
+  cross-boundary negatives around the secondary weak candidate
+
+Updated best next direction after `P3.6m-5 v1`:
+
+- do not expand Kmax, seeds, or the matrix
+- keep the same `43.7s ~ 43.9s` regime
+- move to `P3.6m-5 v2` with:
+  - boundary-aware pair construction / guaranteed hard-group negatives
+  - or positive-gain / dual-weak scenario weighting
+
+### P3.6m-5 learner-side supervision redesign v2
+
+`P3.6m-5 v2` has now been completed on the same main regime.
+
+Formal note:
+
+- `P3_6M_5_SUPERVISION_REDESIGN_V2_ZH.md`
+
+Formal output:
+
+- `p3_6m5_teacher_boundary_v2/`
+
+Design:
+
+- keep the learner architecture unchanged
+- keep the same main regime and temporal protocol as `P3.6m-4b`
+- change supervision coverage in two ways:
+  - new pair sampling mode: `teacher_boundary`
+    - prioritizes weighted positives inside the hardest teacher group
+    - prioritizes weighted negatives across the hardest-group boundary
+  - new scenario weighting mode: `positive_multigroup_focus`
+    - repeats multi-group train scenarios
+    - repeats positive-gain train scenarios more strongly
+
+Purpose:
+
+- fix the specific `v1` issue where the learner almost never saw enough
+  hardest-group boundary negatives
+- test whether better coverage alone is sufficient to recover the dual-weak
+  teacher identity `{ue15, ue4}`
+
+Critical result:
+
+- the main comparison still did **not** move
+- ordering remains:
+  - `teacher > LE-GRA = multi-feature = CQI = resource-cost > no-group`
+- utilities remain:
+  - `Offline teacher = 0.579609048805`
+  - `LE-GRA = 0.579083105194`
+
+Teacher-imitation diagnostics also remain unchanged on all 3 test snapshots:
+
+- `pairwise_accuracy = 0.714285714286`
+- `ARI = 0.416666666667`
+- `NMI = 0.428140178120`
+
+So even after explicitly improving boundary coverage, `LE-GRA` still collapses
+to the old `ue15`-only isolation pattern and does not recover the teacher's
+dual-weak weak-group identity `{ue15, ue4}`.
+
+Most important new evidence from `v2`:
+
+- supervision coverage really did improve
+- but improved coverage still did not change the final partition
+
+Measured train statistics:
+
+- `train_negative_pairs = 0.1722` versus `0.0444` in `v1`
+- `train_hard_group_negative_pairs = 0.1722`
+- `train_priority_negative_pairs = 0.1722`
+- `train_schedule_examples = 697.0`
+- `train_boosted_scenarios = 7.0`
+
+Interpretation:
+
+- `v1` could still be criticized as "not enough boundary signal"
+- `v2` removes much of that objection
+- the more precise bottleneck is now the supervision form itself:
+  pairwise contrastive supervision appears insufficient to encode the
+  teacher's weak-group identity in a way that changes downstream k-means
+  grouping
+
+Updated best next direction after `P3.6m-5 v2`:
+
+- do not expand Kmax, seeds, or the matrix
+- keep the same `43.7s ~ 43.9s` regime
+- move to `P3.6m-5 v3` with a supervision-form redesign, not another small
+  pair-sampling tweak:
+  - weak-group membership / group-identity supervision
+  - group-prototype supervision
+  - or regret-aware soft supervision over near-best teacher partitions
+
+### P3.6m-5 learner-side supervision redesign v3
+
+`P3.6m-5 v3` has now been completed on the same main regime.
+
+Formal note:
+
+- `P3_6M_5_SUPERVISION_REDESIGN_V3_ZH.md`
+
+Formal output:
+
+- `p3_6m5_group_identity_v3/`
+
+Design:
+
+- keep all `v2` coverage improvements:
+  - `teacher_boundary` pair sampling
+  - `positive_multigroup_focus` scenario weighting
+- add weakest-group identity supervision:
+  - derive a hardest-group membership target from the teacher partition
+  - add a prototype-style loss that pulls hardest-group members toward a
+    shared center and repels non-members inside a prototype margin
+
+Purpose:
+
+- test whether the real issue is still missing group-identity signal
+- move beyond pure pairwise supervision without replacing the current learner
+  architecture or k-means output stage
+
+Critical result:
+
+- the main comparison still did **not** move
+- ordering remains:
+  - `teacher > LE-GRA = multi-feature = CQI = resource-cost > no-group`
+- utilities remain:
+  - `Offline teacher = 0.579609048805`
+  - `LE-GRA = 0.579083105194`
+
+Teacher-imitation diagnostics also remain unchanged on all 3 test snapshots:
+
+- `pairwise_accuracy = 0.714285714286`
+- `ARI = 0.416666666667`
+- `NMI = 0.428140178120`
+
+So even after directly adding hardest-group identity supervision, `LE-GRA`
+still collapses to the old `ue15`-only isolation pattern and does not recover
+the teacher's dual-weak weak-group identity `{ue15, ue4}`.
+
+Most important new evidence from `v3`:
+
+- the prototype-style identity supervision really did fire during training
+- but it still did not change the final grouping
+
+Measured train statistics:
+
+- `train_prototype_positive_terms = 3.6069`
+- `train_prototype_negative_terms = 0.0488`
+- `prototype_weight = 0.5`
+
+Interpretation:
+
+- this is no longer just a sampling or coverage problem
+- this is no longer just a missing weak-group identity signal problem
+- the more precise bottleneck is now the learner output form itself:
+  the current embedding + k-means pipeline appears unable to stably express
+  the teacher's dual-weak weak-group identity in downstream partitions
+
+Updated best next direction after `P3.6m-5 v3`:
+
+- do not expand Kmax, seeds, or the matrix
+- keep the same `43.7s ~ 43.9s` regime
+- stop spending more time on bounded pairwise/prototype supervision tweaks
+- move to a new learner form:
+  - weak-group membership head
+  - direct split-structure prediction
+  - or soft / near-best partition supervision
+
+### P3.6m-6 weak-group membership head (prototype-style MVP)
+
+`P3.6m-6` has now been started and its first MVP evidence point is complete.
+
+Formal note:
+
+- `P3_6M_6_WEAK_GROUP_MEMBERSHIP_HEAD_ZH.md`
+
+Evidence output:
+
+- `p3_6m5_group_identity_v3/`
+
+Research interpretation:
+
+- this run should now be read as the first `P3.6m-6` MVP, even though the
+  directory name still reflects its original `v3` naming
+
+Design:
+
+- keep the bounded `P3.6m-5 v2` supervision-coverage improvements
+  - `teacher_boundary` pair sampling
+  - `positive_multigroup_focus` scenario weighting
+- add explicit weakest-group identity supervision
+  - derive a hardest-group membership target from the teacher partition
+  - add a prototype-style loss around that target
+
+Purpose:
+
+- test whether directly injecting hardest weak-group identity is enough to
+  move `LE-GRA` beyond `multi-feature`
+
+Critical result:
+
+- the main comparison still did **not** move
+- ordering remains:
+  - `teacher > LE-GRA = multi-feature = CQI = resource-cost > no-group`
+- utilities remain:
+  - `Offline teacher = 0.579609048805`
+  - `LE-GRA = 0.579083105194`
+
+Teacher-imitation diagnostics also remain unchanged on all 3 test snapshots:
+
+- `pairwise_accuracy = 0.714285714286`
+- `ARI = 0.416666666667`
+- `NMI = 0.428140178120`
+
+Train-side evidence confirms the new identity signal was active:
+
+- `train_prototype_positive_terms = 3.6069`
+- `train_prototype_negative_terms = 0.0488`
+- `prototype_weight = 0.5`
+
+Interpretation:
+
+- this is no longer just a pair-sampling problem
+- this is no longer just a supervision-coverage problem
+- this is no longer just a missing weak-group-identity signal problem
+- the current embedding + k-means output form itself appears unable to turn
+  the teacher's dual-weak identity `{ue15, ue4}` into the downstream grouping
+
+Updated best next direction after `P3.6m-6`:
+
+- do not expand Kmax, seeds, or the matrix
+- keep the same `43.7s ~ 43.9s` regime
+- move to `P3.6m-7` with an actual output-form change:
+  - direct weak-group membership head
+  - direct split-structure prediction
+  - or soft / near-best partition supervision without forcing k-means as the
+    only output layer
+
+### P3.6m-7 direct weak-group membership output
+
+`P3.6m-7` has now been completed with the first real post-k-means output-form
+change.
+
+Formal note:
+
+- `P3_6M_7_DIRECT_MEMBERSHIP_OUTPUT_ZH.md`
+
+Formal output:
+
+- `p3_6m7_membership_head_v1/`
+
+Design:
+
+- keep the bounded supervision improvements from `P3.6m-5/6`
+  - `teacher_boundary` pair sampling
+  - `positive_multigroup_focus` scenario weighting
+  - teacher hardest-group targets
+- add a direct weakest-group membership head on top of the MLP
+- change the learner output path:
+  - instead of `embedding -> k-means -> DP`
+  - use `membership score -> weak-score order -> boundary search -> DP`
+
+Purpose:
+
+- remove the explicit dependence on k-means as the final learner output layer
+- test whether a direct learned weak-group ordering can recover the teacher's
+  dual-weak weak-group identity `{ue15, ue4}`
+
+Critical result:
+
+- the main comparison still did **not** move
+- ordering remains:
+  - `teacher > LE-GRA = multi-feature = CQI = resource-cost > no-group`
+- utilities remain:
+  - `Offline teacher = 0.579609048805`
+  - `LE-GRA = 0.579083105194`
+
+Teacher-imitation diagnostics also remain unchanged on all 3 test snapshots:
+
+- `pairwise_accuracy = 0.714285714286`
+- `ARI = 0.416666666667`
+- `NMI = 0.428140178120`
+
+So even after removing k-means from the learner's final output path, `LE-GRA`
+still does not recover the teacher's dual-weak weak-group identity
+`{ue15, ue4}`.
+
+Most important new evidence from `P3.6m-7`:
+
+- the direct membership head was active during training
+- the learner really did use `membership_order` rather than the old k-means
+  path
+- yet the final grouping still did not change
+
+Measured train statistics:
+
+- `membership_weight = 1.0`
+- `train_membership_terms = 3.7791`
+- `train_mean_weak_score = 0.9707`
+
+Interpretation:
+
+- this is no longer just a k-means bottleneck
+- the problem is now better described as target/evidence insufficiency for
+  learning a transferable rule for the secondary weak candidate
+
+Updated best next direction after `P3.6m-7`:
+
+- do not expand Kmax, seeds, or the matrix
+- keep the same `43.7s ~ 43.9s` regime
+- stop spending more time on small head/loss/output-form tweaks within the same
+  learner family
+- move to `P3.6m-8` with:
+  - richer supervision targets (for example soft / near-best partitions)
+  - or regime-focused train-evidence redesign that increases the density of
+    true secondary-weak examples
+
+## Latest Regime-Focused Result: `P3.6m-8`
+
+Formal write-up:
+
+- `P3_6M_8_TRAIN_EVIDENCE_REPLAY_ZH.md`
+
+Main finding:
+
+- the original focused learner protocol had a train-evidence hole
+- in `focus_train <= 43.6s`, the number of exact teacher dual-weak slices
+  `{ue15, ue4}` was **zero**
+- in `focus_test = 43.7s ~ 43.9s`, all 3 evaluation slices were exact
+  dual-weak `{ue15, ue4}`
+
+This means the learner was not merely facing ordinary temporal drift. The
+teacher target form itself changed between train and test:
+
+- `43.6s`: bridge snapshot, teacher isolates only `{ue15}`
+- `43.7s ~ 43.9s`: true dual-weak split `{ue15, ue4}`
+
+Protocol changes added in `run_p3_6g_temporal_learner.py`:
+
+- `--train-window-start`
+- `--background-train-repeat`
+- `--focus-train-repeat`
+- `teacher_group_evidence_audit.csv`
+
+Two key `P3.6m-8` experiments were run:
+
+1. `p3_6m8_support_train437_438_test439/`
+   - train includes only 2 exact dual-weak support slices (`43.7`, `43.8`)
+   - test is `43.9`
+   - result: still not enough; direct inspection shows LE-GRA still predicts
+     `{ue15}` as the weak group
+
+2. `p3_6m8_support_replay80_train437_438_test439/`
+   - same support slices, but replayed to reach evidence density comparable to
+     the 150 background slices
+   - result: LE-GRA exactly matches teacher on the `43.9` holdout
+   - diagnostics:
+     - `pairwise_accuracy = 1.0`
+     - `ARI = 1.0`
+     - `NMI = 1.0`
+   - direct grouping:
+     - teacher: `[['0','1','2','3','5'], ['4','15']]`
+     - LE-GRA: `[['15','4'], ['0','5','3','1','2']]`
+
+Important interpretation:
+
+- this is the strongest evidence so far that the bottleneck is now
+  evidence-density / curriculum design rather than a simple inability of the
+  learner family to represent the dual-weak rule
+- do **not** jump straight to bigger matrices or seed sweeps
+- do **not** assume a new external dataset is immediately required
+- the best next step is a controlled evidence-density or support/holdout sweep
+  around this same regime
+
+Implementation note:
+
+- the first replay attempt exposed a protocol bug: repeating Python lists of
+  `Scenario` objects caused shared references and repeated in-place feature
+  normalization, producing `NaN`
+- this was fixed by replaying deep-copied scenarios instead
+- treat the fixed `p3_6m8_support_replay80_train437_438_test439/` result as the
+  valid one
+
+## Latest Threshold Result: `P3.6m-9`
+
+Formal write-up:
+
+- `P3_6M_9_EVIDENCE_DENSITY_SWEEP_ZH.md`
+
+Formal output:
+
+- `p3_6m9_evidence_density_sweep/`
+- `p3_6m9_evidence_density_sweep/sweep_summary.csv`
+
+Purpose:
+
+- quantify how much exact dual-weak support density is required before LE-GRA
+  stops isolating only `ue15` and starts recovering the full
+  `{ue15, ue4}` weak group
+
+Protocol:
+
+- keep the same regime and learner recipe as `P3.6m-8`
+- support window: `43.7s ~ 43.8s`
+- holdout test: `43.9s`
+- sweep `focus_train_repeat` over:
+  - `1, 2, 4, 8, 16, 40, 80`
+- keep background training fixed at 150 effective scenarios
+
+Critical result:
+
+- `repeat = 1, 2`
+  - LE-GRA remains stuck at the old behavior
+  - utility stays at `0.579083105194`
+  - diagnostics stay at:
+    - `pairwise_accuracy = 0.714285714286`
+    - `ARI = 0.416666666667`
+    - `NMI = 0.428140178120`
+
+- `repeat >= 4`
+  - LE-GRA exactly matches the teacher
+  - utility becomes `0.579609048805`
+  - diagnostics become:
+    - `pairwise_accuracy = 1.0`
+    - `ARI = 1.0`
+    - `NMI = 1.0`
+
+Most important interpretation:
+
+- the bottleneck is now best described as a support-density threshold
+- in this regime, the threshold is surprisingly sharp and not very large
+- effective focus support moves from:
+  - `4` exact support slices at `repeat = 2`
+  - to `8` exact support slices at `repeat = 4`
+- the phase transition happens between those two points
+
+Practical implication:
+
+- do not jump to larger matrices or broader dataset generation yet
+- the most valuable next step is not more scale but better curriculum / support
+  efficiency
+- the next experiment should try to recover the `repeat = 4` win while using
+  only `repeat = 1` or `2` worth of exact support, for example through smarter
+  weighting or scheduling rather than brute-force replay
+
+## Latest Support-Efficiency Result: `P3.6m-10`
+
+Formal write-up:
+
+- `P3_6M_10_BACKGROUND_DILUTION_ZH.md`
+
+Formal output:
+
+- `p3_6m10_background_dilution_sweep/`
+
+Purpose:
+
+- test whether `repeat = 2` fails because exact support is inherently too weak,
+  or because the exact support is diluted by too many irrelevant background
+  scenarios
+
+Protocol:
+
+- keep the same exact support window (`43.7s ~ 43.8s`) and same holdout test
+  (`43.9s`)
+- keep `focus_train_repeat = 2`
+- sweep `background_train_limit` over:
+  - `150, 100, 50, 20, 10, 5, 0`
+
+Critical result:
+
+- `background_limit = 150` or `100`
+  - LE-GRA still fails
+  - utility stays at `0.579083105194`
+  - diagnostics stay at:
+    - `pairwise_accuracy = 0.714285714286`
+    - `ARI = 0.416666666667`
+    - `NMI = 0.428140178120`
+
+- `background_limit <= 50`
+  - LE-GRA exactly matches the teacher
+  - utility becomes `0.579609048805`
+  - diagnostics become:
+    - `pairwise_accuracy = 1.0`
+    - `ARI = 1.0`
+    - `NMI = 1.0`
+
+Boundary refinement:
+
+- `p3_6m11_repeat3_bg150/`
+  - `repeat = 3`, `background = 150`
+  - success
+
+- `p3_6m11_repeat2_bg080/`
+  - fail
+
+- `p3_6m11_repeat2_bg075/`
+  - fail
+
+- `p3_6m11_repeat2_bg060/`
+  - success
+
+Most important interpretation:
+
+- `repeat = 2` is not inherently insufficient
+- the failure of the original protocol is partly caused by background dilution
+- the bottleneck is now best understood as a combination of:
+  - exact dual-weak support density
+  - support-to-background ratio
+  - schedule frequency of those exact support slices
+
+Current best next direction:
+
+- do not regenerate a new dataset yet
+- do not broaden the matrix
+- move to a schedule-aware learner protocol that enforces stronger exposure to
+  exact support slices without brute-force scaling of the whole train set
+
+## Latest Curriculum Result: `P3.6m-11`
+
+Formal write-up:
+
+- `P3_6M_11_SUPPORT_WARMUP_CURRICULUM_ZH.md`
+
+Purpose:
+
+- test whether the original `repeat = 2`, `background = 150` failure can be
+  fixed by changing only the timing of support exposure, not the amount of
+  data
+
+Implementation:
+
+- `train_trace_model(...)` now supports:
+  - `focus_support_indices`
+  - `focus_only_warmup_epochs`
+- in the temporal protocol, this creates a support-only warmup phase before the
+  full mixed schedule begins
+
+Key experiment family:
+
+- `p3_6m12_repeat2_bg150_warmup1/`
+- `p3_6m12_repeat2_bg150_warmup2/`
+- `p3_6m12_repeat2_bg150_warmup3/`
+- `p3_6m12_repeat2_bg150_warmup4/`
+- `p3_6m12_repeat2_bg150_warmup6/`
+
+Critical result:
+
+- `warmup = 1, 2, 3`
+  - all succeed
+  - LE-GRA exactly matches teacher again
+  - utility = `0.579609048805`
+
+- `warmup = 4, 6`
+  - both fail
+  - LE-GRA falls back to the old solution
+  - utility = `0.579083105194`
+
+Most important interpretation:
+
+- the bottleneck is now clearly not just support quantity
+- a short support-only warmup is sufficient to unlock the correct dual-weak
+  rule even when:
+  - `background = 150`
+  - `focus_train_repeat = 2`
+- but longer support-only warmup is harmful, suggesting a narrow curriculum
+  sweet spot rather than a monotonic “more support first is always better”
+
+Updated best next direction after `P3.6m-11`:
+
+- keep the same regime
+- do not regenerate data yet
+- formalize a schedule-aware curriculum protocol
+- then test whether the short-warmup win transfers to nearby slices or nearby
+  families rather than only to the exact `43.9s` holdout
+
+## Latest Transfer Check: `P3.6m-12`
+
+Formal write-up:
+
+- `P3_6M_12_SINGLE_SUPPORT_TRANSFER_ZH.md`
+
+Purpose:
+
+- check whether the short-warmup win transfers when support is reduced to only
+  one exact dual-weak snapshot
+
+Protocol:
+
+- train support uses only `43.7s`
+- holdout test uses `43.8s ~ 43.9s`
+- keep:
+  - `background = 150`
+  - `focus_train_repeat = 2`
+- compare:
+  - no warmup
+  - warmup `1`
+  - warmup `2`
+
+Key experiment family:
+
+- `p3_6m13_support437_test438_439_baseline/`
+- `p3_6m13_support437_test438_439_warmup1/`
+- `p3_6m13_support437_test438_439_warmup2/`
+
+Critical result:
+
+- all three runs fail
+- LE-GRA remains at:
+  - `0.579083105194`
+- so short warmup alone is not enough when support diversity collapses to a
+  single exact dual-weak snapshot
+
+Most important interpretation:
+
+- warmup is helpful, but not magical
+- it does not replace the need for at least a minimally sufficient support set
+- current evidence suggests the successful recipe requires both:
+  - more than one exact dual-weak support snapshot
+  - and the correct curriculum timing
+
+Updated best next direction after `P3.6m-12`:
+
+- stay on the same regime
+- do not regenerate data yet
+- identify the minimum successful support set
+- the next best experiments are two-support transfer checks such as:
+  - `43.7 + 43.8 -> 43.9`
+  - `43.8 + 43.9 -> 43.7`
+  - `43.7 + 43.9 -> 43.8`
 
 ## Repository State at Handoff
 
@@ -2327,3 +3024,789 @@ simulator installations. On a new computer, first run the pure-Python
 runtime when a new coupled simulation must be generated. The current primary
 research artifacts are `medium_matrix_results_v2_after_grad_fix/`,
 `p3_4_actual_radio/`, and `p3_5_coupled_bundle/`.
+
+## Latest Focused Robustness Check: `P3.6m-15`
+
+Purpose:
+
+- verify whether the new two-support warmup recipe is a one-seed accident
+- keep the same family/regime and avoid expanding the overall matrix
+
+Protocol:
+
+- same family:
+  - `0|1|15|2|3|4|5 @ gnb_1`
+- same training recipe:
+  - `background_train_limit = 150`
+  - `focus_train_repeat = 2`
+  - `focus_only_warmup_epochs = 1`
+- run the three minimum-support transfer tasks with seeds:
+  - `7`
+  - `9`
+  - `11`
+
+Transfer tasks:
+
+- `43.7 + 43.8 -> 43.9`
+- `43.8 + 43.9 -> 43.7`
+- `43.7 + 43.9 -> 43.8`
+
+Key experiment family:
+
+- `p3_6m15_seed7_support437_438_test439/`
+- `p3_6m15_seed9_support437_438_test439/`
+- `p3_6m15_seed11_support437_438_test439/`
+- `p3_6m15_seed7_support438_439_test437/`
+- `p3_6m15_seed9_support438_439_test437/`
+- `p3_6m15_seed11_support438_439_test437/`
+- `p3_6m15_seed7_support437_439_test438/`
+- `p3_6m15_seed9_support437_439_test438/`
+- `p3_6m15_seed11_support437_439_test438/`
+
+Critical result:
+
+- seed `7`: all three transfer tasks succeed
+- seed `11`: all three transfer tasks succeed
+- seed `9`: all three transfer tasks fail in the same way
+
+Most important interpretation:
+
+- the earlier warmup result is real, not a one-off direction artifact
+- but the learner is still initialization-sensitive
+- the bottleneck has moved from:
+  - “can it ever learn the dual-weak rule?”
+- to:
+  - “can we select or stabilize the good training trajectory?”
+
+## Latest Selection Fix: `P3.6m-16`
+
+Formal write-up:
+
+- `P3_6M_16_FOCUSED_MULTISTART_TIEBREAK_ZH.md`
+
+Purpose:
+
+- add the smallest possible learner-side stabilization without changing the
+  main architecture
+- test whether deterministic restart selection can recover the seed-9 failures
+
+Implementation:
+
+- `run_p3_6g_temporal_learner.py` now supports:
+  - `--restart-seeds`
+- for each restart seed:
+  - train one candidate model
+  - score it on the exact support slices
+  - record candidate metrics in `restart_candidates.csv`
+- selection rule:
+  - higher support pairwise accuracy
+  - then higher support ARI
+  - then higher support NMI
+  - then higher support utility
+  - then smaller support utility gap to teacher
+  - then lower training selection loss as deterministic tie-break
+
+Key experiment family:
+
+- `p3_6m16_multistart_support437_438_test439/`
+- `p3_6m16_multistart_support438_439_test437/`
+- `p3_6m16_multistart_support437_439_test438/`
+- `p3_6m16b_multistart_tiebreak_support437_438_test439/`
+- `p3_6m16b_multistart_tiebreak_support438_439_test437/`
+- `p3_6m16b_multistart_tiebreak_support437_439_test438/`
+
+Critical result:
+
+- with `--restart-seeds 7 9 11`, all three transfer tasks again match teacher
+- after adding the loss-based tie-break, all three cases consistently select
+  seed `11`
+- all three final outputs recover:
+  - `LE-GRA utility = teacher utility = 0.579609048805`
+
+Important nuance:
+
+- support-side imitation metrics remain tied at:
+  - `pairwise = 0.714285714286`
+  - `ARI = 0.416666666667`
+  - `NMI = 0.428140178120`
+- so exact support imitation is still not a sufficient selector by itself
+- the useful discriminator is currently the lower training selection loss
+
+Current best interpretation:
+
+- the focused supervision/curriculum line is still alive
+- the current learner can represent the right local rule
+- but its local validation signal is still weak
+- the most sensible next step is no longer “more tiny loss hacks”
+- it is either:
+  - formalize restart selection as the focused protocol, or
+  - design a better support-side validation signal that correlates with the
+    true dual-weak transfer target
+
+Current stop-loss recommendation:
+
+- this is a reasonable temporary stop point for the current micro-loop
+- we have already shown:
+  - minimum two-support transfer works in all three directions
+  - the success is seed-sensitive
+  - deterministic focused multi-start can recover the failures
+- do not expand the full experiment matrix yet
+- next work should be a cleaner validation/selection signal, not another long
+  chain of ad-hoc learner-head variants
+
+## Latest Validation-Signal Fix: `P3.6m-17`
+
+Formal write-up:
+
+- `P3_6M_17_NORMALIZED_SUPPORT_SELECTOR_ZH.md`
+
+Purpose:
+
+- test whether the selector problem is really “no useful local signal exists”
+- or whether the previous restart scorer was simply evaluating candidates in the
+  wrong feature space
+
+What was wrong in `P3.6m-16`:
+
+- `_score_restart_candidate(...)` evaluated restart candidates on
+  `focus_train` slices before the training-time normalization used by
+  `train_trace_model(...)`
+- this collapsed the apparent differences between restart seeds and made the
+  support selector look much weaker than it really was
+
+Fix:
+
+- keep the same restart protocol
+- but score each candidate on the normalized support slices that live inside the
+  actual training copy after feature-mode application and normalization
+
+Additional candidate diagnostics now recorded in `restart_candidates.csv`:
+
+- `support_contrastive_loss`
+- `support_weak_bce`
+- `support_weak_margin_min`
+- `support_weak_margin_mean`
+- `support_proto_sep_margin`
+
+Key experiment family:
+
+- `p3_6m17_selector_fix_support437_438_test439/`
+- `p3_6m17_selector_fix_support438_439_test437/`
+- `p3_6m17_selector_fix_support437_439_test438/`
+
+Critical result:
+
+- after the normalization fix, support-side teacher imitation becomes strongly
+  discriminative:
+  - seeds `7` and `11`:
+    - `support_pairwise = 1.0`
+    - `support_ari = 1.0`
+    - `support_nmi = 1.0`
+    - `support_utility_gap = 0.0`
+  - seed `9`:
+    - `support_pairwise = 0.714285714286`
+    - `support_ari = 0.416666666667`
+    - `support_nmi = 0.428140178120`
+    - `support_utility_gap = -0.000525943612`
+- all three cases now select seed `11` cleanly for the right reason, not just
+  by fallback tie-break
+
+Most important interpretation:
+
+- the local validation problem is materially improved
+- the main issue in `P3.6m-16` was not the absence of a selector signal
+- it was a support-evaluation mismatch between:
+  - pre-normalization candidate scoring
+  - and post-normalization learner behavior
+
+Updated best next direction:
+
+- treat normalized-support restart scoring as the current best focused protocol
+- only after that, decide whether more selector engineering is still needed
+- do not jump back to new learner-head redesigns unless this normalized
+  selector later proves insufficient on broader nearby regimes
+
+## Latest External Check on Sibling Bundle: `P3.6m-18`
+
+Formal write-up:
+
+- `P3_6M_18_SIBLING_BUNDLE_PROTOCOL_CHECK_ZH.md`
+
+Purpose:
+
+- test whether the normalized-support restart protocol transfers to a nearby
+  sibling bundle rather than only the `P3.6m-4b` threshold-nudge regime
+- choose the most informative sibling:
+  - `p3_6m2_positive_family_decoy_bundle`
+  - same family `0|1|15|2|3|4|5 @ gnb_1`
+  - earlier positive dual-weak source that originally produced
+    `teacher > LE-GRA = static baselines`
+
+Protocol:
+
+- rerun the original `P3.6m-3` focused temporal learner with:
+  - `--restart-seeds 7 9 11`
+  - normalized support scoring enabled by `P3.6m-17`
+- output:
+  - `p3_6m18_m2_normalized_selector_multistart/`
+
+Critical result:
+
+- the protocol does **not** recover the teacher on this sibling bundle
+- final selected restart seed is still `9`
+- final test result remains:
+  - `teacher utility = 0.579609048805`
+  - `LE-GRA utility = 0.579083105194`
+- so this is not a case where restart selection was the missing ingredient
+
+Why this is important:
+
+- all three restart seeds collapse to essentially the same support-side score
+  on `m2`
+- candidate summary:
+  - `support_pairwise_accuracy = 0.999457847655`
+  - `support_utility_gap ≈ -9.98e-07`
+  - nearly identical across seeds `7/9/11`
+- boundary-focused post-check on the normalized support train set also shows
+  no separation:
+  - all-support pairwise: `0.999457847655`
+  - positive-gain support pairwise: `0.959183673469`
+  - boundary-support pairwise: `0.928571428571`
+  - identical for seeds `7/9/11`
+- holdout remains wrong for all three:
+  - holdout pairwise: `0.714285714286`
+
+Most important interpretation:
+
+- `P3.6m-17` fixed a **selector-space mismatch**
+- but `P3.6m-18` shows that not every failure is a selector problem
+- on `m2`, the current learner recipe itself converges to the same wrong local
+  rule across seeds
+- therefore:
+  - restart selection is enough for the narrow `m4b` dual-weak regime
+  - but insufficient for the broader `m2` sibling bundle
+
+Updated best next direction:
+
+- do **not** spend more time on restart/tie-break engineering alone
+- the next meaningful improvement must change the learner's effective training
+  signal on broader mixed support sets, for example:
+  - boundary-aware support weighting
+  - positive-gain-window-focused curriculum
+  - regime-local training subset selection
+
+## Latest Boundary-Aware Support Weighting: `P3.6m-19`
+
+Formal write-up:
+
+- `P3_6M_19_BOUNDARY_SUPPORT_WEIGHTING_ZH.md`
+
+Purpose:
+
+- implement the smallest possible learner-side change that alters the effective
+  support-train signal on `m2` without redesigning the learner head
+- specifically test whether replaying a tiny number of late, positive-gain,
+  boundary-near support slices can move `LE-GRA` toward the teacher
+
+Implementation:
+
+- keep the current `run_p3_6g_temporal_learner.py` training loop and model
+  architecture unchanged
+- add a minimal temporal protocol on top of existing support replay:
+  - `--boundary-support-start`
+  - `--boundary-support-repeat`
+  - `--boundary-support-positive-only`
+- select support examples whose timestamp is later than
+  `boundary_support_start`
+- optionally restrict them to positive-gain support slices only
+- replay those selected support slices `boundary_support_repeat - 1` extra
+  times on top of the normal support train set
+- record in `split_summary.json`:
+  - `boundary_support_selected_scenarios`
+  - `effective_boundary_support_scenarios`
+  - the chosen boundary replay arguments
+
+Main test family:
+
+- `p3_6m19b_m2_boundary_weighting_r1/`
+- `p3_6m19b_m2_boundary_weighting_r4/`
+- `p3_6m19b_m2_boundary_weighting_r8/`
+- `p3_6m19b_m2_boundary_weighting_r16/`
+
+Common regime:
+
+- bundle: `p3_6m2_positive_family_decoy_bundle/bundle`
+- family: `0|1|15|2|3|4|5 @ gnb_1`
+- train window end: `43.7 s`
+- test window: `43.8 s ~ 43.9 s`
+- boundary filter:
+  - `--boundary-support-start 43.4`
+  - `--boundary-support-positive-only`
+- selected boundary support slices:
+  - exactly `1`
+
+Critical sweep result:
+
+- `r1` (baseline, no extra replay):
+  - selected seed `9`
+  - `LE-GRA utility = 0.579083105194`
+  - gap to teacher: `-0.000525943612`
+- `r4`:
+  - selected seed `11`
+  - utility still `0.579083105194`
+  - selector changes first, holdout utility does not move yet
+- `r8`:
+  - selected seed `11`
+  - support selection becomes perfect:
+    - `support_pairwise = 1.0`
+  - `LE-GRA utility = 0.579346076999`
+  - gap to teacher shrinks to `-0.000262971806`
+- `r16`:
+  - selected seed `7`
+  - support selection remains perfect:
+    - `support_pairwise = 1.0`
+  - `LE-GRA utility = 0.579609048805`
+  - exactly matches teacher utility on this `43.8 ~ 43.9 s` holdout
+
+Most important interpretation:
+
+- this is the first clean evidence on `m2` that a tiny amount of
+  boundary-focused support replay can materially change learner behavior
+- unlike `P3.6m-18`, the learner is no longer locked to the old
+  `LE-GRA = static baseline` plateau once we reweight the right support slice
+- the effect is not just random seed luck:
+  - replay changes the selected restart seed
+  - stronger replay also improves holdout utility
+- the behavior looks like a genuine replay-strength threshold:
+  - `r4` is not enough
+  - `r8` is partially effective
+  - `r16` reaches teacher-level utility on this slice pair
+
+Current practical conclusion:
+
+- boundary-aware support weighting is now the strongest low-risk learner-side
+  direction after the selector fixes
+- this should be treated as a focused protocol success on `m2`
+- but it is still a narrow proof:
+  - one selected boundary-positive support slice
+  - one sibling regime
+  - one short holdout window
+
+Updated best next direction:
+
+- keep the learner architecture stable for now
+- next work should test whether this boundary replay signal generalizes beyond
+  this exact `m2` slice pair, for example:
+  - small nearby holdout shifts
+  - nearby support-start thresholds
+  - slightly richer boundary subset definitions
+- do **not** jump to large matrix expansion yet
+- first verify whether the gain is robust or only a single-slice resonance
+
+## Latest Robustness Check on Boundary Replay: `P3.6m-20`
+
+Formal write-up:
+
+- `P3_6M_20_BOUNDARY_WEIGHTING_ROBUSTNESS_ZH.md`
+
+Purpose:
+
+- test whether the `P3.6m-19` success at `m2` is fragile
+- specifically check two low-cost robustness questions:
+  - does the gain depend on one exact `boundary_support_start` value?
+  - does it survive small holdout shifts around the same late regime?
+
+Protocol:
+
+- keep the same focused regime and learner recipe as `P3.6m-19`
+- bundle:
+  - `p3_6m2_positive_family_decoy_bundle/bundle`
+- fixed settings:
+  - `train_window_end = 43.7`
+  - `boundary_support_repeat = 16`
+  - `boundary_support_positive_only = true`
+  - `restart_seeds = 7 9 11`
+- run two tiny sweeps:
+  - boundary-start sweep:
+    - `43.3 / 43.4 / 43.5`
+    - common holdout: `43.8 ~ 43.9`
+  - holdout sweep:
+    - `43.8 only`
+    - `43.9 only`
+    - `44.0 only`
+    - common boundary start: `43.4`
+
+Result summary:
+
+- boundary-start sweep:
+  - `p3_6m20_m2_boundary_start_433_r16/`
+  - `p3_6m20_m2_boundary_start_434_r16/`
+  - `p3_6m20_m2_boundary_start_435_r16/`
+  - all three produce:
+    - selected restart seed `7`
+    - `support_pairwise = 1.0`
+    - `LE-GRA utility = 0.579609048805`
+    - exact teacher match on `43.8 ~ 43.9`
+- holdout sweep:
+  - `p3_6m20_m2_holdout_438_only_r16/`
+  - `p3_6m20_m2_holdout_439_only_r16/`
+  - `p3_6m20_m2_holdout_440_only_r16/`
+  - `43.8 only`:
+    - exact teacher match
+  - `43.9 only`:
+    - exact teacher match
+  - `44.0 only`:
+    - `LE-GRA = CQI = teacher`
+    - so the boundary replay advantage is no longer needed there because this
+      slice already lies in an easier/equal regime for the static baseline
+
+Most important interpretation:
+
+- the `P3.6m-19` improvement is **not** a one-point artifact of choosing
+  exactly `boundary_support_start = 43.4`
+- with `repeat = 16`, the same replay protocol is stable across
+  `43.3 / 43.4 / 43.5`
+- the gain also survives the immediate holdout decomposition:
+  - it works on `43.8` alone
+  - it works on `43.9` alone
+- however the benefit is still regime-local:
+  - by `44.0`, the static CQI baseline already matches the teacher
+  - so `44.0` should not be treated as additional evidence that the learner has
+    solved a harder boundary case
+
+Current practical conclusion:
+
+- `boundary-aware support weighting` has now passed the first meaningful
+  robustness check on `m2`
+- the evidence is strong enough to say this is a real focused learner-side
+  mechanism, not just accidental noise
+- the remaining open question is no longer:
+  - "does replay help at all?"
+- it is now:
+  - "how far does this mechanism transfer before the regime changes?"
+
+Updated best next direction:
+
+- do not expand to a broad matrix yet
+- first reuse this minimal replay protocol on one nearby but still informative
+  sibling regime, or on a slightly harder late-window variant where
+  `teacher > CQI` still holds
+- if that transfer fails, then move to the next learner-side refinement rather
+  than returning to selector debugging
+
+## Latest Transfer Check on `m4b`: `P3.6m-21`
+
+Formal write-up:
+
+- `P3_6M_21_M4B_BOUNDARY_TRANSFER_CHECK_ZH.md`
+
+Purpose:
+
+- test whether the exact minimal replay protocol that succeeded on `m2`
+  transfers to the nearest difficult sibling regime
+- target:
+  - `p3_6m4b_threshold_nudge_bundle/bundle`
+  - same family `0|1|15|2|3|4|5 @ gnb_1`
+  - same dual-weak bottleneck
+  - harder evaluation window `43.7s ~ 43.9s`
+
+Protocol:
+
+- keep the `P3.6m-20` best boundary replay recipe unchanged:
+  - `boundary_support_start = 43.4`
+  - `boundary_support_repeat = 16`
+  - `boundary_support_positive_only = true`
+- keep focused learner settings otherwise unchanged:
+  - `train_window_end = 43.6`
+  - `test_window = 43.7 ~ 43.9`
+  - `restart_seeds = 7 9 11`
+- output:
+  - `p3_6m21_m4b_boundary_weighting_transfer_r16/`
+
+Critical result:
+
+- transfer **fails**
+- main comparison remains unchanged:
+  - `teacher = 0.579609048805`
+  - `CQI = 0.579083105194`
+  - `LE-GRA = 0.579083105194`
+- so `LE-GRA` still ties the static baselines and does not recover the teacher
+
+Important support-side detail:
+
+- support replay is definitely active:
+  - `boundary_support_selected_scenarios = 1`
+  - `effective_boundary_support_scenarios = 15`
+- support-side selection also becomes perfect:
+  - `support_pairwise = 1.0`
+  - `support_ari = 1.0`
+  - `support_nmi = 1.0`
+  - `support_utility_gap = 0.0`
+- yet final selected restart seed remains `9`
+- and the holdout utility does not move at all
+
+Most important interpretation:
+
+- this is the clearest evidence so far that:
+  - `m2` success was real
+  - but `boundary-aware support weighting` is **not** yet a same-family
+    universal fix
+- the current bottleneck is therefore more specific than:
+  - "late positive boundary support is underweighted"
+- on `m4b`, even perfect support-side imitation under replay is still
+  insufficient to make the learner adopt the teacher's dual-weak grouping on
+  the harder holdout
+
+Current practical conclusion:
+
+- we now have a meaningful stop-loss boundary for the replay-only idea
+- replay-only learner-side weighting is worth keeping as a successful focused
+  mechanism for `m2`
+- but replay-only is not enough to declare the broader dual-weak problem solved
+
+Updated best next direction:
+
+- stop expanding replay sweeps for now
+- do not go back to selector-only debugging
+- the next useful learner-side step should add a more explicit mechanism for
+  the secondary weak candidate itself, for example:
+  - boundary-aware pair construction around the secondary weak candidate
+  - candidate-conditioned weak-group supervision
+  - localized hard-negative generation that directly separates
+    `{ue15, ue4}` from the old `ue15`-only split
+
+## Latest Candidate-Conditioned Weak-Group Supervision v1: `P3.6m-22`
+
+Formal write-up:
+
+- `P3_6M_22_CANDIDATE_CONDITIONED_WEAK_GROUP_V1_ZH.md`
+
+Purpose:
+
+- implement the smallest possible version of
+  `candidate-conditioned weak-group supervision`
+- keep the learner architecture unchanged
+- add explicit supervision pressure on the likely weak-group candidates inside
+  the teacher's hardest group, especially the secondary candidate that the
+  learner keeps missing on `m4b`
+
+Implementation:
+
+- `le_gra_mvp.py`
+  - added `candidate_conditioned_membership_targets(...)`
+  - inside the teacher's hardest group:
+    - rank members by mean resource-cost
+    - mark the top `k` users as weak-group candidates
+    - assign the second candidate an extra supervision scale
+- `MLPEncoder.train_step(...)`
+  - added optional sparse candidate-membership BCE on top of the existing
+    contrastive / prototype / hardest-group membership losses
+- `run_p3_6_coupled_learner.py`
+  - threaded new candidate-supervision parameters through
+    `train_trace_model(...)`
+- `run_p3_6g_temporal_learner.py`
+  - added CLI knobs:
+    - `--candidate-membership-weight`
+    - `--candidate-top-k`
+    - `--candidate-secondary-scale`
+  - recorded them in `split_summary.json`
+
+First focused test:
+
+- output:
+  - `p3_6m22_m4b_candidate_conditioned_v1/`
+- regime:
+  - bundle: `p3_6m4b_threshold_nudge_bundle/bundle`
+  - train end: `43.6`
+  - test: `43.7 ~ 43.9`
+  - boundary replay kept on:
+    - `boundary_support_start = 43.4`
+    - `boundary_support_repeat = 16`
+    - `boundary_support_positive_only = true`
+- new candidate-supervision settings:
+  - `candidate_membership_weight = 1.0`
+  - `candidate_top_k = 2`
+  - `candidate_secondary_scale = 2.0`
+
+Critical result:
+
+- implementation works, but the first `m4b` run does **not** move the holdout
+- main comparison remains:
+  - `teacher = 0.579609048805`
+  - `LE-GRA = 0.579083105194`
+  - `CQI = 0.579083105194`
+- support-side metrics remain perfect:
+  - `support_pairwise = 1.0`
+  - `support_ari = 1.0`
+  - `support_nmi = 1.0`
+  - `support_utility_gap = 0.0`
+
+Most important interpretation:
+
+- this confirms the new supervision path is now available for further learner
+  studies
+- but the first minimal weight setting is not yet enough to break the `m4b`
+  plateau
+- so the next useful move is not another replay sweep
+- it is a very small candidate-supervision calibration, for example:
+  - increase `candidate_membership_weight`
+  - increase `candidate_secondary_scale`
+  - combine candidate supervision with explicit boundary pair construction
+
+## Latest Minimal Calibration on Candidate Supervision: `P3.6m-23`
+
+Formal write-up:
+
+- `P3_6M_23_CANDIDATE_CONDITIONED_CALIBRATION_ZH.md`
+
+Purpose:
+
+- test whether the new candidate-conditioned weak-group supervision from
+  `P3.6m-22` was simply too weak
+- keep everything else fixed and run the smallest useful 2x2 calibration over:
+  - `candidate_membership_weight`
+  - `candidate_secondary_scale`
+
+Protocol:
+
+- same regime as `P3.6m-22`:
+  - bundle: `p3_6m4b_threshold_nudge_bundle/bundle`
+  - train end: `43.6`
+  - test: `43.7 ~ 43.9`
+  - replay:
+    - `boundary_support_start = 43.4`
+    - `boundary_support_repeat = 16`
+    - `boundary_support_positive_only = true`
+- fixed:
+  - `candidate_top_k = 2`
+- sweep:
+  - `w2_s2`
+  - `w4_s2`
+  - `w2_s4`
+  - `w4_s4`
+
+Outputs:
+
+- `p3_6m23_m4b_candidate_calib_w2_s2/`
+- `p3_6m23_m4b_candidate_calib_w4_s2/`
+- `p3_6m23_m4b_candidate_calib_w2_s4/`
+- `p3_6m23_m4b_candidate_calib_w4_s4/`
+
+Critical result:
+
+- all four runs are identical on the holdout
+- in every case:
+  - selected restart seed stays `9`
+  - `support_pairwise = 1.0`
+  - `LE-GRA = 0.579083105194`
+  - `teacher = 0.579609048805`
+  - `CQI = 0.579083105194`
+- so the 2x2 minimal calibration produces **no movement at all**
+
+Most important interpretation:
+
+- this is a clean stop-loss point for the current
+  candidate-membership-BCE-only idea
+- the issue is not merely that `P3.6m-22` used weights that were too small
+- even after increasing:
+  - overall candidate-membership weight
+  - and secondary-candidate emphasis
+- the learner still remains exactly on the old plateau
+
+Current practical conclusion:
+
+- keep the candidate-conditioned supervision path in the codebase
+- but stop spending time on weight-only calibration
+- the next meaningful learner-side step must change supervision structure, not
+  just its coefficient magnitude
+
+Updated best next direction:
+
+- combine candidate supervision with explicit boundary-aware pair construction
+- or directly generate localized hard negatives that separate:
+  - the correct dual-weak grouping `{ue15, ue4}`
+  - from the old `ue15`-only solution
+
+## Latest Boundary-Aware Pair Construction v1: `P3.6m-24`
+
+Formal write-up:
+
+- `P3_6M_24_BOUNDARY_AWARE_PAIR_CONSTRUCTION_V1_ZH.md`
+
+Purpose:
+
+- move beyond weight-only candidate BCE tuning
+- implement the smallest possible pair-structure refinement aimed directly at
+  the secondary weak candidate boundary
+
+Implementation:
+
+- `le_gra_mvp.py`
+  - extended `pairwise_supervision_weights(...)` with:
+    - `teacher_candidate_boundary`
+- logic:
+  - keep existing hardest-group emphasis
+  - additionally identify the top-2 hardest-group members by resource-cost
+  - explicitly upweight:
+    - the positive pair between primary and secondary weak candidates
+    - negative pairs from the secondary candidate to users outside the hardest
+      group
+    - keep primary-candidate boundary negatives at least at hardest-group level
+- no model-architecture change
+- no extra membership BCE in this first test
+
+First focused test:
+
+- output:
+  - `p3_6m24_m4b_candidate_boundary_pairs_v1/`
+- regime:
+  - bundle: `p3_6m4b_threshold_nudge_bundle/bundle`
+  - train end: `43.6`
+  - test: `43.7 ~ 43.9`
+  - replay still on:
+    - `boundary_support_start = 43.4`
+    - `boundary_support_repeat = 16`
+    - `boundary_support_positive_only = true`
+- pair setup:
+  - `pair_sampling = teacher_boundary`
+  - `supervision_weight_mode = teacher_candidate_boundary`
+
+Critical result:
+
+- the new pair structure is implemented correctly
+- but the first `m4b` run still does **not** move the holdout
+- result remains:
+  - `teacher = 0.579609048805`
+  - `LE-GRA = 0.579083105194`
+  - `CQI = 0.579083105194`
+- support-side selection remains perfect:
+  - `support_pairwise = 1.0`
+  - `support_ari = 1.0`
+  - `support_nmi = 1.0`
+
+Most important interpretation:
+
+- this gives us a stronger stop-loss boundary:
+  - replay-only was insufficient
+  - candidate-BCE-only was insufficient
+  - first localized boundary-pair construction is also insufficient
+- so the remaining bottleneck is unlikely to be solvable by one more small
+  coefficient or pair-priority tweak alone
+
+Current practical conclusion:
+
+- the codebase now contains all three minimal learner-side hooks:
+  - replay weighting
+  - candidate membership supervision
+  - boundary-aware pair construction
+- none of the minimal `m4b` variants has yet broken the plateau
+
+Updated best next direction:
+
+- if continuing this line, the next step should combine structure, not just add
+  another tiny isolated tweak, for example:
+  - boundary-aware pair construction + candidate membership together
+  - or localized hard negatives that explicitly contrast
+    `{ue15, ue4}` vs `ue15-only`
+- if imposing a research stop-loss, this is now a reasonable point to summarize
+  that minimal learner-side local tweaks are insufficient on `m4b`

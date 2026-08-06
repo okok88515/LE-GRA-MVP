@@ -1,0 +1,28 @@
+{
+  "bundle_dir": "p3_6m4b_threshold_nudge_bundle\\bundle",
+  "focus_ue_ids": [
+    "0",
+    "1",
+    "15",
+    "2",
+    "3",
+    "4",
+    "5"
+  ],
+  "train_window_start": 43.7,
+  "train_window_end": 43.8,
+  "test_window_start": 43.9,
+  "test_window_end": 43.9,
+  "background_train_limits": [
+    150,
+    100,
+    50,
+    20,
+    10,
+    5,
+    0
+  ],
+  "background_train_repeat": 1,
+  "focus_train_repeat": 2,
+  "seed": 9
+}

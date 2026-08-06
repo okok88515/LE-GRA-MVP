@@ -549,6 +549,183 @@ def pairwise_labels(groups: list[list[int]], n_users: int) -> np.ndarray:
     return (group_id[:, None] == group_id[None, :]).astype(np.float32)
 
 
+def teacher_group_difficulty_order(
+    scenario: Scenario,
+    groups: list[list[int]],
+) -> list[int]:
+    """Rank teacher groups from hardest to easiest using mean resource cost."""
+
+    if not groups:
+        return []
+    cost_vec = user_resource_cost_vector(scenario.rb_rates)
+    group_costs = [
+        float(cost_vec[group].mean()) if group else -1.0
+        for group in groups
+    ]
+    return sorted(
+        range(len(groups)),
+        key=lambda group_idx: group_costs[group_idx],
+        reverse=True,
+    )
+
+
+def pairwise_supervision_weights(
+    scenario: Scenario,
+    groups: list[list[int]],
+    mode: str = "uniform",
+    hard_positive_scale: float = 2.5,
+    hard_negative_scale: float = 1.5,
+) -> np.ndarray:
+    """Build pair weights that emphasize the hardest teacher group.
+
+    `uniform` reproduces the previous learner behavior. `teacher_hard_group`
+    upweights:
+
+    - positive pairs inside the teacher's hardest group;
+    - negative pairs between the hardest group and every other group.
+
+    `teacher_candidate_boundary` further concentrates supervision on the
+    hardest group's top resource-cost members, especially the secondary weak
+    candidate that the learner tends to miss in dual-weak regimes.
+    """
+
+    n_users = len(scenario.cqi_now)
+    weights = np.ones((n_users, n_users), dtype=np.float32)
+    if mode == "uniform":
+        return weights
+    if mode not in {"teacher_hard_group", "teacher_candidate_boundary"}:
+        raise ValueError(f"Unsupported supervision weight mode: {mode}")
+    if not groups:
+        return weights
+
+    group_ids = group_ids_from_groups(groups, n_users)
+    ordered_groups = teacher_group_difficulty_order(scenario, groups)
+    if not ordered_groups:
+        return weights
+    hard_group_id = ordered_groups[0]
+    hard_members = np.where(group_ids == hard_group_id)[0]
+    if len(hard_members) >= 2:
+        for i in hard_members:
+            for j in hard_members:
+                if i != j:
+                    weights[i, j] = hard_positive_scale
+    for i in hard_members:
+        for j in range(n_users):
+            if i == j:
+                continue
+            if group_ids[j] != hard_group_id:
+                weights[i, j] = hard_negative_scale
+                weights[j, i] = hard_negative_scale
+    if mode == "teacher_candidate_boundary":
+        candidate_target, candidate_target_weights = candidate_conditioned_membership_targets(
+            scenario,
+            groups,
+            top_k=2,
+            secondary_scale=hard_negative_scale,
+        )
+        candidate_members = np.where(candidate_target > 0.5)[0].tolist()
+        if len(candidate_members) >= 2:
+            primary_idx = candidate_members[0]
+            secondary_idx = candidate_members[1]
+            candidate_positive_scale = max(hard_positive_scale, hard_negative_scale * 2.0)
+            candidate_negative_scale = max(hard_negative_scale * 2.0, hard_positive_scale)
+            weights[primary_idx, secondary_idx] = candidate_positive_scale
+            weights[secondary_idx, primary_idx] = candidate_positive_scale
+            for other_idx in range(n_users):
+                if other_idx in candidate_members:
+                    continue
+                if group_ids[other_idx] != hard_group_id:
+                    weights[secondary_idx, other_idx] = candidate_negative_scale
+                    weights[other_idx, secondary_idx] = candidate_negative_scale
+                    weights[primary_idx, other_idx] = max(
+                        weights[primary_idx, other_idx],
+                        hard_negative_scale,
+                    )
+                    weights[other_idx, primary_idx] = max(
+                        weights[other_idx, primary_idx],
+                        hard_negative_scale,
+                    )
+    return weights
+
+
+def hardest_group_membership(
+    scenario: Scenario,
+    groups: list[list[int]],
+) -> np.ndarray:
+    """Return a binary membership target for the teacher's hardest group."""
+
+    mask = np.zeros(len(scenario.cqi_now), dtype=np.float32)
+    ordered_groups = teacher_group_difficulty_order(scenario, groups)
+    if not ordered_groups:
+        return mask
+    hard_group = groups[ordered_groups[0]]
+    mask[hard_group] = 1.0
+    return mask
+
+
+def candidate_conditioned_membership_targets(
+    scenario: Scenario,
+    groups: list[list[int]],
+    *,
+    top_k: int = 2,
+    secondary_scale: float = 2.0,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return a sparse weak-candidate target/weight mask.
+
+    This is a minimal learner-side refinement on top of hardest-group
+    membership: instead of supervising every member of the hardest group
+    equally, explicitly mark the top resource-cost users inside that hardest
+    group as the most plausible weak-group candidates.
+
+    The first candidate receives weight 1.0. The second candidate (the
+    "secondary weak candidate") receives `secondary_scale`, which lets the
+    caller emphasize the user that the current learner tends to miss.
+    """
+
+    n_users = len(scenario.cqi_now)
+    target = np.zeros(n_users, dtype=np.float32)
+    weights = np.zeros(n_users, dtype=np.float32)
+    if top_k <= 0:
+        return target, weights
+
+    ordered_groups = teacher_group_difficulty_order(scenario, groups)
+    if not ordered_groups:
+        return target, weights
+    hard_group = groups[ordered_groups[0]]
+    if not hard_group:
+        return target, weights
+
+    user_costs = user_resource_cost_vector(scenario.rb_rates).mean(axis=1)
+    ranked_members = sorted(
+        hard_group,
+        key=lambda idx: (float(user_costs[idx]), -idx),
+        reverse=True,
+    )
+    for rank, user_idx in enumerate(ranked_members[:top_k]):
+        target[user_idx] = 1.0
+        weights[user_idx] = float(secondary_scale if rank == 1 else 1.0)
+    return target, weights
+
+
+def prioritize_pairs(
+    priority_pairs: list[tuple[int, int]],
+    fallback_pairs: list[tuple[int, int]],
+    max_pairs: int,
+) -> list[tuple[int, int]]:
+    """Keep priority pairs first, then fill remaining slots from fallback pairs."""
+
+    selected: list[tuple[int, int]] = []
+    seen: set[tuple[int, int]] = set()
+    for pair in priority_pairs + fallback_pairs:
+        if pair in seen:
+            continue
+        selected.append(pair)
+        seen.add(pair)
+        if len(selected) >= max_pairs:
+            break
+    return selected
+
+
 def group_ids_from_groups(groups: list[list[int]], n_users: int) -> np.ndarray:
     """Convert grouping lists into one cluster-id label per user."""
 
@@ -650,9 +827,13 @@ class MLPEncoder:
         self.b2 = np.zeros(hidden_dim)
         self.w3 = np.random.normal(0, 0.10, size=(hidden_dim, embedding_dim))
         self.b3 = np.zeros(embedding_dim)
+        self.w4 = np.random.normal(0, 0.10, size=(hidden_dim, 1))
+        self.b4 = np.zeros(1)
 
-    def forward(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Forward pass: features -> hidden layers -> raw and normalized embeddings."""
+    def forward(
+        self, x: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Forward pass: features -> hidden layers -> embeddings + weak-group scores."""
 
         h1_pre = x @ self.w1 + self.b1
         h1 = np.maximum(0, h1_pre)
@@ -661,13 +842,21 @@ class MLPEncoder:
         z_raw = h2 @ self.w3 + self.b3
         norms = np.linalg.norm(z_raw, axis=1, keepdims=True) + 1e-8
         z = z_raw / norms
-        return h1, h2, z_raw, z
+        weak_logits = h2 @ self.w4 + self.b4
+        weak_probs = 1.0 / (1.0 + np.exp(-np.clip(weak_logits, -30.0, 30.0)))
+        return h1, h2, z_raw, z, weak_logits, weak_probs
 
     def embed(self, x: np.ndarray) -> np.ndarray:
         """Return only the embeddings used by k-means grouping."""
 
-        _, _, _, z = self.forward(x)
+        _, _, _, z, _, _ = self.forward(x)
         return z
+
+    def weak_group_scores(self, x: np.ndarray) -> np.ndarray:
+        """Return per-user weakest-group membership scores in [0, 1]."""
+
+        _, _, _, _, _, weak_probs = self.forward(x)
+        return weak_probs[:, 0]
 
     def get_state(self) -> dict[str, np.ndarray]:
         """Return a detached copy of all trainable parameters."""
@@ -679,6 +868,8 @@ class MLPEncoder:
             "b2": self.b2.copy(),
             "w3": self.w3.copy(),
             "b3": self.b3.copy(),
+            "w4": self.w4.copy(),
+            "b4": self.b4.copy(),
         }
 
     def set_state(self, state: dict[str, np.ndarray]) -> None:
@@ -710,9 +901,17 @@ class MLPEncoder:
         self,
         x: np.ndarray,
         same_group: np.ndarray,
+        pair_weights: np.ndarray | None = None,
+        hard_group_target: np.ndarray | None = None,
+        candidate_target: np.ndarray | None = None,
+        candidate_target_weights: np.ndarray | None = None,
         margin: float = 1.0,
         pair_sampling: str = "random_balanced",
         max_pairs_per_class: int = 160,
+        prototype_margin: float = 1.0,
+        prototype_weight: float = 0.0,
+        membership_weight: float = 0.0,
+        candidate_membership_weight: float = 0.0,
     ) -> float:
         """One scenario-level contrastive training step.
 
@@ -723,9 +922,10 @@ class MLPEncoder:
         pairs at least `margin` apart.
         """
 
-        h1, h2, z_raw, z = self.forward(x)
+        h1, h2, z_raw, z, weak_logits, weak_probs = self.forward(x)
         n_users = len(x)
         dz = np.zeros_like(z)
+        dweak_logits = np.zeros_like(weak_logits)
         loss = 0.0
 
         positive_pairs = []
@@ -736,22 +936,57 @@ class MLPEncoder:
                     positive_pairs.append((i, j))
                 else:
                     negative_pairs.append((i, j))
-        if pair_sampling not in {"random_balanced", "hard_negative"}:
+        if pair_sampling not in {"random_balanced", "hard_negative", "teacher_boundary"}:
             raise ValueError(f"Unsupported pair_sampling: {pair_sampling}")
         random.shuffle(positive_pairs)
-        selected_positive = positive_pairs[:max_pairs_per_class]
+        priority_positive_pairs = []
+        priority_negative_pairs = []
+        if pair_weights is None:
+            pair_weights = np.ones_like(same_group, dtype=np.float32)
+        if pair_sampling == "teacher_boundary":
+            priority_positive_pairs = [
+                pair for pair in positive_pairs if pair_weights[pair[0], pair[1]] > 1.0
+            ]
+            priority_negative_pairs = [
+                pair for pair in negative_pairs if pair_weights[pair[0], pair[1]] > 1.0
+            ]
+            random.shuffle(priority_positive_pairs)
+            random.shuffle(priority_negative_pairs)
+            selected_positive = prioritize_pairs(
+                priority_positive_pairs,
+                positive_pairs,
+                max_pairs_per_class,
+            )
+        else:
+            selected_positive = positive_pairs[:max_pairs_per_class]
         if pair_sampling == "hard_negative":
             # Teacher-negative pairs that are currently closest in embedding
             # space provide the strongest signal near/inside the margin.
             negative_pairs.sort(key=lambda pair: float(np.linalg.norm(z[pair[0]] - z[pair[1]])))
+            selected_negative = negative_pairs[:max_pairs_per_class]
+        elif pair_sampling == "teacher_boundary":
+            random.shuffle(negative_pairs)
+            selected_negative = prioritize_pairs(
+                priority_negative_pairs,
+                negative_pairs,
+                max_pairs_per_class,
+            )
         else:
             random.shuffle(negative_pairs)
-        selected_negative = negative_pairs[:max_pairs_per_class]
+            selected_negative = negative_pairs[:max_pairs_per_class]
         pairs = selected_positive + selected_negative
         random.shuffle(pairs)
 
         negative_distances = [
             float(np.linalg.norm(z[i] - z[j])) for i, j in selected_negative
+        ]
+        hard_group_positive_weights = [
+            float(pair_weights[i, j]) for i, j in selected_positive
+            if pair_weights[i, j] > 1.0
+        ]
+        hard_group_negative_weights = [
+            float(pair_weights[i, j]) for i, j in selected_negative
+            if pair_weights[i, j] > 1.0
         ]
         self.last_pair_stats = {
             "positive_pairs": float(len(selected_positive)),
@@ -763,28 +998,122 @@ class MLPEncoder:
             "mean_selected_negative_distance": (
                 float(np.mean(negative_distances)) if negative_distances else float("nan")
             ),
+            "mean_positive_weight": (
+                float(np.mean([pair_weights[i, j] for i, j in selected_positive]))
+                if selected_positive else float("nan")
+            ),
+            "mean_negative_weight": (
+                float(np.mean([pair_weights[i, j] for i, j in selected_negative]))
+                if selected_negative else float("nan")
+            ),
+            "hard_group_positive_pairs": float(len(hard_group_positive_weights)),
+            "hard_group_negative_pairs": float(len(hard_group_negative_weights)),
+            "priority_positive_pairs": float(
+                len([1 for i, j in selected_positive if pair_weights[i, j] > 1.0])
+            ),
+            "priority_negative_pairs": float(
+                len([1 for i, j in selected_negative if pair_weights[i, j] > 1.0])
+            ),
         }
 
         for i, j in pairs:
             diff = z[i] - z[j]
             dist = np.linalg.norm(diff) + 1e-8
+            pair_weight = float(pair_weights[i, j])
             if same_group[i, j] > 0.5:
                 # Positive pair: make embeddings close.
-                loss += dist**2
-                grad = 2.0 * diff
+                loss += pair_weight * dist**2
+                grad = pair_weight * 2.0 * diff
                 dz[i] += grad
                 dz[j] -= grad
             elif dist < margin:
                 # Negative pair: only penalize it if it is inside the margin.
-                loss += (margin - dist) ** 2
-                grad = -2.0 * (margin - dist) * diff / dist
+                loss += pair_weight * (margin - dist) ** 2
+                grad = pair_weight * -2.0 * (margin - dist) * diff / dist
                 dz[i] += grad
                 dz[j] -= grad
 
+        prototype_positive_terms = 0
+        prototype_negative_terms = 0
+        if hard_group_target is not None and prototype_weight > 0.0:
+            hard_indices = np.where(hard_group_target > 0.5)[0]
+            other_indices = np.where(hard_group_target <= 0.5)[0]
+            if len(hard_indices) > 0:
+                # Treat the current hard-group centroid as a temporary target.
+                # This is a lightweight group-identity signal layered on top
+                # of the pairwise objective without changing the model head.
+                prototype_center = z[hard_indices].mean(axis=0)
+                for idx in hard_indices:
+                    diff = z[idx] - prototype_center
+                    loss += prototype_weight * float(np.dot(diff, diff))
+                    dz[idx] += prototype_weight * 2.0 * diff
+                    prototype_positive_terms += 1
+                for idx in other_indices:
+                    diff = z[idx] - prototype_center
+                    dist = np.linalg.norm(diff) + 1e-8
+                    if dist < prototype_margin:
+                        loss += prototype_weight * (prototype_margin - dist) ** 2
+                        dz[idx] += (
+                            prototype_weight
+                            * -2.0
+                            * (prototype_margin - dist)
+                            * diff
+                            / dist
+                        )
+                        prototype_negative_terms += 1
+
+        membership_terms = 0
+        if hard_group_target is not None and membership_weight > 0.0:
+            target = hard_group_target.reshape(-1, 1)
+            probs = np.clip(weak_probs, 1e-6, 1.0 - 1e-6)
+            loss += membership_weight * float(
+                -np.sum(target * np.log(probs) + (1.0 - target) * np.log(1.0 - probs))
+            )
+            dweak_logits += membership_weight * (probs - target)
+            membership_terms = len(target)
+
+        candidate_membership_terms = 0
+        if (
+            candidate_target is not None
+            and candidate_target_weights is not None
+            and candidate_membership_weight > 0.0
+        ):
+            target = candidate_target.reshape(-1, 1)
+            weight_mask = candidate_target_weights.reshape(-1, 1)
+            active = weight_mask > 0.0
+            if np.any(active):
+                probs = np.clip(weak_probs, 1e-6, 1.0 - 1.0e-6)
+                bce = -(
+                    target * np.log(probs) + (1.0 - target) * np.log(1.0 - probs)
+                )
+                loss += candidate_membership_weight * float(np.sum(weight_mask * bce))
+                dweak_logits += candidate_membership_weight * (weight_mask * (probs - target))
+                candidate_membership_terms = int(np.sum(active))
+
         if not pairs:
             return 0.0
-        loss /= len(pairs)
-        dz /= len(pairs)
+        normalizer = (
+            len(pairs)
+            + prototype_positive_terms
+            + prototype_negative_terms
+            + membership_terms
+            + candidate_membership_terms
+        )
+        loss /= normalizer
+        dz /= normalizer
+        self.last_pair_stats["prototype_positive_terms"] = float(prototype_positive_terms)
+        self.last_pair_stats["prototype_negative_terms"] = float(prototype_negative_terms)
+        self.last_pair_stats["prototype_weight"] = float(prototype_weight)
+        self.last_pair_stats["membership_terms"] = float(membership_terms)
+        self.last_pair_stats["membership_weight"] = float(membership_weight)
+        self.last_pair_stats["candidate_membership_terms"] = float(candidate_membership_terms)
+        self.last_pair_stats["candidate_membership_weight"] = float(candidate_membership_weight)
+        self.last_pair_stats["candidate_secondary_weight_mean"] = (
+            float(np.mean(candidate_target_weights[candidate_target_weights > 0.0]))
+            if candidate_target_weights is not None and np.any(candidate_target_weights > 0.0)
+            else float("nan")
+        )
+        self.last_pair_stats["mean_weak_score"] = float(np.mean(weak_probs))
 
         # Backprop through L2 normalization:
         # y = x / ||x||, so dL/dx = (g - y * <y, g>) / ||x||
@@ -794,7 +1123,9 @@ class MLPEncoder:
 
         dw3 = h2.T @ dz_raw
         db3 = dz_raw.sum(axis=0)
-        dh2 = dz_raw @ self.w3.T
+        dw4 = h2.T @ dweak_logits / normalizer
+        db4 = dweak_logits.sum(axis=0) / normalizer
+        dh2 = dz_raw @ self.w3.T + (dweak_logits / normalizer) @ self.w4.T
         dh2[h2 <= 0] = 0
         dw2 = h1.T @ dh2
         db2 = dh2.sum(axis=0)
@@ -805,11 +1136,36 @@ class MLPEncoder:
 
         self.w3 -= self.lr * dw3
         self.b3 -= self.lr * db3
+        self.w4 -= self.lr * dw4
+        self.b4 -= self.lr * db4
         self.w2 -= self.lr * dw2
         self.b2 -= self.lr * db2
         self.w1 -= self.lr * dw1
         self.b1 -= self.lr * db1
         return float(loss)
+
+
+def best_membership_groups(
+    scenario: Scenario,
+    weak_scores: np.ndarray,
+    max_groups: int,
+    switch_beta: float,
+) -> list[list[int]]:
+    """Search contiguous split candidates after sorting by learned weak scores."""
+
+    order = np.argsort(-weak_scores)
+    n_users = len(order)
+    best_groups = [list(range(n_users))]
+    best_utility = -1e9
+    cut_positions = list(range(1, n_users))
+    for k in range(1, max_groups + 1):
+        for boundaries in itertools.combinations(cut_positions, k - 1):
+            groups = groups_from_sorted_boundaries(order, boundaries)
+            result = allocate_and_evaluate(groups, scenario, switch_beta)
+            if result.utility > best_utility:
+                best_utility = result.utility
+                best_groups = groups
+    return best_groups
 
 
 def _kmeans_once(
@@ -972,8 +1328,15 @@ def learned_grouping(
     switch_beta: float,
     kmeans_n_init: int = 10,
 ) -> list[list[int]]:
-    """Proposed MVP: MLP embedding -> k-means -> DP utility selection."""
+    """Proposed learner grouping.
 
+    Default path: embedding -> k-means -> DP utility selection.
+    Membership-head path: weak-group scores -> ordered boundary search -> DP.
+    """
+
+    if getattr(model, "grouping_mode", "kmeans_embedding") == "membership_order":
+        weak_scores = model.weak_group_scores(scenario.features)
+        return best_membership_groups(scenario, weak_scores, max_groups, switch_beta)
     embeddings = model.embed(scenario.features)
     return best_kmeans_groups(
         scenario, embeddings, max_groups, switch_beta,

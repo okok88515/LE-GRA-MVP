@@ -1,73 +1,72 @@
 # Prompt for the next Codex session
 
-將下列內容直接貼給公司電腦的 Codex：
+把下面整段直接貼給明天公司的 Codex：
 
 ```text
-請先完整閱讀這個 LE-GRA-MVP 專案的最新研究交接，不要一開始就擴大實驗或改 learner。
+請先完整閱讀這個 LE-GRA-MVP 專案的最新研究交接，不要一開始就擴大實驗，也不要先重做已經證明無效的小 tweak。
 
 閱讀順序：
-1. SESSION_HANDOFF.md
-2. P3_5_SUMO_SIMU5G_COUPLING_ZH.md
-3. P3_6_NEXT_STEPS_ZH.md
-4. P3_4_SIMU5G_RADIO_EXPORTER_ZH.md
-5. SIMU5G_RADIO_SCHEMA.md
-6. SUMO_MOBILITY_SCHEMA.md
-7. p3_5_coupled_bundle/radio/export_metadata.json
-8. p3_5_coupled_bundle/bundle/scenarios.csv
-9. p3_5_coupled_bundle/bundle/users.csv
-10. build_p3_5_coupled_bundle.py
-11. run_p3_5_coupled_test.py
-12. simu5g_raw_radio_export.py
-13. medium_matrix_results_v2_after_grad_fix/main_comparison_matrix.csv
-14. medium_matrix_results_v2_after_grad_fix/feature_ablation.csv
-15. medium_matrix_results_v2_after_grad_fix/teacher_imitation_diagnostics.csv
+1. END_OF_DAY_HANDOFF_2026-08-06_ZH.md
+2. SESSION_HANDOFF.md
+3. P3_6M_19_BOUNDARY_SUPPORT_WEIGHTING_ZH.md
+4. P3_6M_20_BOUNDARY_WEIGHTING_ROBUSTNESS_ZH.md
+5. P3_6M_21_M4B_BOUNDARY_TRANSFER_CHECK_ZH.md
+6. P3_6M_22_CANDIDATE_CONDITIONED_WEAK_GROUP_V1_ZH.md
+7. P3_6M_23_CANDIDATE_CONDITIONED_CALIBRATION_ZH.md
+8. P3_6M_24_BOUNDARY_AWARE_PAIR_CONSTRUCTION_V1_ZH.md
+9. run_p3_6g_temporal_learner.py
+10. run_p3_6_coupled_learner.py
+11. le_gra_mvp.py
 
-目前 Git 主線的重要進度：
-- P0–P2.6 learner-focused studies 已完成；gradient fix、resource-cost feature、teacher
-  strength 等結論仍成立。
-- P3.0 trace schema、P3.1 SUMO mobility adapter、P3.2 radio join 已完成。
-- P3.3 真實 Simu5G 環境已完成。
-- P3.4 已用 Simu5G NR AMC 匯出真實 per-UE/per-band CQI 與 TBS。
-- P3.5 已完成同一 simulation clock 的 SUMO+Veins+Simu5G coupled run、stable
-  SUMO ID mapping、25-band completeness、P3.2 join 和 offline teacher execution。
+目前研究狀態重點：
+- 主研究 family 仍然是 `0|1|15|2|3|4|5 @ gnb_1`
+- 目前真正困難的 dual-weak regime 仍然是 `p3_6m4b_threshold_nudge_bundle/bundle`
+  上的 `43.7s ~ 43.9s`
+- teacher 的關鍵 weak group 是 `{ue15, ue4}`
+- learner / multi-feature / CQI 仍然卡在舊的 `ue15-only` 解
 
-P3.5 acceptance evidence：
-- 2 個 SUMO vehicles；stable mapping 為：
-  `0 -> Highway.car[0] -> Simu5G 2049`
-  `1 -> Highway.car[1] -> Simu5G 2050`
-- 67 mobility rows、27,950 raw radio rows。
-- 67 normalized radio user rows、1,675 radio RB rows。
-- CQI warm-up 後有 55 scenarios、59 users、1,475 RB rows。
-- Offline teacher 55/55 scenarios 通過。
-- `python -u .\run_p3_5_coupled_test.py` 已通過。
+目前最重要結論：
+1. `P3.6m-17` 已證明 normalized-support selector 修正有效
+2. `P3.6m-19 ~ P3.6m-20` 已證明 minimal boundary-aware replay 在 `m2` 上是真的有效，且通過第一輪 robustness check
+3. 但 `P3.6m-21` 已證明 replay-only 無法 transfer 到 `m4b`
+4. `P3.6m-22 ~ P3.6m-23` 已證明 candidate-membership-BCE-only 即使做最小 calibration，也完全推不動 `m4b`
+5. `P3.6m-24` 已證明最小版 boundary-aware pair construction 也仍然推不動 `m4b`
 
-重要限制：這份 P3.5 trace 是 integration artifact，不是訓練資料。它只有兩台車、
-CQI 全為 15，而且 previous_quality=3 是明確標示的 experiment control，不是實測
-video state。因此不要用這份 trace 跑 learner ranking，也不要擴大 Kmax/seeds。
+所以現在的停損點很清楚：
+- 不要再做 replay-only sweep
+- 不要再做 candidate BCE 權重微調
+- 不要再做單點 pair-priority 小修
+- 不要回頭做 selector/tie-break 類微調
 
-你的任務是進入 P3.6：
-1. 先檢查 git status 與最新 commit，確認 pull 完整。
-2. 先執行 `python -u .\run_p3_5_coupled_test.py`；如果公司電腦沒有 simulator
-   runtime，先讀 p3_5_install_environment.sh，不要假設 WSL distro 已存在。
-3. 優先實作 `audit_coupled_trace.py`，量化目前 coupled trace 的 active UE、CQI
-   saturation、per-band TBS dispersion、ambiguous-pair ratio、handover、resource
-   pressure、quality distribution 與 join exclusions。
-4. 用目前 P3.5 trace 建立 baseline audit，應明確顯示 CQI saturation 問題。
-5. 再提出並實作一個最小 informative coupled scenario 改進；一次只改一組因素，
-   例如 duration/vehicle density、gNB-route geometry、interference 或 handover。
-6. 重新跑 audit，證明資料比 P3.5 smoke trace 更有研究資訊。
-7. 接著定位並設計真實 video application quality recorder；不允許 random/fixed
-   imputation，也不能直接由 CQI 推回 previous quality。
-8. 所有修改都要保留 stable module-path ID mapping、同一 simulation timestamp、
-   完整 per-band counterfactual TBS，並讓 P3.2 join與 offline teacher 繼續通過。
+現在最值得做的下一步只有一條主線：
+- 做「最小聯合版 supervision」
 
-除非資料 audit 先證明值得，否則不要擴大 Kmax、seeds、duration 或整體 learner
-matrix。回答與報告以繁體中文為主，先整理你讀到的研究脈絡與 P3.6 計畫，再動手。
+具體目標：
+- 把已經各自存在但單獨都不夠的三個 hook 組合起來：
+  1. boundary-aware replay
+  2. candidate-conditioned weak-group supervision
+  3. boundary-aware pair construction
+
+工作原則：
+- 先看 git status
+- 先理解現有實作，不要重做已經證明失敗的 isolated tweak
+- 先做最小聯合版，不要擴大 seeds / Kmax / matrix
+- 每做一步都更新 SESSION_HANDOFF.md
+- 如果跑實驗，優先只在 `m4b` 主 regime 做 focused validation
+
+建議第一步：
+1. 檢查目前 repo 狀態
+2. 讀完上述文件
+3. 用一句話總結目前 bottleneck
+4. 直接實作最小聯合版 supervision
+5. 在 `p3_6m4b_threshold_nudge_bundle/bundle` 上做 focused test：
+   - train end = `43.6`
+   - test = `43.7 ~ 43.9`
+   - 先不要擴大矩陣
+
+如果最小聯合版還是完全不動，再明確總結：
+- 目前 minimal learner-side local tweaks on `m4b` are insufficient
+- 下一步就應該轉向更強的 localized hard negatives / structure-level redesign
+
+回答請以中文為主，先講清楚脈絡與判斷，再開始做事。
 ```
-
-## 公司電腦環境提醒
-
-Git 會帶走程式、patch、raw evidence 與 bundle，但不會帶走 WSL/Nix simulator
-installation。公司電腦若沒有 `LE-GRA-opp-env`，需先依 P3.3/P3.5 腳本建立環境。
-執行腳本時，將範例中的 `/c/Users/User/Documents/LE-GRA-MVP` 換成公司電腦專案的
-實際 WSL mount path。
