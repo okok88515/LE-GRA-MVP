@@ -1,0 +1,5 @@
+scenario_id,timestamp_s,ue_id_a,ue_id_b,cqi_a,cqi_b,cqi_gap,mean_profile_gap_kbps,max_profile_gap_kbps,ambiguous_pair
+simu5g_00000051,5.7,0,1,15,15,0.000000,0.000000,0.000000,0
+simu5g_00000052,5.8,0,1,15,15,0.000000,0.000000,0.000000,0
+simu5g_00000053,5.9,0,1,15,15,0.000000,0.000000,0.000000,0
+simu5g_00000054,6,0,1,15,15,0.000000,0.000000,0.000000,0
