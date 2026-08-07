@@ -7,6 +7,89 @@ new Codex task or on another computer. After pulling the repository, ask Codex
 to read this file together with `medium_matrix_results/*.csv` before proposing
 the next experiment.
 
+## Quick Restart For Another Agent
+
+If you are Claude / Codex / another agent resuming this repo, start from this
+summary before reading the detailed sections below.
+
+### TL;DR
+
+- The current strongest new regime is:
+  - `3|4|5|6 @ gnb_2`
+  - bundle: `p3_6q23_dual_boundary_crossover_bundle/bundle`
+- The key late positive corridor is:
+  - `28.3s ~ 28.8s`
+- The teacher split there is:
+  - `3|5 / 4|6`
+- Plain baselines fail cleanly there:
+  - `CQI` / `Multi-feature k-means` collapse to single-group
+- Plain LE-GRA is close but not complete:
+  - it matches teacher on `28.4s ~ 28.8s`
+  - it still fails exactly at `28.3s`
+
+### Current bottleneck in one sentence
+
+The main unsolved problem is no longer general grouping quality; it is the
+earliest crossover-onset failure at `28.3s`, where LE-GRA still cannot switch
+the secondary weak role from `ue5` to `ue6` early enough.
+
+### What has already been proven
+
+1. `28.4s ~ 28.8s` is recoverable once `28.3s` is included in support/train.
+2. `28.3s` is the first true split onset in this regime.
+3. Replay cannot help before `28.3s` because the pre-onset window
+   `27.9s ~ 28.2s` has zero positive-gain teacher splits.
+4. Candidate-conditioned weighting and stronger frontier hard negatives still
+   do not move `28.3s`.
+
+### Do not do these first
+
+- do not jump to bigger matrices / more seeds / larger `Kmax`
+- do not repeat replay-only sweeps on `28.3s`
+- do not spend another round on small candidate-weight tuning only
+- do not assume the project still uses only raw CQI
+
+### Important interpretation
+
+- Pure `CQI k-means` is only the weakest baseline.
+- The main learner already uses richer signals:
+  - `cqi_history`
+  - `rb_rates`-derived `cost_vec`
+  - RB stats
+  - mobility
+  - quality/load context
+- So the current failure is not explained simply by
+  "CQI is quantized to `1..15`".
+- However, the repo's radio schema already reserves continuous radio fields
+  such as `RSRP` / `RSRQ` / `SINR`, and the exporter still leaves them empty.
+
+### Best next step
+
+The most promising next move is to add continuous radio-quality signals beyond
+CQI quantization, then test them only on the `q23/q26` onset regime first.
+
+Recommended order:
+
+1. extend Simu5G export to populate:
+   - `wideband_sinr_db`
+   - `rsrp_dbm`
+   - `rsrq_db`
+   - per-band `sinr_db`
+2. add a focused feature mode such as:
+   - `history_cost_radio`
+   - or `full_radio_context`
+3. run only the `28.3s` onset-focused validation before any broad matrix
+
+### Minimum files to read next
+
+1. `SESSION_HANDOFF.md`
+2. `P3_6Q_24_DUAL_BOUNDARY_CROSSOVER_REGIME_ZH.md`
+3. `P3_6Q_25_SINGLE_SUPPORT_CROSSOVER_TRANSFER_ZH.md`
+4. `P3_6Q_26_EARLIEST_ONSET_FAILURE_ZH.md`
+5. `SIMU5G_RADIO_SCHEMA.md`
+6. `simu5g_raw_radio_export.py`
+7. `le_gra_mvp.py`
+
 ## Research Goal
 
 The project studies grouping and resource allocation for vehicular 5G MBS.
@@ -4937,3 +5020,1778 @@ Updated immediate next step:
   - focused repair
   to:
   - the new default LE-GRA inference path
+
+### P3.6p-3: bridge comparison matrix and current regime taxonomy
+
+Formal bridge comparison artifact added on Friday, August 7, 2026:
+
+- `P3_6P_3_BRIDGE_COMPARISON_ZH.md`
+- `p3_6p3_bridge_comparison_matrix.csv`
+
+Purpose:
+
+- convert the scattered focused-bridge results into a single comparison artifact
+- answer the practical question:
+  - is the current bottleneck still train-side supervision?
+  - or is it now mainly the default inference bridge?
+
+Matrix summary:
+
+- `o8 @ 18.7s`:
+  - teacher utility:
+    - `0.6198214236671593`
+  - old `kmeans_embedding` LE-GRA:
+    - `0.6071841780840183`
+  - `membership_order` LE-GRA:
+    - `0.6198214236671593`
+  - `hybrid_membership_kmeans` LE-GRA:
+    - `0.6198214236671593`
+- `m4b @ 43.7 ~ 43.9`:
+  - teacher utility:
+    - `0.5796090488051922`
+  - old `kmeans_embedding` LE-GRA:
+    - `0.5790831051936908`
+  - `membership_order` LE-GRA:
+    - `0.5796090488051922`
+  - `hybrid_membership_kmeans` LE-GRA:
+    - `0.5796090488051922`
+- `m2 @ 43.8 ~ 43.9`:
+  - teacher utility:
+    - `0.5796090488051922`
+  - focused old `kmeans_embedding` reference:
+    - `0.5790831051936908`
+  - `membership_order` LE-GRA:
+    - `0.5796090488051922`
+  - `hybrid_membership_kmeans` LE-GRA:
+    - `0.5796090488051922`
+
+Important interpretation:
+
+- the cleanest single-point evidence still comes from `o8 @ 18.7s`
+  - the learner already surfaces the correct weak pair
+  - but old `kmeans_embedding` collapses that candidate into a worse final grouping
+- `m4b` now provides cross-time evidence that:
+  - train-side localized supervision is already sufficient to repair the frontier
+  - but old `kmeans_embedding` still fails at the final bridge step
+  - both `membership_order` and `hybrid_membership_kmeans` recover the teacher
+- `m2` should currently be treated as an already-solvable sibling regime
+  - it is not the strongest evidence for a hard bridge bottleneck
+  - but it confirms the newer bridge does not regress there
+
+Current regime taxonomy is now clearer:
+
+- already-solvable:
+  - `m2`
+  - `n3`
+- bridge-needed:
+  - `o8 @ 18.7s`
+  - `m4b`
+
+Current bottleneck shift:
+
+- we should stop behaving as if every miss is a learner-loss failure
+- the main near-term decision is now:
+  - should `hybrid_membership_kmeans` become the default LE-GRA inference path?
+
+Recommended next step:
+
+- do one minimal sanity check of `hybrid_membership_kmeans` on an
+  already-solvable regime such as `n3`
+- if no regression appears, promote hybrid bridge as the default path for the
+  next focused learner validations
+- move the main research effort toward discovering a genuinely new
+  learner-hard family, rather than continuing micro-tweaks around the same old
+  `m4b` plateau
+
+### P3.6p-4: `n3` hybrid sanity check confirms no regression
+
+Follow-up run on Friday, August 7, 2026:
+
+- `p3_6p4_n3_hybrid_sanity/`
+
+Protocol:
+
+- reused the existing focused `n3` learner setup
+  - `bundle = p3_6n3_isolate_ue5_bundle/bundle`
+  - `focus_ue_ids = 3 4 5 6`
+  - `train end = 27.8`
+  - `test = 27.9 ~ 29.9`
+- kept:
+  - `joint_supervision_mode = none`
+- changed only:
+  - `grouping_mode = hybrid_membership_kmeans`
+
+Result:
+
+- `Offline teacher = 0.4603881335630136`
+- `LE-GRA MVP = 0.4603881335630136`
+- mean pairwise / ARI / NMI:
+  - all `1.0`
+
+Interpretation:
+
+- hybrid bridge is not only a repair for bridge-needed regimes such as `o8`
+  and `m4b`
+- it also stays stable on an already-solvable regime
+- this materially strengthens the case for treating
+  `hybrid_membership_kmeans` as the candidate default inference path for the
+  next focused learner validations
+
+Updated immediate next step:
+
+- stop spending more budget on bridge-choice uncertainty
+- treat `hybrid_membership_kmeans` as the working default for the next round of
+  focused learner probes
+- shift the main research effort to finding a new genuinely learner-hard family
+  beyond the current `m4b` / `o8` bridge-needed class
+
+### P3.6n-9 / P3.6n-10: extending the `n5` late weak-pair segment
+
+Formal write-up:
+
+- `P3_6N_9_10_LATE_PAIR_SEGMENT_EXTENSION_ZH.md`
+
+New artifacts:
+
+- `build_p3_6n9_late_cliff_smoothing_bundle.py`
+- `p3_6n9_late_cliff_smoothing_bundle/`
+- `p3_6n9_teacher_audit/`
+- `p3_6n9_focus_mining/`
+- `build_p3_6n10_late_state_hold_bundle.py`
+- `p3_6n10_late_state_hold_bundle/`
+- `p3_6n10_teacher_audit/`
+- `p3_6n10_focus_mining/`
+- `p3_6n10a_baseline_kmeans/`
+- `p3_6n10b_hybrid_bridge/`
+
+What was tested:
+
+- `n9`:
+  - mild late-cliff smoothing after `28.4s`
+  - goal:
+    - see whether the short `n5` late pair can be extended with only a small
+      local repair
+- `n10`:
+  - stronger late-state hold
+  - copied the last positive `28.3s` weak-pair state into `28.4s ~ 28.8s`
+  - goal:
+    - first answer whether this family can support a longer teacher-positive
+      segment at all
+
+Critical `n9` result:
+
+- no improvement over `n5`
+- late positive count stayed:
+  - `5 / 21`
+- still only positive at:
+  - `27.9 ~ 28.3`
+
+Critical `n10` result:
+
+- late positive count became:
+  - `10 / 21`
+- positive timestamps became:
+  - `27.9 ~ 28.8`
+- teacher split stayed stable on all 10 late positive snapshots:
+  - `[[0, 3], [1, 2]]`
+
+Most important interpretation:
+
+- `n10` is the first successful proof that the `n5` line can be turned into a
+  longer trainable late weak-pair segment
+- but focused learner validation shows this new segment is still
+  already-solvable:
+  - old `kmeans_embedding` LE-GRA already matches the teacher
+  - `hybrid_membership_kmeans` also matches, but is not required
+
+Focused learner result on `n10`:
+
+- bundle:
+  - `p3_6n10_late_state_hold_bundle/bundle`
+- focus:
+  - `3 4 5 6`
+- train end:
+  - `27.8`
+- test:
+  - `27.9 ~ 28.8`
+- main comparison:
+  - `Offline teacher = 0.43814862226910506`
+  - old `kmeans_embedding` LE-GRA = `0.43814862226910506`
+  - `hybrid_membership_kmeans` LE-GRA = `0.43814862226910506`
+
+Current status shift:
+
+- `n10` is not the new learner-hard regime we ultimately want
+- but it is now a much better source family than raw `n5`
+  because it provides a controllable, longer positive pair segment
+
+Updated immediate next step:
+
+- stop pushing raw `n5` / `n9` local cliff tweaks
+- treat `n10` as the new source family on this line
+- next redesign should preserve the `27.9 ~ 28.8` pair segment while gradually
+  reducing simple separability
+- the target is to find the boundary where:
+  - teacher still splits
+  - but old `kmeans_embedding` or simple baselines begin to fail
+
+### P3.6n-11: mild compression immediately kills the `n10` late segment
+
+Formal write-up:
+
+- `P3_6N_11_MILD_COMPRESSION_COLLAPSE_ZH.md`
+
+New artifacts:
+
+- `build_p3_6n11_state_hold_mild_compression_bundle.py`
+- `p3_6n11_state_hold_mild_compression_bundle/`
+- `p3_6n11_teacher_audit/`
+- `p3_6n11_focus_mining/`
+
+What changed:
+
+- started from `n10`
+- kept the successful late state-hold structure
+- applied only mild simple-feature compression on `27.9 ~ 28.8`:
+  - slightly raised `ue4` / `ue5` CQI
+  - slightly lowered `ue3` / `ue6` CQI
+  - compressed `previous_quality` gap
+
+Critical result:
+
+- late window `27.9 ~ 28.8`:
+  - positive scenario count = `0 / 10`
+  - teacher returns to single-group for all snapshots
+- focus mining shows the only surviving positive segment is again just the old
+  early one:
+  - `25.8 ~ 27.8`
+
+Interpretation:
+
+- `n10` is a valid positive-segment source
+- but that source is extremely fragile to even mild simple-feature compression
+- this is now a clean boundary result:
+  - `n10` = longer segment but still easy
+  - `n11` = mild compression already kills the late segment entirely
+
+Updated immediate next step:
+
+- do not jump back to learner-side work on `n11`
+- do not treat `n11` as a new hard regime; it is a collapse case
+- the right next move on this line is an interpolation sweep around `n10`
+  rather than another big discrete redesign:
+  - smaller CQI uplift steps
+  - smaller strong-side downshift steps
+  - smaller previous-quality compression steps
+- the real target is to locate the threshold where:
+  - teacher still keeps the late pair
+  - but old `kmeans_embedding` first stops matching
+
+### P3.6n-12: interpolation sweep narrows the `n10 -> n11` boundary
+
+Formal write-up:
+
+- `P3_6N_12_INTERPOLATION_SWEEP_ZH.md`
+
+New artifacts:
+
+- `build_p3_6n12_interpolation_bundle.py`
+- `p3_6n12a_interp_light/`
+- `p3_6n12b_interp_mid/`
+- `p3_6n12c_interp_uppermid/`
+- `p3_6n12a_teacher_audit/`
+- `p3_6n12b_teacher_audit/`
+- `p3_6n12c_teacher_audit/`
+- `p3_6n12a_focus_mining/`
+- `p3_6n12b_focus_mining/`
+- `p3_6n12c_focus_mining/`
+- `p3_6n12b_kmeans_learner/`
+- `p3_6n12b_hybrid_learner/`
+
+What was tested:
+
+- instead of one more big redesign, we interpolated between:
+  - `n10` (alive)
+  - `n11` (collapsed)
+- three variants were checked:
+  - `n12a`: light compression
+  - `n12b`: mid compression
+  - `n12c`: upper-mid compression
+
+Teacher-side result:
+
+- `n12a`:
+  - late positive count = `10 / 10`
+- `n12b`:
+  - late positive count = `10 / 10`
+- `n12c`:
+  - late positive count = `0 / 10`
+
+Interpretation:
+
+- the collapse boundary is now much tighter:
+  - `n12b` still fully alive
+  - `n12c` fully dead
+- so the true threshold is now approximately between:
+  - `n12b -> n12c`
+
+Focused learner result on the strongest surviving point `n12b`:
+
+- `Offline teacher = 0.463148622269105`
+- old `kmeans_embedding` LE-GRA = `0.463148622269105`
+- `hybrid_membership_kmeans` LE-GRA = `0.463148622269105`
+
+Meaning:
+
+- even near the current collapse boundary, the surviving regime is still
+  already-solvable
+- the old bridge is still enough there
+
+Updated immediate next step:
+
+- stop treating the boundary as one-dimensional
+- split the next probe by axis:
+  - `previous_quality` compression only
+  - CQI / strong-side compression only
+- identify which axis kills the late pair first
+- then refine only around that axis-specific threshold
+
+### P3.6n-13 ~ P3.6n-16: axis split identifies the real kill switch, but
+surviving regimes are still too easy
+
+Formal write-up:
+
+- `P3_6N_13_16_AXIS_SPLIT_AND_ASYMMETRY_ZH.md`
+
+New artifacts:
+
+- `p3_6n13a_prevq_only/`
+- `p3_6n13b_cqi_only/`
+- `p3_6n14a_weak_prevq_only/`
+- `p3_6n14b_strong_prevq_only/`
+- `p3_6n15a_cqi_stronger/`
+- `p3_6n15b_cqi_heavy/`
+- `p3_6n15c_cqi_extreme/`
+- `p3_6n16a_weak_asym_light/`
+- `p3_6n16b_weak_asym_mid/`
+- `p3_6n16c_weak_asym_strong/`
+- `p3_6n13b_kmeans_learner/`
+- `p3_6n13b_hybrid_learner/`
+
+What was learned:
+
+- `n13a_prevq_only`:
+  - late positive `0 / 10`
+- `n13b_cqi_only`:
+  - late positive `10 / 10`
+- `n14a_weak_prevq_only`:
+  - late positive `0 / 10`
+- `n14b_strong_prevq_only`:
+  - late positive `10 / 10`
+
+So the real kill switch is now very clear:
+
+- raising the weak-side `previous_quality` kills the late split
+- CQI-only compression is not the first-order killer
+- lowering strong-side `previous_quality` does not kill the segment
+
+But preserving the split is still not enough:
+
+- focused learner on `n13b_cqi_only`:
+  - `Offline teacher = 0.463148622269105`
+  - old `kmeans_embedding` LE-GRA = `0.463148622269105`
+  - `hybrid_membership_kmeans` LE-GRA = `0.463148622269105`
+
+This means:
+
+- teacher-side survival and learner-side hardness are different questions
+- the surviving corridor is still already-solvable for simple clustering /
+  hybrid bridge inference
+
+Additional stop-loss checks:
+
+- `n15a/b/c` tried stronger CQI-only sweeps while keeping:
+  - `weak_prevq = 1`
+  - `strong_prevq = 4`
+- all three collapse at the learner-test late window:
+  - late positive `0 / 10`
+  - `teacher_group_count = 1`
+  - `teacher_gain_vs_single = 0`
+
+- `n16a/b/c` tried weak-pair internal asymmetry to force a possible 3-group
+  regime
+- none of them survive the late learner-test window
+- none reaches `3` groups
+
+Updated immediate next step:
+
+- stop doing local numeric sweeps on the same `3|4|5|6 @ gnb_2` corridor
+- the next move should be structural:
+  - change source family
+  - or redesign a regime where the split depends on richer temporal / relational
+    structure, not just a simple snapshot axis
+- in particular, prioritize finding:
+  - natural `3-group` families
+  - bridge-like ambiguous families
+  - or temporal crossover families that simple `kmeans_embedding` cannot
+    already solve
+
+### P3.6q-1: source family mining says the current repo is nearly exhausted
+
+Formal write-ups:
+
+- `P3_6Q_1_SOURCE_FAMILY_MINING_ZH.md`
+- `P3_6Q_2_NEXT_DATASET_CRITERIA_ZH.md`
+
+New artifacts:
+
+- `mine_source_family_candidates.py`
+- `p3_6_source_family_mining/`
+
+Key result:
+
+- the repo currently has only a very small set of true positive families
+- after normalizing by each family's best source audit, the main families are:
+  - `3|4|5|6 @ gnb_2`
+  - `0|1|2|3 @ gnb_2`
+  - `0|1|2|3|4 @ gnb_2`
+  - `0|1|15|2|3|4|5 @ gnb_1`
+  - `1|2|3|4|5|6 @ gnb_2`
+
+Interpretation:
+
+- `3|4|5|6 @ gnb_2` remains the richest family, but same-family local sweeps are
+  already near their limit
+- `0|1|2|3 @ gnb_2` already served its role as a protocol-level supervision
+  proof
+- `0|1|2|3|4 @ gnb_2` is a useful bridge case, but is already deeply explored
+- `0|1|15|2|3|4|5 @ gnb_1` remains the hard benchmark, but its positive support
+  is too short to expect a natural large-gap expansion
+- `1|2|3|4|5|6 @ gnb_2` is real, but still too easy once turned into a focused
+  learner holdout
+
+Additional check:
+
+- `p3_6m_family_bank_filtered/` was re-checked
+- its high-ranking near-miss families such as:
+  - `1|2|4|5 @ gnb_2`
+  - `0|1|15|2|3|4 @ gnb_1`
+  - `31|4|5|6|7 @ gnb_2`
+  do not produce strict positive segments under focused mining
+
+Bottom line:
+
+- there is currently no clean, underexplored positive family in-repo that looks
+  likely to create a substantially larger teacher / learner / baseline gap via
+  one more local tweak round
+
+Updated immediate next step:
+
+- stop treating the next move as "find one more hidden family in the current
+  repo"
+- the next meaningful step should be new data generation / new source-family
+  construction with explicit criteria:
+  - longer positive windows
+  - natural `3-group` or `2-vs-3-group` structure
+  - temporal crossover
+  - history-sensitive decoys
+  - preserved cross-traffic interaction
+
+### P3.6q-3: first structural three-group ladder prototype still collapses
+
+Formal write-up:
+
+- `P3_6Q_3_THREE_GROUP_LADDER_FAILURE_ZH.md`
+
+New artifacts:
+
+- `build_p3_6q3_three_group_ladder_bundle.py`
+- `p3_6q3_three_group_ladder_bundle/`
+- `p3_6q3_teacher_audit/`
+
+What was tried:
+
+- start from `p3_6n10_late_state_hold_bundle`
+- keep the same cross-traffic context
+- impose a minimal:
+  - strong / boundary / weak ladder
+  - plus a late `ue5` / `ue6` temporal crossover
+
+Goal:
+
+- create the first natural `2-group / 3-group` boundary candidate inside the
+  familiar `3|4|5|6 @ gnb_2` family
+
+Result:
+
+- on the true late target window `27.9s ~ 28.8s`:
+  - `multi_group_count = 0`
+  - `positive_gain_count = 0`
+  - `max_teacher_group_count = 1`
+- no `3-group` case appears
+
+Interpretation:
+
+- manually arranging a local three-subgroup ladder inside the existing family is
+  still not enough
+- the teacher seems to depend on deeper resource-interaction structure than a
+  target-family-only ladder can provide
+
+Updated immediate next step:
+
+- deprioritize more hand-crafted ladder sweeps on the same family
+- move toward:
+  - new raw source families
+  - or a stronger data-generation pipeline that explicitly rebuilds the
+    cross-traffic / contention structure required for multi-group gain
+
+### P3.6q-4 ~ q-8: declarative structural bridge line produced a real teacher-side extension
+
+Formal write-up:
+
+- `P3_6Q_4_TO_Q8_STRUCTURAL_BRIDGE_PROGRESS_ZH.md`
+
+New artifacts:
+
+- `build_family_window_transform_bundle.py`
+- `p3_6q6_family_transform_spec_template.json`
+- `p3_6q6_three_phase_ladder_spec.json`
+- `p3_6q7_extend_mid_split_spec.json`
+- `p3_6q8_bridge_window_nudge_spec.json`
+- `p3_6q6_three_phase_ladder_bundle/`
+- `p3_6q7_extend_mid_split_bundle/`
+- `p3_6q8_bridge_window_nudge_bundle/`
+- `p3_6q6_teacher_audit/`
+- `p3_6q7_teacher_audit/`
+- `p3_6q8_teacher_audit/`
+- `p3_6q8_kmeans_learner/`
+- `p3_6q8_hybrid_learner/`
+
+What changed:
+
+- instead of one-off local bundle builders, `q6+` introduced a reusable
+  declarative family-window transform scaffold
+- the target family is still `3|4|5|6 @ gnb_2`
+- but the design goal changed from "force a 3-group ladder immediately" to:
+  - first stabilize a longer positive temporal bridge
+  - then test whether that bridge is learner-hard or only teacher-stable
+
+Key teacher-side results:
+
+- `q6` produced the first real two-phase positive family on `3|4|5|6 @ gnb_2`
+  - `25.8, 26.2`: `[[0,1,3],[2]]` => isolate `ue5`
+  - `27.1 ~ 27.3`: `[[0,2,3],[1]]` => isolate `ue4`
+  - this proved the same family can support temporal weak-identity crossover
+
+- `q7` showed that naive extension does not move the `27.4+` cliff
+
+- `q8` is the first real bridge-window success
+  - it preserved the early `ue5` positive phase
+  - and extended the later `ue4`-isolation phase from:
+    - `27.1 ~ 27.3`
+    to
+    - `27.1 ~ 27.6`
+  - teacher gains stay:
+    - `0.09440267226723498` for the `ue5` phase
+    - `0.044402672267235155` for the `ue4` phase
+
+Interpretation:
+
+- this is the clearest proof so far that teacher-positive survival can be
+  extended by localized structural bridge design
+- however, teacher-side survival and learner-side hardness are still different
+  questions
+
+Focused learner result on `q8`:
+
+- focused regime:
+  - family `3|4|5|6`
+  - train end = `27.3`
+  - test = `27.4 ~ 27.6`
+
+- both:
+  - `p3_6q8_kmeans_learner/`
+  - `p3_6q8_hybrid_learner/`
+  end with the same outcome:
+  - `No grouping` = `0.6471841780840183`
+  - `CQI k-means` = `0.6767859595955085`
+  - `Resource-cost k-means` = `0.6915868503512534`
+  - `Multi-feature k-means` = `0.6915868503512534`
+  - `Offline teacher` = `0.6915868503512534`
+  - `LE-GRA MVP` = `0.6915868503512534`
+  - pairwise / ARI / NMI = `1.0`
+
+Bottom line:
+
+- `q8` is a real teacher-side extension breakthrough
+- but it is still learner-easy
+- so "make the positive window longer" is not enough by itself to enlarge the
+  teacher / learner / baseline gap
+
+Updated immediate next step:
+
+- move to a `q9`-style decoy bridge design
+- keep the teacher-positive `ue4`-isolation alive if possible
+- but introduce stronger conflicting cues on `ue5/ue6` so that:
+  - the teacher still prefers the true weak split
+  - while snapshot-driven baselines are more likely to follow the wrong weak
+    identity or boundary
+
+### P3.6q-9: lightweight decoy bridge extension is a clean stop-loss
+
+Formal write-up:
+
+- `P3_6Q_9_DECOY_BRIDGE_EXTENSION_FAILURE_ZH.md`
+
+New artifacts:
+
+- `p3_6q9_decoy_bridge_extension_spec.json`
+- `p3_6q9_decoy_bridge_extension_bundle/`
+- `p3_6q9_teacher_audit/`
+- `p3_6q9_focus_mining/`
+- `p3_6q9_kmeans_learner/`
+- `p3_6q9_hybrid_learner/`
+
+What was tried:
+
+- keep the successful `q8` bridge
+- then modify `27.7+` into a decoy regime:
+  - `ue4` remains the intended true weak side via low `previous_quality`
+  - `ue5` is made more decoy-like with stronger snapshot weakness but stronger
+    history
+  - `ue6` stays moderately weak
+
+Goal:
+
+- either extend the `ue4`-isolation positive corridor beyond `27.6`
+- or make the surviving `27.4 ~ 27.6` bridge more learner-hard
+
+Teacher result:
+
+- no improvement over `q8`
+- positive snapshots remain exactly:
+  - `25.8, 26.2`: `[[0,1,3],[2]]` => isolate `ue5`
+  - `27.1 ~ 27.6`: `[[0,2,3],[1]]` => isolate `ue4`
+- nothing survives at `27.7+`
+
+Focused learner result:
+
+- same focused regime as `q8`:
+  - family `3|4|5|6`
+  - train end = `27.3`
+  - test = `27.4 ~ 27.6`
+
+- both:
+  - `p3_6q9_kmeans_learner/`
+  - `p3_6q9_hybrid_learner/`
+  still fully match the teacher:
+  - `Resource-cost k-means` = `0.6915868503512534`
+  - `Multi-feature k-means` = `0.6915868503512534`
+  - `Offline teacher` = `0.6915868503512534`
+  - `LE-GRA MVP` = `0.6915868503512534`
+  - pairwise / ARI / NMI = `1.0`
+
+Interpretation:
+
+- lightweight local decoys on this family are now a clean stop-loss
+- they neither:
+  - extend the teacher-positive cliff
+  - nor create learner-hard ambiguity
+
+Bottom line:
+
+- do not continue same-family small decoy sweeps on `3|4|5|6 @ gnb_2`
+- the next meaningful step should be a stronger structure-level redesign or a
+  new source family, not another mild local `ue4/ue5/ue6` adjustment
+
+### P3.6q-10: six-user transition pivot is the first real bridge-needed breakthrough in this line
+
+Formal write-up:
+
+- `P3_6Q_10_SIX_USER_TRANSITION_BREAKTHROUGH_ZH.md`
+
+New artifacts:
+
+- `p3_6q10_six_user_transition_extension_spec.json`
+- `p3_6q10_six_user_transition_extension_bundle/`
+- `p3_6q10_teacher_audit/`
+- `p3_6q10_focus_mining/`
+- `p3_6q10_kmeans_learner/`
+- `p3_6q10_hybrid_learner/`
+- `p3_6q10_membership_order_learner/`
+
+Why this pivot was made:
+
+- after `q8/q9`, the `3|4|5|6 @ gnb_2` family was clearly teacher-extendable
+  but still learner-easy
+- `1|2|3|4|5|6 @ gnb_2` under `rb_028` already contained a natural:
+  - `ue2` singleton weak phase
+  - followed by `{ue2, ue6}` dual-weak phase
+- that made it a better candidate for a true bridge-needed regime
+
+Teacher-side result:
+
+- `q10` successfully extends the positive dual-weak corridor:
+  - `27.3`: `[[0,2,3,4,5],[1]]` => isolate `ue2`
+    - gain = `0.060380914957876564`
+  - `27.4 ~ 27.6`: `[[0,2,3,4],[1,5]]` => weak group `{ue2, ue6}`
+    - gain = `0.16083185759435376`
+  - `27.7 ~ 28.2`: same `{ue2, ue6}` split remains positive
+    - gain = `0.03190558516756159`
+
+Interpretation:
+
+- this is not just a longer positive window
+- it is the first clear sustained dual-weak regime in this line that remains
+  alive past the original collapse point
+
+Focused learner result:
+
+- focused setup:
+  - family `1|2|3|4|5|6`
+  - train end = `27.6`
+  - test = `27.7 ~ 28.2`
+
+- plain `kmeans_embedding` run:
+  - `Offline teacher` = `0.6457564299182464`
+  - `LE-GRA MVP` = `0.6244860398065387`
+  - `Resource-cost k-means` = `0.6298036373344656`
+  - `Multi-feature k-means` = `0.6138508447506849`
+
+- `hybrid_membership_kmeans` run:
+  - `Offline teacher` = `0.6457564299182464`
+  - `LE-GRA MVP` = `0.6457564299182464`
+
+- `membership_order` run:
+  - `Offline teacher` = `0.6457564299182464`
+  - `LE-GRA MVP` = `0.6457564299182464`
+
+Key conclusion:
+
+- this is the first focused regime in the recent `q` line where:
+  - teacher clearly beats plain clustering baselines
+  - plain LE-GRA also misses the teacher
+  - but membership-aware bridge inference can recover the full teacher utility
+
+This means:
+
+- the bottleneck is no longer "can we make the teacher split?"
+- and not merely "can we extend the positive window?"
+- the key distinction is now:
+  - snapshot / clustering path fails
+  - membership-aware inference path succeeds
+
+Updated immediate next step:
+
+- stay on `q10`
+- do focused mechanism study instead of family search:
+  - inspect why `membership_order` already succeeds
+  - compare it against the plain `kmeans_embedding` failure path
+  - audit weak-group prediction / candidate ranking on the late `{ue2, ue6}`
+    regime
+  - then decide whether to scale `q10` into a larger ablation / robustness
+    result
+
+### P3.6q-11: q10 mechanism study shows the decisive factor is candidate routing, not extra k-means refinement
+
+Formal write-up:
+
+- `P3_6Q_11_Q10_MECHANISM_STUDY_ZH.md`
+
+New artifact:
+
+- `p3_6q10_test_window_candidate_path_comparison.csv`
+
+Key finding 1:
+
+- plain `kmeans_embedding` does not fail uniformly
+- on the `27.7 ~ 28.2` test window it:
+  - collapses to single-group for the first 4 snapshots
+  - only matches the teacher on the last 2 snapshots
+- that is why its final LE-GRA utility stays at:
+  - `0.6244860398065387`
+  instead of the teacher's:
+  - `0.6457564299182464`
+
+Key finding 2:
+
+- the failure starts at candidate discovery, not only at final grouping
+- for every test snapshot, the teacher candidate is:
+  - `2|6`
+- but plain `kmeans_embedding` predicts:
+  - `3|1`
+  - or `3|5`
+- so it is following the wrong weak-candidate path before the final split stage
+
+Key finding 3:
+
+- both:
+  - `membership_order`
+  - `hybrid_membership_kmeans`
+  predict the correct late candidate:
+  - `2|6`
+  on every test snapshot
+- both also exactly match the teacher utility:
+  - `0.6457564299182464`
+
+Interpretation:
+
+- the decisive mechanism in `q10` is membership-aware candidate routing
+- not additional embedding k-means refinement
+- on this regime, `hybrid` is effectively behaving like a successful
+  membership-aware bridge path, rather than showing extra gains beyond
+  `membership_order`
+
+Updated immediate next step:
+
+- keep `q10` as the main focused regime
+- the best next research move is now:
+  - localized supervision study for plain `kmeans_embedding`
+  - to see whether train-side guidance can push it from the wrong
+    `3|1 / 3|5` decoy path toward the true `2|6` path
+- only after that should we consider a small robustness / reporting sweep
+
+### P3.6q-12: localized supervision can recover q10 exactly, but robustness under a shifted boundary is still weak
+
+Formal write-up:
+
+- `P3_6Q_12_LOCALIZED_SUPERVISION_AND_BOUNDARY_ROBUSTNESS_ZH.md`
+
+New artifacts:
+
+- `p3_6q10_kmeans_candidate_bce/`
+- `p3_6q10_kmeans_candidate_boundary/`
+- `p3_6q10_kmeans_candidate_boundary_frontier/`
+- `p3_6q10_kmeans_candidate_boundary_frontier_275/`
+
+What was tried:
+
+- keep the same focused `q10` regime:
+  - family `1|2|3|4|5|6`
+  - main train end = `27.6`
+  - main test = `27.7 ~ 28.2`
+- then progressively add localized supervision to plain
+  `kmeans_embedding`:
+  - candidate-membership BCE only
+  - candidate BCE + teacher-boundary pairs
+  - candidate BCE + teacher-boundary pairs + frontier contrast
+
+Main result:
+
+- candidate BCE only:
+  - `LE-GRA MVP = 0.6244860398065387`
+  - no improvement
+- candidate BCE + boundary pairs:
+  - `LE-GRA MVP = 0.6244860398065387`
+  - still no improvement
+- candidate BCE + boundary pairs + frontier contrast:
+  - `Offline teacher = 0.6457564299182464`
+  - `LE-GRA MVP = 0.6457564299182464`
+
+Mechanism confirmation:
+
+- on `p3_6q10_kmeans_candidate_boundary_frontier/`
+  - `weak_group_prediction_audit.csv` shows:
+    - `27.7 ~ 28.2` predicted top-k is `2|6` for all 6 test snapshots
+  - `teacher_imitation_diagnostics.csv` shows:
+    - pairwise / ARI / NMI = `1.0` for all 6 test snapshots
+
+Interpretation:
+
+- this is the first clean proof in the recent `q` line that:
+  - plain `kmeans_embedding` can be repaired by train-side localized
+    supervision
+  - but only when three hooks are combined:
+    - boundary-aware pair sampling
+    - candidate-conditioned weak-group supervision
+    - frontier hard-negative contrast
+- candidate BCE alone and candidate+boundary alone are both insufficient
+
+Robustness check:
+
+- shifted the boundary one step earlier:
+  - train end = `27.5`
+  - test = `27.6 ~ 28.2`
+- run:
+  - `p3_6q10_kmeans_candidate_boundary_frontier_275/`
+- result:
+  - `Offline teacher = 0.6368533564947124`
+  - `LE-GRA MVP = 0.6186215935418201`
+  - teacher gap = `-0.0182317629528923`
+
+Important nuance from diagnostics:
+
+- the model still predicts the correct weak candidate:
+  - `2|6` on all `27.6 ~ 28.2` test snapshots
+- but final grouping is unstable:
+  - exact teacher match at `27.6`
+  - collapse to single-group for `27.7 ~ 28.0`
+  - recovery again at `28.1 ~ 28.2`
+
+Key updated conclusion:
+
+- `q10` has now split the bottleneck into two layers:
+  - candidate-path recovery
+  - final grouping stabilization
+- the first one is now solvable with localized joint supervision
+- the second one is still not robust under a small boundary shift
+
+Updated immediate next step:
+
+- stay on `q10`
+- do not go back to isolated micro-sweeps
+- the best next move is now:
+  - localized group-construction stabilization after the candidate is already
+    correct
+  - or boundary-neighborhood replay/support design around `27.6 ~ 28.0`
+- this should be treated as a transfer / grouping-stability problem now, not
+  a candidate-discovery problem
+
+### P3.6q-13: candidate-anchored grouping fixes the remaining q10 boundary-shift failure
+
+Formal write-up:
+
+- `P3_6Q_13_CANDIDATE_ANCHORED_GROUPING_RECOVERY_ZH.md`
+
+Code change:
+
+- added a new inference-only grouping mode in `le_gra_mvp.py`:
+  - `candidate_anchor_hybrid`
+- new helpers:
+  - `anchored_candidate_groups(...)`
+  - `best_candidate_anchor_hybrid_groups(...)`
+
+Why this was tried:
+
+- `q12` showed that after frontier supervision:
+  - the learner already predicts the correct weak candidate `2|6`
+  - but final grouping still collapses under the shifted boundary
+- so the remaining bottleneck was no longer candidate discovery
+- it was candidate-to-grouping transfer
+
+Idea:
+
+- anchor the top weak-score candidates as one explicit group
+- partition only the remaining users with embedding k-means
+- union these anchored candidates with the plain k-means candidates
+- let the same DP selector choose the best final grouping
+
+Focused validation:
+
+- run:
+  - `p3_6q10_candidate_anchor_hybrid_275/`
+- same train/test regime as the failing `q12` shifted-boundary run:
+  - train end = `27.5`
+  - test = `27.6 ~ 28.2`
+- same supervision settings as `p3_6q10_kmeans_candidate_boundary_frontier_275/`
+- only changed:
+  - `grouping_mode = candidate_anchor_hybrid`
+
+Result:
+
+- `Offline teacher = 0.6368533564947124`
+- `LE-GRA MVP = 0.6368533564947124`
+
+Diagnostics:
+
+- `teacher_imitation_diagnostics.csv`:
+  - pairwise / ARI / NMI = `1.0` on all 7 test snapshots
+- `weak_group_prediction_audit.csv`:
+  - predicted top-k remains `2|6` on all test snapshots
+
+Interpretation:
+
+- this confirms the `q12` diagnosis exactly:
+  - candidate recovery was already solved
+  - the remaining issue was final grouping stabilization
+- a small candidate-anchored grouping bridge is enough to remove the
+  `27.7 ~ 28.0` collapse and restore full teacher match
+
+New most accurate conclusion for `q10`:
+
+- the main successful path is now clearly two-stage:
+  - localized supervision repairs weak-candidate routing
+  - candidate-anchored grouping repairs candidate-to-split transfer
+
+Updated immediate next step:
+
+- do not go back to random family search yet
+- the most valuable follow-up is now:
+  - test whether `candidate_anchor_hybrid` only works when the candidate path
+    is already correct
+  - or whether it can partially rescue weaker pre-frontier models too
+- this should be framed as a clean ablation on the separation between:
+  - candidate discovery
+  - final group construction
+
+### P3.6q-14: same-seed focused ablation shows the q10 gain is conditional, not universal
+
+Formal write-up:
+
+- `P3_6Q_14_Q10_FOCUSED_ABLATION_MATRIX_ZH.md`
+
+Artifact:
+
+- `p3_6q10_focused_ablation_matrix.csv`
+
+Why this was necessary:
+
+- the first `q13` reading was directionally right but still confounded by
+  unrestricted restart selection
+- plain `candidate_anchor_hybrid` had matched teacher in one unrestricted run
+  because it selected restart seed `11`
+- so we needed to compare plain/localized and kmeans/anchored grouping under
+  the same restart seeds
+
+Controlled result matrix:
+
+- seed `9`
+  - plain `kmeans_embedding`: fail (`0.6186`)
+  - plain `candidate_anchor_hybrid`: fail (`0.6186`)
+  - localized `kmeans_embedding`: fail (`0.6186`)
+  - localized `candidate_anchor_hybrid`: success (`0.6369`)
+- seed `11`
+  - plain `kmeans_embedding`: success (`0.6369`)
+  - plain `candidate_anchor_hybrid`: success (`0.6369`)
+  - localized `kmeans_embedding`: success (`0.6369`)
+  - localized `candidate_anchor_hybrid`: success (`0.6369`)
+
+Most accurate interpretation now:
+
+- `candidate_anchor_hybrid` is not a universal improvement
+- it does **not** rescue the failing plain seed-9 path
+- its real value is narrower and more precise:
+  - it repairs the failing localized-supervision + seed-9 path after plain
+    final grouping still collapses
+- seed `11` is a naturally good basin where plain k-means already reaches the
+  teacher
+
+So the current `q10` bottleneck should now be described as two-layer:
+
+1. basin / optimization sensitivity across restart seeds
+2. final group-construction sensitivity inside a partially repaired basin
+
+This means we should stop interpreting every gain as a generic grouping-mode
+win. The cleaner research question is now:
+
+- why does seed `11` already land in a teacher-aligned basin?
+- why does seed `9` still need the candidate-anchored grouping bridge after
+  localized supervision?
+
+Updated immediate next step:
+
+- do not expand to larger matrices yet
+- first run `q10` basin diagnostics:
+  - compare seed `9` vs seed `11`
+  - inspect support-train and focus-test candidate paths, split evidence, and
+    any embedding/grouping signatures that explain why one basin is easy and
+    the other is not
+- after that, if the mechanism stays consistent, do a small controlled
+  robustness sweep around the shifted boundary with fixed seeds
+
+### P3.6q-15: q10 basin diagnostics show the real selector bottleneck
+
+Formal write-up:
+
+- `P3_6Q_15_SEED_BASIN_DIAGNOSTICS_ZH.md`
+
+Artifact:
+
+- `p3_6q10_seed_basin_focus_test_comparison.csv`
+
+Most important findings:
+
+- the currently selected plain seed `9` is not the only viable basin
+- forced plain seed `11` matches teacher on all 7 focus-test snapshots
+- more importantly, the original selector chose seed `9` because it had the
+  best support imitation metrics
+- but seed `9` had the worst weak-margin and prototype-separation margins
+- seed `11` had slightly lower support pairwise/ARI/NMI, yet generalized much
+  better to the shifted boundary
+
+This sharpened the diagnosis:
+
+- the prototype does not only have learner/grouping bottlenecks
+- it also has a restart-selection bottleneck
+
+### P3.6q-16: minimal margin-aware restart selection recovers q10 without changing the learner
+
+Formal write-up:
+
+- `P3_6Q_16_MARGIN_AWARE_RESTART_SELECTION_ZH.md`
+
+Code change:
+
+- `run_p3_6g_temporal_learner.py`
+  - added `--restart-selection-mode`
+  - modes:
+    - `support_imitation` (old default behavior)
+    - `margin_aware` (experimental)
+
+Experimental result A: plain q10 shifted-boundary
+
+- artifact:
+  - `p3_6q10_plain_baseline_275_margin_selector/`
+- selected restart seed:
+  - `11`
+- result:
+  - `LE-GRA MVP = Offline teacher = 0.6368533564947124`
+
+Experimental result B: localized q10 shifted-boundary
+
+- artifact:
+  - `p3_6q10_kmeans_candidate_boundary_frontier_275_margin_selector/`
+- selected restart seed:
+  - `7`
+- result:
+  - `LE-GRA MVP = Offline teacher = 0.6368533564947124`
+
+What this means:
+
+- on `q10`, a large part of the apparent learner failure was actually selector
+  failure
+- we now have evidence that multiple teacher-matching basins exist
+- the old selector was ranking them below a more imitation-looking but less
+  robust basin
+
+Updated best current interpretation of q10:
+
+1. restart selector chooses the basin
+2. learner/supervision shapes the representation inside that basin
+3. grouping construction determines whether the final split transfers cleanly
+
+Updated immediate next step:
+
+- do **not** switch the whole project default to `margin_aware` yet
+- first run a tiny transfer check on a few representative regimes:
+  - `q10` (already positive)
+  - `o8`
+  - `m4b`
+  - one easy regime such as `n3`
+- the question is no longer "does margin-aware help q10?"
+- it is:
+  - does margin-aware systematically find better basins?
+  - or is q10 a special case?
+
+### P3.6q-17: margin-aware selector helps q10, stays neutral on n3, changes m4b, but does not fix o8
+
+Formal write-up:
+
+- `P3_6Q_17_MARGIN_SELECTOR_TRANSFER_CHECK_ZH.md`
+
+Transfer-check artifacts:
+
+- `p3_6q16_n3_margin_selector/`
+- `p3_6q16_o8_margin_selector/`
+- `p3_6q16_m4b_margin_selector/`
+
+Representative transfer results:
+
+- `n3` easy regime:
+  - selected restart seed stays `7`
+  - `LE-GRA MVP = Offline teacher = 0.4603881335630136`
+  - interpretation:
+    - no regression
+    - margin-aware selector is at least neutral on an already-solvable regime
+- `o8` bridge-needed short regime:
+  - selected restart seed stays `7`
+  - `LE-GRA MVP = 0.6071841780840183`
+  - `Offline teacher = 0.6198214236671593`
+  - interpretation:
+    - selector does not move the basin
+    - `o8` remains an inference/grouping-path bottleneck, not a selector bottleneck
+- `m4b` hard dual-weak regime:
+  - selected restart seed changes to `11`
+  - `LE-GRA MVP = 0.5790831051936908`
+  - `Offline teacher = 0.5796090488051922`
+  - interpretation:
+    - selector does change the basin
+    - but changing the basin alone is still not enough to fully solve `m4b`
+- `q10` shifted-boundary regime:
+  - selected restart seed changes from `9` to `11`
+  - `LE-GRA MVP = Offline teacher = 0.6368533564947124`
+  - interpretation:
+    - `q10` is a genuine selector-dominated failure mode
+
+Updated regime taxonomy after `q17`:
+
+1. selector-dominated failures
+   - current best example: `q10`
+   - hidden good basins already exist, but the old selector ranks them too low
+2. partially selector-sensitive but still structural failures
+   - current best example: `m4b`
+   - better basin choice helps, but learner/grouping bottlenecks remain
+3. non-selector failures
+   - current best example: `o8`
+   - changing the selector does not help because the failure is downstream
+
+Most important interpretation change:
+
+- `margin_aware` is a real research lever, but not a universal fix
+- we should keep it as an experimental axis, not silently flip the project default
+- future focused runs should explicitly compare:
+  - `support_imitation`
+  - `margin_aware`
+
+Updated immediate next step:
+
+- stop treating all hard regimes as one undifferentiated bucket
+- first separate them into:
+  - selector-sensitive regimes
+  - post-selector structural regimes
+- for the next focused experiment:
+  - use `m4b` as the best post-selector structural target
+  - keep `q10` as the selector-dominated reference case
+
+### P3.6q-18: `m4b` is now clearly a post-selector structural failure, not a candidate-recovery failure
+
+Formal write-up:
+
+- `P3_6Q_18_M4B_POST_SELECTOR_PLATEAU_ZH.md`
+
+Artifact:
+
+- `p3_6q18_m4b_post_selector_summary.csv`
+
+Most important findings:
+
+- under `margin_aware`, `m4b` does switch to a better basin:
+  - selected restart seed becomes `11`
+- but the support-train imitation metrics are already saturated for all three seeds:
+  - support pairwise accuracy = `1.0`
+  - support ARI = `1.0`
+  - support NMI = `1.0`
+- the selector difference only comes from margin quality:
+  - seed `11` has the best weak margins
+
+Even more important:
+
+- on the focus test window `43.7s ~ 43.9s`, the learner already recovers the
+  correct weak candidate path:
+  - teacher candidate signature = `15|4`
+  - predicted top-k signature = `15|4`
+  - teacher secondary UE `4` appears at predicted rank `2`
+
+So the remaining failure is now precise:
+
+- teacher grouping:
+  - `0|1|2|3|5 / 15|4`
+- predicted grouping:
+  - `0|1|2|3|4|5 / 15`
+
+Interpretation:
+
+- `m4b` is no longer best described as a selector bottleneck
+- it is also not a weak-candidate discovery bottleneck
+- it is a **secondary weak UE extraction failure at the final grouping step**
+- specifically:
+  - `ue15` is extracted
+  - `ue4` is still absorbed back into the strong group
+
+Why this matters:
+
+- `q10` and `m4b` now cleanly separate:
+  - `q10`: selector-dominated failure
+  - `m4b`: post-selector structural failure
+- this means further progress on `m4b` should stop targeting:
+  - selector-only tweaks
+  - replay-only tweaks
+  - top-k candidate calibration-only tweaks
+
+Updated immediate next step:
+
+- do a minimal post-selector structural probe for `m4b`
+- the best target is not "recover the weak candidate"
+- it is:
+  - keep the secondary weak UE from being re-absorbed during final grouping
+- in practice, this suggests:
+  - secondary-anchor closure at inference/grouping time
+  - or train-side boundary retention specifically for the secondary weak UE
+
+### P3.6q-19: minimal secondary-anchor closure fully solves `m4b`
+
+Formal write-up:
+
+- `P3_6Q_19_M4B_SECONDARY_ANCHOR_CLOSURE_SUCCESS_ZH.md`
+
+Artifact:
+
+- `p3_6q19_m4b_anchor_closure_summary.csv`
+- run directory:
+  - `p3_6q19_m4b_candidate_anchor_margin_selector/`
+
+Focused result:
+
+- configuration:
+  - `restart_selection_mode = margin_aware`
+  - `grouping_mode = candidate_anchor_hybrid`
+- selected restart seed:
+  - `11`
+- final utility:
+  - `LE-GRA MVP = Offline teacher = 0.5796090488051922`
+
+Most important diagnostics:
+
+- on the focus test window `43.7s ~ 43.9s`, the weak candidate path remains:
+  - teacher candidate signature = `15|4`
+  - predicted top-k signature = `15|4`
+- the decisive change is in the final grouping:
+  - previous `margin_aware + kmeans_embedding`:
+    - `0|1|2|3|4|5 / 15`
+  - current `margin_aware + candidate_anchor_hybrid`:
+    - `15|4 / 0|1|2|3|5`
+  - which is teacher-equivalent
+
+Why this matters:
+
+- `P3.6q-18` diagnosed `m4b` as a secondary weak UE extraction failure
+- `P3.6q-19` now directly validates that diagnosis
+- once the candidate path is already correct, a minimal anchor-preserving
+  grouping bridge is enough to close the final gap
+
+Updated research interpretation:
+
+- `q10` and `m4b` now form a clean two-stage story:
+  1. `q10`:
+     - selector-dominated failure
+  2. `m4b`:
+     - post-selector weak-closure failure
+- this means the prototype now has evidence for two distinct but real levers:
+  - selector quality
+  - secondary-anchor-preserving grouping closure
+
+Updated immediate next step:
+
+- do not immediately assume `candidate_anchor_hybrid + margin_aware` is
+  universal
+- first do a small transfer check on a regime where candidate recovery is still
+  not guaranteed, especially `o8`
+- the key hypothesis to test is:
+  - anchor closure helps when weak top-k is already correct
+  - it should help much less when candidate discovery itself is still wrong
+
+### P3.6q-20: `o8` is also recoverable by anchor-preserving closure, and the real failure was LE-GRA's grouping path
+
+Formal write-up:
+
+- `P3_6Q_20_O8_GROUPING_PATH_RECOVERY_ZH.md`
+
+Artifact:
+
+- `p3_6q20_o8_grouping_path_summary.csv`
+- run directory:
+  - `p3_6q20_o8_anchor_closure_margin_selector/`
+
+Key comparison:
+
+- old run:
+  - `p3_6q16_o8_margin_selector/`
+  - `restart_selection_mode = margin_aware`
+  - `grouping_mode = kmeans_embedding`
+  - selected restart seed = `7`
+  - `Offline teacher = 0.6198214236671593`
+  - `Multi-feature k-means = 0.6198214236671593`
+  - `LE-GRA MVP = 0.6071841780840183`
+- new run:
+  - `p3_6q20_o8_anchor_closure_margin_selector/`
+  - `restart_selection_mode = margin_aware`
+  - `grouping_mode = candidate_anchor_hybrid`
+  - selected restart seed still = `7`
+  - `Offline teacher = 0.6198214236671593`
+  - `LE-GRA MVP = 0.6198214236671593`
+
+Most important diagnostics:
+
+- this is not a basin-change story:
+  - selected seed stays `7`
+- it is not a representation-discovery story either:
+  - even in the old run, `Multi-feature k-means` already matched teacher
+- the failure was specifically in LE-GRA's own grouping path:
+  - old LE-GRA grouping:
+    - `0|1|2|3|4`
+  - teacher grouping:
+    - `0|1|2 / 3|4`
+  - new anchor-preserving LE-GRA grouping:
+    - `3|4 / 0|1|2`
+
+This sharpens the interpretation of `o8`:
+
+- `o8` is not selector-dominated
+- `o8` is not learner-representation-dominated
+- it is a **LE-GRA-specific grouping-path failure**
+
+Updated cross-regime picture:
+
+1. `q10`
+   - selector-dominated failure
+2. `m4b`
+   - post-selector secondary weak-closure failure
+3. `o8`
+   - LE-GRA-specific grouping-path failure
+
+Higher-level synthesis:
+
+- both `m4b` and `o8` now support the same broader claim:
+  - once the weak candidate path is already correct,
+  - anchor-preserving grouping closure becomes a powerful last-mile fix
+
+Updated immediate next step:
+
+- stop assuming every remaining hard regime needs new learner-side supervision
+- first build a small regime checklist / decision rule:
+  - is the bottleneck selector?
+  - is the weak candidate path already correct?
+  - is the failure only in final grouping?
+- then use that checklist to decide whether to try:
+  - `margin_aware`
+  - `candidate_anchor_hybrid`
+  - or both
+
+### P3.6q-21: hard-regime decision checklist is now explicit
+
+Formal write-up:
+
+- `P3_6Q_21_REGIME_DECISION_CHECKLIST_ZH.md`
+
+Artifact:
+
+- `p3_6q21_regime_decision_checklist.csv`
+
+Purpose:
+
+- stop treating every teacher gap as the same kind of failure
+- reduce wasted sweeps by asking three questions first:
+  1. is this selector-dominated?
+  2. is the weak candidate path already recovered?
+  3. is the remaining gap only in final grouping?
+
+Current representative mapping:
+
+- `q10`
+  - selector-sensitive = yes
+  - weak top-k recovered = yes
+  - first probe = `margin_aware`
+- `m4b`
+  - selector-sensitive = yes
+  - weak top-k recovered = yes
+  - final gap = secondary weak closure
+  - first probe = `margin_aware + candidate_anchor_hybrid`
+- `o8`
+  - selector-sensitive = no
+  - weak top-k recovered = yes
+  - multi-feature k-means already matches teacher
+  - LE-GRA-only grouping path still fails
+  - first probe = `candidate_anchor_hybrid`
+
+Why this matters:
+
+- this checklist now encodes the main research lesson from the latest round:
+  - first diagnose whether the failure is basin selection, candidate recovery,
+    or final grouping closure
+  - then choose the smallest intervention that matches that failure mode
+
+### P3.6q-22: hard-regime-only comparison matrix makes the real gaps visible
+
+Artifacts:
+
+- `p3_6q22_hard_regime_only_matrix.csv`
+- `hard_regime_report_zh.html`
+
+Purpose:
+
+- answer the recurring concern that "the methods still do not look that far apart"
+- stop averaging away the interesting parts by isolating only the most
+  informative hard regimes:
+  - `q10`
+  - `m4b`
+  - `o8`
+
+Most important synthesis:
+
+- on `q10`, the real gain is selector-side:
+  - old LE-GRA path = `0.6186215935418201`
+  - best LE-GRA = teacher match `0.6368533564947124`
+  - interpretation:
+    - the main improvement comes from choosing the right basin
+- on `m4b`, the utility gap is numerically small but structurally important:
+  - old LE-GRA path = `0.5790831051936908`
+  - best LE-GRA = teacher match `0.5796090488051922`
+  - interpretation:
+    - the visible utility gap is tiny
+    - but the grouping difference is exactly whether `ue4` stays with weak
+      anchor `ue15`
+- on `o8`, the main story is not representation quality but LE-GRA's own
+  grouping path:
+  - old LE-GRA path = `0.6071841780840183`
+  - best LE-GRA = teacher match `0.6198214236671593`
+  - interpretation:
+    - plain multi-feature k-means was already correct
+    - the old LE-GRA grouping path alone was the failure
+
+Why this matrix matters:
+
+- it makes clear that many of the real differences are concentrated in:
+  - short transition windows
+  - weak-pair recovery
+  - final grouping closure
+- therefore:
+  - utility-only whole-dataset averages understate the current research gains
+  - structural metrics and group signatures are now essential, not optional
+
+Updated immediate next step:
+
+- use the hard-regime-only matrix as the reporting backbone for the current
+  research story
+- then choose the next focused regime by applying the `q21` checklist first,
+  instead of expanding generic sweeps
+
+### P3.6q-23 / q-24: new dual-boundary temporal crossover regime found, and it is the best next benchmark candidate
+
+Formal write-ups:
+
+- `P3_6Q_23_NEXT_TARGETED_REGIME_ZH.md`
+- `P3_6Q_24_DUAL_BOUNDARY_CROSSOVER_REGIME_ZH.md`
+
+Artifacts:
+
+- spec:
+  - `p3_6q23_dual_boundary_crossover_spec.json`
+- bundle:
+  - `p3_6q23_dual_boundary_crossover_bundle/`
+- teacher audit:
+  - `p3_6q23_teacher_audit/`
+- learner probes:
+  - `p3_6q24_dual_boundary_crossover_temporal_probe/`
+  - `p3_6q24_dual_boundary_crossover_anchor_probe/`
+- summary:
+  - `p3_6q24_dual_boundary_crossover_summary.csv`
+
+What was built:
+
+- new source family target:
+  - `3|4|5|6 @ gnb_2`
+- new regime structure:
+  - persistent weak anchor `ue4`
+  - early secondary weak candidate `ue5`
+  - late secondary weak candidate `ue6`
+  - strong anchor `ue3`
+- design goal:
+  - create a teacher-positive temporal crossover where the weak-side partner of
+    `ue4` changes over time
+
+Teacher-side result:
+
+- positive gain count = `19`
+- positive segment count = `2`
+- segment 1:
+  - `25.8s ~ 27.0s`
+  - length `13`
+  - teacher split = `3|6 / 4|5`
+- segment 2:
+  - `28.3s ~ 28.8s`
+  - length `6`
+  - teacher split = `3|5 / 4|6`
+
+Why this matters:
+
+- this is not a single-point bridge case
+- it is also not just a fixed weak-pair regime
+- it is the first new regime in the latest round that shows:
+  - stable positive corridors
+  - a true secondary weak-role switch
+  - enough temporal support to serve as a stronger benchmark candidate
+
+Focused learner probe:
+
+- train:
+  - `<= 27.0`
+- test:
+  - `28.3 ~ 28.8`
+- plain probe artifact:
+  - `p3_6q24_dual_boundary_crossover_temporal_probe/`
+
+Most important result:
+
+- `No grouping = 0.5721841780840183`
+- `Multi-feature k-means = 0.5721841780840183`
+- `Offline teacher = 0.5790955890522329`
+- plain `LE-GRA MVP = 0.5779436872241971`
+
+Interpretation:
+
+- plain baselines fail cleanly:
+  - `Multi-feature k-means` collapses to single-group on all 6 late test
+    snapshots
+- plain `LE-GRA` is already close:
+  - it matches teacher on `28.4 ~ 28.8`
+  - but still fails exactly at the earliest crossover boundary `28.3`
+
+This is the key breakthrough:
+
+- the new regime is not too easy
+- it is not completely hopeless either
+- it lands in a very valuable middle zone:
+  - plain baselines fail hard
+  - LE-GRA partially generalizes
+  - one boundary snapshot still exposes the remaining weakness
+
+Additional bridge check:
+
+- artifact:
+  - `p3_6q24_dual_boundary_crossover_anchor_probe/`
+- settings:
+  - `grouping_mode = candidate_anchor_hybrid`
+  - `restart_selection_mode = margin_aware`
+- result:
+  - still `LE-GRA MVP = 0.5779436872241971`
+
+Why this matters:
+
+- unlike `o8` or `m4b`, the current minimal bridge does not immediately solve
+  this regime
+- that makes `q23/q24` a stronger next-step benchmark candidate rather than
+  just another already-fixed case
+
+Updated best next step:
+
+- move the main breakthrough target to `q23/q24`
+- do not expand broad matrices yet
+- focus on the earliest late-phase crossover boundary:
+  - `28.3s`
+- the new working question should be:
+  - how do we make LE-GRA generalize the secondary-weak switch one snapshot
+    earlier?
+
+Most promising next interventions on this regime:
+
+1. localized boundary-aware supervision around `28.3`
+2. temporal support replay from the early positive corridor into the late
+   crossover onset
+3. candidate-switch calibration specifically for the `ue5 -> ue6` transition
+
+## P3.6q-25: once `28.3s` is included, the later crossover corridor is fully recoverable
+
+Artifact:
+
+- `P3_6Q_25_SINGLE_SUPPORT_CROSSOVER_TRANSFER_ZH.md`
+- `p3_6q25_support283_test284_288_plain/`
+- `p3_6q25_support283_test284_288_anchor_margin/`
+
+Key result:
+
+- if training/support already includes `28.3s`
+- then both plain LE-GRA and anchor-margin variants recover
+  `28.4s ~ 28.8s` completely
+
+Interpretation:
+
+- the late corridor itself is not the hard part
+- the hard part is specifically the earliest onset at `28.3s`
+- this is now best described as an earliest-onset crossover generalization
+  failure
+
+## P3.6q-26: replay cannot help before onset, and localized weighting still cannot move `28.3s`
+
+Artifact:
+
+- `P3_6Q_26_EARLIEST_ONSET_FAILURE_ZH.md`
+- `p3_6q26_pre_onset_plain/`
+- `p3_6q26_pre_onset_replay/`
+- `p3_6q26_pre_onset_joint/`
+- `p3_6q26_pre_onset_hard_negative/`
+
+Focused test setup:
+
+- train:
+  - `<= 28.2s`
+- test:
+  - `28.3s` only
+
+Most important results:
+
+1. plain pre-onset transfer still fails
+   - teacher:
+     - `3|5 / 4|6`
+   - LE-GRA:
+     - `3|4|5|6`
+
+2. replay cannot activate here
+   - with:
+     - `boundary_support_start = 27.9`
+     - `boundary_support_positive_only = true`
+   - result:
+     - `boundary_support_selected_scenarios = 0`
+
+3. learner-side localized supervision still does not move the onset
+   - candidate-conditioned boundary weighting:
+     - still fails
+   - stronger frontier hard negatives:
+     - still fails
+
+Why this matters:
+
+- `28.3s` is not a continuation of an already-positive corridor
+- it is the first true split-onset point in this regime
+- therefore replay-only logic has no positive examples to amplify before it
+- the current failure is not just final grouping closure
+- it is a failure to represent the earliest `ue5 -> ue6` secondary-weak switch
+  early enough
+
+Updated best next step:
+
+1. stop doing replay-only or weight-only micro-tweaks on `28.3`
+2. move to onset-aware structure or dataset-side onset shaping
+3. best two candidates:
+   - add temporal weak-candidate delta / rank-shift signals
+   - redesign the regime so the first `ue5 -> ue6` handoff becomes a thin
+     multi-snapshot onset corridor instead of a single-point cliff
+
+## Additional interpretation: CQI granularity may be part of the bottleneck, but not the whole story
+
+Current conclusion:
+
+- the project is **not** currently using only raw CQI
+- pure `CQI k-means` is only the weakest baseline
+- the main learner already uses richer signals such as:
+  - `cqi_history`
+  - `rb_rates`-derived `cost_vec`
+  - RB statistics (`mean/min/max/std`)
+  - mobility/context features
+
+Why this matters:
+
+- the present `28.3s` onset failure cannot be explained simply as
+  "CQI is quantized to `1..15`, so everything collapses"
+- because even richer cost/context representations still fail at the first
+  onset point
+
+But the CQI concern is still useful:
+
+- current exported coupled-radio schema already reserves
+  `wideband_sinr_db`, `rsrp_dbm`, `rsrq_db`, and per-band `sinr_db`
+- however the present exporter still leaves those fields empty
+
+Updated research hypothesis:
+
+- a meaningful next breakthrough path is to add continuous radio-quality
+  measurements beyond CQI quantization
+- best candidates:
+  - `RSRP`
+  - `RSRQ`
+  - wideband `SINR`
+  - per-band `SINR`
+
+Why this is promising:
+
+- these signals may expose the `ue5 -> ue6` weak-role handoff earlier than
+  CQI / rate abstraction alone
+- this is especially relevant for `q23/q26`, where the current failure is the
+  earliest crossover onset rather than the later corridor
+
+Recommended follow-up after resuming:
+
+1. extend Simu5G export to populate radio-power / SINR fields
+2. add a new focused feature ablation:
+   - `history_cost_radio`
+   - or `full_radio_context`
+3. test only on `q23/q26` first before any larger matrix

@@ -1,0 +1,2 @@
+regime,old_artifact,new_artifact,selected_restart_seed,teacher_candidate_signature,old_le_gra_grouping,new_le_gra_grouping,teacher_grouping,old_le_gra_utility,new_le_gra_utility,teacher_utility,diagnosis
+o8,p3_6q16_o8_margin_selector,p3_6q20_o8_anchor_closure_margin_selector,7,3|4,0|1|2|3|4,3|4 / 0|1|2,0|1|2 / 3|4,0.6071841780840183,0.6198214236671593,0.6198214236671593,LE-GRA-specific grouping-path failure repaired by anchor-preserving closure

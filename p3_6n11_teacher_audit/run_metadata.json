@@ -1,0 +1,21 @@
+{
+  "bundle_dir": "p3_6n11_state_hold_mild_compression_bundle\\bundle",
+  "feature_mode": "history_cost_quality",
+  "switch_beta": 0.5,
+  "min_users": 2,
+  "export_rb_budget_ratio": 0.28,
+  "trajectory_split_test_ue_ids": [
+    "15",
+    "2",
+    "31"
+  ],
+  "trajectory_split_train_ue_ids": [
+    "0",
+    "1",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7"
+  ]
+}

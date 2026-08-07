@@ -1,0 +1,7 @@
+﻿"scenario_id","timestamp_s","teacher_candidate_signature","kmeans_predicted_topk","membership_predicted_topk","hybrid_predicted_topk"
+"simu5g_00000528","27.7","2|6","3|1","2|6","2|6"
+"simu5g_00000530","27.8","2|6","3|1","2|6","2|6"
+"simu5g_00000532","27.9","2|6","3|5","2|6","2|6"
+"simu5g_00000534","28.0","2|6","3|5","2|6","2|6"
+"simu5g_00000536","28.1","2|6","3|5","2|6","2|6"
+"simu5g_00000538","28.2","2|6","3|1","2|6","2|6"

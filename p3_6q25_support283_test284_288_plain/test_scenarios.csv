@@ -1,0 +1,6 @@
+scenario_id,timestamp_s,serving_gnb,user_count,ue_ids
+simu5g_00000542,28.4,gnb_2,4,3|4|5|6
+simu5g_00000544,28.5,gnb_2,4,3|4|5|6
+simu5g_00000546,28.6,gnb_2,4,3|4|5|6
+simu5g_00000548,28.7,gnb_2,4,3|4|5|6
+simu5g_00000550,28.8,gnb_2,4,3|4|5|6

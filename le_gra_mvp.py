@@ -1402,6 +1402,51 @@ def kmeans_candidate_groups(
     ]
 
 
+def anchored_candidate_groups(
+    weak_scores: np.ndarray,
+    embeddings: np.ndarray,
+    max_groups: int,
+    *,
+    anchor_size: int = 2,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[list[int]]]:
+    """Build candidate groups that preserve the top weak-score users together.
+
+    This is a minimal stabilization path for regimes where candidate discovery
+    is already correct but the final embedding k-means step still collapses
+    back to a single group. The highest weak-score users are anchored as one
+    group, and only the remaining users are further partitioned.
+    """
+
+    n_users = len(weak_scores)
+    if n_users == 0:
+        return []
+
+    anchor_size = max(1, min(anchor_size, n_users))
+    order = np.argsort(-weak_scores)
+    anchor = sorted(order[:anchor_size].tolist())
+    remaining = [idx for idx in range(n_users) if idx not in anchor]
+
+    candidates: list[list[list[int]]] = [[list(range(n_users))]]
+    for total_groups in range(2, max_groups + 1):
+        if not remaining:
+            candidates.append([anchor])
+            continue
+        residual_groups = min(total_groups - 1, len(remaining))
+        sub_groups = kmeans(
+            embeddings[remaining],
+            residual_groups,
+            n_init=kmeans_n_init,
+            seed=kmeans_seed + total_groups,
+        )
+        mapped_groups = [anchor]
+        for group in sub_groups:
+            mapped_groups.append(sorted([remaining[idx] for idx in group]))
+        candidates.append(mapped_groups)
+    return candidates
+
+
 def best_candidate_groups(
     scenario: Scenario,
     candidate_groupings: list[list[list[int]]],
@@ -1446,6 +1491,40 @@ def best_hybrid_groups(
     return best_candidate_groups(
         scenario,
         membership_candidates + kmeans_candidates,
+        switch_beta,
+    )
+
+
+def best_candidate_anchor_hybrid_groups(
+    scenario: Scenario,
+    weak_scores: np.ndarray,
+    embeddings: np.ndarray,
+    max_groups: int,
+    switch_beta: float,
+    *,
+    anchor_size: int = 2,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Union anchored candidates with plain embedding k-means candidates."""
+
+    anchored_candidates = anchored_candidate_groups(
+        weak_scores,
+        embeddings,
+        max_groups,
+        anchor_size=anchor_size,
+        kmeans_n_init=kmeans_n_init,
+        kmeans_seed=kmeans_seed,
+    )
+    kmeans_candidates = kmeans_candidate_groups(
+        embeddings,
+        max_groups,
+        kmeans_n_init=kmeans_n_init,
+        kmeans_seed=kmeans_seed,
+    )
+    return best_candidate_groups(
+        scenario,
+        anchored_candidates + kmeans_candidates,
         switch_beta,
     )
 
@@ -1535,6 +1614,18 @@ def learned_grouping(
             embeddings,
             max_groups,
             switch_beta,
+            kmeans_n_init=kmeans_n_init,
+        )
+    if getattr(model, "grouping_mode", "kmeans_embedding") == "candidate_anchor_hybrid":
+        weak_scores = model.weak_group_scores(scenario.features)
+        embeddings = model.embed(scenario.features)
+        return best_candidate_anchor_hybrid_groups(
+            scenario,
+            weak_scores,
+            embeddings,
+            max_groups,
+            switch_beta,
+            anchor_size=getattr(model, "candidate_top_k", 2),
             kmeans_n_init=kmeans_n_init,
         )
     embeddings = model.embed(scenario.features)

@@ -1,0 +1,8 @@
+positive_family_count=7
+rank_1=3|4|5|6@gnb_2 best_segment=42 positive=42 max_gain=0.079451741871 source=C:\Users\Weber\Documents\LE-GRA-MVP\p3_6n3_teacher_audit
+rank_2=0|1|2|3@gnb_2 best_segment=24 positive=48 max_gain=0.038608503577 source=C:\Users\Weber\Documents\LE-GRA-MVP\p3_6f_teacher_audit
+rank_3=0|1|2|3|4@gnb_2 best_segment=6 positive=6 max_gain=0.011900924527 source=C:\Users\Weber\Documents\LE-GRA-MVP\p3_6o4_teacher_audit
+rank_4=0|1|15|2|3|4|5@gnb_1 best_segment=4 positive=4 max_gain=0.032424870721 source=C:\Users\Weber\Documents\LE-GRA-MVP\p3_6m4b_teacher_audit
+rank_5=1|2|3|4|5|6@gnb_2 best_segment=2 positive=5 max_gain=0.053036980240 source=C:\Users\Weber\Documents\LE-GRA-MVP\p3_6h_pressure_sweep
+rank_6=1|2|3|4|5@gnb_2 best_segment=1 positive=2 max_gain=0.011900924527 source=C:\Users\Weber\Documents\LE-GRA-MVP\p3_6h_pressure_sweep
+rank_7=3|31|4|5|6@gnb_2 best_segment=1 positive=2 max_gain=0.011900924527 source=C:\Users\Weber\Documents\LE-GRA-MVP\p3_6h_pressure_sweep

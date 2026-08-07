@@ -1,0 +1,4 @@
+regime,selector_sensitive,weak_topk_recovered,multi_feature_kmeans_matches_teacher,le_gra_grouping_failure,first_probe,recommended_path
+q10,yes,yes,no_or_unstable,yes,margin_aware,fix selector first and then inspect grouping transfer
+m4b,yes,yes,no,yes,margin_aware + candidate_anchor_hybrid,post-selector secondary weak-closure probe
+o8,no,yes,yes,yes,candidate_anchor_hybrid,direct LE-GRA grouping-path repair

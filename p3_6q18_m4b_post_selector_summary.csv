@@ -1,0 +1,2 @@
+regime,artifact,selected_restart_seed,teacher_candidate_signature,predicted_topk_signature,teacher_group_signature,predicted_group_signature,utility_gap_vs_teacher,diagnosis
+m4b,p3_6q16_m4b_margin_selector,11,15|4,15|4,0|1|2|3|5 / 15|4,0|1|2|3|4|5 / 15,-0.0005259436115013782,secondary weak UE ue4 returns to the strong group during final grouping

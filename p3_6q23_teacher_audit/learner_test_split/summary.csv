@@ -1,0 +1,11 @@
+metric,value
+split_name,learner_test_split
+scenario_count,324
+multi_group_count,19
+multi_group_ratio,0.05864197530864197
+mean_teacher_group_count,1.058641975308642
+max_teacher_group_count,2
+mean_teacher_gain_vs_single,0.0004052987913459117
+max_teacher_gain_vs_single,0.006911410968214571
+positive_gain_count,19
+positive_gain_ratio,0.05864197530864197

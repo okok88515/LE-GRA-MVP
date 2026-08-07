@@ -1,0 +1,164 @@
+{
+  "name": "p3_6q9_decoy_bridge_extension",
+  "base_bundle": "p3_6i2_coupled_bundle",
+  "out_dir": "p3_6q9_decoy_bridge_extension_bundle",
+  "intent": "Start from the successful q8 bridge, then push the 27.7+ cliff with a decoy design: keep ue4 as the true weak candidate, but make ue5/ue6 look more ambiguous in snapshot CQI and history so the regime is less trivially separable for baselines.",
+  "family": {
+    "serving_gnb": "gnb_2",
+    "target_ue_ids": "3|4|5|6",
+    "window_start_s": 25.8,
+    "window_end_s": 28.8
+  },
+  "windows": [
+    {
+      "start_s": 25.8,
+      "end_s": 27.0,
+      "ue_rules": {
+        "3": {
+          "previous_quality": 4,
+          "cqi_now_delta": 0.1,
+          "history_offsets": [0.1, 0.1, 0.0, 0.0],
+          "rb_scale": 1.0
+        },
+        "4": {
+          "previous_quality": 2,
+          "cqi_now_delta": -0.6,
+          "history_offsets": [-0.8, -0.7, -0.5, -0.4],
+          "rb_scale": 0.92
+        },
+        "5": {
+          "previous_quality": 1,
+          "cqi_now_delta": -1.8,
+          "history_offsets": [-1.6, -1.3, -1.0, -0.8],
+          "rb_scale": 0.72
+        },
+        "6": {
+          "previous_quality": 4,
+          "cqi_now_delta": 0.0,
+          "history_offsets": [0.0, 0.0, 0.0, 0.0],
+          "rb_scale": 0.98
+        }
+      }
+    },
+    {
+      "start_s": 27.1,
+      "end_s": 27.3,
+      "ue_rules": {
+        "3": {
+          "previous_quality": 4,
+          "cqi_now_delta": 0.0,
+          "history_offsets": [0.0, 0.0, 0.0, 0.0],
+          "rb_scale": 1.0
+        },
+        "4": {
+          "previous_quality": 0,
+          "cqi_now_delta": -1.5,
+          "history_offsets": [-1.2, -1.0, -0.7, -0.5],
+          "rb_scale": 0.66
+        },
+        "5": {
+          "previous_quality": 2,
+          "cqi_now_delta": -0.5,
+          "history_offsets": [-0.8, -0.6, -0.4, -0.2],
+          "rb_scale": 0.88
+        },
+        "6": {
+          "previous_quality": 3,
+          "cqi_now_delta": -0.9,
+          "history_offsets": [-0.9, -0.7, -0.4, -0.2],
+          "rb_scale": 0.84
+        }
+      }
+    },
+    {
+      "start_s": 27.4,
+      "end_s": 27.6,
+      "ue_rules": {
+        "3": {
+          "previous_quality": 4,
+          "cqi_now_delta": 0.0,
+          "history_offsets": [0.0, 0.0, 0.0, 0.0],
+          "rb_scale": 1.0
+        },
+        "4": {
+          "previous_quality": 0,
+          "cqi_now_delta": -1.8,
+          "history_offsets": [-1.4, -1.1, -0.8, -0.6],
+          "rb_scale": 0.60
+        },
+        "5": {
+          "previous_quality": 3,
+          "cqi_now_delta": -0.1,
+          "history_offsets": [-0.4, -0.3, -0.2, -0.1],
+          "rb_scale": 0.95
+        },
+        "6": {
+          "previous_quality": 3,
+          "cqi_now_delta": -0.6,
+          "history_offsets": [-0.6, -0.5, -0.3, -0.2],
+          "rb_scale": 0.88
+        }
+      }
+    },
+    {
+      "start_s": 27.7,
+      "end_s": 27.9,
+      "ue_rules": {
+        "3": {
+          "previous_quality": 4,
+          "cqi_now_delta": 0.0,
+          "history_offsets": [0.0, 0.0, 0.0, 0.0],
+          "rb_scale": 1.0
+        },
+        "4": {
+          "previous_quality": 0,
+          "cqi_now_delta": -1.4,
+          "history_offsets": [-1.5, -1.2, -0.9, -0.7],
+          "rb_scale": 0.62
+        },
+        "5": {
+          "previous_quality": 4,
+          "cqi_now_delta": -1.2,
+          "history_offsets": [-0.3, -0.2, -0.1, 0.0],
+          "rb_scale": 0.94
+        },
+        "6": {
+          "previous_quality": 2,
+          "cqi_now_delta": -1.0,
+          "history_offsets": [-1.0, -0.8, -0.5, -0.3],
+          "rb_scale": 0.84
+        }
+      }
+    },
+    {
+      "start_s": 28.0,
+      "end_s": 28.8,
+      "ue_rules": {
+        "3": {
+          "previous_quality": 4,
+          "cqi_now_delta": 0.0,
+          "history_offsets": [0.0, 0.0, 0.0, 0.0],
+          "rb_scale": 1.0
+        },
+        "4": {
+          "previous_quality": 0,
+          "cqi_now_delta": -1.1,
+          "history_offsets": [-1.1, -0.9, -0.7, -0.5],
+          "rb_scale": 0.68
+        },
+        "5": {
+          "previous_quality": 4,
+          "cqi_now_delta": -0.8,
+          "history_offsets": [-0.2, -0.1, 0.0, 0.1],
+          "rb_scale": 0.96
+        },
+        "6": {
+          "previous_quality": 2,
+          "cqi_now_delta": -0.9,
+          "history_offsets": [-0.9, -0.7, -0.4, -0.2],
+          "rb_scale": 0.84
+        }
+      }
+    }
+  ]
+}

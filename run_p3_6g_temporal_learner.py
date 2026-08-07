@@ -434,6 +434,11 @@ def main() -> None:
     parser.add_argument("--grouping-mode", default="kmeans_embedding")
     parser.add_argument("--kmeans-n-init", type=int, default=10)
     parser.add_argument("--restart-seeds", nargs="*", type=int, default=None)
+    parser.add_argument(
+        "--restart-selection-mode",
+        choices=("support_imitation", "margin_aware"),
+        default="support_imitation",
+    )
     parser.add_argument("--seed", type=int, default=9)
     parser.add_argument("--min-users", type=int, default=2)
     args = parser.parse_args()
@@ -614,18 +619,32 @@ def main() -> None:
             rb_budget_ratio=export_metadata["rb_budget_ratio"],
             progress_label=candidate_label,
         )
-        score = (
-            support_metrics["support_pairwise_accuracy"],
-            support_metrics["support_ari"],
-            support_metrics["support_nmi"],
-            support_metrics["support_utility"],
-            -abs(support_metrics["support_utility_gap"]),
-            -candidate_model.selection_validation_loss,
-        )
+        if args.restart_selection_mode == "margin_aware":
+            score = (
+                support_metrics["support_weak_margin_min"],
+                support_metrics["support_weak_margin_mean"],
+                support_metrics["support_proto_sep_margin"],
+                support_metrics["support_pairwise_accuracy"],
+                support_metrics["support_ari"],
+                support_metrics["support_nmi"],
+                support_metrics["support_utility"],
+                -abs(support_metrics["support_utility_gap"]),
+                -candidate_model.selection_validation_loss,
+            )
+        else:
+            score = (
+                support_metrics["support_pairwise_accuracy"],
+                support_metrics["support_ari"],
+                support_metrics["support_nmi"],
+                support_metrics["support_utility"],
+                -abs(support_metrics["support_utility_gap"]),
+                -candidate_model.selection_validation_loss,
+            )
         candidate_rows.append(
             {
                 "candidate_seed": candidate_seed,
                 "selected": 0,
+                "restart_selection_mode": args.restart_selection_mode,
                 **support_metrics,
                 "selected_epoch": candidate_model.selected_epoch,
                 "selection_validation_loss": candidate_model.selection_validation_loss,
@@ -665,6 +684,7 @@ def main() -> None:
             {
                 "dataset": "p3_6g_temporal_focus",
                 "feature_mode": args.feature_mode,
+                "restart_selection_mode": args.restart_selection_mode,
                 "max_groups": args.max_groups,
                 "rb_budget_ratio": export_metadata["rb_budget_ratio"],
                 "focus_ue_ids": "|".join(focus_split["test_ue_ids"]),
@@ -693,6 +713,7 @@ def main() -> None:
         "bundle_dir": str(args.bundle_dir),
         "joint_supervision_mode": args.joint_supervision_mode,
         "feature_mode": args.feature_mode,
+        "restart_selection_mode": args.restart_selection_mode,
         "max_groups": args.max_groups,
         "seed": args.seed,
         "restart_seeds": restart_seeds,

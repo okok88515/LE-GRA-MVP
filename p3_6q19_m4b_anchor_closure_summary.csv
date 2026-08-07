@@ -1,0 +1,2 @@
+regime,artifact,restart_selection_mode,grouping_mode,selected_restart_seed,teacher_candidate_signature,predicted_topk_signature,teacher_group_signature,predicted_group_signature,le_gra_utility,teacher_utility,utility_gap_vs_teacher,result
+m4b,p3_6q19_m4b_candidate_anchor_margin_selector,margin_aware,candidate_anchor_hybrid,11,15|4,15|4,0|1|2|3|5 / 15|4,15|4 / 0|1|2|3|5,0.5796090488051922,0.5796090488051922,0.0,teacher_match

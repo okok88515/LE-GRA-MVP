@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LE-GRA Hard Regime Focused Report</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --paper: #fffaf2;
+      --ink: #1f1b16;
+      --muted: #655b50;
+      --line: #d6c8b6;
+      --accent: #a64b2a;
+      --accent-soft: #f2d7c9;
+      --gold: #b98a2f;
+      --green: #496a4d;
+      --blue: #335c81;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(166, 75, 42, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(51, 92, 129, 0.08), transparent 24%),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+    }
+    .wrap {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 36px 0 56px;
+    }
+    .hero {
+      background: linear-gradient(135deg, rgba(166, 75, 42, 0.10), rgba(185, 138, 47, 0.08));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 28px 30px;
+      box-shadow: 0 18px 40px rgba(31, 27, 22, 0.08);
+    }
+    h1, h2, h3 {
+      margin: 0 0 12px;
+      line-height: 1.2;
+    }
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.1rem);
+      letter-spacing: -0.03em;
+    }
+    h2 {
+      font-size: 1.45rem;
+      margin-top: 28px;
+    }
+    h3 {
+      font-size: 1.05rem;
+    }
+    p {
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      background: rgba(31, 27, 22, 0.05);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .stat, .card, .table-wrap {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 14px 30px rgba(31, 27, 22, 0.05);
+    }
+    .stat {
+      padding: 18px 18px 16px;
+    }
+    .stat .label {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+    }
+    .stat .value {
+      font-size: 1.55rem;
+      font-weight: 700;
+    }
+    .section {
+      margin-top: 28px;
+    }
+    .card {
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      border: 1px solid transparent;
+    }
+    .badge.red { background: var(--accent-soft); color: var(--accent); border-color: rgba(166, 75, 42, 0.18); }
+    .badge.gold { background: rgba(185, 138, 47, 0.13); color: #7b5c1d; border-color: rgba(185, 138, 47, 0.22); }
+    .badge.green { background: rgba(73, 106, 77, 0.12); color: var(--green); border-color: rgba(73, 106, 77, 0.2); }
+    .badge.blue { background: rgba(51, 92, 129, 0.12); color: var(--blue); border-color: rgba(51, 92, 129, 0.18); }
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+    th, td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 0.94rem;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 250, 242, 0.97);
+      color: var(--ink);
+      z-index: 1;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .strong { color: var(--ink); font-weight: 700; }
+    .subtle { color: var(--muted); }
+    .quote {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(166, 75, 42, 0.06);
+      border-radius: 12px;
+      color: var(--ink);
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+    li + li {
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>LE-GRA Hard Regime Focused Report</h1>
+      <p>
+        這份報告只看目前最有研究價值的三個 hard regimes：<code>q10</code>、<code>m4b</code>、<code>o8</code>。
+        目的不是再把 easy cases 混進平均，而是回答一個更重要的問題：
+        為什麼你會覺得方法差距沒有很大？
+      </p>
+      <p>
+        現在的答案是：差距其實存在，但它主要集中在特定 transition window 與 final grouping failure 上；
+        如果只看大盤平均 utility，很容易被沖淡。
+      </p>
+      <div class="grid">
+        <div class="stat">
+          <div class="label">已確認的 hard regime 類型</div>
+          <div class="value">3 類</div>
+        </div>
+        <div class="stat">
+          <div class="label">已完成 teacher match 的代表案例</div>
+          <div class="value">q10 / m4b / o8</div>
+        </div>
+        <div class="stat">
+          <div class="label">目前最重要的收斂方向</div>
+          <div class="value">先分類 bottleneck，再選最小修正</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>核心結論</h2>
+      <div class="card">
+        <div class="badge-row">
+          <span class="badge red">q10: selector-dominated</span>
+          <span class="badge gold">m4b: post-selector weak closure</span>
+          <span class="badge blue">o8: LE-GRA grouping-path failure</span>
+        </div>
+        <p>
+          所以「方法差距看起來不大」不是因為我們沒有成果，而是因為很多 hard cases 的差距不是體現在
+          全域平均，而是體現在很短的關鍵窗口、特定 weak pair、或 final grouping 是否塌掉。
+        </p>
+        <div class="quote">
+          目前最值得講的研究故事，不是「LE-GRA 全面大勝所有 baseline」，而是「teacher gap 可以被拆成不同 failure mode，並且用對應的最小修正逐步補回」。
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Hard-Regime Only Matrix</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Regime</th>
+              <th>Window</th>
+              <th>Bottleneck</th>
+              <th>No grouping</th>
+              <th>Multi-feature</th>
+              <th>舊 LE-GRA</th>
+              <th>最佳 LE-GRA</th>
+              <th>Teacher</th>
+              <th>主要差異</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="strong">q10</span></td>
+              <td><code>27.6 ~ 28.2</code></td>
+              <td>selector-dominated</td>
+              <td>0.5865</td>
+              <td>0.6075</td>
+              <td>0.6186</td>
+              <td><span class="strong">0.6369</span></td>
+              <td>0.6369</td>
+              <td>真正的大進步來自 <code>margin_aware</code> 挑到對 basin。</td>
+            </tr>
+            <tr>
+              <td><span class="strong">m4b</span></td>
+              <td><code>43.7 ~ 43.9</code></td>
+              <td>secondary weak closure</td>
+              <td>0.5472</td>
+              <td>0.5791</td>
+              <td>0.5791</td>
+              <td><span class="strong">0.5796</span></td>
+              <td>0.5796</td>
+              <td>數值差很小，但結構差很關鍵：<code>ue4</code> 有沒有和 <code>ue15</code> 一起被保住。</td>
+            </tr>
+            <tr>
+              <td><span class="strong">o8</span></td>
+              <td><code>18.7</code></td>
+              <td>LE-GRA grouping path</td>
+              <td>0.6072</td>
+              <td>0.6198</td>
+              <td>0.6072</td>
+              <td><span class="strong">0.6198</span></td>
+              <td>0.6198</td>
+              <td>learner 其實夠了，壞掉的是 LE-GRA 自己原本的 final grouping path。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="subtle">
+        對應 CSV：<code>p3_6q22_hard_regime_only_matrix.csv</code>
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>為什麼你會覺得差距不大</h2>
+      <div class="card">
+        <ul>
+          <li><span class="strong">很多場景本來就不難。</span> easy snapshots 會把 hard snapshot 的差距平均掉。</li>
+          <li><span class="strong">utility 對結構錯誤不一定夠敏感。</span> 尤其像 <code>m4b</code>，utility gap 很小，但 group signature 完全不是同一件事。</li>
+          <li><span class="strong">有些 regime 的關鍵不是 baseline 數字，而是 LE-GRA 自己會不會在最後一步塌掉。</span> <code>o8</code> 就是最典型的例子。</li>
+          <li><span class="strong">目前成果更像「找到 failure mode 與修正槓桿」</span>，而不是所有方法在所有資料上都被一口氣拉很開。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>結構指標比單看 utility 更重要的地方</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Regime</th>
+              <th>Teacher Signature</th>
+              <th>Multi-feature</th>
+              <th>舊 LE-GRA</th>
+              <th>最佳 LE-GRA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>q10</td>
+              <td><code>1|3|4|5 / 2|6</code></td>
+              <td><code>2 / 1|3|4|5|6</code><br><span class="subtle">pairwise = 0.4952</span></td>
+              <td><code>2|6 / 1|3|4|5</code><br><span class="subtle">pairwise = 0.6952</span></td>
+              <td><code>2|6 / 1|3|4|5</code><br><span class="subtle">pairwise = 1.0</span></td>
+            </tr>
+            <tr>
+              <td>m4b</td>
+              <td><code>0|1|2|3|5 / 15|4</code></td>
+              <td><code>0|1|2|3|4|5 / 15</code><br><span class="subtle">pairwise = 0.7143</span></td>
+              <td><code>0|1|2|3|4|5 / 15</code><br><span class="subtle">pairwise = 0.7143</span></td>
+              <td><code>15|4 / 0|1|2|3|5</code><br><span class="subtle">pairwise = 1.0</span></td>
+            </tr>
+            <tr>
+              <td>o8</td>
+              <td><code>0|1|2 / 3|4</code></td>
+              <td><code>0|1|2 / 3|4</code><br><span class="subtle">pairwise = 1.0</span></td>
+              <td><code>0|1|2|3|4</code><br><span class="subtle">pairwise = 0.4</span></td>
+              <td><code>3|4 / 0|1|2</code><br><span class="subtle">pairwise = 1.0</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        這張表就是目前最能回答你疑問的地方：有些 case 的 utility 差距不大，但 grouping structure 差很多。
+        如果只看 utility，你會覺得大家都差不多；如果把 signature 與 pairwise 一起看，差距就清楚了。
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>現在最該收斂的方向</h2>
+      <div class="card">
+        <p>
+          下一步不該是盲目擴大 matrix，而是把這三類 hard regime 先收斂成一套可重複使用的 decision rule：
+        </p>
+        <ul>
+          <li>如果是 <span class="strong">selector-dominated</span>，先試 <code>margin_aware</code>。</li>
+          <li>如果 weak top-k 已對，但 final grouping 還錯，優先試 <span class="strong"><code>candidate_anchor_hybrid</code></span>。</li>
+          <li>只有在 weak top-k 根本沒恢復時，才優先回去做 supervision / representation redesign。</li>
+        </ul>
+        <p>
+          換句話說，我們現在不是缺更多亂數實驗，而是要把「何時用哪個修正」整理成更清楚的方法論。
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

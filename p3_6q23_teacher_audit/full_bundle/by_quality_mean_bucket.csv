@@ -1,0 +1,4 @@
+quality_mean_bucket,scenario_count,multi_group_count,multi_group_ratio,mean_teacher_group_count,mean_teacher_gain_vs_single,max_teacher_gain_vs_single
+"high[3,4)",248,0,0.0,1.0,0.0,0.0
+low(<2),310,9,0.02903225806451613,1.0290322580645161,0.000783495979333477,0.05715940214371462
+"mid[2,3)",272,19,0.06985294117647059,1.0698529411764706,0.0004827823838091007,0.006911410968214571

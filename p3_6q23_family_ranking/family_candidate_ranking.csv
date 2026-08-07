@@ -1,0 +1,8 @@
+serving_gnb,ue_ids,source_audit,positive_snapshot_count,positive_segment_count,best_segment_len,best_segment_start_s,best_segment_end_s,max_gain_vs_single,mean_positive_gain_vs_single,positive_group_counts,mean_positive_previous_quality_range,mean_positive_cqi_range,source_count
+gnb_2,3|4|5|6,C:\Users\Weber\Documents\LE-GRA-MVP\p3_6n3_teacher_audit,42,1,42,25.8,29.9,0.079451741871,0.079451741871,2,3.000000,5.428571,69
+gnb_2,0|1|2|3,C:\Users\Weber\Documents\LE-GRA-MVP\p3_6f_teacher_audit,48,3,24,14.0,15.1,0.038608503577,0.038608503577,2,1.000000,6.333333,78
+gnb_2,1|2|3|4|5|6,C:\Users\Weber\Documents\LE-GRA-MVP\p3_6q10_teacher_audit,10,1,10,27.3,28.2,0.160831857594,0.073430999875,2,4.000000,6.400000,8
+gnb_2,0|1|2|3|4,C:\Users\Weber\Documents\LE-GRA-MVP\p3_6o4_teacher_audit,6,1,6,18.7,19.2,0.011900924527,0.011900924527,2,1.000000,5.500000,77
+gnb_1,0|1|15|2|3|4|5,C:\Users\Weber\Documents\LE-GRA-MVP\p3_6m4b_teacher_audit,4,1,4,43.6,43.9,0.032424870721,0.032293384818,2,0.000000,7.750000,77
+gnb_2,3|31|4|5|6,C:\Users\Weber\Documents\LE-GRA-MVP\p3_6q10_teacher_audit,2,1,2,31.1,31.2,0.011900924527,0.011900924527,2,1.000000,5.000000,8
+gnb_2,1|2|3|4|5,C:\Users\Weber\Documents\LE-GRA-MVP\p3_6h_pressure_sweep,2,2,1,27.0,27.0,0.011900924527,0.011900924527,2,0.000000,5.000000,77

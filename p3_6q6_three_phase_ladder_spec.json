@@ -1,0 +1,104 @@
+{
+  "name": "p3_6q6_three_phase_ladder",
+  "base_bundle": "p3_6i2_coupled_bundle",
+  "out_dir": "p3_6q6_three_phase_ladder_bundle",
+  "intent": "Three-phase structural redesign on 3|4|5|6 @ gnb_2 using the original i2 cross-traffic context. Target a 2-vs-3-group boundary by rotating the primary weak user and introducing a late boundary user.",
+  "family": {
+    "serving_gnb": "gnb_2",
+    "target_ue_ids": "3|4|5|6",
+    "window_start_s": 25.8,
+    "window_end_s": 28.8
+  },
+  "windows": [
+    {
+      "start_s": 25.8,
+      "end_s": 27.0,
+      "ue_rules": {
+        "3": {
+          "previous_quality": 4,
+          "cqi_now_delta": 0.1,
+          "history_offsets": [0.1, 0.1, 0.0, 0.0],
+          "rb_scale": 1.0
+        },
+        "4": {
+          "previous_quality": 2,
+          "cqi_now_delta": -0.6,
+          "history_offsets": [-0.8, -0.7, -0.5, -0.4],
+          "rb_scale": 0.92
+        },
+        "5": {
+          "previous_quality": 1,
+          "cqi_now_delta": -1.8,
+          "history_offsets": [-1.6, -1.3, -1.0, -0.8],
+          "rb_scale": 0.72
+        },
+        "6": {
+          "previous_quality": 4,
+          "cqi_now_delta": 0.0,
+          "history_offsets": [0.0, 0.0, 0.0, 0.0],
+          "rb_scale": 0.98
+        }
+      }
+    },
+    {
+      "start_s": 27.1,
+      "end_s": 28.0,
+      "ue_rules": {
+        "3": {
+          "previous_quality": 4,
+          "cqi_now_delta": 0.0,
+          "history_offsets": [0.0, 0.0, 0.0, 0.0],
+          "rb_scale": 1.0
+        },
+        "4": {
+          "previous_quality": 0,
+          "cqi_now_delta": -1.5,
+          "history_offsets": [-1.2, -1.0, -0.7, -0.5],
+          "rb_scale": 0.66
+        },
+        "5": {
+          "previous_quality": 2,
+          "cqi_now_delta": -0.5,
+          "history_offsets": [-0.8, -0.6, -0.4, -0.2],
+          "rb_scale": 0.88
+        },
+        "6": {
+          "previous_quality": 3,
+          "cqi_now_delta": -0.9,
+          "history_offsets": [-0.9, -0.7, -0.4, -0.2],
+          "rb_scale": 0.84
+        }
+      }
+    },
+    {
+      "start_s": 28.1,
+      "end_s": 28.8,
+      "ue_rules": {
+        "3": {
+          "previous_quality": 4,
+          "cqi_now_delta": -0.2,
+          "history_offsets": [-0.2, -0.1, 0.0, 0.0],
+          "rb_scale": 0.99
+        },
+        "4": {
+          "previous_quality": 0,
+          "cqi_now_delta": -1.1,
+          "history_offsets": [-1.5, -1.2, -0.9, -0.7],
+          "rb_scale": 0.70
+        },
+        "5": {
+          "previous_quality": 3,
+          "cqi_now_delta": 0.1,
+          "history_offsets": [-0.6, -0.3, -0.1, 0.0],
+          "rb_scale": 0.95
+        },
+        "6": {
+          "previous_quality": 1,
+          "cqi_now_delta": -1.2,
+          "history_offsets": [-1.1, -0.8, -0.5, -0.3],
+          "rb_scale": 0.78
+        }
+      }
+    }
+  ]
+}

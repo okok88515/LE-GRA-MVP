@@ -1,0 +1,49 @@
+{
+  "name": "p3_6q6_family_transform_template",
+  "base_bundle": "p3_6i2_coupled_bundle",
+  "out_dir": "p3_6q6_family_transform_bundle",
+  "intent": "Template for future P3.6q structural family generation experiments.",
+  "family": {
+    "serving_gnb": "gnb_2",
+    "target_ue_ids": "1|2|4|5",
+    "window_start_s": 23.0,
+    "window_end_s": 23.9
+  },
+  "windows": [
+    {
+      "start_s": 23.0,
+      "end_s": 23.6,
+      "ue_rules": {
+        "4": {
+          "previous_quality": 0,
+          "cqi_now_delta": -0.8,
+          "history_offsets": [0.9, 0.6, 0.1, -1.1],
+          "rb_scale": 0.82
+        },
+        "2": {
+          "previous_quality": 2,
+          "history_offsets": [0.8, 0.9, 0.7, -0.8],
+          "rb_scale": 0.985
+        }
+      }
+    },
+    {
+      "start_s": 23.7,
+      "end_s": 23.9,
+      "ue_rules": {
+        "4": {
+          "previous_quality": 0,
+          "cqi_now_delta": -0.2,
+          "history_offsets": [0.8, 0.3, -0.4, -1.6],
+          "rb_scale": 0.74
+        },
+        "2": {
+          "previous_quality": 1,
+          "cqi_now_delta": -0.1,
+          "history_offsets": [0.5, 0.4, 0.2, -0.6],
+          "rb_scale": 0.985
+        }
+      }
+    }
+  ]
+}

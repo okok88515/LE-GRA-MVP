@@ -1,0 +1,2 @@
+candidate_seed,selected,support_pairwise_accuracy,support_ari,support_nmi,support_utility,support_teacher_utility,support_utility_gap,support_contrastive_loss,support_weak_bce,support_weak_margin_min,support_weak_margin_mean,support_proto_sep_margin,selected_epoch,selection_validation_loss
+11,1,0.9578544061302682,0.9367816091954023,0.9367816091954023,0.6734023848881941,0.6734023848881941,0.0,0.06320947193958652,0.6798364269507212,0.012175676487233968,0.01800954553821314,0.36235130281411376,12,0.028960814252521627

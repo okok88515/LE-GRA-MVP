@@ -1,0 +1,10 @@
+segment_id,ue_ids,serving_gnb,segment_start_s,segment_end_s,suggested_split_s,focus_train_scenarios,focus_test_scenarios,focus_train_positive_gain_count,focus_test_positive_gain_count
+seg_01,1|2|3|4|5|6,gnb_2,27.3,28.2,27.7,6,5,5,5
+seg_01,1|2|3|4|5|6,gnb_2,27.3,28.2,27.6,5,6,4,6
+seg_01,1|2|3|4|5|6,gnb_2,27.3,28.2,27.8,7,4,6,4
+seg_01,1|2|3|4|5|6,gnb_2,27.3,28.2,27.5,4,7,3,7
+seg_01,1|2|3|4|5|6,gnb_2,27.3,28.2,27.9,8,3,7,3
+seg_01,1|2|3|4|5|6,gnb_2,27.3,28.2,27.4,3,8,2,8
+seg_01,1|2|3|4|5|6,gnb_2,27.3,28.2,28.0,9,2,8,2
+seg_01,1|2|3|4|5|6,gnb_2,27.3,28.2,27.3,2,9,1,9
+seg_01,1|2|3|4|5|6,gnb_2,27.3,28.2,28.1,10,1,9,1

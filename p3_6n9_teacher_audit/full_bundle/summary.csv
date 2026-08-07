@@ -1,0 +1,11 @@
+metric,value
+split_name,full_bundle
+scenario_count,830
+multi_group_count,35
+multi_group_ratio,0.04216867469879518
+mean_teacher_group_count,1.0421686746987953
+max_teacher_group_count,2
+mean_teacher_gain_vs_single,0.0023463029948885693
+max_teacher_gain_vs_single,0.07945174187052606
+positive_gain_count,35
+positive_gain_ratio,0.04216867469879518
