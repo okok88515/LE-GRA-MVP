@@ -97,6 +97,83 @@ def _teacher_weak_group_audit(
     return rows
 
 
+def _weak_group_prediction_audit(
+    scenarios: list[mvp.Scenario],
+    metadata_rows: list[dict],
+    model: mvp.MLPEncoder,
+    switch_beta: float,
+    max_groups: int,
+    *,
+    split_name: str,
+    candidate_top_k: int,
+    candidate_secondary_scale: float,
+) -> list[dict]:
+    rows = []
+    for scenario, metadata in zip(scenarios, metadata_rows):
+        teacher_groups = mvp.offline_teacher_groups(
+            scenario,
+            max_groups=min(max_groups, len(scenario.cqi_now)),
+            switch_beta=switch_beta,
+        )
+        ue_ids = metadata["ue_ids"].split("|")
+        hard_target = mvp.hardest_group_membership(scenario, teacher_groups)
+        candidate_target, candidate_target_weights = (
+            mvp.candidate_conditioned_membership_targets(
+                scenario,
+                teacher_groups,
+                top_k=candidate_top_k,
+                secondary_scale=candidate_secondary_scale,
+            )
+        )
+        weak_scores = model.weak_group_scores(scenario.features)
+        ranking = np.argsort(-weak_scores)
+        predicted_top_k = ranking[:candidate_top_k].tolist()
+        teacher_hard_members = np.where(hard_target > 0.5)[0].tolist()
+        teacher_candidates = np.where(candidate_target > 0.5)[0].tolist()
+        teacher_secondary_idx = teacher_candidates[1] if len(teacher_candidates) >= 2 else None
+        predicted_secondary_rank = None
+        if teacher_secondary_idx is not None:
+            predicted_secondary_rank = int(np.where(ranking == teacher_secondary_idx)[0][0]) + 1
+        rows.append(
+            {
+                "split": split_name,
+                "scenario_id": metadata["scenario_id"],
+                "timestamp_s": metadata["timestamp_s"],
+                "serving_gnb": metadata["serving_gnb"],
+                "ue_ids": metadata["ue_ids"],
+                "teacher_hard_group_signature": "|".join(
+                    sorted(ue_ids[idx] for idx in teacher_hard_members)
+                ),
+                "teacher_candidate_signature": "|".join(
+                    ue_ids[idx] for idx in teacher_candidates
+                ),
+                "predicted_topk_signature": "|".join(
+                    ue_ids[idx] for idx in predicted_top_k
+                ),
+                "teacher_secondary_ue": (
+                    ue_ids[teacher_secondary_idx] if teacher_secondary_idx is not None else ""
+                ),
+                "predicted_secondary_rank": (
+                    predicted_secondary_rank if predicted_secondary_rank is not None else ""
+                ),
+                "predicted_top1_ue": ue_ids[ranking[0]] if len(ranking) >= 1 else "",
+                "predicted_top2_ue": ue_ids[ranking[1]] if len(ranking) >= 2 else "",
+                "predicted_top1_score": float(weak_scores[ranking[0]]) if len(ranking) >= 1 else float("nan"),
+                "predicted_top2_score": float(weak_scores[ranking[1]]) if len(ranking) >= 2 else float("nan"),
+                "teacher_candidate_hit_count": sum(idx in predicted_top_k for idx in teacher_candidates),
+                "teacher_secondary_in_predicted_topk": int(
+                    teacher_secondary_idx in predicted_top_k if teacher_secondary_idx is not None else 0
+                ),
+                "teacher_secondary_weight": (
+                    float(candidate_target_weights[teacher_secondary_idx])
+                    if teacher_secondary_idx is not None
+                    else float("nan")
+                ),
+            }
+        )
+    return rows
+
+
 def _repeat_examples(
     scenarios: list[mvp.Scenario],
     metadata_rows: list[dict],
@@ -314,6 +391,11 @@ def main() -> None:
     parser.add_argument("--bundle-dir", type=Path, default=Path("p3_6e3_coupled_bundle/bundle"))
     parser.add_argument("--out-dir", type=Path, default=Path("p3_6g_temporal_learner"))
     parser.add_argument("--feature-mode", default="history_cost_quality")
+    parser.add_argument(
+        "--joint-supervision-mode",
+        choices=["none", "m4b_minimal_joint_v1", "m4b_localized_hard_negative_v1"],
+        default="none",
+    )
     parser.add_argument("--focus-ue-ids", nargs="+", default=["0", "1", "2", "3"])
     parser.add_argument("--background-train-limit", type=int, default=None)
     parser.add_argument("--background-train-repeat", type=int, default=1)
@@ -344,6 +426,9 @@ def main() -> None:
     parser.add_argument("--candidate-membership-weight", type=float, default=0.0)
     parser.add_argument("--candidate-top-k", type=int, default=2)
     parser.add_argument("--candidate-secondary-scale", type=float, default=2.0)
+    parser.add_argument("--frontier-contrast-weight", type=float, default=0.0)
+    parser.add_argument("--frontier-negative-top-k", type=int, default=2)
+    parser.add_argument("--frontier-margin", type=float, default=0.25)
     parser.add_argument("--focus-only-warmup-epochs", type=int, default=0)
     parser.add_argument("--grouping-mode", default="kmeans_embedding")
     parser.add_argument("--kmeans-n-init", type=int, default=10)
@@ -351,6 +436,30 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=9)
     parser.add_argument("--min-users", type=int, default=2)
     args = parser.parse_args()
+
+    if args.joint_supervision_mode == "m4b_minimal_joint_v1":
+        args.pair_sampling = "teacher_boundary"
+        args.supervision_weight_mode = "teacher_candidate_boundary"
+        args.candidate_top_k = 2
+        args.candidate_membership_weight = max(args.candidate_membership_weight, 4.0)
+        args.candidate_secondary_scale = max(args.candidate_secondary_scale, 4.0)
+        args.boundary_support_repeat = max(args.boundary_support_repeat, 16)
+        args.boundary_support_positive_only = True
+        if args.boundary_support_start is None:
+            args.boundary_support_start = 43.4
+    elif args.joint_supervision_mode == "m4b_localized_hard_negative_v1":
+        args.pair_sampling = "teacher_boundary"
+        args.supervision_weight_mode = "teacher_candidate_boundary"
+        args.candidate_top_k = 2
+        args.candidate_membership_weight = max(args.candidate_membership_weight, 4.0)
+        args.candidate_secondary_scale = max(args.candidate_secondary_scale, 4.0)
+        args.frontier_contrast_weight = max(args.frontier_contrast_weight, 6.0)
+        args.frontier_negative_top_k = max(args.frontier_negative_top_k, 2)
+        args.frontier_margin = max(args.frontier_margin, 0.25)
+        args.boundary_support_repeat = max(args.boundary_support_repeat, 16)
+        args.boundary_support_positive_only = True
+        if args.boundary_support_start is None:
+            args.boundary_support_start = 43.4
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     export_metadata = _load_export_metadata(args.bundle_dir)
@@ -485,6 +594,9 @@ def main() -> None:
             candidate_membership_weight=args.candidate_membership_weight,
             candidate_top_k=args.candidate_top_k,
             candidate_secondary_scale=args.candidate_secondary_scale,
+            frontier_contrast_weight=args.frontier_contrast_weight,
+            frontier_negative_top_k=args.frontier_negative_top_k,
+            frontier_margin=args.frontier_margin,
             focus_support_indices=focus_support_indices,
             focus_only_warmup_epochs=args.focus_only_warmup_epochs,
             grouping_mode=args.grouping_mode,
@@ -576,6 +688,7 @@ def main() -> None:
 
     split_summary = {
         "bundle_dir": str(args.bundle_dir),
+        "joint_supervision_mode": args.joint_supervision_mode,
         "feature_mode": args.feature_mode,
         "max_groups": args.max_groups,
         "seed": args.seed,
@@ -632,6 +745,9 @@ def main() -> None:
         "candidate_membership_weight": getattr(model, "candidate_membership_weight", 0.0),
         "candidate_top_k": getattr(model, "candidate_top_k", 0),
         "candidate_secondary_scale": getattr(model, "candidate_secondary_scale", 0.0),
+        "frontier_contrast_weight": getattr(model, "frontier_contrast_weight", 0.0),
+        "frontier_negative_top_k": getattr(model, "frontier_negative_top_k", 0),
+        "frontier_margin": getattr(model, "frontier_margin", 0.0),
         "focus_only_warmup_epochs": getattr(model, "focus_only_warmup_epochs", 0),
         "grouping_mode": getattr(model, "grouping_mode", "kmeans_embedding"),
     }
@@ -657,6 +773,29 @@ def main() -> None:
             [{**row, "split": "focus_test"} for row in focus_test_metadata],
             args.switch_beta,
             args.max_groups,
+        ),
+    )
+    _write_csv(
+        args.out_dir / "weak_group_prediction_audit.csv",
+        _weak_group_prediction_audit(
+            focus_train,
+            [{**row, "split": "focus_train"} for row in focus_train_metadata],
+            model,
+            args.switch_beta,
+            args.max_groups,
+            split_name="focus_train",
+            candidate_top_k=args.candidate_top_k,
+            candidate_secondary_scale=args.candidate_secondary_scale,
+        )
+        + _weak_group_prediction_audit(
+            focus_test,
+            [{**row, "split": "focus_test"} for row in focus_test_metadata],
+            model,
+            args.switch_beta,
+            args.max_groups,
+            split_name="focus_test",
+            candidate_top_k=args.candidate_top_k,
+            candidate_secondary_scale=args.candidate_secondary_scale,
         ),
     )
 

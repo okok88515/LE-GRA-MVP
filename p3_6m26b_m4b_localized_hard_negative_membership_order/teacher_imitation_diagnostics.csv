@@ -1,0 +1,7 @@
+scenario_mode,load_level,rb_budget_ratio,seed,test_index,kmax,feature_mode,method,pairwise_accuracy,ari,nmi,teacher_groups,predicted_groups
+coupled_temporal_focus,coupled_trace_rb_28_temporal_focus,0.28,7,0,3,history_cost_quality,Multi-feature k-means,0.7142857142857143,0.4166666666666667,0.42814017811961563,2,2
+coupled_temporal_focus,coupled_trace_rb_28_temporal_focus,0.28,7,0,3,history_cost_quality,LE-GRA MVP,1.0,1.0,1.0,2,2
+coupled_temporal_focus,coupled_trace_rb_28_temporal_focus,0.28,7,1,3,history_cost_quality,Multi-feature k-means,0.7142857142857143,0.4166666666666667,0.42814017811961563,2,2
+coupled_temporal_focus,coupled_trace_rb_28_temporal_focus,0.28,7,1,3,history_cost_quality,LE-GRA MVP,1.0,1.0,1.0,2,2
+coupled_temporal_focus,coupled_trace_rb_28_temporal_focus,0.28,7,2,3,history_cost_quality,Multi-feature k-means,0.7142857142857143,0.4166666666666667,0.42814017811961563,2,2
+coupled_temporal_focus,coupled_trace_rb_28_temporal_focus,0.28,7,2,3,history_cost_quality,LE-GRA MVP,1.0,1.0,1.0,2,2

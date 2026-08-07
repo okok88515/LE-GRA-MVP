@@ -1,0 +1,9 @@
+target_ue_ids=0|1|2|3|4
+serving_gnb=gnb_2
+scenario_count=40
+first_time_s=17.0
+last_time_s=20.9
+max_teacher_gain_vs_single=0.011900924527038947
+max_cqi_range=6.0
+max_resource_cost_range=1.0000000000000004
+max_previous_quality_range=1.0

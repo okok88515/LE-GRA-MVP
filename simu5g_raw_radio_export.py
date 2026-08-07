@@ -52,9 +52,111 @@ def _highest_quality_for_capacity(capacity_kbps: float) -> int:
     return quality
 
 
+def _ue_behavior_profile(ue_id: str) -> dict[str, float | int | str]:
+    """Assign a deterministic adaptation profile to each UE.
+
+    The mapping is fixed from UE id so the same trace always yields the same
+    QoE-state heterogeneity without introducing uncontrolled randomness.
+    """
+
+    try:
+        numeric_id = int(ue_id)
+    except ValueError:
+        numeric_id = sum(ord(ch) for ch in ue_id)
+    profile_index = numeric_id % 3
+    if profile_index == 0:
+        return {
+            "demand_class": "conservative",
+            "initial_quality": 0,
+            "initial_buffer_s": 3.2,
+            "bootstrap_factor": 0.48,
+            "ewma_alpha": 0.22,
+            "capacity_discount": 0.90,
+            "upgrade_buffer_s": 5.2,
+            "max_upgrade_step": 1,
+        }
+    if profile_index == 1:
+        return {
+            "demand_class": "balanced",
+            "initial_quality": 1,
+            "initial_buffer_s": 2.0,
+            "bootstrap_factor": 0.55,
+            "ewma_alpha": 0.35,
+            "capacity_discount": 0.95,
+            "upgrade_buffer_s": 4.0,
+            "max_upgrade_step": 1,
+        }
+    return {
+        "demand_class": "aggressive",
+        "initial_quality": 2,
+        "initial_buffer_s": 1.1,
+        "bootstrap_factor": 0.66,
+        "ewma_alpha": 0.46,
+        "capacity_discount": 1.02,
+        "upgrade_buffer_s": 2.5,
+        "max_upgrade_step": 2,
+    }
+
+
+def _ue_behavior_profile_family_divergence(ue_id: str) -> dict[str, float | int | str]:
+    """Targeted profile set for P3.6j-1.
+
+    The goal is to keep the p3_6i2 traffic interaction structure unchanged
+    while enlarging previous-quality divergence inside the informative
+    families. Higher-demand users start with more quality/buffer headroom and
+    are allowed to sustain or upgrade quality more easily; lower-demand users
+    are deliberately more cautious.
+    """
+
+    high_anchor = {"0", "1", "15", "31"}
+    low_anchor = {"2", "3", "4", "5", "6", "7"}
+    if ue_id in high_anchor:
+        return {
+            "demand_class": "high_anchor",
+            "initial_quality": 3,
+            "initial_buffer_s": 5.4,
+            "bootstrap_factor": 0.78,
+            "ewma_alpha": 0.52,
+            "capacity_discount": 1.06,
+            "upgrade_buffer_s": 1.8,
+            "max_upgrade_step": 2,
+            "min_quality": 2,
+            "max_quality": 5,
+        }
+    if ue_id in low_anchor:
+        return {
+            "demand_class": "low_anchor",
+            "initial_quality": 0,
+            "initial_buffer_s": 1.0,
+            "bootstrap_factor": 0.44,
+            "ewma_alpha": 0.20,
+            "capacity_discount": 0.82,
+            "upgrade_buffer_s": 6.2,
+            "max_upgrade_step": 1,
+            "min_quality": 0,
+            "max_quality": 1,
+        }
+    return {
+        "demand_class": "bridge",
+        "initial_quality": 1,
+        "initial_buffer_s": 2.4,
+        "bootstrap_factor": 0.58,
+        "ewma_alpha": 0.33,
+        "capacity_discount": 0.93,
+        "upgrade_buffer_s": 4.2,
+        "max_upgrade_step": 1,
+        "min_quality": 1,
+        "max_quality": 3,
+    }
+
+
 def _derive_quality_states(
     snapshot_records: list[dict],
     snapshot_period_s: float,
+    *,
+    heterogeneous_profiles: bool = False,
+    family_divergence_profiles: bool = False,
+    seg01_targeted_window_mode: str | None = None,
 ) -> tuple[dict[tuple[Decimal, str], int], list[dict]]:
     by_ue: dict[str, list[dict]] = defaultdict(list)
     active_users_by_snapshot: dict[tuple[Decimal, str], int] = defaultdict(int)
@@ -65,12 +167,41 @@ def _derive_quality_states(
     previous_quality_by_key: dict[tuple[Decimal, str], int] = {}
     state_rows: list[dict] = []
     for ue_id, records in sorted(by_ue.items()):
-        quality = 1
-        buffer_s = 2.0
+        if family_divergence_profiles:
+            profile = _ue_behavior_profile_family_divergence(ue_id)
+        elif heterogeneous_profiles:
+            profile = _ue_behavior_profile(ue_id)
+        else:
+            profile = {
+                "demand_class": "uniform",
+                "initial_quality": 1,
+                "initial_buffer_s": 2.0,
+                "bootstrap_factor": 0.55,
+                "ewma_alpha": 0.35,
+                "capacity_discount": 0.95,
+                "upgrade_buffer_s": 4.0,
+                "max_upgrade_step": 1,
+                "min_quality": 0,
+                "max_quality": len(VIDEO_BITRATES_KBPS) - 1,
+            }
+        quality = int(profile["initial_quality"])
+        buffer_s = float(profile["initial_buffer_s"])
         ewma_capacity_kbps: float | None = None
         last_timestamp: Decimal | None = None
         for record in sorted(records, key=lambda item: (item["timestamp"], item["serving_gnb"])):
             timestamp = record["timestamp"]
+            if seg01_targeted_window_mode:
+                if Decimal("43.7") <= timestamp <= Decimal("43.9"):
+                    if seg01_targeted_window_mode == "hard":
+                        if ue_id in {"0", "1", "15"}:
+                            quality = max(quality, 3)
+                        elif ue_id in {"2", "3", "4", "5"}:
+                            quality = min(quality, 0)
+                    elif seg01_targeted_window_mode == "mild":
+                        if ue_id in {"0", "1", "15"}:
+                            quality = max(quality, 2)
+                        elif ue_id in {"2", "3", "4", "5"}:
+                            quality = min(quality, 1)
             dt = snapshot_period_s if last_timestamp is None else max(
                 snapshot_period_s,
                 float(timestamp - last_timestamp),
@@ -79,9 +210,10 @@ def _derive_quality_states(
             achievable_kbps = sum(record["rates_desc"][:record["rb_available"]])
             effective_capacity_kbps = achievable_kbps / active_users
             if ewma_capacity_kbps is None:
-                ewma_capacity_kbps = effective_capacity_kbps * 0.55
+                ewma_capacity_kbps = effective_capacity_kbps * float(profile["bootstrap_factor"])
             else:
-                ewma_capacity_kbps = 0.65 * ewma_capacity_kbps + 0.35 * effective_capacity_kbps
+                alpha = float(profile["ewma_alpha"])
+                ewma_capacity_kbps = (1.0 - alpha) * ewma_capacity_kbps + alpha * effective_capacity_kbps
 
             previous_quality_by_key[(timestamp, ue_id)] = quality
             playback_kbps = VIDEO_BITRATES_KBPS[quality]
@@ -101,19 +233,27 @@ def _derive_quality_states(
                 capacity_margin = 0.90
             else:
                 capacity_margin = 0.97
-            safe_capacity_kbps = min(effective_capacity_kbps * 0.95, ewma_capacity_kbps * capacity_margin)
+            safe_capacity_kbps = min(
+                effective_capacity_kbps * float(profile["capacity_discount"]),
+                ewma_capacity_kbps * capacity_margin,
+            )
             target_quality = _highest_quality_for_capacity(safe_capacity_kbps)
 
             if target_quality < quality:
                 next_quality = target_quality
-            elif target_quality > quality and buffer_s >= 4.0:
-                next_quality = min(target_quality, quality + 1)
+            elif target_quality > quality and buffer_s >= float(profile["upgrade_buffer_s"]):
+                next_quality = min(target_quality, quality + int(profile["max_upgrade_step"]))
             else:
                 next_quality = quality
+            next_quality = max(
+                int(profile.get("min_quality", 0)),
+                min(int(profile.get("max_quality", len(VIDEO_BITRATES_KBPS) - 1)), next_quality),
+            )
 
             state_rows.append({
                 "timestamp_s": str(timestamp),
                 "ue_id": ue_id,
+                "demand_class": profile["demand_class"],
                 "serving_gnb": record["serving_gnb"],
                 "active_ues_same_gnb": active_users,
                 "raw_feedback_timestamp_s": str(record["latest_time"]),
@@ -147,8 +287,21 @@ def export_raw_radio(
         raise ValueError("snapshot_period_s must be positive")
     if not 0 < rb_budget_ratio <= 1:
         raise ValueError("rb_budget_ratio must be in (0, 1]")
-    if previous_quality_mode not in {"constant", "deterministic_controller"}:
-        raise ValueError("previous_quality_mode must be 'constant' or 'deterministic_controller'")
+    if previous_quality_mode not in {
+        "constant",
+        "deterministic_controller",
+        "deterministic_controller_heterogeneous",
+        "deterministic_controller_family_divergence",
+        "deterministic_controller_seg01_targeted",
+        "deterministic_controller_seg01_targeted_mild",
+    }:
+        raise ValueError(
+            "previous_quality_mode must be 'constant', "
+            "'deterministic_controller', 'deterministic_controller_heterogeneous', "
+            "'deterministic_controller_family_divergence', or "
+            "'deterministic_controller_seg01_targeted', or "
+            "'deterministic_controller_seg01_targeted_mild'"
+        )
     if not 0 <= previous_quality < 6:
         raise ValueError("previous_quality must be in [0, 5]")
 
@@ -241,10 +394,40 @@ def export_raw_radio(
         previous_quality_by_key, quality_state_rows = _derive_quality_states(
             snapshot_records,
             snapshot_period_s,
+            heterogeneous_profiles=(
+                previous_quality_mode == "deterministic_controller_heterogeneous"
+            ),
+            family_divergence_profiles=(
+                previous_quality_mode == "deterministic_controller_family_divergence"
+            ),
+            seg01_targeted_window_mode=(
+                "hard"
+                if previous_quality_mode == "deterministic_controller_seg01_targeted"
+                else "mild"
+                if previous_quality_mode == "deterministic_controller_seg01_targeted_mild"
+                else None
+            ),
         )
-        previous_quality_source = (
-            "deterministic_adaptation_controller_from_radio_capacity_and_cell_load"
-        )
+        if previous_quality_mode == "deterministic_controller_heterogeneous":
+            previous_quality_source = (
+                "deterministic_heterogeneous_adaptation_controller_from_radio_capacity_and_cell_load"
+            )
+        elif previous_quality_mode == "deterministic_controller_seg01_targeted":
+            previous_quality_source = (
+                "deterministic_seg01_targeted_quality_divergence_controller_from_radio_capacity_and_cell_load"
+            )
+        elif previous_quality_mode == "deterministic_controller_seg01_targeted_mild":
+            previous_quality_source = (
+                "deterministic_seg01_targeted_mild_quality_divergence_controller_from_radio_capacity_and_cell_load"
+            )
+        elif previous_quality_mode == "deterministic_controller_family_divergence":
+            previous_quality_source = (
+                "deterministic_family_divergence_adaptation_controller_from_radio_capacity_and_cell_load"
+            )
+        else:
+            previous_quality_source = (
+                "deterministic_adaptation_controller_from_radio_capacity_and_cell_load"
+            )
 
     user_rows: list[dict] = []
     rb_rows: list[dict] = []
@@ -293,7 +476,7 @@ def export_raw_radio(
     ], rb_rows)
     if quality_state_rows:
         _write_csv(out_dir / "quality_state.csv", [
-            "timestamp_s", "ue_id", "serving_gnb", "active_ues_same_gnb",
+            "timestamp_s", "ue_id", "demand_class", "serving_gnb", "active_ues_same_gnb",
             "raw_feedback_timestamp_s", "achievable_kbps_if_all_budget_assigned",
             "effective_capacity_kbps", "ewma_capacity_kbps", "buffer_s",
             "previous_quality", "next_quality", "stalled",
@@ -322,18 +505,76 @@ def export_raw_radio(
         ),
         "collapsed_same_bin_duplicates": collapsed_duplicates,
     }
-    if previous_quality_mode == "deterministic_controller":
+    if previous_quality_mode in {
+        "deterministic_controller",
+        "deterministic_controller_heterogeneous",
+        "deterministic_controller_family_divergence",
+        "deterministic_controller_seg01_targeted",
+        "deterministic_controller_seg01_targeted_mild",
+    }:
         metadata["quality_controller"] = {
-            "type": "ewma_buffer_adaptation",
+            "type": (
+                "ewma_buffer_adaptation_seg01_targeted_mild"
+                if previous_quality_mode == "deterministic_controller_seg01_targeted_mild"
+                else
+                "ewma_buffer_adaptation_seg01_targeted"
+                if previous_quality_mode == "deterministic_controller_seg01_targeted"
+                else
+                "ewma_buffer_adaptation_family_divergence"
+                if previous_quality_mode == "deterministic_controller_family_divergence"
+                else
+                "ewma_buffer_adaptation_heterogeneous"
+                if previous_quality_mode == "deterministic_controller_heterogeneous"
+                else "ewma_buffer_adaptation"
+            ),
             "bitrates_kbps": list(VIDEO_BITRATES_KBPS),
             "effective_capacity_rule": (
                 "sum(top rb_available per-band rates) divided by active UE count "
                 "in the same (timestamp, serving_gnb) snapshot"
             ),
-            "ewma_rule": "0.65 * previous + 0.35 * current effective capacity",
+            "ewma_rule": (
+                "per-UE alpha profile; uniform mode uses 0.65 * previous + 0.35 * current"
+            ),
             "buffer_range_s": [0.0, 12.0],
-            "initial_quality": 1,
-            "initial_buffer_s": 2.0,
+            "initial_quality": (
+                {"high_anchor": 2, "low_anchor": 1, "bridge": 1}
+                if previous_quality_mode == "deterministic_controller_seg01_targeted_mild"
+                else
+                {"high_anchor": 3, "low_anchor": 0, "bridge": 1}
+                if previous_quality_mode == "deterministic_controller_seg01_targeted"
+                else
+                {"high_anchor": 3, "low_anchor": 0, "bridge": 1}
+                if previous_quality_mode == "deterministic_controller_family_divergence"
+                else
+                {"conservative": 0, "balanced": 1, "aggressive": 2}
+                if previous_quality_mode == "deterministic_controller_heterogeneous"
+                else 1
+            ),
+            "initial_buffer_s": (
+                {"high_anchor": 4.2, "low_anchor": 2.1, "bridge": 2.4}
+                if previous_quality_mode == "deterministic_controller_seg01_targeted_mild"
+                else
+                {"high_anchor": 5.4, "low_anchor": 1.0, "bridge": 2.4}
+                if previous_quality_mode == "deterministic_controller_seg01_targeted"
+                else
+                {"high_anchor": 5.4, "low_anchor": 1.0, "bridge": 2.4}
+                if previous_quality_mode == "deterministic_controller_family_divergence"
+                else
+                {"conservative": 3.2, "balanced": 2.0, "aggressive": 1.1}
+                if previous_quality_mode == "deterministic_controller_heterogeneous"
+                else 2.0
+            ),
+            "quality_bounds": (
+                {"high_anchor": [2, 2], "low_anchor": [1, 1], "bridge": [1, 3], "target_window_s": [43.7, 43.9]}
+                if previous_quality_mode == "deterministic_controller_seg01_targeted_mild"
+                else
+                {"high_anchor": [3, 5], "low_anchor": [0, 0], "bridge": [1, 3], "target_window_s": [43.7, 43.9]}
+                if previous_quality_mode == "deterministic_controller_seg01_targeted"
+                else
+                {"high_anchor": [2, 5], "low_anchor": [0, 1], "bridge": [1, 3]}
+                if previous_quality_mode == "deterministic_controller_family_divergence"
+                else [0, 5]
+            ),
         }
     (out_dir / "export_metadata.json").write_text(
         json.dumps(metadata, indent=2) + "\n", encoding="utf-8"

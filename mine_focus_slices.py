@@ -19,11 +19,20 @@ def _to_float(row: dict[str, str], key: str, default: float = 0.0) -> float:
     return float(value)
 
 
-def load_rows(audit_csv: Path) -> list[dict]:
+def load_rows(
+    audit_csv: Path,
+    *,
+    target_ue_ids: str | None = None,
+    target_serving_gnb: str | None = None,
+) -> list[dict]:
     with audit_csv.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
         rows = []
         for row in reader:
+            if target_ue_ids is not None and row.get("ue_ids") != target_ue_ids:
+                continue
+            if target_serving_gnb is not None and row.get("serving_gnb") != target_serving_gnb:
+                continue
             row["timestamp_s"] = _to_float(row, "timestamp_s")
             row["user_count"] = int(_to_float(row, "user_count"))
             row["teacher_group_count"] = int(_to_float(row, "teacher_group_count"))
@@ -202,9 +211,25 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--audit-csv", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument(
+        "--target-ue-ids",
+        type=str,
+        default=None,
+        help="Optional exact ue_ids family filter (for example: 0|1|15|2|3|4|5).",
+    )
+    parser.add_argument(
+        "--target-serving-gnb",
+        type=str,
+        default=None,
+        help="Optional exact serving_gnb filter paired with --target-ue-ids.",
+    )
     args = parser.parse_args()
 
-    rows = load_rows(args.audit_csv)
+    rows = load_rows(
+        args.audit_csv,
+        target_ue_ids=args.target_ue_ids,
+        target_serving_gnb=args.target_serving_gnb,
+    )
     segments = find_segments(rows)
     segment_rows = summarize_segments(segments)
     candidate_rows = propose_temporal_slices(rows, segments)

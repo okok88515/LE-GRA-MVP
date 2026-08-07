@@ -1,0 +1,2 @@
+ue_ids,serving_gnb,scenario_count,user_count,max_teacher_gain_vs_single,max_cqi_range,max_resource_cost_range,max_previous_quality_range,first_time_s,last_time_s
+0|1|2|3|4,gnb_2,40,5,0.000000000000,6.0,1.000000,2.0,17.0,20.9

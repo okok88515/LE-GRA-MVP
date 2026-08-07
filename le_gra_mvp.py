@@ -707,6 +707,70 @@ def candidate_conditioned_membership_targets(
     return target, weights
 
 
+def candidate_frontier_contrast_targets(
+    scenario: Scenario,
+    groups: list[list[int]],
+    *,
+    candidate_top_k: int = 2,
+    negative_top_k: int = 2,
+    secondary_scale: float = 2.0,
+    negative_scale: float = 1.0,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Build localized candidate-vs-confuser targets for weak-score ranking.
+
+    Positives are the teacher hardest group's top resource-cost candidates.
+    Negatives are the nearest plausible confusers:
+
+    - first, non-candidate users inside the teacher hardest group;
+    - then, highest-cost users outside the candidate set if more negatives are
+      still needed.
+
+    This gives the learner an explicit local ranking signal for
+    `{primary, secondary}` vs nearby alternatives such as the old `ue15-only`
+    frontier.
+    """
+
+    n_users = len(scenario.cqi_now)
+    positive_weights = np.zeros(n_users, dtype=np.float32)
+    negative_weights = np.zeros(n_users, dtype=np.float32)
+    if candidate_top_k <= 0 or negative_top_k <= 0:
+        return positive_weights, negative_weights
+
+    ordered_groups = teacher_group_difficulty_order(scenario, groups)
+    if not ordered_groups:
+        return positive_weights, negative_weights
+    hard_group = groups[ordered_groups[0]]
+    if not hard_group:
+        return positive_weights, negative_weights
+
+    user_costs = user_resource_cost_vector(scenario.rb_rates).mean(axis=1)
+    ranked_hard_members = sorted(
+        hard_group,
+        key=lambda idx: (float(user_costs[idx]), -idx),
+        reverse=True,
+    )
+    candidate_members = ranked_hard_members[:candidate_top_k]
+    for rank, user_idx in enumerate(candidate_members):
+        positive_weights[user_idx] = float(secondary_scale if rank == 1 else 1.0)
+
+    hard_non_candidates = [
+        idx for idx in ranked_hard_members
+        if idx not in candidate_members
+    ]
+    all_non_candidates = sorted(
+        (
+            idx for idx in range(n_users)
+            if idx not in candidate_members and idx not in hard_non_candidates
+        ),
+        key=lambda idx: (float(user_costs[idx]), -idx),
+        reverse=True,
+    )
+    negative_members = (hard_non_candidates + all_non_candidates)[:negative_top_k]
+    for rank, user_idx in enumerate(negative_members):
+        negative_weights[user_idx] = float(secondary_scale if rank == 0 else negative_scale)
+    return positive_weights, negative_weights
+
+
 def prioritize_pairs(
     priority_pairs: list[tuple[int, int]],
     fallback_pairs: list[tuple[int, int]],
@@ -905,6 +969,8 @@ class MLPEncoder:
         hard_group_target: np.ndarray | None = None,
         candidate_target: np.ndarray | None = None,
         candidate_target_weights: np.ndarray | None = None,
+        frontier_positive_weights: np.ndarray | None = None,
+        frontier_negative_weights: np.ndarray | None = None,
         margin: float = 1.0,
         pair_sampling: str = "random_balanced",
         max_pairs_per_class: int = 160,
@@ -912,6 +978,8 @@ class MLPEncoder:
         prototype_weight: float = 0.0,
         membership_weight: float = 0.0,
         candidate_membership_weight: float = 0.0,
+        frontier_contrast_weight: float = 0.0,
+        frontier_margin: float = 0.0,
     ) -> float:
         """One scenario-level contrastive training step.
 
@@ -1090,6 +1158,29 @@ class MLPEncoder:
                 dweak_logits += candidate_membership_weight * (weight_mask * (probs - target))
                 candidate_membership_terms = int(np.sum(active))
 
+        frontier_contrast_terms = 0
+        if (
+            frontier_positive_weights is not None
+            and frontier_negative_weights is not None
+            and frontier_contrast_weight > 0.0
+        ):
+            positive_indices = np.where(frontier_positive_weights > 0.0)[0]
+            negative_indices = np.where(frontier_negative_weights > 0.0)[0]
+            if len(positive_indices) > 0 and len(negative_indices) > 0:
+                for pos_idx in positive_indices:
+                    for neg_idx in negative_indices:
+                        pair_weight = float(
+                            frontier_positive_weights[pos_idx] * frontier_negative_weights[neg_idx]
+                        )
+                        gap = float(weak_logits[pos_idx, 0] - weak_logits[neg_idx, 0])
+                        if gap < frontier_margin:
+                            diff = frontier_margin - gap
+                            loss += frontier_contrast_weight * pair_weight * diff**2
+                            grad = frontier_contrast_weight * pair_weight * -2.0 * diff
+                            dweak_logits[pos_idx, 0] += grad
+                            dweak_logits[neg_idx, 0] -= grad
+                        frontier_contrast_terms += 1
+
         if not pairs:
             return 0.0
         normalizer = (
@@ -1098,6 +1189,7 @@ class MLPEncoder:
             + prototype_negative_terms
             + membership_terms
             + candidate_membership_terms
+            + frontier_contrast_terms
         )
         loss /= normalizer
         dz /= normalizer
@@ -1112,6 +1204,19 @@ class MLPEncoder:
             float(np.mean(candidate_target_weights[candidate_target_weights > 0.0]))
             if candidate_target_weights is not None and np.any(candidate_target_weights > 0.0)
             else float("nan")
+        )
+        self.last_pair_stats["frontier_contrast_terms"] = float(frontier_contrast_terms)
+        self.last_pair_stats["frontier_contrast_weight"] = float(frontier_contrast_weight)
+        self.last_pair_stats["frontier_margin"] = float(frontier_margin)
+        self.last_pair_stats["frontier_positive_count"] = (
+            float(np.sum(frontier_positive_weights > 0.0))
+            if frontier_positive_weights is not None
+            else 0.0
+        )
+        self.last_pair_stats["frontier_negative_count"] = (
+            float(np.sum(frontier_negative_weights > 0.0))
+            if frontier_negative_weights is not None
+            else 0.0
         )
         self.last_pair_stats["mean_weak_score"] = float(np.mean(weak_probs))
 

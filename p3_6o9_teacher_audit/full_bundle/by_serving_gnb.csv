@@ -1,0 +1,3 @@
+serving_gnb,scenario_count,multi_group_count,multi_group_ratio,mean_teacher_group_count,mean_teacher_gain_vs_single,max_teacher_gain_vs_single
+gnb_1,430,3,0.0069767441860465115,1.0069767441860464,0.00039878652658405705,0.05715940214371462
+gnb_2,400,1,0.0025,1.0025,3.1593113957851524e-05,0.012637245583141055

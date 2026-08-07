@@ -318,6 +318,10 @@ def main() -> None:
                 str(audit_root / "full_bundle" / "scenario_teacher_decisions.csv"),
                 "--out-dir",
                 str(focus_root),
+                "--target-ue-ids",
+                ue_ids,
+                "--target-serving-gnb",
+                serving_gnb,
             ]
         )
 

@@ -1,6 +1,6 @@
 # LE-GRA Research Session Handoff
 
-Last updated: 2026-08-06
+Last updated: 2026-08-07
 
 This document is the continuity note for resuming the LE-GRA discussion in a
 new Codex task or on another computer. After pulling the repository, ask Codex
@@ -3810,3 +3810,947 @@ Updated best next direction:
     `{ue15, ue4}` vs `ue15-only`
 - if imposing a research stop-loss, this is now a reasonable point to summarize
   that minimal learner-side local tweaks are insufficient on `m4b`
+
+## Latest Minimal Joint Supervision on `m4b`: `P3.6m-25`
+
+Formal write-up:
+
+- `P3_6M_25_MINIMAL_JOINT_SUPERVISION_ZH.md`
+
+Purpose:
+
+- stop testing the three learner-side hooks in isolation
+- combine the currently available minimal mechanisms into one focused protocol:
+  - boundary-aware replay
+  - candidate-conditioned weak-group supervision
+  - boundary-aware pair construction
+- test only the main `m4b` dual-weak regime, not a larger matrix
+
+Implementation:
+
+- `run_p3_6g_temporal_learner.py`
+  - added `--joint-supervision-mode`
+  - added preset:
+    - `m4b_minimal_joint_v1`
+  - this preset applies:
+    - `pair_sampling = teacher_boundary`
+    - `supervision_weight_mode = teacher_candidate_boundary`
+    - `candidate_top_k = 2`
+    - `candidate_membership_weight >= 4.0`
+    - `candidate_secondary_scale >= 4.0`
+    - `boundary_support_repeat >= 16`
+    - `boundary_support_positive_only = true`
+    - default `boundary_support_start = 43.4` if unset
+- also added:
+  - `weak_group_prediction_audit.csv`
+- this audit records:
+  - teacher hardest-group signature
+  - teacher candidate signature
+  - learner weak-score top-k
+  - secondary weak candidate rank
+  - candidate hit count
+
+Focused run:
+
+- output:
+  - `p3_6m25_m4b_minimal_joint_supervision_v1/`
+- regime:
+  - bundle: `p3_6m4b_threshold_nudge_bundle/bundle`
+  - family: `0|1|15|2|3|4|5 @ gnb_1`
+  - train end: `43.6`
+  - test: `43.7 ~ 43.9`
+  - restart seeds: `7 9 11`
+  - background train limit: `150`
+
+Critical result:
+
+- the minimal joint version still does **not** move the holdout
+- main comparison remains:
+  - `teacher = 0.579609048805`
+  - `LE-GRA = 0.579083105194`
+  - `CQI = 0.579083105194`
+- selected restart seed remains `9`
+- support-side remains perfect:
+  - `support_pairwise = 1.0`
+  - `support_ari = 1.0`
+  - `support_nmi = 1.0`
+  - `support_utility_gap = 0.0`
+
+Most important new insight:
+
+- the new weak-group audit localizes the failure more precisely
+- on the real holdout points `43.7 / 43.8 / 43.9`:
+  - teacher candidate signature is `15|4`
+  - learner predicted top-2 is `15|1`
+  - `ue4` falls to `predicted_secondary_rank = 7`
+- so this is **not** a case where the learner already ranks `ue4` correctly but
+  loses later in grouping/DP
+- the failure is earlier:
+  - the current representation/supervision still does not pull `ue4` into the
+    weak-candidate frontier at all
+
+Current practical conclusion:
+
+- this is a stronger stop-loss point than `P3.6m-24`
+- replay-only was insufficient
+- candidate-BCE-only was insufficient
+- pair-only was insufficient
+- and even the minimal joint combination is still insufficient on `m4b`
+
+Updated best next direction:
+
+- do **not** continue with more replay-only / weight-only / pair-only micro-tweaks
+- the next meaningful step should move to:
+  - stronger localized hard negatives that explicitly contrast
+    `{ue15, ue4}` vs `ue15-only`
+  - or a more structural redesign of the learner-side supervision / representation
+
+## Latest Localized Hard Negatives + Inference Bridge: `P3.6m-26`
+
+Formal write-up:
+
+- `P3_6M_26_LOCALIZED_HARD_NEGATIVE_AND_INFERENCE_BRIDGE_ZH.md`
+
+Purpose:
+
+- move beyond minimal joint weighting and add a stronger local ranking signal
+- explicitly force the teacher weak candidates to outrank nearby confusers
+- immediately test whether the remaining bottleneck is actually learner quality
+  or an inference mismatch between the trained weak head and the final grouping path
+
+Implementation:
+
+- `le_gra_mvp.py`
+  - added `candidate_frontier_contrast_targets(...)`
+  - added a localized frontier contrast loss inside `MLPEncoder.train_step(...)`
+  - this loss pushes teacher candidates above local confusers in weak-logit space
+- `run_p3_6_coupled_learner.py`
+  - threaded:
+    - `frontier_contrast_weight`
+    - `frontier_negative_top_k`
+    - `frontier_margin`
+  - recorded frontier diagnostics into output CSVs
+- `run_p3_6g_temporal_learner.py`
+  - added joint mode:
+    - `m4b_localized_hard_negative_v1`
+
+Phase A: localized hard negatives with the old inference path
+
+- output:
+  - `p3_6m26_m4b_localized_hard_negative_v1/`
+- regime:
+  - same `m4b` focused setup
+  - grouping still:
+    - `kmeans_embedding`
+
+Critical result from Phase A:
+
+- main utility still does **not** move:
+  - `teacher = 0.579609048805`
+  - `LE-GRA = 0.579083105194`
+- however the new weak-group audit changes dramatically:
+  - on `43.7 / 43.8 / 43.9`
+  - teacher candidate signature = `15|4`
+  - learner predicted top-2 also becomes `15|4`
+  - `ue4` rank improves from `7` to `2`
+
+Most important interpretation from Phase A:
+
+- this is the first strong evidence that the learner can now recover the correct
+  dual-weak frontier
+- therefore the remaining failure is no longer well-described as
+  "the learner still cannot identify `ue4`"
+
+Phase B: inference-bridge check
+
+- output:
+  - `p3_6m26b_m4b_localized_hard_negative_membership_order/`
+- identical training setup, but evaluation switches to:
+  - `grouping_mode = membership_order`
+
+Critical result from Phase B:
+
+- `LE-GRA` now matches teacher on the focused `m4b` holdout:
+  - `teacher = 0.579609048805`
+  - `LE-GRA = 0.579609048805`
+
+Most important new conclusion:
+
+- the bottleneck is now much more specifically localized:
+  - localized hard-negative supervision can fix the weak ranking
+  - but the old `embedding -> kmeans` inference path does not automatically use
+    that repaired weak-boundary signal
+- in other words, a major part of the previous plateau was an
+  **inference mismatch**, not purely a supervision failure
+
+Current practical conclusion:
+
+- this is a real breakthrough, not just another null result
+- the project now has a concrete path that reaches teacher-level behavior on the
+  hardest current `m4b` regime:
+  - localized hard negatives
+  - plus `membership_order` inference
+
+Updated best next direction:
+
+- stop treating the problem as "more local learner-side loss tweaks needed"
+- the next priority should be inference bridging:
+  - compare `membership_order` vs `kmeans_embedding` systematically
+  - test whether the bridge transfers beyond this one regime
+  - if staying with embeddings, investigate hybrid bridging so the weak-head
+    signal influences final group construction
+
+## Latest `membership_order` Focused Transfer Check: `P3.6m-27`
+
+Formal write-up:
+
+- `P3_6M_27_MEMBERSHIP_ORDER_TRANSFER_CHECK_ZH.md`
+
+Purpose:
+
+- verify that the `P3.6m-26` bridge success on `m4b` is not just a
+  3-snapshot average artifact
+- keep the same localized hard-negative training
+- split the main holdout into single-point tests:
+  - `43.7 only`
+  - `43.8 only`
+  - `43.9 only`
+
+Protocol:
+
+- same focused `m4b` regime:
+  - bundle: `p3_6m4b_threshold_nudge_bundle/bundle`
+  - family: `0|1|15|2|3|4|5 @ gnb_1`
+  - train end: `43.6`
+- same training mode:
+  - `joint_supervision_mode = m4b_localized_hard_negative_v1`
+- same inference bridge:
+  - `grouping_mode = membership_order`
+- outputs:
+  - `p3_6m27a_m4b_localized_membership_437_only/`
+  - `p3_6m27b_m4b_localized_membership_438_only/`
+  - `p3_6m27c_m4b_localized_membership_439_only/`
+
+Critical result:
+
+- all three single-point focused checks match the teacher individually
+- so on:
+  - `43.7`
+  - `43.8`
+  - `43.9`
+- `LE-GRA = teacher`
+
+Most important interpretation:
+
+- the `membership_order` breakthrough on `m4b` is not a pooled-average accident
+- it is stable across the full main holdout segment, point by point
+- this substantially strengthens the inference-bridge conclusion from
+  `P3.6m-26`
+
+Current practical conclusion:
+
+- the project now has a focused, repeatable teacher-matching path on the
+  hardest current `m4b` regime
+- the next question is no longer "does this work at all on `m4b`?"
+- it is:
+  - how far does the bridge transfer beyond this focused regime?
+
+## Latest Cross-Regime Transfer Check: `P3.6m-28`
+
+Formal write-up:
+
+- `P3_6M_28_CROSS_REGIME_TRANSFER_TO_M2_ZH.md`
+
+Purpose:
+
+- begin the real phase-2 transfer check beyond the `m4b` main regime
+- test whether the new successful path:
+  - localized hard negatives
+  - plus `membership_order`
+- is stable outside `m4b`, or is only a regime-specific fix
+
+Protocol:
+
+- bundle:
+  - `p3_6m2_positive_family_decoy_bundle/bundle`
+- focus family:
+  - `0|1|15|2|3|4|5 @ gnb_1`
+- train end:
+  - `43.7`
+- test window:
+  - `43.8 ~ 43.9`
+- training mode:
+  - `joint_supervision_mode = m4b_localized_hard_negative_v1`
+- inference bridge:
+  - `grouping_mode = membership_order`
+- output:
+  - `p3_6m28_m2_localized_hard_negative_membership_order/`
+
+Critical result:
+
+- on `m2`, `LE-GRA` still matches the teacher exactly:
+  - `teacher = 0.579609048805`
+  - `LE-GRA = 0.579609048805`
+- baselines remain slightly below:
+  - `CQI / resource-cost / multi-feature = 0.579083105194`
+
+Weak-group audit result:
+
+- on both focused holdout points:
+  - `43.8`
+  - `43.9`
+- the audit shows:
+  - `teacher_candidate_signature = 15|4`
+  - `predicted_topk_signature = 15|4`
+  - full candidate hit count = `2`
+
+Most important interpretation:
+
+- the `m4b` breakthrough is not isolated to one regime
+- the new supervision + bridge path transfers cleanly to at least one sibling
+  focused regime without regression
+- this strengthens the view that:
+  - localized hard negatives repair the weak frontier
+  - `membership_order` can reliably expose that repaired signal at inference
+
+Current practical conclusion:
+
+- we now have evidence for:
+  - regime-specific success on `m4b`
+  - plus first cross-regime stability on `m2`
+- the next phase-2 question should no longer be "does it transfer at all?"
+- it should be:
+  - which regimes are already easy
+  - which regimes specifically need the bridge
+  - and where the next genuinely unsolved mismatch still lives
+
+## Latest Focused Regime Classification: `P3.6m-29`
+
+Formal write-up:
+
+- `P3_6M_29_REGIME_CLASSIFICATION_ZH.md`
+
+Purpose:
+
+- convert the current phase-2 transfer results into a cleaner regime taxonomy
+- avoid continuing to over-tune already-solved regimes
+- identify whether the project's next bottleneck is:
+  - more learner tweaks
+  - more inference bridging
+  - or simply missing regime discovery
+
+Classification summary:
+
+- `m2`:
+  - easy / already-solvable
+  - old `kmeans_embedding` already matches teacher on focused holdouts
+  - new localized-hard-negative + `membership_order` path also transfers there
+    without regression
+- `m4b`:
+  - bridge-needed
+  - old `kmeans_embedding` remains stuck at the baseline plateau
+  - localized hard negatives repair the weak frontier
+  - `membership_order` is required to expose that repaired signal and recover
+    teacher-level utility
+- current status of a third class:
+  - no additional focused family has yet been validated as a new genuinely
+    unsolved regime
+
+Most important interpretation:
+
+- the project now has at least two clearly distinct regime types:
+  - already-solvable
+  - bridge-needed
+- but the next major gap is not better tuning inside `m2` or `m4b`
+- it is finding the next informative family that is neither trivially easy nor
+  already resolved by the current bridge path
+
+Current best next step:
+
+- move into focused regime mining / family discovery
+- for each candidate family, do a minimal triage:
+  - does old `kmeans_embedding` already solve it?
+  - if not, does `membership_order` solve it?
+  - if still not, then elevate it as the next genuinely unsolved regime
+
+## Latest Family-Bank Filter Fix And Triage: `P3.6m-30`
+
+Formal write-up:
+
+- `P3_6M_30_FAMILY_BANK_FILTER_FIX_AND_TRIAGE_ZH.md`
+
+Bug found:
+
+- the original `p3_6m_family_bank/` focus-mining outputs were polluted because
+  `run_p3_6m_family_bank.py` called `mine_focus_slices.py` on the full audit CSV
+  without filtering to the target family
+- consequence:
+  - several different family outputs shared identical
+    `candidate_temporal_slices.csv`
+  - and identical `positive_segments.csv`
+
+Fix implemented:
+
+- `mine_focus_slices.py`
+  - now accepts:
+    - `--target-ue-ids`
+    - `--target-serving-gnb`
+  - and filters rows before segment mining
+- `run_p3_6m_family_bank.py`
+  - now passes the target family filter through to `mine_focus_slices.py`
+
+Validation:
+
+- reran the batch to:
+  - `p3_6m_family_bank_filtered/`
+
+Critical result after the fix:
+
+- among the filtered top-5 family bank candidates, only the known
+  `0|1|15|2|3|4|5 @ gnb_1` family still has:
+  - nonzero `target_positive_gain_count`
+  - nonempty focused temporal slices
+- the other candidate families collapse to:
+  - zero target-positive gain
+  - empty `candidate_temporal_slices.csv`
+
+Most important interpretation:
+
+- the current family bank does **not** yet provide a third informative focused
+  regime beyond the already-known `m4b`
+- this means the next bottleneck is no longer learner tweaking inside the
+  existing bank
+- it is finding or generating a new scenario/ranking source with genuinely new
+  informative families
+
+Current best next step:
+
+- do not keep mining the same bank blindly
+- instead move to one of:
+  - new scenario-source generation
+  - stronger near-miss mining
+  - ranking criteria that explicitly reward sustained target-positive gain
+
+## Latest `gnb_2` Regime-Generation Breakthrough: `P3.6n-1 ~ P3.6n-3`
+
+Formal write-up:
+
+- `P3_6N_1_TO_3_GNB2_UE5_ISOLATION_REDESIGN_ZH.md`
+
+Purpose:
+
+- stop relying only on already-existing positive regimes
+- turn a high-structure near-miss family into a new teacher-positive focused
+  regime
+- use the top redesign target:
+  - `3|4|5|6 @ gnb_2`
+
+Variants built:
+
+- `build_p3_6n1_quality_gap_bundle.py`
+  - output:
+    - `p3_6n1_quality_gap_bundle/`
+  - continuity / previous-quality gap only
+- `build_p3_6n2_quality_gap_pressure_bundle.py`
+  - output:
+    - `p3_6n2_quality_gap_pressure_bundle/`
+  - continuity gap + moderate pressure + extra `ue5` weakening
+- `build_p3_6n3_isolate_ue5_bundle.py`
+  - output:
+    - `p3_6n3_isolate_ue5_bundle/`
+  - stronger `ue5` isolation pressure
+
+Critical progression:
+
+- `n1`:
+  - still no positive segment
+- `n2`:
+  - still no positive segment
+  - but best non-single split gap improves strongly toward zero
+  - and the preferred split stabilizes as:
+    - `[[0,1,3],[2]]`
+    - i.e. isolate `ue5`
+- `n3`:
+  - breakthrough
+  - on `25.8s ~ 29.9s`, teacher now consistently chooses:
+    - `teacher_group_count = 2`
+    - `teacher_groups = [[0,1,3],[2]]`
+  - with stable positive gain:
+    - `teacher_gain_vs_single = 0.079451741871`
+
+Focused mining result on `n3`:
+
+- `p3_6n3_focus_mining/`
+- `positive_segment_count = 1`
+- `candidate_temporal_slice_count = 41`
+- `near_miss_family_count = 0`
+
+Most important interpretation:
+
+- this is the first confirmed new teacher-positive focused regime source beyond
+  the old `m4b` line
+- it was not found by passive mining alone; it was created through targeted
+  regime redesign
+- the resulting split structure is clean and stable:
+  - isolate `ue5`
+  - group the rest together
+
+Current best next step:
+
+- treat `p3_6n3_isolate_ue5_bundle` as the next focused learner target
+- run learner-side focused validation there first:
+  - old `kmeans_embedding`
+  - `membership_order`
+  - compare whether this new regime is:
+    - easy
+    - bridge-needed
+    - or a new genuinely unsolved learner regime
+
+## Latest Focused Learner Triage On `n3`: `P3.6n-4`
+
+Formal write-up:
+
+- `P3_6N_4_FOCUSED_LEARNER_TRIAGE_ON_N3_ZH.md`
+
+Protocol:
+
+- bundle:
+  - `p3_6n3_isolate_ue5_bundle/bundle`
+- focus family:
+  - `3|4|5|6 @ gnb_2`
+- balanced split:
+  - `train end = 27.8`
+  - `test = 27.9 ~ 29.9`
+- compared:
+  - old `kmeans_embedding`
+  - `membership_order`
+
+Outputs:
+
+- `p3_6n3a_baseline_kmeans/`
+- `p3_6n3b_baseline_membership_order/`
+
+Critical result:
+
+- both runs give the same final outcome:
+  - `Offline teacher = 0.460388133563`
+  - `LE-GRA MVP = 0.460388133563`
+  - `Resource-cost = Multi-feature = 0.460388133563`
+  - `CQI = 0.456624985427`
+
+Interpretation:
+
+- `n3` is a successful new teacher-positive regime source
+- but it is **not** a new learner-hard regime
+- old `kmeans_embedding` already solves it
+- `membership_order` is not additionally required
+
+Updated regime taxonomy:
+
+- `m2`:
+  - easy / already-solvable
+- `m4b`:
+  - bridge-needed
+- `n3`:
+  - newly generated positive regime
+  - but still easy
+
+Current best next step:
+
+- do not spend more learner-tweak budget on `n3` as-is
+- instead redesign beyond one-vs-rest isolation:
+  - introduce a second near-weak user
+  - create ambiguous weak ordering
+  - or otherwise make the positive regime less trivially separable
+- the goal should be turning `n3` from:
+  - positive-but-easy
+  into:
+  - positive-and-bridge-needed
+
+## Latest Temporal-Swap Regime: `P3.6n-5`
+
+Formal write-up:
+
+- `P3_6N_5_TEMPORAL_SWAP_TRIAGE_ZH.md`
+
+Bundle / outputs:
+
+- bundle:
+  - `p3_6n5_temporal_swap_bundle/bundle`
+- teacher audit:
+  - `p3_6n5_teacher_audit/`
+- focus mining:
+  - `p3_6n5_focus_mining/`
+- focused learner holdout:
+  - `p3_6n5a_kmeans_swap_holdout/`
+  - `p3_6n5b_membership_swap_holdout/`
+
+What changed:
+
+- started from `n3`
+- kept the early `ue5-only` weak regime
+- from `27.9s` onward, weakened `ue4` and partially recovered `ue5`
+- intent:
+  - create temporal weak-order ambiguity
+  - make teacher switch from `ue5-only` to `{ue4, ue5}`
+
+Teacher result:
+
+- `25.8s ~ 27.8s`:
+  - teacher split = `[[0, 1, 3], [2]]`
+  - semantic meaning:
+    - isolate `ue5`
+  - `teacher_gain_vs_single = 0.07945174187052606`
+- `27.9s ~ 28.3s`:
+  - teacher split = `[[0, 3], [1, 2]]`
+  - semantic meaning:
+    - weak pair becomes `{ue4, ue5}`
+  - `teacher_gain_vs_single = 0.007212230576617407`
+- `28.4s ~ 29.9s`:
+  - teacher falls back to single-group
+
+Interpretation:
+
+- this is the first focused regime in this line where teacher grouping clearly
+  changes across time inside the same family
+- however, the late weak-pair regime is still:
+  - short
+  - weak-gain
+  - and too easy for simple baselines
+
+Focused learner triage:
+
+- holdout protocol:
+  - train end = `27.8`
+  - test = `27.9 ~ 28.3`
+- both `kmeans_embedding` and `membership_order` produce the same result:
+  - No grouping = `0.43093639169248765`
+  - CQI = `0.438148622269105`
+  - Resource-cost = `0.438148622269105`
+  - Multi-feature = `0.438148622269105`
+  - Offline teacher = `0.438148622269105`
+  - LE-GRA MVP = `0.438148622269105`
+
+Bottom line:
+
+- `n5` is structurally more interesting than `n3`
+- but it is still not a new bridge-needed regime
+- the next redesign should preserve the temporal/pair structure while making
+  the weak pair less trivially separable from simple features
+
+## Latest Failure Boundary: `P3.6n-6`
+
+Formal write-up:
+
+- `P3_6N_6_MASKED_PAIR_FAILURE_ZH.md`
+
+Bundle / outputs:
+
+- bundle:
+  - `p3_6n6_masked_pair_bundle/bundle`
+- teacher audit:
+  - `p3_6n6_teacher_audit/`
+- focus mining:
+  - `p3_6n6_focus_mining/`
+
+What changed:
+
+- started from `n5`
+- forced late-window `rb_available = 3`
+- kept `ue4` / `ue5` as rate-weakened pair
+- but compressed simple feature separability by:
+  - setting all four target UEs to `previous_quality = 3`
+  - pulling `ue4` / `ue5` CQI back toward the middle
+
+Critical result:
+
+- overall audit still shows positive scenarios because the early `ue5-only`
+  segment from `n5` remains
+- but on the actual late target window `27.9s ~ 29.9s`:
+  - teacher returns to single-group for all 21 target scenarios
+  - positive count = `0 / 21`
+
+Interpretation:
+
+- this gives us an important boundary condition:
+  - if we mask the late weak pair too aggressively, teacher no longer wants to
+    split
+- therefore this family's positive regime still depends on a visible quality
+  gap, not just hidden rate / resource pressure
+
+Current best next step:
+
+- do not keep pushing fully masked variants
+- move to a partial-masking redesign:
+  - keep some visible quality gap
+  - extend late weak-pair duration
+  - increase late positive gain
+  - only then test whether baseline separability starts to break
+
+## Latest O-Series Family Search And Positive-Family Redesign
+
+Formal write-up:
+
+- `P3_6O_1_TO_7_POSITIVE_FAMILY_REDESIGN_ZH.md`
+
+### O1 ~ O2: new family `2|3|4|5 @ gnb_2`
+
+Outputs:
+
+- `p3_6o1_family_focus/`
+- `build_p3_6o2_primary_weak_bundle.py`
+- `p3_6o2_primary_weak_bundle/`
+- `p3_6o2_teacher_audit/`
+- `p3_6o2_focus_mining/`
+
+Critical result:
+
+- `2|3|4|5 @ gnb_2` on `24.0s ~ 24.9s` did not produce any split structure
+- `o2` remained single-group throughout
+- so this family is currently too weak to justify more local tweaking
+
+### O3 ~ O5: positive family `0|1|2|3|4 @ gnb_2`
+
+Focused audit:
+
+- `p3_6o3_family_focus/`
+
+Base regime:
+
+- `18.7s ~ 19.2s`
+- teacher split = `[[0, 1, 2, 4], [3]]`
+- semantic meaning:
+  - isolate `ue3`
+- `teacher_gain_vs_single = 0.011900924527038947`
+
+Decoy injection results:
+
+- `o4`:
+  - `build_p3_6o4_positive_family_decoy_bundle.py`
+  - light `ue4` decoy
+- `o5`:
+  - `build_p3_6o5_stronger_decoy_bundle.py`
+  - stronger `ue4` boundary decoy
+
+Critical result:
+
+- both `o4` and `o5` preserved the positive-gain basin perfectly
+- but neither changed teacher structure at all
+- the split remained:
+  - `[[0, 1, 2, 4], [3]]`
+
+Interpretation:
+
+- this family has a stable positive-gain basin
+- but weak decoy injection alone is not enough to perturb the structure
+
+### O6: pair-candidate breakthrough with tie-only structure shift
+
+Outputs:
+
+- `build_p3_6o6_pair_candidate_bundle.py`
+- `p3_6o6_pair_candidate_bundle/`
+- `p3_6o6_teacher_audit/`
+- `p3_6o6_focus_mining/`
+
+Critical result:
+
+- `o6` is the first run that actually moved this family away from the old
+  `ue3-only` split
+- teacher switched to tie-utility multigroup structures:
+  - `18.7s ~ 19.1s`: `[[1, 2], [0, 3, 4]]`
+  - `19.2s`: `[[0, 2], [1, 3, 4]]`
+- but:
+  - `teacher_gain_vs_single ≈ 0`
+  - `positive count = 0 / 6`
+  - `multigroup count = 6 / 6`
+
+Interpretation:
+
+- this is an important structural boundary:
+  - the family *can* be perturbed out of `ue3-only`
+  - but the first successful perturbation lands on an arbitrary tie split,
+    not on a useful positive-gain weak pair
+
+### O7: true dual-weak attempt reverts to base positive regime
+
+Outputs:
+
+- `build_p3_6o7_dual_weak_pair_bundle.py`
+- `p3_6o7_dual_weak_pair_bundle/`
+- `p3_6o7_teacher_audit/`
+- `p3_6o7_focus_mining/`
+
+Critical result:
+
+- explicitly turning `ue3` and `ue4` into a dual-weak pair did **not**
+  preserve the `o6` structure shift
+- teacher returned to the original positive-gain split:
+  - `[[0, 1, 2, 4], [3]]`
+- `positive count = 6 / 6`
+
+Bottom line:
+
+- `0|1|2|3|4 @ gnb_2` is now a high-value family because it exposes a clean
+  gain/structure tension:
+  - `o4 / o5 / o7`:
+    - preserve positive gain
+    - but structure stays at `ue3-only`
+  - `o6`:
+    - structure moves
+    - but gain collapses to tie-utility
+
+Current best next step:
+
+- do not go back to broad family search yet
+- stay on `0|1|2|3|4 @ gnb_2`
+- the latest work after `o7` is:
+  - `o8`:
+    - first true `{ue3, ue4}` positive split
+    - but only at `18.7s`
+  - `o9`:
+    - attempted stabilization
+    - did not extend beyond the same single timestamp
+- therefore the new best next step is:
+  - timestamp-neighborhood stabilization around `o8`
+  - not another broad family jump
+
+### O8: localized gain recovery breakthrough
+
+Outputs:
+
+- `build_p3_6o8_gain_recovery_bundle.py`
+- `p3_6o8_gain_recovery_bundle/`
+- `p3_6o8_teacher_audit/`
+- `p3_6o8_focus_mining/`
+
+Critical result:
+
+- `18.7s`:
+  - teacher split = `[[0, 1, 2], [3, 4]]`
+  - semantic meaning:
+    - first true `{ue3, ue4}` weak pair
+  - `teacher_gain_vs_single = 0.012637245583141055`
+- `18.8s ~ 19.2s`:
+  - teacher returns to single-group
+
+Interpretation:
+
+- `o8` is the first successful gain-recovery run after `o6`
+- it proves that the desired `{ue3, ue4}` positive split is reachable on this
+  family
+- but only as a single timestamp seed point so far
+
+### O9: pair stabilization attempt
+
+Outputs:
+
+- `build_p3_6o9_pair_stabilization_bundle.py`
+- `p3_6o9_pair_stabilization_bundle/`
+- `p3_6o9_teacher_audit/`
+- `p3_6o9_focus_mining/`
+
+Critical result:
+
+- `o9` preserved the `o8` breakthrough
+- but did not extend it:
+  - still only `18.7s`
+  - still only one positive target scenario in the `18.7s ~ 19.2s` window
+
+Updated bottleneck:
+
+- we now have a real positive `{ue3, ue4}` split seed
+- but not yet a trainable multi-scenario segment
+- the immediate goal is no longer "find any new structure"
+- it is now:
+  - turn the `o8` seed point into a short stable positive segment
+
+### O10: local smoothing did not extend the seed
+
+Outputs:
+
+- `build_p3_6o10_local_smoothing_bundle.py`
+- `p3_6o10_local_smoothing_bundle/`
+- `p3_6o10_teacher_audit/`
+- `p3_6o10_focus_mining/`
+
+Critical result:
+
+- `18.7s` still gives:
+  - `[[0, 1, 2], [3, 4]]`
+  - `teacher_gain_vs_single = 0.012637245583141055`
+- `18.8s ~ 19.2s` still all collapse to single-group
+- `positive_segment_count = 1`
+- `segment = 18.7s ~ 18.7s`
+
+Interpretation:
+
+- ordinary local smoothing around `o8` is not enough to create a short stable
+  segment
+- the `{ue3, ue4}` positive split is currently a real but very narrow local
+  seed point
+
+Current best next step:
+
+- choose between two tight follow-ups only:
+  - more aggressive timestamp-local shaping around `18.8s`
+  - or accept `o8` as a single-point regime and do ultra-short-window
+    learner-side validation
+
+### O8 ultra-short-window learner validation: signal exists, bridge differs
+
+Ran two focused learner validations on Friday, August 7, 2026:
+
+- bundle:
+  - `p3_6o8_gain_recovery_bundle/bundle`
+- train end:
+  - `18.6`
+- test:
+  - `18.7 ~ 18.7`
+- focus UEs:
+  - `0 1 2 3 4`
+- restart seeds:
+  - `7 9 11`
+
+Outputs:
+
+- `p3_6o8a_ultrashort_kmeans/`
+- `p3_6o8b_ultrashort_membership/`
+
+Observed utility at `18.7s`:
+
+- no-group:
+  - `0.6071841780840183`
+- offline teacher:
+  - `0.6198214236671593`
+- `kmeans_embedding` LE-GRA:
+  - `0.6071841780840183`
+- `membership_order` LE-GRA:
+  - `0.6198214236671593`
+
+Key audit fact:
+
+- both runs hit the correct weak-group candidate signature in
+  `weak_group_prediction_audit.csv`:
+  - teacher:
+    - `3|4`
+  - predicted top-k:
+    - `3|4`
+- but only `membership_order` converted that signal into the correct final
+  multigroup split
+
+Research meaning:
+
+- `o8 @ 18.7s` is now confirmed as a valid single-point positive probe
+- the current bottleneck is not total absence of weak-group signal
+- the sharper bottleneck is the bridge from predicted weak-pair evidence to the
+  final grouping decision
+- this means we should treat `kmeans_embedding` vs `membership_order` as the
+  main focused learner-side contrast before going back to broader teacher-side
+  stabilization work
+
+Suggested immediate next step:
+
+- keep `o8 @ 18.7s` as the main focused probe
+- inspect why k-means style final grouping collapses to no-group even when the
+  correct `3|4` weak pair is already present in top-k predictions

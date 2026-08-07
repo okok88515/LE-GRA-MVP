@@ -529,6 +529,122 @@
       </section>
     </section>
 
+    <section class="layout">
+      <section class="track">
+        <div class="track-header">
+          <h2>最新進度</h2>
+          <span>更新至 2026-08-07</span>
+        </div>
+        <div class="task-list">
+          <article class="task green">
+            <h3>1. `3|4|5|6 @ gnb_2` 線先停在明確瓶頸</h3>
+            <p>
+              `n5` 曾成功造出 early `ue5-only` 與 late `{ue4, ue5}` 的 temporal swap，
+              但 `n6 / n7 / n8` 都證明晚段 weak pair 很難撐成新的正增益 regime。
+              結論是：這條 family 可以做出有趣結構，但目前不適合再繼續微調。
+            </p>
+            <div class="meta">
+              <span>狀態：已確認 plateau</span>
+              <span>決策：暫停深挖</span>
+            </div>
+          </article>
+
+          <article class="task green">
+            <h3>2. `2|3|4|5 @ gnb_2` 新 family 第一版失敗</h3>
+            <p>
+              `o1 / o2` 顯示這條 family 雖然有弱候選輪廓，但第一版 primary-weak + light-decoy
+              generator 連 split structure 都造不出來，因此目前不值得再花時間做局部小調整。
+            </p>
+            <div class="meta">
+              <span>狀態：single-group only</span>
+              <span>決策：先不續做</span>
+            </div>
+          </article>
+
+          <article class="task gold">
+            <h3>3. `0|1|2|3|4 @ gnb_2` 成為新的主線 family</h3>
+            <p>
+              `o3` 確認 base regime 在 `18.7s ~ 19.2s` 有穩定正增益，
+              teacher 會選 `[[0, 1, 2, 4], [3]]`，也就是穩定 isolate `ue3`。
+              這條線的價值是：它本來就有正增益，可以直接研究 structure perturbation。
+            </p>
+            <div class="meta">
+              <span>狀態：正增益穩定存在</span>
+              <span>關鍵 window：18.7s ~ 19.2s</span>
+            </div>
+          </article>
+
+          <article class="task gold">
+            <h3>4. `o4 / o5 / o6 / o7` 找到新的 gain-structure 張力</h3>
+            <p>
+              `o4 / o5` 的 decoy injection 保住了原本正增益，但完全拉不動 structure；
+              `o6` 第一次把 teacher 拉離 `ue3-only`，卻只得到 tie-utility multigroup；
+              `o7` 嘗試直接做 dual-weak pair，又退回原本的 `ue3-only` 正增益解。
+            </p>
+            <div class="meta">
+              <span>最重要發現：`o6` 會動 structure，但 gain 掉到 0</span>
+              <span>目前主 bottleneck：無法同時保住 gain 與新 structure</span>
+            </div>
+          </article>
+
+          <article class="task green">
+            <h3>5. `o8` 已出現第一個 `{ue3, ue4}` 正增益 seed point</h3>
+            <p>
+              `o8` 在 `18.7s` 第一次出現真正可解釋的 `{ue3, ue4}` weak pair，
+              而且 `teacher_gain_vs_single = 0.012637...`，不再只是 tie split。
+              `o9` 與 `o10` 都證明這個 seed point 是可重現的，但目前還沒有被拉長成穩定 segment。
+            </p>
+            <div class="meta">
+              <span>突破：首次 pair + positive gain 同時成立</span>
+              <span>限制：目前仍只有單一 timestamp (`18.7s`)</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="focus">
+        <div class="track-header">
+          <h2>下一步待辦</h2>
+          <span>只做高價值收斂項</span>
+        </div>
+
+        <article class="focus-card">
+          <h3>待辦 1：以 `o8` 為中心做短窗口穩定化</h3>
+          <p>
+            下一個最值得做的方向不是再換 family，而是圍繞 `o8` 做 very local smoothing。
+            目標是把目前只出現在 `18.7s` 的 `{ue3, ue4}` 正增益 split，
+            拉成至少 2 到 3 個連續 timestamp 的短正向 segment。
+          </p>
+        </article>
+
+        <article class="focus-card">
+          <h3>待辦 1A：如果穩定化再失敗，就改做 ultra-short-window 驗證</h3>
+          <p>
+            如果接下來幾輪仍然無法把 `18.7s` 擴成短 segment，就不要再無限微調 teacher 端。
+            那時候應改成接受它是 single-point regime，直接做超短窗 learner-side 驗證，
+            測試這個 seed point 是否已足以拉開 teacher / baseline / LE-GRA。
+          </p>
+        </article>
+
+        <article class="focus-card">
+          <h3>待辦 2：先做 teacher-side focused validation，不先擴 learner</h3>
+          <p>
+            在還沒有得到「新 structure + 正增益」之前，不要先擴 learner matrix、
+            seeds 或 Kmax。先把 teacher regime 釘住，才有意義做後續 learner holdout。
+          </p>
+        </article>
+
+        <article class="focus-card">
+          <h3>待辦 3：如果 `o8` 穩定化成功，再進 focused learner</h3>
+          <p>
+            一旦 `o8` 附近出現可解釋的短正增益 multigroup regime，
+            就直接沿用 `18.7 ~ 19.2` 這個 segment 做 focused temporal learner，
+            優先檢查 teacher、LE-GRA、multi-feature、no-group 的差距是否終於被拉開。
+          </p>
+        </article>
+      </section>
+    </section>
+
     <section class="footer">
       <div class="footer-block">
         <strong>先收斂</strong>
@@ -542,6 +658,40 @@
         <strong>下一步建議</strong>
         <p>先從標準化實驗矩陣開始，因為那會決定你後面每一個判斷是不是站得住腳。</p>
       </div>
+    </section>
+    <section class="layout">
+      <section class="track">
+        <div class="track-header">
+          <h2>最新實驗補充</h2>
+          <span>更新於 2026-08-07</span>
+        </div>
+        <div class="task-list">
+          <article class="task green">
+            <h3>`o8 @ 18.7s` 已確認可作為 single-point learner probe</h3>
+            <p>
+              針對 `p3_6o8_gain_recovery_bundle/bundle` 做 ultra-short-window 驗證後，
+              已確認這個單點本身就足以拉出 learner 與 baseline 的差異，不需要先等到更長的正增益 segment 才能做 focused learner study。
+            </p>
+            <div class="meta">
+              <span>train end = `18.6s`</span>
+              <span>test = `18.7s` only</span>
+            </div>
+          </article>
+
+          <article class="task gold">
+            <h3>`membership_order` 可追上 teacher，`kmeans_embedding` 仍掉回 no-group</h3>
+            <p>
+              同一個 `18.7s` probe 上，`membership_order` LE-GRA 與 offline teacher 同為
+              `0.6198214236671593`，但 `kmeans_embedding` LE-GRA 仍是 `0.6071841780840183`，
+              與 no-group 相同。這表示現在主要瓶頸是 grouping / inference bridge，而不是完全沒有學到 weak-pair 訊號。
+            </p>
+            <div class="meta">
+              <span>teacher weak pair = `3|4`</span>
+              <span>top-k prediction 也命中 `3|4`</span>
+            </div>
+          </article>
+        </div>
+      </section>
     </section>
   </main>
 </body>

@@ -243,6 +243,9 @@ def train_trace_model(
     candidate_membership_weight: float,
     candidate_top_k: int,
     candidate_secondary_scale: float,
+    frontier_contrast_weight: float,
+    frontier_negative_top_k: int,
+    frontier_margin: float,
     focus_support_indices: list[int] | None,
     focus_only_warmup_epochs: int,
     grouping_mode: str,
@@ -262,6 +265,8 @@ def train_trace_model(
     teacher_hard_group_targets = []
     teacher_candidate_targets = []
     teacher_candidate_target_weights = []
+    teacher_frontier_positive_weights = []
+    teacher_frontier_negative_weights = []
     scenario_repeat_factors = []
     for index, scenario in enumerate(train, start=1):
         groups = mvp.offline_teacher_groups(scenario, max_groups, switch_beta)
@@ -287,6 +292,16 @@ def train_trace_model(
         )
         teacher_candidate_targets.append(candidate_target)
         teacher_candidate_target_weights.append(candidate_target_weights)
+        frontier_positive_weights, frontier_negative_weights = mvp.candidate_frontier_contrast_targets(
+            scenario,
+            groups,
+            candidate_top_k=candidate_top_k,
+            negative_top_k=frontier_negative_top_k,
+            secondary_scale=candidate_secondary_scale,
+            negative_scale=1.0,
+        )
+        teacher_frontier_positive_weights.append(frontier_positive_weights)
+        teacher_frontier_negative_weights.append(frontier_negative_weights)
         teacher_result = mvp.allocate_and_evaluate(groups, scenario, switch_beta)
         single_result = mvp.allocate_and_evaluate(
             [list(range(len(scenario.cqi_now)))],
@@ -344,12 +359,16 @@ def train_trace_model(
                 hard_group_target=teacher_hard_group_targets[idx],
                 candidate_target=teacher_candidate_targets[idx],
                 candidate_target_weights=teacher_candidate_target_weights[idx],
+                frontier_positive_weights=teacher_frontier_positive_weights[idx],
+                frontier_negative_weights=teacher_frontier_negative_weights[idx],
                 pair_sampling=pair_sampling,
                 max_pairs_per_class=pairs_per_class,
                 prototype_margin=prototype_margin,
                 prototype_weight=prototype_weight,
                 membership_weight=membership_weight,
                 candidate_membership_weight=candidate_membership_weight,
+                frontier_contrast_weight=frontier_contrast_weight,
+                frontier_margin=frontier_margin,
             ))
             epoch_pair_stats.append(model.last_pair_stats.copy())
         loss = float(np.mean(losses)) if losses else 0.0
@@ -401,6 +420,9 @@ def train_trace_model(
     model.candidate_membership_weight = candidate_membership_weight
     model.candidate_top_k = candidate_top_k
     model.candidate_secondary_scale = candidate_secondary_scale
+    model.frontier_contrast_weight = frontier_contrast_weight
+    model.frontier_negative_top_k = frontier_negative_top_k
+    model.frontier_margin = frontier_margin
     model.focus_only_warmup_epochs = focus_only_warmup_epochs
     model.grouping_mode = grouping_mode
     matrix.progress(
@@ -505,6 +527,9 @@ def evaluate_trace_methods(
             "candidate_membership_weight": getattr(model, "candidate_membership_weight", 0.0),
             "candidate_top_k": getattr(model, "candidate_top_k", 0),
             "candidate_secondary_scale": getattr(model, "candidate_secondary_scale", 0.0),
+            "frontier_contrast_weight": getattr(model, "frontier_contrast_weight", 0.0),
+            "frontier_negative_top_k": getattr(model, "frontier_negative_top_k", 0),
+            "frontier_margin": getattr(model, "frontier_margin", 0.0),
             "grouping_mode": getattr(model, "grouping_mode", "kmeans_embedding"),
             "train_positive_pairs": model.training_pair_stats.get("positive_pairs", float("nan")),
             "train_negative_pairs": model.training_pair_stats.get("negative_pairs", float("nan")),
@@ -524,6 +549,11 @@ def evaluate_trace_methods(
             "train_candidate_membership_terms": model.training_pair_stats.get("candidate_membership_terms", float("nan")),
             "train_candidate_membership_weight": model.training_pair_stats.get("candidate_membership_weight", float("nan")),
             "train_candidate_secondary_weight_mean": model.training_pair_stats.get("candidate_secondary_weight_mean", float("nan")),
+            "train_frontier_contrast_terms": model.training_pair_stats.get("frontier_contrast_terms", float("nan")),
+            "train_frontier_contrast_weight": model.training_pair_stats.get("frontier_contrast_weight", float("nan")),
+            "train_frontier_margin": model.training_pair_stats.get("frontier_margin", float("nan")),
+            "train_frontier_positive_count": model.training_pair_stats.get("frontier_positive_count", float("nan")),
+            "train_frontier_negative_count": model.training_pair_stats.get("frontier_negative_count", float("nan")),
             "train_mean_weak_score": model.training_pair_stats.get("mean_weak_score", float("nan")),
         })
     return rows, grouping_cache
@@ -603,6 +633,9 @@ def main() -> None:
     parser.add_argument("--candidate-membership-weight", type=float, default=0.0)
     parser.add_argument("--candidate-top-k", type=int, default=2)
     parser.add_argument("--candidate-secondary-scale", type=float, default=2.0)
+    parser.add_argument("--frontier-contrast-weight", type=float, default=0.0)
+    parser.add_argument("--frontier-negative-top-k", type=int, default=2)
+    parser.add_argument("--frontier-margin", type=float, default=0.25)
     parser.add_argument("--grouping-mode", default="kmeans_embedding")
     parser.add_argument("--kmeans-n-init", type=int, default=10)
     parser.add_argument("--test-ue-count", type=int, default=3)
@@ -668,6 +701,9 @@ def main() -> None:
         candidate_membership_weight=args.candidate_membership_weight,
         candidate_top_k=args.candidate_top_k,
         candidate_secondary_scale=args.candidate_secondary_scale,
+        frontier_contrast_weight=args.frontier_contrast_weight,
+        frontier_negative_top_k=args.frontier_negative_top_k,
+        frontier_margin=args.frontier_margin,
         focus_support_indices=None,
         focus_only_warmup_epochs=0,
         grouping_mode=args.grouping_mode,
@@ -730,6 +766,12 @@ def main() -> None:
         "prototype_weight": getattr(model, "prototype_weight", 0.0),
         "prototype_margin": getattr(model, "prototype_margin", 1.0),
         "membership_weight": getattr(model, "membership_weight", 0.0),
+        "candidate_membership_weight": getattr(model, "candidate_membership_weight", 0.0),
+        "candidate_top_k": getattr(model, "candidate_top_k", 0),
+        "candidate_secondary_scale": getattr(model, "candidate_secondary_scale", 0.0),
+        "frontier_contrast_weight": getattr(model, "frontier_contrast_weight", 0.0),
+        "frontier_negative_top_k": getattr(model, "frontier_negative_top_k", 0),
+        "frontier_margin": getattr(model, "frontier_margin", 0.0),
         "grouping_mode": getattr(model, "grouping_mode", "kmeans_embedding"),
     }
     (args.out_dir / "split_summary.json").write_text(
