@@ -1273,6 +1273,22 @@ def best_membership_groups(
     return best_groups
 
 
+def membership_candidate_groups(
+    weak_scores: np.ndarray,
+    max_groups: int,
+) -> list[list[list[int]]]:
+    """Enumerate contiguous groups after sorting by learned weak scores."""
+
+    order = np.argsort(-weak_scores)
+    n_users = len(order)
+    cut_positions = list(range(1, n_users))
+    candidates: list[list[list[int]]] = []
+    for k in range(1, max_groups + 1):
+        for boundaries in itertools.combinations(cut_positions, k - 1):
+            candidates.append(groups_from_sorted_boundaries(order, boundaries))
+    return candidates
+
+
 def _kmeans_once(
     x: np.ndarray,
     k: int,
@@ -1366,6 +1382,74 @@ def best_kmeans_groups(
     return best_groups
 
 
+def kmeans_candidate_groups(
+    representation: np.ndarray,
+    max_groups: int,
+    *,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[list[int]]]:
+    """Enumerate one k-means partition for each k in 1..Kmax."""
+
+    return [
+        kmeans(
+            representation,
+            k,
+            n_init=kmeans_n_init,
+            seed=kmeans_seed + k,
+        )
+        for k in range(1, max_groups + 1)
+    ]
+
+
+def best_candidate_groups(
+    scenario: Scenario,
+    candidate_groupings: list[list[list[int]]],
+    switch_beta: float,
+) -> list[list[int]]:
+    """Choose the highest-utility grouping from a candidate set."""
+
+    best_groups = [list(range(len(scenario.cqi_now)))]
+    best_utility = -1e9
+    seen: set[tuple[tuple[int, ...], ...]] = set()
+    for groups in candidate_groupings:
+        normalized = tuple(sorted(tuple(sorted(group)) for group in groups))
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        result = allocate_and_evaluate(groups, scenario, switch_beta)
+        if result.utility > best_utility:
+            best_utility = result.utility
+            best_groups = groups
+    return best_groups
+
+
+def best_hybrid_groups(
+    scenario: Scenario,
+    weak_scores: np.ndarray,
+    embeddings: np.ndarray,
+    max_groups: int,
+    switch_beta: float,
+    *,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Union membership-order and embedding k-means candidates, then DP-select."""
+
+    membership_candidates = membership_candidate_groups(weak_scores, max_groups)
+    kmeans_candidates = kmeans_candidate_groups(
+        embeddings,
+        max_groups,
+        kmeans_n_init=kmeans_n_init,
+        kmeans_seed=kmeans_seed,
+    )
+    return best_candidate_groups(
+        scenario,
+        membership_candidates + kmeans_candidates,
+        switch_beta,
+    )
+
+
 def no_grouping(scenario: Scenario, *_args) -> list[list[int]]:
     return [list(range(len(scenario.cqi_now)))]
 
@@ -1442,6 +1526,17 @@ def learned_grouping(
     if getattr(model, "grouping_mode", "kmeans_embedding") == "membership_order":
         weak_scores = model.weak_group_scores(scenario.features)
         return best_membership_groups(scenario, weak_scores, max_groups, switch_beta)
+    if getattr(model, "grouping_mode", "kmeans_embedding") == "hybrid_membership_kmeans":
+        weak_scores = model.weak_group_scores(scenario.features)
+        embeddings = model.embed(scenario.features)
+        return best_hybrid_groups(
+            scenario,
+            weak_scores,
+            embeddings,
+            max_groups,
+            switch_beta,
+            kmeans_n_init=kmeans_n_init,
+        )
     embeddings = model.embed(scenario.features)
     return best_kmeans_groups(
         scenario, embeddings, max_groups, switch_beta,

@@ -4754,3 +4754,186 @@ Suggested immediate next step:
 - keep `o8 @ 18.7s` as the main focused probe
 - inspect why k-means style final grouping collapses to no-group even when the
   correct `3|4` weak pair is already present in top-k predictions
+
+### O8 bridge diagnosis refinement: k-means collapses to single-group
+
+Follow-up diagnostic runs on Friday, August 7, 2026:
+
+- `p3_6o8c_ultrashort_kmeans_diag/`
+- `p3_6o8d_ultrashort_membership_diag/`
+
+What was added:
+
+- `run_p3_6_coupled_learner.py`
+- `run_p3_6g_temporal_learner.py`
+
+The per-scenario `teacher_imitation_diagnostics.csv` now records:
+
+- `teacher_group_signature`
+- `predicted_group_signature`
+- `teacher_group_json`
+- `predicted_group_json`
+- `teacher_utility`
+- `predicted_utility`
+- `utility_gap_vs_teacher`
+
+Critical focused result on `o8 @ 18.7s`:
+
+- teacher:
+  - `0|1|2 / 3|4`
+- `membership_order` LE-GRA:
+  - `3|4 / 0|1|2`
+  - exact teacher-equivalent split
+  - utility gap = `0.0`
+- `kmeans_embedding` LE-GRA:
+  - `0|1|2|3|4`
+  - collapses to single-group
+  - utility gap = `-0.012637245583141055`
+
+Most important interpretation:
+
+- this is sharper than the previous statement "the bridge differs"
+- the failure mode is not:
+  - "LE-GRA predicts the wrong weak pair"
+- and not even:
+  - "LE-GRA finds a wrong 2-group split"
+- it is specifically:
+  - the embedding -> k-means path fails to preserve the weak-pair structure
+    strongly enough, so DP selection falls all the way back to no-group
+
+Updated immediate next step:
+
+- stay on `o8 @ 18.7s`
+- inspect / redesign the embedding-to-grouping bridge itself
+- likely directions:
+  - hybrid grouping that seeds k-means from weak-pair order
+  - boundary-aware clustering constraints
+  - or direct weak-head-conditioned group construction
+
+### O8 minimal hybrid bridge: immediate recovery on the single-point probe
+
+Follow-up run on Friday, August 7, 2026:
+
+- `p3_6o8e_ultrashort_hybrid_bridge/`
+
+What changed:
+
+- `le_gra_mvp.py`
+  - added:
+    - `membership_candidate_groups(...)`
+    - `kmeans_candidate_groups(...)`
+    - `best_candidate_groups(...)`
+    - `best_hybrid_groups(...)`
+- new grouping mode:
+  - `hybrid_membership_kmeans`
+- meaning:
+  - generate candidate groupings from both:
+    - weak-score contiguous boundary search
+    - embedding k-means
+  - then let the same DP utility selector choose the best candidate
+
+Focused result on `o8 @ 18.7s`:
+
+- `LE-GRA MVP = 0.6198214236671593`
+- matches:
+  - offline teacher
+  - CQI
+  - resource-cost
+  - multi-feature
+- per-scenario diagnostic:
+  - teacher:
+    - `0|1|2 / 3|4`
+  - hybrid LE-GRA:
+    - `3|4 / 0|1|2`
+  - utility gap vs teacher:
+    - `0.0`
+
+Most important interpretation:
+
+- this is the first direct evidence that a minimal bridge-level fix is already
+  enough to recover the correct grouping on the `o8` single-point regime
+- we did **not** change training
+- we only widened the candidate grouping bridge
+- so the previous `kmeans_embedding` failure was indeed a candidate-bridge
+  bottleneck, not a missing weak-pair signal bottleneck
+
+Updated immediate next step:
+
+- do not go back to teacher-side local shaping yet
+- keep `o8 @ 18.7s` as the main bridge probe
+- next best follow-up is:
+  - transfer check for `hybrid_membership_kmeans`
+  - first on the current hard focused regimes
+  - then decide whether this should become:
+    - a diagnostic-only bridge
+    - or the new default learner-side inference path
+
+### P3.6p-1 / P3.6p-2: hybrid bridge transfer succeeds on both `m4b` and `m2`
+
+Follow-up runs on Friday, August 7, 2026:
+
+- `p3_6p1_m4b_hybrid_bridge/`
+- `p3_6p2_m2_hybrid_bridge/`
+
+Protocol:
+
+- kept the existing successful train-side setup:
+  - `joint_supervision_mode = m4b_localized_hard_negative_v1`
+- changed only the inference bridge:
+  - `grouping_mode = hybrid_membership_kmeans`
+
+Focused result on `m4b`:
+
+- test window:
+  - `43.7 ~ 43.9`
+- main comparison:
+  - `Offline teacher = 0.5796090488051922`
+  - `LE-GRA MVP = 0.5796090488051922`
+- per-scenario diagnostic:
+  - teacher:
+    - `0|1|2|3|5 / 15|4`
+  - hybrid LE-GRA:
+    - `15|4 / 0|1|2|3|5`
+  - pairwise / ARI / NMI:
+    - all `1.0`
+
+Focused result on `m2`:
+
+- test window:
+  - `43.8 ~ 43.9`
+- main comparison:
+  - `Offline teacher = 0.5796090488051922`
+  - `LE-GRA MVP = 0.5796090488051922`
+- per-scenario diagnostic:
+  - teacher:
+    - `0|1|2|3|5 / 15|4`
+  - hybrid LE-GRA:
+    - `15|4 / 0|1|2|3|5`
+  - pairwise / ARI / NMI:
+    - all `1.0`
+
+Most important interpretation:
+
+- the minimal hybrid bridge is not just an `o8` single-point trick
+- it already transfers cleanly to:
+  - the hardest current `m4b` focused regime
+  - and the sibling `m2` regime
+- this is now strong evidence that:
+  - the current train-side supervision is already sufficient when the bridge
+    exposes the right candidate set
+  - the main remaining research question has shifted from
+    "how do we force better weak-pair learning?"
+    to
+    "what inference bridge should become the project's default?"
+
+Updated immediate next step:
+
+- stop prioritizing more learner-loss micro-tweaks
+- compare bridge candidates directly:
+  - `kmeans_embedding`
+  - `membership_order`
+  - `hybrid_membership_kmeans`
+- then decide whether `hybrid_membership_kmeans` should be promoted from:
+  - focused repair
+  to:
+  - the new default LE-GRA inference path

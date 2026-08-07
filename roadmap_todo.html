@@ -690,6 +690,45 @@
               <span>top-k prediction 也命中 `3|4`</span>
             </div>
           </article>
+
+          <article class="task gold">
+            <h3>`kmeans_embedding` 的具體失敗型態已確認：直接 collapse 成 single-group</h3>
+            <p>
+              最新 diagnostic 顯示，`kmeans_embedding` 不是把 `{3,4}` 分成錯的雙群，
+              而是最後整體退回 `0|1|2|3|4` 單一大群；相對地，`membership_order` 會得到
+              `3|4 / 0|1|2`，與 teacher 等價。這代表下一步應該直接研究 embedding 到 grouping 的橋接，而不是再懷疑 weak-pair 排名本身。
+            </p>
+            <div class="meta">
+              <span>kmeans path: `0|1|2|3|4`</span>
+              <span>membership path: `3|4 / 0|1|2`</span>
+            </div>
+          </article>
+
+          <article class="task green">
+            <h3>最小 hybrid bridge 已在 `o8 @ 18.7s` 成功追回 teacher</h3>
+            <p>
+              新增 `hybrid_membership_kmeans` 後，LE-GRA 會同時考慮 weak-order 候選與 embedding k-means 候選，
+              再交給同一個 DP utility selector 挑最好的一個。這個最小 bridge 修正已在 `o8` 單點上成功回到
+              `3|4 / 0|1|2`，utility 與 teacher 完全一致，證明 bridge-level fix 本身就有價值。
+            </p>
+            <div class="meta">
+              <span>new mode: `hybrid_membership_kmeans`</span>
+              <span>result: utility gap = `0.0`</span>
+            </div>
+          </article>
+
+          <article class="task green">
+            <h3>hybrid bridge 已通過第一輪 transfer check</h3>
+            <p>
+              `hybrid_membership_kmeans` 不只在 `o8 @ 18.7s` 成功，也已在 `m4b` 與 `m2` focused regime 上
+              直接追平 teacher。這代表目前最值得收斂的問題，已經不是再做更多 train-side 小 tweak，
+              而是正式比較不同 inference bridge，決定哪一個應該成為新的預設路徑。
+            </p>
+            <div class="meta">
+              <span>`p3_6p1_m4b_hybrid_bridge` = teacher match</span>
+              <span>`p3_6p2_m2_hybrid_bridge` = teacher match</span>
+            </div>
+          </article>
         </div>
       </section>
     </section>

@@ -564,6 +564,8 @@ def evaluate_trace_teacher_imitation(
     grouping_cache: dict[str, list[list[list[int]]]],
     *,
     max_groups: int,
+    switch_beta: float,
+    metadata_rows: list[dict] | None = None,
     feature_mode: str,
     scenario_mode: str,
     load_level: str,
@@ -573,15 +575,33 @@ def evaluate_trace_teacher_imitation(
 ) -> list[dict]:
     """Compare trace predictions against teacher partitions without synthetic load keys."""
 
+    def _group_signature(
+        groups: list[list[int]],
+        scenario: mvp.Scenario,
+        metadata: dict | None,
+    ) -> str:
+        if metadata is not None and metadata.get("ue_ids"):
+            labels = metadata["ue_ids"].split("|")
+        else:
+            labels = [str(idx) for idx in range(len(scenario.cqi_now))]
+        parts = []
+        for group in groups:
+            ue_ids = sorted(labels[idx] for idx in group)
+            parts.append("|".join(ue_ids))
+        return " / ".join(parts)
+
     rows = []
     for scenario_idx, scenario in enumerate(test):
+        metadata = metadata_rows[scenario_idx] if metadata_rows is not None else None
         matrix.progress(
             f"[{progress_label}] Teacher-imitation diagnostics "
             f"{scenario_idx + 1}/{len(test)}"
         )
         teacher_groups = grouping_cache["Offline teacher"][scenario_idx]
+        teacher_eval = mvp.allocate_and_evaluate(teacher_groups, scenario, switch_beta)
         for method_name in ["Multi-feature k-means", "LE-GRA MVP"]:
             predicted_groups = grouping_cache[method_name][scenario_idx]
+            predicted_eval = mvp.allocate_and_evaluate(predicted_groups, scenario, switch_beta)
             row = {
                 "scenario_mode": scenario_mode,
                 "load_level": load_level,
@@ -605,6 +625,13 @@ def evaluate_trace_teacher_imitation(
                 ),
                 "teacher_groups": len(teacher_groups),
                 "predicted_groups": len(predicted_groups),
+                "teacher_group_signature": _group_signature(teacher_groups, scenario, metadata),
+                "predicted_group_signature": _group_signature(predicted_groups, scenario, metadata),
+                "teacher_group_json": json.dumps(teacher_groups),
+                "predicted_group_json": json.dumps(predicted_groups),
+                "teacher_utility": teacher_eval.utility,
+                "predicted_utility": predicted_eval.utility,
+                "utility_gap_vs_teacher": predicted_eval.utility - teacher_eval.utility,
             }
             rows.append(row)
     return rows
@@ -733,6 +760,8 @@ def main() -> None:
         test,
         grouping_cache,
         max_groups=args.max_groups,
+        switch_beta=args.switch_beta,
+        metadata_rows=test_metadata,
         feature_mode=args.feature_mode,
         scenario_mode="coupled_trace",
         load_level="coupled_trace_rb_0.50",
