@@ -3,26 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LE-GRA MVP Roadmap</title>
+  <title>MBS Grouping Study Roadmap</title>
   <style>
     :root {
       --bg: #eef3f1;
-      --paper: #fbfcf7;
+      --paper: rgba(251, 252, 247, 0.88);
       --ink: #162127;
       --muted: #5e6b6d;
       --line: rgba(22, 33, 39, 0.12);
       --accent: #d85c3a;
-      --accent-soft: #f3c5b3;
+      --accent-soft: rgba(216, 92, 58, 0.12);
       --green: #376b62;
-      --green-soft: #d5e6de;
       --gold: #a67c2c;
-      --gold-soft: #efe4c4;
       --shadow: 0 22px 60px rgba(18, 29, 33, 0.10);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -51,7 +47,7 @@
     }
 
     .page {
-      width: min(1160px, calc(100% - 28px));
+      width: min(1140px, calc(100% - 28px));
       margin: 0 auto;
       padding: 28px 0 56px;
       position: relative;
@@ -59,7 +55,7 @@
 
     .masthead {
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+      grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
       gap: 22px;
       align-items: stretch;
     }
@@ -67,16 +63,21 @@
     .hero,
     .summary,
     .track,
-    .focus,
     .footer {
-      background: rgba(251, 252, 247, 0.82);
+      background: var(--paper);
       border: 1px solid rgba(255, 255, 255, 0.75);
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
     }
 
+    .hero,
+    .summary,
+    .track,
+    .footer {
+      padding: 28px;
+    }
+
     .hero {
-      padding: 34px;
       position: relative;
       overflow: hidden;
     }
@@ -115,35 +116,35 @@
       margin: 0;
       font-family: Georgia, "Times New Roman", serif;
       letter-spacing: -0.03em;
-      line-height: 1.06;
+      line-height: 1.08;
     }
 
-    h1 {
-      font-size: clamp(2.5rem, 7vw, 5.2rem);
-      max-width: 9ch;
+    h1 { font-size: clamp(2.6rem, 6vw, 4.8rem); max-width: 10ch; }
+    h2 { font-size: clamp(1.8rem, 3.4vw, 2.5rem); }
+    h3 { font-size: 1.12rem; margin-bottom: 8px; }
+
+    p, li {
+      font-size: 1rem;
+      line-height: 1.8;
     }
 
     .hero p {
       margin: 18px 0 0;
       max-width: 60ch;
-      font-size: 1.03rem;
-      line-height: 1.82;
       color: #27363d;
     }
 
     .summary {
-      padding: 26px;
       display: grid;
       gap: 14px;
-      background:
-        linear-gradient(180deg, rgba(22, 33, 39, 0.96), rgba(35, 55, 62, 0.96));
+      background: linear-gradient(180deg, rgba(22, 33, 39, 0.96), rgba(35, 55, 62, 0.96));
       color: #f6f7f3;
     }
 
-    .summary p {
+    .summary p,
+    .summary li {
       margin: 0;
-      line-height: 1.76;
-      color: rgba(246, 247, 243, 0.8);
+      color: rgba(246, 247, 243, 0.84);
     }
 
     .status-chip {
@@ -158,10 +159,17 @@
       letter-spacing: 0.04em;
     }
 
-    .summary-grid {
+    .summary-grid,
+    .layout,
+    .task-list,
+    .grid-2 {
       display: grid;
-      gap: 10px;
+      gap: 18px;
     }
+
+    .summary-grid { gap: 10px; }
+    .layout { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 24px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     .summary-item {
       padding-top: 12px;
@@ -170,20 +178,8 @@
 
     .summary-item strong {
       display: block;
-      font-size: 1.4rem;
+      font-size: 1.25rem;
       margin-bottom: 4px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 22px;
-      margin-top: 24px;
-    }
-
-    .track,
-    .focus {
-      padding: 28px;
     }
 
     .track-header {
@@ -201,74 +197,26 @@
       color: var(--muted);
     }
 
-    .task-list {
-      display: grid;
-      gap: 14px;
-    }
-
-    .task {
-      padding: 16px 16px 16px 18px;
+    .task,
+    .note {
+      padding: 18px;
       border-left: 4px solid var(--accent);
-      background: rgba(255, 255, 255, 0.58);
+      background: rgba(255, 255, 255, 0.60);
     }
 
-    .task.green {
-      border-left-color: var(--green);
-    }
+    .task.green,
+    .note.green { border-left-color: var(--green); }
 
-    .task.gold {
-      border-left-color: var(--gold);
-    }
-
-    .task h3 {
-      font-size: 1.14rem;
-      margin-bottom: 8px;
-    }
-
-    .task p {
-      margin: 0;
-      line-height: 1.75;
-      color: #2d3d42;
-      font-size: 0.97rem;
-    }
+    .task.gold,
+    .note.gold { border-left-color: var(--gold); }
 
     .meta {
-      margin-top: 10px;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .meta span {
-      font-size: 0.82rem;
-      padding: 4px 8px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.72);
+      gap: 10px 16px;
+      margin-top: 12px;
       color: var(--muted);
-    }
-
-    .focus {
-      display: grid;
-      gap: 18px;
-    }
-
-    .focus-card {
-      padding: 18px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.5);
-    }
-
-    .focus-card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-    }
-
-    .focus-card p,
-    .focus-card li {
-      margin: 0;
-      color: #314046;
-      line-height: 1.75;
-      font-size: 0.97rem;
+      font-size: 0.92rem;
     }
 
     ul {
@@ -276,57 +224,24 @@
       padding-left: 20px;
     }
 
-    li + li {
-      margin-top: 8px;
-    }
+    li + li { margin-top: 8px; }
 
     .footer {
       margin-top: 24px;
-      padding: 22px 24px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .footer-block {
-      padding-top: 12px;
-      border-top: 1px solid var(--line);
-    }
-
-    .footer-block strong {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 1rem;
-    }
-
-    .footer-block p {
-      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
       color: var(--muted);
-      line-height: 1.7;
-      font-size: 0.94rem;
     }
 
-    @media (max-width: 940px) {
+    .footer strong { color: var(--ink); }
+
+    @media (max-width: 960px) {
       .masthead,
       .layout,
-      .footer {
+      .grid-2 {
         grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .page {
-        width: min(100% - 18px, 1160px);
-        padding-top: 18px;
-      }
-
-      .hero,
-      .summary,
-      .track,
-      .focus,
-      .footer {
-        padding-left: 20px;
-        padding-right: 20px;
       }
     }
   </style>
@@ -336,36 +251,37 @@
     <section class="masthead">
       <article class="hero">
         <div class="eyebrow">Research Execution Plan</div>
-        <h1>LE-GRA MVP 待辦 Roadmap</h1>
+        <h1>MBS Grouping 研究待辦 Roadmap</h1>
         <p>
-          這份頁面是給目前這個專案的實戰工作板。目標不是再擴充更多分支，
-          而是把研究主線收斂成一個能回答問題、能對老師交代、也能往論文延伸的結果。
+          這份 roadmap 現在不再把重心放在「怎麼把 LE-GRA 硬推成主角」，
+          而是把研究主線收斂成一條更穩、更能交代、也更接近目前證據的方向：
+          用 `Offline teacher + DP` 當研究 backbone，主方法聚焦在
+          `resource-cost` 與 `multi-feature` grouping。
         </p>
         <p>
-          你的核心任務可以濃縮成一句話：
-          <strong>先證明 LE-GRA 在哪些情境下有明確價值，再決定要不要把系統擴展到更真實的資料與更大的方法設計。</strong>
+          <strong>接下來的待辦，不是優先證明 learner 一定最強，而是優先把 feature-centric 方法線、對照實驗、與最終報告敘事收斂完整。</strong>
         </p>
       </article>
 
       <aside class="summary">
-        <div class="status-chip">Updated: August 4, 2026</div>
-        <h2>現在的判斷</h2>
+        <div class="status-chip">Updated: August 10, 2026</div>
+        <h2>現在的研究定位</h2>
         <p>
-          專案已經完成 MVP 與初步實驗，但目前最需要的不是新功能，而是
-          <strong>主實驗、ablation、優勢區間</strong> 這三件事情的收斂。
+          目前最可信的版本已經很明確：
+          <strong>`resource-cost / multi-feature` 是主方法線，`LE-GRA` 保留為探索性支線。</strong>
         </p>
         <div class="summary-grid">
           <div class="summary-item">
-            <strong>主線保留</strong>
-            <p>Offline teacher -> learned grouping -> DP allocation -> baseline comparison</p>
+            <strong>研究 backbone</strong>
+            <p>Offline teacher -> grouping comparison -> exact DP allocation</p>
           </div>
           <div class="summary-item">
-            <strong>支線降權</strong>
-            <p>Pairwise graph 先當補充實驗，不搶主論述</p>
+            <strong>主方法</strong>
+            <p>Resource-cost k-means、Multi-feature k-means、Offline teacher</p>
           </div>
           <div class="summary-item">
-            <strong>下一個里程碑</strong>
-            <p>拿到一組可以說明「何時有效、為何有效」的乾淨結果</p>
+            <strong>LE-GRA 的位置</strong>
+            <p>保留為 exploratory / appendix line，不再當主結論核心</p>
           </div>
         </div>
       </aside>
@@ -374,814 +290,135 @@
     <section class="layout">
       <section class="track">
         <div class="track-header">
-          <h2>今天先做</h2>
-          <span>先把研究地基釘好</span>
+          <h2>主線任務</h2>
+          <span>先把研究主軸收斂完整</span>
         </div>
         <div class="task-list">
           <article class="task">
-            <h3>1. 固定主比較組</h3>
+            <h3>1. 固定主比較矩陣</h3>
             <p>
-              先把實驗比較方法鎖定為 `No grouping`、`CQI k-means`、
-              `Resource-cost k-means`、`Offline teacher`、`LE-GRA`。
-              `Pairwise graph` 先保留，但移到補充區。
+              報告主文優先固定比較 `No grouping`、`CQI k-means`、
+              `Resource-cost k-means`、`Multi-feature k-means`、`Offline teacher`。
+              `LE-GRA` 保留為補充方法，不再作為所有實驗的唯一主角。
             </p>
             <div class="meta">
               <span>目的：避免主線分散</span>
-              <span>輸出：固定方法清單</span>
+              <span>輸出：統一比較表與報告圖表</span>
             </div>
           </article>
 
           <article class="task green">
-            <h3>2. 定義標準實驗矩陣</h3>
+            <h3>2. 收斂 feature 主線</h3>
             <p>
-              決定之後每次都要跑的條件組合：`aligned / ambiguous / mixed`
-              搭配 `Kmax = 3, 4, 5, 6`，並固定 random seeds 與主要參數。
+              優先整理 `CQI-only`、`resource-cost`、`multi-feature` 三條表示法的差異，
+              明確說清楚哪一條只是 baseline、哪一條是主方法、哪一條代表更完整的問題表示。
             </p>
             <div class="meta">
-              <span>目的：建立可比較結果</span>
-              <span>輸出：實驗參數表</span>
+              <span>目的：把核心貢獻講清楚</span>
+              <span>輸出：ablation 與方法解釋段落</span>
             </div>
           </article>
 
           <article class="task gold">
-            <h3>3. 規劃最小必要 ablation</h3>
+            <h3>3. LE-GRA 改成補充分析</h3>
             <p>
-              先拆成三版：
-              `CQI/history only`、`+ resource-cost`、`full feature`。
-              這一步是證明方法價值的關鍵。
+              保留 learner 線，但定位改成探索性分析：
+              它可以用來說明哪些 regime 會讓 learned grouping 有額外價值，
+              不是用來撐整篇研究最主要的結論。
             </p>
             <div class="meta">
-              <span>目的：回答學到了什麼</span>
-              <span>輸出：ablation 設計草案</span>
+              <span>目的：保留先前投入的研究價值</span>
+              <span>輸出：appendix / exploratory section</span>
             </div>
           </article>
         </div>
       </section>
 
-      <section class="focus">
+      <section class="track">
         <div class="track-header">
-          <h2>本週待辦</h2>
-          <span>把主結果做乾淨</span>
+          <h2>下一步優先順序</h2>
+          <span>以現在的研究判斷排序</span>
         </div>
+        <div class="task-list">
+          <article class="note green">
+            <h3>Priority A：把主文故事寫穩</h3>
+            <ul>
+              <li>把專案敘事改成「從 CQI-only 走向 richer feature-based grouping」。</li>
+              <li>把 `Offline teacher + DP` 明確寫成評估 backbone。</li>
+              <li>把 `resource-cost` 與 `multi-feature` 放在方法章節中心。</li>
+            </ul>
+          </article>
 
-        <article class="focus-card">
-          <h3>重跑主實驗</h3>
-          <ul>
-            <li>對每個 scenario mode 跑完整 baseline 比較。</li>
-            <li>每組條件至少跑多個 seed，避免單次結果過度偶然。</li>
-            <li>整理成同一格式的 csv，欄位固定。</li>
-          </ul>
-        </article>
+          <article class="note">
+            <h3>Priority B：保留關鍵對照</h3>
+            <ul>
+              <li>保留 `q10/r4` 這種真的能拉開 `teacher - resource-cost` 差距的 corridor。</li>
+              <li>保留 `r2c` 這種 teacher 會 split、但強 baseline 也能追上的 control family。</li>
+              <li>讓報告同時呈現「什麼時候 feature-based 有效」與「什麼時候 learner 並不必要」。</li>
+            </ul>
+          </article>
 
-        <article class="focus-card">
-          <h3>補齊 sensitivity</h3>
-          <ul>
-            <li>先做 `Kmax` 敏感度。</li>
-            <li>如果時間夠，再做 RB budget 與 switch penalty。</li>
-            <li>目標是找出效能飽和點，而不是只多畫幾張圖。</li>
-          </ul>
-        </article>
-
-        <article class="focus-card">
-          <h3>產出一版可報告表格</h3>
-          <ul>
-            <li>主表：方法比較。</li>
-            <li>副表：ablation。</li>
-            <li>圖：至少一張能看出 ambiguous 場景差異的圖。</li>
-          </ul>
-        </article>
+          <article class="note gold">
+            <h3>Priority C：LE-GRA 只做有意義的補充</h3>
+            <ul>
+              <li>不再把時間花在大量 learner-only 小 tweak。</li>
+              <li>只保留能幫助解釋 regime、boundary、或 grouping-path failure 的結果。</li>
+              <li>把負結果整理成「為什麼它不是通解」的研究收斂。</li>
+            </ul>
+          </article>
+        </div>
       </section>
     </section>
 
     <section class="layout">
       <section class="track">
         <div class="track-header">
-          <h2>下週要做</h2>
-          <span>開始回答為什麼</span>
+          <h2>目前可直接做的事</h2>
+          <span>不需要再重啟整條研究線</span>
         </div>
-        <div class="task-list">
-          <article class="task">
-            <h3>1. 找出 LE-GRA 的優勢區間</h3>
-            <p>
-              不要求它所有設定都贏，但要明確定位它在哪些條件下比
-              `CQI-only` 或簡單 handcrafted baseline 更有優勢。
-            </p>
-            <div class="meta">
-              <span>目標：找到可論述的亮點</span>
-            </div>
+        <div class="grid-2">
+          <article class="note">
+            <h3>整理報告</h3>
+            <ul>
+              <li>同步 overview / conclusion / roadmap / handoff 的主線說法。</li>
+              <li>把「offline teacher 不用全域最佳解」的理由放在方法章節。</li>
+              <li>把 `resource-cost` 為什麼更貼近真實問題寫成主要 insight。</li>
+            </ul>
           </article>
 
-          <article class="task green">
-            <h3>2. 分析失敗情況</h3>
-            <p>
-              如果 LE-GRA 沒贏，要拆解原因：
-              teacher 是否太強、contrastive loss 是否與 utility 錯位、
-              k-means head 是否限制太多。
-            </p>
-            <div class="meta">
-              <span>目標：決定下一步改哪裡</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>3. 寫出三句研究論述</h3>
-            <p>
-              把研究故事壓縮成：
-              `問題是什麼`、`現有方法缺什麼`、`你的方法在哪種情況有效`。
-            </p>
-            <div class="meta">
-              <span>目標：讓報告與論文開頭更穩</span>
-            </div>
+          <article class="note green">
+            <h3>整理實驗證據</h3>
+            <ul>
+              <li>固定列出 `CQI`、`resource-cost`、`multi-feature`、`teacher` 的代表結果。</li>
+              <li>保留 `LE-GRA` 成功與失敗兩種 corridor 各一組，當補充分析。</li>
+              <li>避免再用大量矩陣掩蓋真正重要的 regime-level insight。</li>
+            </ul>
           </article>
         </div>
       </section>
 
-      <section class="focus">
-        <div class="track-header">
-          <h2>本月方向</h2>
-          <span>決定要收斂還是擴張</span>
-        </div>
-
-        <article class="focus-card">
-          <h3>若主線穩定成立</h3>
-          <p>
-            開始往更 realistic 的資料來源推進，例如接 Simu5G / OMNeT++
-            traces，或逐步貼近你真正想做的 phase-2 allocation。
-          </p>
-        </article>
-
-        <article class="focus-card">
-          <h3>若主線仍不夠強</h3>
-          <p>
-            只發散一個方向，不要多開：
-            優先考慮改 `loss` 或 `grouping head`，例如讓學習目標更接近最終 utility。
-          </p>
-        </article>
-
-        <article class="focus-card">
-          <h3>不要優先投入的事</h3>
-          <ul>
-            <li>不要先花大量時間做產品化介面。</li>
-            <li>不要同時開太多新模型分支。</li>
-            <li>不要急著全面重寫工程框架，除非研究結論已經成形。</li>
-          </ul>
-        </article>
-      </section>
-    </section>
-
-    <section class="layout">
       <section class="track">
         <div class="track-header">
-          <h2>最新進度</h2>
-          <span>更新至 2026-08-07</span>
+          <h2>現階段不優先做的事</h2>
+          <span>避免再回到低報酬迴圈</span>
         </div>
         <div class="task-list">
-          <article class="task green">
-            <h3>1. `3|4|5|6 @ gnb_2` 線先停在明確瓶頸</h3>
-            <p>
-              `n5` 曾成功造出 early `ue5-only` 與 late `{ue4, ue5}` 的 temporal swap，
-              但 `n6 / n7 / n8` 都證明晚段 weak pair 很難撐成新的正增益 regime。
-              結論是：這條 family 可以做出有趣結構，但目前不適合再繼續微調。
-            </p>
-            <div class="meta">
-              <span>狀態：已確認 plateau</span>
-              <span>決策：暫停深挖</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>2. `2|3|4|5 @ gnb_2` 新 family 第一版失敗</h3>
-            <p>
-              `o1 / o2` 顯示這條 family 雖然有弱候選輪廓，但第一版 primary-weak + light-decoy
-              generator 連 split structure 都造不出來，因此目前不值得再花時間做局部小調整。
-            </p>
-            <div class="meta">
-              <span>狀態：single-group only</span>
-              <span>決策：先不續做</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>3. `0|1|2|3|4 @ gnb_2` 成為新的主線 family</h3>
-            <p>
-              `o3` 確認 base regime 在 `18.7s ~ 19.2s` 有穩定正增益，
-              teacher 會選 `[[0, 1, 2, 4], [3]]`，也就是穩定 isolate `ue3`。
-              這條線的價值是：它本來就有正增益，可以直接研究 structure perturbation。
-            </p>
-            <div class="meta">
-              <span>狀態：正增益穩定存在</span>
-              <span>關鍵 window：18.7s ~ 19.2s</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>4. `o4 / o5 / o6 / o7` 找到新的 gain-structure 張力</h3>
-            <p>
-              `o4 / o5` 的 decoy injection 保住了原本正增益，但完全拉不動 structure；
-              `o6` 第一次把 teacher 拉離 `ue3-only`，卻只得到 tie-utility multigroup；
-              `o7` 嘗試直接做 dual-weak pair，又退回原本的 `ue3-only` 正增益解。
-            </p>
-            <div class="meta">
-              <span>最重要發現：`o6` 會動 structure，但 gain 掉到 0</span>
-              <span>目前主 bottleneck：無法同時保住 gain 與新 structure</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>5. `o8` 已出現第一個 `{ue3, ue4}` 正增益 seed point</h3>
-            <p>
-              `o8` 在 `18.7s` 第一次出現真正可解釋的 `{ue3, ue4}` weak pair，
-              而且 `teacher_gain_vs_single = 0.012637...`，不再只是 tie split。
-              `o9` 與 `o10` 都證明這個 seed point 是可重現的，但目前還沒有被拉長成穩定 segment。
-            </p>
-            <div class="meta">
-              <span>突破：首次 pair + positive gain 同時成立</span>
-              <span>限制：目前仍只有單一 timestamp (`18.7s`)</span>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="focus">
-        <div class="track-header">
-          <h2>下一步待辦</h2>
-          <span>只做高價值收斂項</span>
-        </div>
-
-        <article class="focus-card">
-          <h3>待辦 1：以 `o8` 為中心做短窗口穩定化</h3>
-          <p>
-            下一個最值得做的方向不是再換 family，而是圍繞 `o8` 做 very local smoothing。
-            目標是把目前只出現在 `18.7s` 的 `{ue3, ue4}` 正增益 split，
-            拉成至少 2 到 3 個連續 timestamp 的短正向 segment。
-          </p>
-        </article>
-
-        <article class="focus-card">
-          <h3>待辦 1A：如果穩定化再失敗，就改做 ultra-short-window 驗證</h3>
-          <p>
-            如果接下來幾輪仍然無法把 `18.7s` 擴成短 segment，就不要再無限微調 teacher 端。
-            那時候應改成接受它是 single-point regime，直接做超短窗 learner-side 驗證，
-            測試這個 seed point 是否已足以拉開 teacher / baseline / LE-GRA。
-          </p>
-        </article>
-
-        <article class="focus-card">
-          <h3>待辦 2：先做 teacher-side focused validation，不先擴 learner</h3>
-          <p>
-            在還沒有得到「新 structure + 正增益」之前，不要先擴 learner matrix、
-            seeds 或 Kmax。先把 teacher regime 釘住，才有意義做後續 learner holdout。
-          </p>
-        </article>
-
-        <article class="focus-card">
-          <h3>待辦 3：如果 `o8` 穩定化成功，再進 focused learner</h3>
-          <p>
-            一旦 `o8` 附近出現可解釋的短正增益 multigroup regime，
-            就直接沿用 `18.7 ~ 19.2` 這個 segment 做 focused temporal learner，
-            優先檢查 teacher、LE-GRA、multi-feature、no-group 的差距是否終於被拉開。
-          </p>
-        </article>
-      </section>
-    </section>
-
-    <section class="footer">
-      <div class="footer-block">
-        <strong>先收斂</strong>
-        <p>把主實驗、ablation、優勢區間做完整，這比增加更多方法更重要。</p>
-      </div>
-      <div class="footer-block">
-        <strong>再發散</strong>
-        <p>只有在知道瓶頸在哪裡之後，才選一條支線去調整 loss、head 或資料來源。</p>
-      </div>
-      <div class="footer-block">
-        <strong>下一步建議</strong>
-        <p>先從標準化實驗矩陣開始，因為那會決定你後面每一個判斷是不是站得住腳。</p>
-      </div>
-    </section>
-    <section class="layout">
-      <section class="track">
-        <div class="track-header">
-          <h2>最新實驗補充</h2>
-          <span>更新於 2026-08-07</span>
-        </div>
-        <div class="task-list">
-          <article class="task green">
-            <h3>`o8 @ 18.7s` 已確認可作為 single-point learner probe</h3>
-            <p>
-              針對 `p3_6o8_gain_recovery_bundle/bundle` 做 ultra-short-window 驗證後，
-              已確認這個單點本身就足以拉出 learner 與 baseline 的差異，不需要先等到更長的正增益 segment 才能做 focused learner study。
-            </p>
-            <div class="meta">
-              <span>train end = `18.6s`</span>
-              <span>test = `18.7s` only</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>`membership_order` 可追上 teacher，`kmeans_embedding` 仍掉回 no-group</h3>
-            <p>
-              同一個 `18.7s` probe 上，`membership_order` LE-GRA 與 offline teacher 同為
-              `0.6198214236671593`，但 `kmeans_embedding` LE-GRA 仍是 `0.6071841780840183`，
-              與 no-group 相同。這表示現在主要瓶頸是 grouping / inference bridge，而不是完全沒有學到 weak-pair 訊號。
-            </p>
-            <div class="meta">
-              <span>teacher weak pair = `3|4`</span>
-              <span>top-k prediction 也命中 `3|4`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>`kmeans_embedding` 的具體失敗型態已確認：直接 collapse 成 single-group</h3>
-            <p>
-              最新 diagnostic 顯示，`kmeans_embedding` 不是把 `{3,4}` 分成錯的雙群，
-              而是最後整體退回 `0|1|2|3|4` 單一大群；相對地，`membership_order` 會得到
-              `3|4 / 0|1|2`，與 teacher 等價。這代表下一步應該直接研究 embedding 到 grouping 的橋接，而不是再懷疑 weak-pair 排名本身。
-            </p>
-            <div class="meta">
-              <span>kmeans path: `0|1|2|3|4`</span>
-              <span>membership path: `3|4 / 0|1|2`</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>最小 hybrid bridge 已在 `o8 @ 18.7s` 成功追回 teacher</h3>
-            <p>
-              新增 `hybrid_membership_kmeans` 後，LE-GRA 會同時考慮 weak-order 候選與 embedding k-means 候選，
-              再交給同一個 DP utility selector 挑最好的一個。這個最小 bridge 修正已在 `o8` 單點上成功回到
-              `3|4 / 0|1|2`，utility 與 teacher 完全一致，證明 bridge-level fix 本身就有價值。
-            </p>
-            <div class="meta">
-              <span>new mode: `hybrid_membership_kmeans`</span>
-              <span>result: utility gap = `0.0`</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>hybrid bridge 已通過第一輪 transfer check</h3>
-            <p>
-              `hybrid_membership_kmeans` 不只在 `o8 @ 18.7s` 成功，也已在 `m4b` 與 `m2` focused regime 上
-              直接追平 teacher。這代表目前最值得收斂的問題，已經不是再做更多 train-side 小 tweak，
-              而是正式比較不同 inference bridge，決定哪一個應該成為新的預設路徑。
-            </p>
-            <div class="meta">
-              <span>`p3_6p1_m4b_hybrid_bridge` = teacher match</span>
-              <span>`p3_6p2_m2_hybrid_bridge` = teacher match</span>
-            </div>
-          </article>
-          <article class="task green">
-            <h3>P3.6p-3 bridge comparison matrix 已完成</h3>
-            <p>
-              目前已把 `o8`、`m4b`、`m2` 三個 focused regime 的 bridge 結果整理成正式比較表。
-              關鍵結論是：`o8 @ 18.7s` 與 `m4b` 都證明舊 `kmeans_embedding` 會在最後的 grouping
-              bridge 失手，而 `membership_order` 與 `hybrid_membership_kmeans` 都能補回 teacher。
-              相對地，`m2` 更像 already-solvable sibling regime。下一步最值得做的不是更多 learner-side
-              小 tweak，而是確認 `hybrid_membership_kmeans` 是否應升級成預設 inference path。
-            </p>
-            <div class="meta">
-              <span>artifact: `P3_6P_3_BRIDGE_COMPARISON_ZH.md`</span>
-              <span>matrix: `p3_6p3_bridge_comparison_matrix.csv`</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6p-4 `n3` hybrid sanity check 通過</h3>
-            <p>
-              已在 already-solvable 的 `n3` focused regime 上補做 `hybrid_membership_kmeans`
-              sanity check。結果 `Offline teacher` 與 `LE-GRA MVP` 同為
-              `0.4603881335630136`，而且 pairwise / ARI / NMI 都是 `1.0`。這代表 hybrid
-              bridge 不只會在 `o8`、`m4b` 這類 bridge-needed regime 補洞，也沒有在 easy regime
-              上造成退化，因此可以更有信心把它視為下一階段的候選預設 inference path。
-            </p>
-            <div class="meta">
-              <span>run: `p3_6p4_n3_hybrid_sanity`</span>
-              <span>result: no regression on `n3`</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6n-10 成功把 `n5` 晚段 pair 撐成可訓練 segment</h3>
-            <p>
-              `n9` 的 mild cliff smoothing 沒有超越原本 `n5`，晚段正增益仍只有 `27.9 ~ 28.3`。
-              但更強的 `n10 late-state hold` 成功把 teacher-positive late pair 延長到
-              `27.9 ~ 28.8`，讓晚段 positive count 從 `5/21` 提升到 `10/21`。接著做的 focused
-              learner validation 也很清楚：`n10` 雖然是更好的 source segment，但目前仍屬於
-              easy / already-solvable，因為連舊 `kmeans_embedding` 都已經直接 match teacher。
-              所以下一步不是回頭做 learner tweak，而是沿著 `n10` 再往 harder、less-separable 的方向做第二階段 redesign。
-            </p>
-            <div class="meta">
-              <span>artifacts: `p3_6n10_*`</span>
-              <span>status: longer segment, but not yet learner-hard</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>P3.6n-11 顯示 `n10` 對 mild compression 非常脆弱</h3>
-            <p>
-              我們沿著 `n10` 再做了一個更接近 hard regime 的測試：保留成功的 late-state hold，
-              只輕微壓縮 `27.9 ~ 28.8` 的 CQI / previous-quality 可分性。結果 teacher-positive
-              late segment 直接整段消失，`27.9 ~ 28.8` 變成 `0/10` positive snapshots，整個 family
-              又只剩回早期 `25.8 ~ 27.8` 的 easy segment。這代表 `n10` 雖然是有用的 source，
-              但目前離真正 learner-hard 的「中間地帶」還很窄，下一步應該做 interpolation sweep，
-              找出 teacher 還肯 split、但舊 `kmeans_embedding` 開始失手的 threshold。
-            </p>
-            <div class="meta">
-              <span>artifact: `P3_6N_11_MILD_COMPRESSION_COLLAPSE_ZH.md`</span>
-              <span>status: collapse boundary identified</span>
-            </div>
-          </article>
-          <article class="task gold">
-            <h3>P3.6n-13 ~ P3.6n-16: stop same-family local sweeps</h3>
-            <p>
-              Axis-split probing is complete. We now know the late-split kill switch is
-              the weak-side <code>previous_quality</code>, but preserving that signal is
-              still not enough to make the regime learner-hard. Stronger CQI-only sweeps
-              collapse the late split, weak-pair asymmetry sweeps do not create
-              <code>3 groups</code>, and the surviving <code>n13b</code> corridor is still
-              fully solved by <code>kmeans_embedding</code> and
-              <code>hybrid_membership_kmeans</code>.
-            </p>
-            <div class="meta">
-              <span>artifact: `P3_6N_13_16_AXIS_SPLIT_AND_ASYMMETRY_ZH.md`</span>
-              <span>next: change source family or redesign a structural 3-group regime</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-10 ~ q-11: `q10` is the first true bridge-needed six-user breakthrough</h3>
-            <p>
-              On the new <code>1|2|3|4|5|6 @ gnb_2</code> family, the teacher keeps the
-              dual-weak group <code>{ue2, ue6}</code> positive from <code>27.4s</code>
-              through <code>28.2s</code>. Plain <code>kmeans_embedding</code> falls onto
-              decoy paths such as <code>3|1</code> and <code>3|5</code>, while
-              <code>membership_order</code> and
-              <code>hybrid_membership_kmeans</code> recover the full teacher utility by
-              routing to the correct weak candidate path.
-            </p>
-            <div class="meta">
-              <span>artifacts: `P3_6Q_10_SIX_USER_TRANSITION_BREAKTHROUGH_ZH.md`</span>
-              <span>mechanism: `P3_6Q_11_Q10_MECHANISM_STUDY_ZH.md`</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-12: localized joint supervision can repair plain k-means on the exact late window</h3>
-            <p>
-              Candidate BCE alone and candidate-plus-boundary pairs alone both fail.
-              But when we combine candidate-conditioned supervision, teacher-boundary
-              pair sampling, and frontier hard-negative contrast, plain
-              <code>kmeans_embedding</code> fully matches the teacher on
-              <code>27.7s ~ 28.2s</code>. The learner now predicts
-              <code>2|6</code> for every test snapshot and reaches teacher-equivalent
-              utility.
-            </p>
-            <div class="meta">
-              <span>run: `p3_6q10_kmeans_candidate_boundary_frontier`</span>
-              <span>result: `LE-GRA MVP = Offline teacher = 0.6457564299182464`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>Current bottleneck: candidate recovery is solved, grouping transfer is not</h3>
-            <p>
-              A one-step boundary shift test shows the current fix is still local.
-              With train end moved from <code>27.6s</code> to <code>27.5s</code>, the
-              model still predicts the correct weak candidate <code>2|6</code> on every
-              test snapshot, but the final grouping collapses back to single-group on
-              <code>27.7s ~ 28.0s</code>. So the next research problem is no longer
-              candidate discovery; it is stabilizing the final two-group construction
-              under small transition shifts.
-            </p>
-            <div class="meta">
-              <span>run: `p3_6q10_kmeans_candidate_boundary_frontier_275`</span>
-              <span>artifact: `P3_6Q_12_LOCALIZED_SUPERVISION_AND_BOUNDARY_ROBUSTNESS_ZH.md`</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-13: candidate-anchored grouping repairs the failing localized seed-9 path</h3>
-            <p>
-              We added <code>candidate_anchor_hybrid</code> as an inference-time
-              grouping bridge. Under the shifted-boundary regime, keeping the same
-              localized supervision but swapping only the grouping construction is
-              enough to remove the final split collapse and recover full teacher
-              utility on the failing seed-9 path.
-            </p>
-            <div class="meta">
-              <span>run: `p3_6q10_candidate_anchor_hybrid_275`</span>
-              <span>artifact: `P3_6Q_13_CANDIDATE_ANCHORED_GROUPING_RECOVERY_ZH.md`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>P3.6q-14: same-seed ablation shows the gain is conditional, not universal</h3>
-            <p>
-              After controlling restart seeds, the story becomes sharper. On seed
-              <code>9</code>, plain <code>kmeans_embedding</code> and plain
-              <code>candidate_anchor_hybrid</code> both fail, while localized
-              supervision plus <code>candidate_anchor_hybrid</code> succeeds. On
-              seed <code>11</code>, all four combinations already match the teacher.
-              So the real issue is now a mix of basin sensitivity and final
-              grouping transfer, not a blanket win from one grouping mode.
-            </p>
-            <div class="meta">
-              <span>artifact: `P3_6Q_14_Q10_FOCUSED_ABLATION_MATRIX_ZH.md`</span>
-              <span>matrix: `p3_6q10_focused_ablation_matrix.csv`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>Next step: do seed-9 vs seed-11 basin diagnostics before scaling out</h3>
-            <p>
-              The highest-value next move is no longer a larger matrix. We should
-              first compare the successful seed-11 basin against the failing seed-9
-              basin on support-train and focus-test evidence: weak candidate paths,
-              split evidence, and any embedding or grouping signatures that explain
-              why one basin needs the bridge and the other does not.
-            </p>
-            <div class="meta">
-              <span>priority: `q10` basin diagnostics</span>
-              <span>after that: controlled shifted-boundary robustness with fixed seeds</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>P3.6q-15: basin diagnostics show q10 also has a selector bottleneck</h3>
-            <p>
-              Seed <code>9</code> was chosen by the old selector because its support
-              imitation metrics looked slightly better, but its weak-side margins and
-              prototype-separation margin were worse than seed <code>11</code>. Forced
-              seed <code>11</code> matches the teacher on the shifted-boundary test
-              window, while seed <code>9</code> collapses back to single-group on
-              <code>27.7s ~ 28.0s</code>. So <code>q10</code> is not only a
-              learner/grouping problem; it is also a restart-selection problem.
-            </p>
-            <div class="meta">
-              <span>artifact: `P3_6Q_15_SEED_BASIN_DIAGNOSTICS_ZH.md`</span>
-              <span>table: `p3_6q10_seed_basin_focus_test_comparison.csv`</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-16: margin-aware restart selection recovers q10 without changing the learner</h3>
-            <p>
-              We added an experimental selector mode,
-              <code>--restart-selection-mode margin_aware</code>, that ranks restart
-              candidates by weak margins and prototype separation before support
-              imitation metrics. On the shifted-boundary <code>q10</code> regime, this
-              alone is enough for plain <code>kmeans_embedding</code> to select a
-              teacher-matching basin, and it also lets the localized
-              <code>kmeans_embedding</code> path recover the same full utility.
-            </p>
-            <div class="meta">
-              <span>code: `run_p3_6g_temporal_learner.py`</span>
-              <span>artifacts: `p3_6q10_plain_baseline_275_margin_selector/`, `p3_6q10_kmeans_candidate_boundary_frontier_275_margin_selector/`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>P3.6q-17: selector transfer check splits hard regimes into three types</h3>
-            <p>
-              The margin-aware selector is a real lever, but not a universal fix.
-              It stays neutral on easy <code>n3</code>, fully fixes selector-dominated
-              <code>q10</code>, changes the basin but still falls slightly short on
-              <code>m4b</code>, and does nothing for <code>o8</code>. The cleanest
-              interpretation now is that our hard regimes divide into
-              selector-dominated failures, partially selector-sensitive structural
-              failures, and non-selector failures.
-            </p>
-            <div class="meta">
-              <span>artifact: `P3_6Q_17_MARGIN_SELECTOR_TRANSFER_CHECK_ZH.md`</span>
-              <span>runs: `p3_6q16_n3_margin_selector/`, `p3_6q16_o8_margin_selector/`, `p3_6q16_m4b_margin_selector/`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>Current best next step: use q10 as selector reference and m4b as post-selector target</h3>
-            <p>
-              We should not silently flip the project default to
-              <code>margin_aware</code>, but we should keep it as an explicit
-              experimental axis. The best research split now is:
-              <code>q10</code> as the selector-dominated reference case, and
-              <code>m4b</code> as the main post-selector structural target where better
-              basin choice alone is still insufficient.
-            </p>
-            <div class="meta">
-              <span>use for future A/B: `support_imitation` vs `margin_aware`</span>
-              <span>priority: focused `m4b` post-selector analysis</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>P3.6q-18: m4b has moved from candidate recovery to secondary weak UE extraction</h3>
-            <p>
-              The post-selector audit shows that <code>m4b</code> is no longer failing
-              because it cannot find the weak candidate. On
-              <code>43.7s ~ 43.9s</code>, the learner already predicts the correct
-              weak top-k path <code>15|4</code>, matching the teacher candidate.
-              The remaining error happens one step later: final grouping still
-              outputs <code>... / 15</code> instead of <code>... / 15|4</code>, so
-              <code>ue4</code> gets absorbed back into the strong group.
-            </p>
-            <div class="meta">
-              <span>artifact: `P3_6Q_18_M4B_POST_SELECTOR_PLATEAU_ZH.md`</span>
-              <span>summary: `p3_6q18_m4b_post_selector_summary.csv`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>Updated next step: target secondary-anchor closure, not more selector sweeps</h3>
-            <p>
-              The most valuable next move is now a minimal post-selector structural
-              probe for <code>m4b</code>. We should stop spending cycles on more
-              selector-only tuning here and instead test whether the final grouping
-              stage can preserve the already-recovered secondary weak UE as part of
-              the weak cluster.
-            </p>
-            <div class="meta">
-              <span>focus: keep `ue4` with weak anchor `ue15`</span>
-              <span>priority: secondary-anchor closure / boundary retention</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-19: secondary-anchor closure fully solves m4b</h3>
-            <p>
-              The minimal structural probe worked. With
-              <code>restart_selection_mode = margin_aware</code> and
-              <code>grouping_mode = candidate_anchor_hybrid</code>,
-              <code>LE-GRA MVP</code> reaches full teacher match on
-              <code>m4b</code>. The weak top-k path stays
-              <code>15|4</code>, and this time the final grouping also preserves
-              <code>15|4</code> instead of collapsing to
-              <code>... / 15</code>. That directly validates the
-              secondary-weak-UE extraction diagnosis from <code>q18</code>.
-            </p>
-            <div class="meta">
-              <span>run: `p3_6q19_m4b_candidate_anchor_margin_selector/`</span>
-              <span>summary: `p3_6q19_m4b_anchor_closure_summary.csv`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>Updated next step: test whether anchor closure only helps when weak top-k is already correct</h3>
-            <p>
-              The next highest-value move is a small transfer check, not a huge
-              matrix. We now have evidence that anchor-preserving closure helps
-              on a post-selector regime where the candidate path is already
-              correct. The next question is whether it stays useful when
-              candidate recovery is still wrong, with <code>o8</code> as the
-              best contrast case.
-            </p>
-            <div class="meta">
-              <span>hypothesis: anchor closure helps only after candidate recovery</span>
-              <span>priority: focused `o8` contrast check</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-20: o8 is also fixed once we repair LE-GRA's own grouping path</h3>
-            <p>
-              The <code>o8</code> contrast check revised our earlier interpretation.
-              This regime was not failing because the learner could not represent
-              the split. Under the same selected seed <code>7</code>, plain
-              <code>Multi-feature k-means</code> already matched the teacher; only
-              <code>LE-GRA MVP</code> collapsed to single-group. Switching LE-GRA's
-              final grouping to <code>candidate_anchor_hybrid</code> recovers the
-              teacher-equivalent <code>3|4</code> weak pair and closes the full
-              utility gap.
-            </p>
-            <div class="meta">
-              <span>artifact: `P3_6Q_20_O8_GROUPING_PATH_RECOVERY_ZH.md`</span>
-              <span>summary: `p3_6q20_o8_grouping_path_summary.csv`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>Updated next step: formalize a regime checklist before doing larger sweeps</h3>
-            <p>
-              We now have enough evidence that hard cases are not all the same.
-              Before scaling experiments again, the most useful next step is to
-              codify a small decision rule: when to fix selector choice first,
-              when weak top-k is already recovered, and when an
-              anchor-preserving grouping bridge should be the first structural
-              probe.
-            </p>
-            <div class="meta">
-              <span>use cases: `q10`, `m4b`, `o8`</span>
-              <span>priority: regime taxonomy / decision checklist</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-21: regime decision checklist is now explicit</h3>
-            <p>
-              We condensed the latest breakthroughs into a small diagnostic
-              checklist so future focused regimes do not immediately jump into
-              the wrong intervention. The checklist asks three things in order:
-              whether the failure is selector-dominated, whether the weak
-              candidate path is already recovered, and whether the only
-              remaining error is final grouping closure. This now gives us a
-              practical decision rule across <code>q10</code>, <code>m4b</code>,
-              and <code>o8</code>.
-            </p>
-            <div class="meta">
-              <span>artifact: `P3_6Q_21_REGIME_DECISION_CHECKLIST_ZH.md`</span>
-              <span>table: `p3_6q21_regime_decision_checklist.csv`</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-22: hard-regime-only matrix now shows where the real method gaps live</h3>
-            <p>
-              We consolidated the current story into a focused comparison matrix
-              and a Chinese report that only cover the three most informative
-              hard regimes: <code>q10</code>, <code>m4b</code>, and
-              <code>o8</code>. This makes one thing much clearer: the current
-              research gains are often concentrated in short transition windows
-              and final grouping structure, so whole-dataset utility averages
-              alone systematically understate the difference between old LE-GRA
-              paths and the repaired ones.
-            </p>
-            <div class="meta">
-              <span>artifacts: `p3_6q22_hard_regime_only_matrix.csv`, `hard_regime_report_zh.html`</span>
-              <span>use: reporting backbone for the current research story</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-23 ~ q-24: a new benchmark-like crossover regime has been found</h3>
-            <p>
-              We designed a new targeted regime on
-              <code>3|4|5|6 @ gnb_2</code> with a persistent weak anchor
-              <code>ue4</code> and a temporal switch of the secondary weak role
-              from <code>ue5</code> to <code>ue6</code>. Teacher audit shows two
-              positive corridors instead of a single-point success, and the late
-              corridor <code>28.3s ~ 28.8s</code> cleanly separates methods:
-              plain baselines collapse to single-group, while plain LE-GRA
-              already matches the teacher on <code>5/6</code> late snapshots but
-              still misses the earliest crossover boundary at <code>28.3s</code>.
-            </p>
-            <div class="meta">
-              <span>artifacts: `p3_6q23_dual_boundary_crossover_bundle/`, `p3_6q23_teacher_audit/`, `p3_6q24_dual_boundary_crossover_temporal_probe/`</span>
-              <span>summary: `p3_6q24_dual_boundary_crossover_summary.csv`</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>Updated next step: make LE-GRA recover the 28.3s crossover boundary one snapshot earlier</h3>
-            <p>
-              The main breakthrough target should now move from the already
-              explained <code>q10 / m4b / o8</code> cases to the new
-              <code>q23 / q24</code> crossover regime. The most valuable next
-              move is not a larger sweep, but a focused intervention around the
-              first late-phase failure point <code>28.3s</code>, where LE-GRA is
-              still one step behind the teacher on the secondary-weak switch.
-            </p>
-            <div class="meta">
-              <span>priority: localized boundary supervision / temporal replay / candidate-switch calibration</span>
-              <span>goal: close the last gap on `28.3s`</span>
-            </div>
-          </article>
-
-          <article class="task green">
-            <h3>P3.6q-25 ~ q-26: the real bottleneck is now isolated to the very first split onset</h3>
-            <p>
-              We verified that once <code>28.3s</code> is included in support,
-              the later corridor <code>28.4s ~ 28.8s</code> becomes fully
-              recoverable. But when training stops at <code>28.2s</code>, plain
-              LE-GRA still collapses to single-group at <code>28.3s</code>.
-              More importantly, replay cannot help there because the pre-onset
-              window <code>27.9s ~ 28.2s</code> contains zero positive-gain
-              teacher splits, so there is nothing boundary-support can replay.
-            </p>
-            <div class="meta">
-              <span>artifacts: `P3_6Q_25_SINGLE_SUPPORT_CROSSOVER_TRANSFER_ZH.md`, `P3_6Q_26_EARLIEST_ONSET_FAILURE_ZH.md`</span>
-              <span>insight: `28.3s` is the first true onset, not a late-corridor continuation</span>
-            </div>
-          </article>
-
-          <article class="task gold">
-            <h3>Updated next step: move from replay/weight tuning to onset-aware structure or dataset-side onset shaping</h3>
-            <p>
-              The latest focused probes show that candidate-conditioned boundary
-              weighting and stronger frontier hard negatives still cannot push
-              <code>ue6</code> into the correct secondary-weak role at
-              <code>28.3s</code>. That means the next high-value step is no
-              longer another small weighting tweak. We should either add
-              temporal weak-candidate change signals to the learner, or reshape
-              the crossover regime so the first <code>ue5 -> ue6</code> handoff
-              becomes a thin multi-snapshot onset corridor rather than a
-              single-point cliff.
-            </p>
-            <div class="meta">
-              <span>priority: onset-aware structure / stronger dataset-side onset shaping</span>
-              <span>avoid: replay-only sweeps and small candidate-weight retuning</span>
-            </div>
+          <article class="note gold">
+            <h3>先不要</h3>
+            <ul>
+              <li>先不要擴大 seeds / Kmax / 大矩陣，只會讓整理成本上升。</li>
+              <li>先不要再做 learner loss、selector、tie-break 類的小修小補。</li>
+              <li>先不要把整份研究重新包裝成「LE-GRA 差一點就要成功」。</li>
+            </ul>
           </article>
         </div>
       </section>
     </section>
+
+    <footer class="footer">
+      <div><strong>一句話主線：</strong>這個專案第一階段最重要的成果，不是做出一個穩贏 learner，而是證明 `resource-cost / multi-feature` 比 `CQI-only` 更接近真實 multicast grouping 問題。</div>
+      <div><strong>接下來報告的主角：</strong>`Offline teacher + DP`、`Resource-cost k-means`、`Multi-feature k-means`。</div>
+    </footer>
   </main>
 </body>
 </html>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LE-GRA MVP | Project Overview</title>
+  <title>MBS Grouping Study | Project Overview</title>
   <style>
     :root {
       --paper: #f4f1e8;
@@ -18,17 +18,12 @@
       --shadow: 0 24px 70px rgba(20, 28, 34, 0.12);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
-      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      font-family: "Segoe UI", "Noto Sans", sans-serif;
       color: var(--ink);
       background:
         radial-gradient(circle at top left, rgba(231, 158, 103, 0.26), transparent 34%),
@@ -93,7 +88,6 @@
     .hero-copy,
     .hero-panel,
     .section-card,
-    .roadmap,
     .footer-note {
       background: var(--panel);
       backdrop-filter: blur(12px);
@@ -108,7 +102,7 @@
     }
 
     .hero-copy::after {
-      content: "LE-GRA";
+      content: "MBS";
       position: absolute;
       right: -14px;
       bottom: -22px;
@@ -173,16 +167,8 @@
       color: #f7f1e8;
     }
 
-    .hero-panel h2 {
-      font-size: 1.5rem;
-      margin-bottom: 16px;
-    }
-
-    .hero-panel p {
-      margin: 0;
-      color: rgba(247, 241, 232, 0.84);
-      line-height: 1.7;
-    }
+    .hero-panel h2 { font-size: 1.5rem; margin-bottom: 16px; }
+    .hero-panel p { margin: 0; color: rgba(247, 241, 232, 0.84); line-height: 1.7; }
 
     .metric-list {
       display: grid;
@@ -213,10 +199,7 @@
       margin-top: 24px;
     }
 
-    .section-card {
-      padding: 28px;
-      position: relative;
-    }
+    .section-card { padding: 28px; }
 
     .section-card h2 {
       font-size: clamp(1.8rem, 4vw, 2.7rem);
@@ -230,117 +213,23 @@
       color: var(--deep);
     }
 
-    .idea-grid {
+    .idea-grid,
+    .grid-2,
+    .roadmap-steps {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
       margin-top: 20px;
     }
 
-    .idea-block {
+    .idea-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-2,
+    .roadmap-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .idea-block,
+    .roadmap-step {
       padding: 18px;
       background: rgba(255, 255, 255, 0.48);
       border: 1px solid var(--line);
-    }
-
-    .idea-block h3 {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-    }
-
-    .progress-board {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 18px;
-      margin-top: 16px;
-    }
-
-    .progress-list,
-    .status-box,
-    .roadmap-step {
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.44);
-      border: 1px solid var(--line);
-    }
-
-    ul {
-      padding-left: 20px;
-      margin: 0;
-    }
-
-    li + li {
-      margin-top: 8px;
-    }
-
-    .status-box h3,
-    .progress-list h3,
-    .roadmap h2 {
-      margin-bottom: 12px;
-      font-size: 1.25rem;
-    }
-
-    .status-box .signal {
-      display: inline-block;
-      padding: 5px 10px;
-      margin-bottom: 14px;
-      background: rgba(198, 84, 43, 0.12);
-      color: var(--signal);
-      font-weight: 700;
-      border: 1px solid rgba(198, 84, 43, 0.2);
-    }
-
-    .status-box p + p {
-      margin-top: 12px;
-    }
-
-    .roadmap {
-      padding: 30px 28px;
-      margin-top: 24px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .roadmap::before {
-      content: "";
-      position: absolute;
-      left: 36px;
-      top: 88px;
-      bottom: 36px;
-      width: 1px;
-      background: linear-gradient(180deg, var(--signal), rgba(19, 33, 44, 0.08));
-    }
-
-    .roadmap-steps {
-      display: grid;
-      gap: 18px;
-      margin-top: 18px;
-    }
-
-    .roadmap-step {
-      position: relative;
-      padding-left: 72px;
-    }
-
-    .roadmap-step::before {
-      content: attr(data-step);
-      position: absolute;
-      left: 18px;
-      top: 18px;
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      background: var(--signal);
-      color: white;
-      font-weight: 700;
-      font-size: 0.92rem;
-      border-radius: 50%;
-      box-shadow: 0 10px 22px rgba(198, 84, 43, 0.24);
-    }
-
-    .roadmap-step h3 {
-      font-size: 1.15rem;
-      margin-bottom: 8px;
     }
 
     .footer-note {
@@ -348,102 +237,64 @@
       padding: 20px 24px;
       display: flex;
       justify-content: space-between;
-      gap: 18px;
+      gap: 16px;
       flex-wrap: wrap;
-      color: var(--muted);
-      font-size: 0.95rem;
     }
 
-    .footer-note strong {
-      color: var(--ink);
-    }
-
-    @media (max-width: 920px) {
+    @media (max-width: 960px) {
       .hero,
-      .progress-board,
-      .idea-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .roadmap::before {
-        left: 28px;
-      }
-
-      .roadmap-step {
-        padding-left: 64px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .page {
-        width: min(100% - 20px, 1120px);
-        padding-top: 18px;
-      }
-
-      .hero-copy,
-      .hero-panel,
-      .section-card,
-      .roadmap,
-      .footer-note {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-
-      h1 {
-        font-size: 2.6rem;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      html {
-        scroll-behavior: auto;
-      }
+      .idea-grid,
+      .grid-2,
+      .roadmap-steps { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <main class="page">
     <div class="topbar">
-      <div class="tag">Research Prototype Overview</div>
-      <div>Updated on August 5, 2026</div>
+      <div class="tag">Project Overview</div>
+      <div>Updated 2026-08-10</div>
     </div>
 
     <section class="hero">
       <article class="hero-copy">
-        <div class="eyebrow">5G Vehicular Multicast</div>
-        <h1>LE-GRA MVP</h1>
+        <div class="eyebrow">Research Direction Reset</div>
+        <h1>From CQI-only Grouping to Resource-Cost and Multi-Feature Grouping</h1>
         <p>
-          LE-GRA is a research prototype for <strong>Learning-based Embedding Grouping and
-          Resource Allocation</strong>. The project asks a focused question: can learned
-          user representations group vehicular multicast users more effectively than
-          simple CQI-only rules, especially when radio conditions look similar at the
-          wideband level but differ in resource cost and temporal behavior?
+          This project no longer centers on proving that LE-GRA is a universally superior
+          learner. The main research story is now sharper: in vehicular multicast,
+          grouping users by current CQI alone is too shallow, and richer feature views
+          such as resource cost and multi-feature state are much better aligned with the
+          true allocation problem.
+        </p>
+        <p>
+          In other words, the strongest outcome of this phase is not a broadly dominant
+          learned model. It is a validated argument that <strong>feature representation
+          matters more than the original CQI-only grouping assumption</strong>.
         </p>
       </article>
 
       <aside class="hero-panel">
         <div>
-          <h2>Current Snapshot</h2>
+          <h2>Current Position</h2>
           <p>
-            The project now has a post-fix medium experiment rerun. After correcting
-            the learner's embedding-normalization gradient, LE-GRA improved enough to
-            beat CQI, resource-cost, and multi-feature k-means in aligned light and
-            aligned medium settings, while ambiguous settings remain the hardest case.
+            The teacher-plus-DP pipeline is validated, CQI-only grouping is clearly
+            insufficient, and the most credible practical methods now are
+            <strong>resource-cost k-means</strong> and <strong>multi-feature k-means</strong>.
           </p>
         </div>
-
         <div class="metric-list">
           <div class="metric">
-            <strong>MVP complete</strong>
-            <span>Scenario generation, teacher labeling, embedding learning, evaluation</span>
+            <strong>Teacher validated</strong>
+            <span>Offline teacher plus exact DP gives a stable research reference</span>
           </div>
           <div class="metric">
-            <strong>3 experiment lines</strong>
-            <span>Main LE-GRA, DP vs greedy, pairwise graph grouping</span>
+            <strong>Feature shift</strong>
+            <span>The project’s main contribution is now richer grouping features, not a universal learner win</span>
           </div>
           <div class="metric">
-            <strong>Next challenge</strong>
-            <span>Make the learner win reliably in ambiguous scenarios, not only in aligned ones</span>
+            <strong>LE-GRA reframed</strong>
+            <span>Useful as an exploratory branch, but no longer the main headline method</span>
           </div>
         </div>
       </aside>
@@ -451,214 +302,211 @@
 
     <div class="sections">
       <section class="section-card">
-        <div class="eyebrow">Core Idea</div>
-        <h2>Why this project matters</h2>
-        <p>
-          Traditional MBS grouping often relies on raw CQI or similarly shallow radio
-          indicators. That works in clean settings, but it can miss important structure:
-          two users may share similar current CQI while still needing very different
-          RB costs because their RB-level profiles, mobility trends, and playback history
-          are not the same.
-        </p>
-        <p>
-          LE-GRA tries to bridge that gap. Instead of grouping users only by one visible
-          metric, it learns a richer embedding from channel history, RB statistics,
-          mobility cues, and quality-related resource cost. The expected benefit is more
-          meaningful multicast grouping and better downstream resource allocation under
-          an RB budget.
-        </p>
-
+        <div class="eyebrow">Main Question</div>
+        <h2>What this research now claims</h2>
         <div class="idea-grid">
           <div class="idea-block">
-            <h3>Input view</h3>
-            <p>Use CQI history, RB-level rates, mobility features, and resource-cost vectors instead of only current CQI.</p>
+            <h3>Old starting point</h3>
+            <p>
+              A natural first baseline is to group users by CQI. It is simple, intuitive,
+              and commonly used.
+            </p>
           </div>
           <div class="idea-block">
-            <h3>Teacher signal</h3>
-            <p>Generate pseudo-labels with an offline utility-driven teacher that searches grouping boundaries and solves video assignment with DP.</p>
+            <h3>What we learned</h3>
+            <p>
+              Users with similar wideband CQI can still have very different RB-level rate
+              profiles, temporal quality conflicts, and effective service costs.
+            </p>
           </div>
           <div class="idea-block">
-            <h3>Learning target</h3>
-            <p>Train a model to place users with similar multicast value into nearby representation space, then cluster them for allocation.</p>
+            <h3>Current answer</h3>
+            <p>
+              Resource-cost and multi-feature grouping are more faithful to the true
+              multicast allocation problem than CQI-only grouping.
+            </p>
           </div>
         </div>
       </section>
 
       <section class="section-card">
-        <div class="eyebrow">Current Progress</div>
-        <h2>What has been completed so far</h2>
-
-        <div class="progress-board">
-          <div class="progress-list">
-            <h3>Implemented work</h3>
-            <ul>
-              <li>Built a synthetic vehicular MBS scenario generator with aligned, ambiguous, and mixed modes.</li>
-              <li>Constructed offline teacher grouping with contiguous boundary search over users sorted by service difficulty.</li>
-              <li>Integrated exact dynamic programming for group-level video-quality assignment under RB budget.</li>
-              <li>Implemented an MLP embedding model trained with pairwise contrastive loss.</li>
-              <li>Compared multiple baselines: no grouping, CQI k-means, resource-cost k-means, multi-feature k-means, offline teacher, and LE-GRA.</li>
-              <li>Added a separate experiment comparing DP allocation against a greedy allocator.</li>
-              <li>Added a second exploratory route using pairwise same-group prediction plus graph clustering.</li>
-            </ul>
-          </div>
-
-          <div class="status-box">
-            <div class="signal">Progress Assessment</div>
-            <h3>Current stage</h3>
+        <div class="eyebrow">Why CQI is not enough</div>
+        <h2>The bottleneck is feature poverty, not only model weakness</h2>
+        <div class="grid-2">
+          <div class="idea-block">
+            <h3>Same CQI, different cost</h3>
             <p>
-              This project is no longer at the idea stage. It is already a functioning
-              <strong>research MVP with experiments</strong>.
-            </p>
-            <p>
-              The strongest result so far is that the <strong>teacher + DP framework is clearly validated</strong>.
-              The learned model is operational, but it has not yet consistently surpassed
-              the strongest handcrafted or teacher-based baselines.
+              Two users may look similar in current wideband CQI but still require very
+              different RB budgets once RB-level profiles are taken into account.
             </p>
           </div>
-        </div>
-
-        <div class="idea-grid" style="margin-top: 18px;">
           <div class="idea-block">
-            <h3>Main MVP result</h3>
-            <p>LE-GRA runs end-to-end and can be evaluated fairly against baseline grouping methods on the same backend.</p>
-          </div>
-          <div class="idea-block">
-            <h3>Allocation result</h3>
-            <p>Exact DP outperforms greedy allocation, especially when good grouping candidates are available.</p>
-          </div>
-          <div class="idea-block">
-            <h3>Modeling result</h3>
-            <p>The pairwise graph idea is implemented, but it is still exploratory rather than the new best method.</p>
+            <h3>Temporal state matters</h3>
+            <p>
+              Previous quality, mobility trend, and historical conflicts can change whether
+              splitting is worthwhile. Those effects are largely invisible to a single CQI value.
+            </p>
           </div>
         </div>
       </section>
 
       <section class="section-card">
-        <div class="eyebrow">Latest Evidence</div>
-        <h2>What the August 5 rerun changed</h2>
-        <p>
-          The latest medium matrix rerun matters because it was executed after a learner
-          correctness fix: backpropagation through embedding L2 normalization now uses
-          the proper analytic gradient. This was not a cosmetic cleanup. It changed the
-          research conclusion.
-        </p>
-        <p>
-          Before the fix, LE-GRA looked consistently competitive but rarely stronger than
-          the best handcrafted baselines. After the fix, LE-GRA became the best non-teacher
-          method in <strong>aligned/light</strong> and <strong>aligned/medium</strong>. It still
-          does not dominate ambiguous settings, but the learner now shows real value instead
-          of only theoretical promise.
-        </p>
-
+        <div class="eyebrow">Pipeline</div>
+        <h2>The stable part of the system is the teacher + DP framework</h2>
         <div class="idea-grid">
           <div class="idea-block">
-            <h3>Clear improvement</h3>
-            <p>LE-GRA now beats CQI k-means, resource-cost k-means, and multi-feature k-means in aligned light and aligned medium conditions.</p>
+            <h3>Scenario generation</h3>
+            <p>
+              Build synthetic and coupled trace-like scenarios with CQI history, RB rates,
+              mobility state, previous quality, and derived resource costs.
+            </p>
           </div>
           <div class="idea-block">
-            <h3>Still unresolved</h3>
-            <p>Ambiguous scenarios remain the research bottleneck. There the learned embedding is improved, but not yet a stable winner.</p>
+            <h3>Offline teacher</h3>
+            <p>
+              Sort users by service difficulty, search contiguous grouping boundaries, and
+              score each candidate using exact DP allocation under the RB budget.
+            </p>
           </div>
           <div class="idea-block">
-            <h3>Updated takeaway</h3>
-            <p>The bottleneck is no longer “does the learner matter at all?” but “how do we make the learner robust under ambiguity?”</p>
+            <h3>Fair comparison</h3>
+            <p>
+              Evaluate CQI k-means, resource-cost k-means, multi-feature k-means, and
+              LE-GRA on the same backend so grouping quality is isolated cleanly.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="eyebrow">Method Ranking</div>
+        <h2>The new method hierarchy</h2>
+        <div class="idea-grid">
+          <div class="idea-block">
+            <h3>CQI k-means</h3>
+            <p>
+              Still a useful baseline, but now mainly a proof of what is missing when the
+              feature view is too shallow.
+            </p>
+          </div>
+          <div class="idea-block">
+            <h3>Resource-cost k-means</h3>
+            <p>
+              This is the strongest practical baseline and the clearest next-step method.
+              It captures the real cost of serving users, not just current radio appearance.
+            </p>
+          </div>
+          <div class="idea-block">
+            <h3>Multi-feature k-means</h3>
+            <p>
+              This is the richer representation track. It shows that strong grouping can
+              already emerge from better features, even without a learned embedding as the main story.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="eyebrow">LE-GRA Status</div>
+        <h2>LE-GRA is no longer the main claim</h2>
+        <div class="grid-2">
+          <div class="idea-block">
+            <h3>What we can no longer claim</h3>
+            <p>
+              We cannot honestly claim that LE-GRA is a robust general solution that
+              consistently beats strong handcrafted baselines across regimes.
+            </p>
+          </div>
+          <div class="idea-block">
+            <h3>What remains useful</h3>
+            <p>
+              LE-GRA helped reveal where the hard structure actually lies. It remains a
+              meaningful exploratory branch, especially for narrow boundary regimes, but it
+              should not dominate the project narrative.
+            </p>
           </div>
         </div>
       </section>
 
       <section class="section-card">
         <div class="eyebrow">Teacher Design</div>
-        <h2>Why the offline teacher does not use the global optimum</h2>
+        <h2>Why the offline teacher is constrained rather than globally optimal</h2>
         <p>
-          A natural question is why the offline teacher does not search the true
-          global-best grouping among all possible user partitions. The reason is
-          not that a stronger teacher is undesirable. The reason is that the full
-          search space grows explosively with the number of users, so a global
-          optimum is computationally unrealistic even for moderate scenario sizes.
+          The teacher is not globally optimal because unrestricted partition search is too
+          expensive. A true all-partition teacher would require evaluating
+          <strong>Σ S(n, k)</strong> candidates, which becomes impractical very quickly.
+          The current teacher instead sorts users and searches only contiguous cuts,
+          reducing the search to <strong>Σ C(n - 1, k - 1)</strong> for fixed Kmax.
         </p>
         <p>
-          If there are <strong>n</strong> users, then a true unrestricted teacher
-          would need to evaluate every partition from 1 to <strong>Kmax</strong>
-          groups. That search count follows
-          <strong>&Sigma; S(n, k)</strong>, where <strong>S(n, k)</strong> is the
-          Stirling number of the second kind. This is exponential in practice. By
-          contrast, the current teacher first sorts users by resource-cost score
-          and only searches contiguous cuts on that sorted line. The candidate
-          count becomes <strong>&Sigma; C(n - 1, k - 1)</strong>, which is still
-          expensive but polynomial in <strong>n</strong> when <strong>Kmax</strong>
-          is fixed.
+          This makes the teacher a tractable, interpretable constrained optimum. That is
+          enough for research supervision and for defining a strong allocation-oriented
+          reference line.
         </p>
+      </section>
 
-        <div class="idea-grid">
+      <section class="section-card">
+        <div class="eyebrow">Phase-1 Takeaway</div>
+        <h2>What this phase really delivered</h2>
+        <div class="grid-2">
           <div class="idea-block">
-            <h3>Global optimum</h3>
-            <p>Search every possible partition of users. This is the cleanest theoretical target, but the search space grows too fast to support repeated scenario generation and training.</p>
+            <h3>Positive outcome</h3>
+            <p>
+              The project successfully moved beyond the original CQI-only intuition and
+              established that richer grouping features, especially resource-cost views,
+              are genuinely worthwhile.
+            </p>
           </div>
           <div class="idea-block">
-            <h3>Current offline teacher</h3>
-            <p>Sort users by service difficulty, search all contiguous boundaries up to Kmax, and use exact DP to score each candidate grouping under the RB budget.</p>
-          </div>
-          <div class="idea-block">
-            <h3>Research value</h3>
-            <p>This gives a strong, stable, and computable supervision signal. The teacher is not globally optimal, but it is a constrained optimum inside a realistic and interpretable grouping structure.</p>
+            <h3>Honest limitation</h3>
+            <p>
+              The learner branch did not mature into a broad winning method. That is not
+              wasted work; it is a useful negative result that clarifies where the real
+              value of the system lies.
+            </p>
           </div>
         </div>
+      </section>
 
-        <p style="margin-top: 18px;">
-          In other words, the teacher is designed as a
-          <strong>tractable near-optimal supervisor</strong>. Its role is to
-          generate high-quality pseudo-labels and define an upper reference for
-          the student model, not to act as a deployable real-time algorithm.
-          This is exactly what gives LE-GRA research value: if the student can
-          learn to approach this strong offline teacher with much lower online
-          decision cost, then the learned method becomes meaningful.
-        </p>
+      <section class="section-card">
+        <div class="eyebrow">Next Writing Direction</div>
+        <h2>How the report should now be framed</h2>
+        <div class="roadmap-steps">
+          <article class="roadmap-step">
+            <h3>Center the story on feature design</h3>
+            <p>
+              Frame the work as a progression from CQI-only grouping toward resource-aware
+              and multi-feature grouping.
+            </p>
+          </article>
+          <article class="roadmap-step">
+            <h3>Use teacher + DP as the stable backbone</h3>
+            <p>
+              Present the offline teacher and exact DP allocator as the validated research
+              framework that made the comparisons meaningful.
+            </p>
+          </article>
+          <article class="roadmap-step">
+            <h3>Keep LE-GRA as an exploratory appendix line</h3>
+            <p>
+              Include it as evidence of investigated alternatives and boundary-regime
+              insights, but not as the main contribution claim.
+            </p>
+          </article>
+          <article class="roadmap-step">
+            <h3>Make the conclusion practical</h3>
+            <p>
+              The actionable result is that better grouping features already improve the
+              problem formulation, even without a universally superior learner.
+            </p>
+          </article>
+        </div>
       </section>
     </div>
 
-    <section class="roadmap">
-      <div class="eyebrow">Future Plan</div>
-      <h2>Where the project should go next</h2>
-      <div class="roadmap-steps">
-        <article class="roadmap-step" data-step="01">
-          <h3>Strengthen the learner</h3>
-          <p>
-            Focus on model-selection and training quality: validation-based checkpointing,
-            better pair sampling, and small sweeps over margin, hidden size, learning rate,
-            and epochs to improve ambiguous-scene behavior.
-          </p>
-        </article>
-
-        <article class="roadmap-step" data-step="02">
-          <h3>Stress-test ambiguity first</h3>
-          <p>
-            Keep aligned cases as sanity checks, but shift experiment attention toward
-            ambiguous scenarios where hand-crafted grouping and learned grouping are most
-            meaningfully separated.
-          </p>
-        </article>
-
-        <article class="roadmap-step" data-step="03">
-          <h3>Scale only after the learner is credible</h3>
-          <p>
-            Do not jump immediately to larger `Kmax`, more seeds, or much bigger matrices.
-            First make sure the learner has a stable claim over strong non-teacher baselines.
-          </p>
-        </article>
-
-        <article class="roadmap-step" data-step="04">
-          <h3>Then move toward realism</h3>
-          <p>
-            Once the learner story is convincing, connect the prototype to richer traces,
-            broader system design, and the later thesis or paper architecture.
-          </p>
-        </article>
-      </div>
-    </section>
-
     <footer class="footer-note">
-      <div><strong>Project position:</strong> validated MVP, post-fix learner improvement stage</div>
-      <div><strong>Key message:</strong> the pipeline is real; the next milestone is making LE-GRA robust in ambiguous conditions</div>
+      <div><strong>Project position:</strong> validated teacher-plus-DP pipeline, feature-centric grouping story</div>
+      <div><strong>Key message:</strong> the strongest contribution is the shift from CQI-only grouping to resource-cost and multi-feature grouping</div>
     </footer>
   </main>
 </body>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LE-GRA MVP | P3.6 研究結論</title>
+  <title>MBS Grouping Study | 第一階段研究結論</title>
   <style>
     :root {
       --bg: #f6f1e8;
@@ -18,9 +18,7 @@
       --shadow: 0 24px 64px rgba(18, 28, 35, 0.12);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -62,9 +60,7 @@
       font-size: 0.94rem;
     }
 
-    .topbar {
-      padding-bottom: 22px;
-    }
+    .topbar { padding-bottom: 22px; }
 
     .tag,
     .eyebrow {
@@ -115,7 +111,7 @@
     }
 
     .hero-copy::after {
-      content: "P3.6";
+      content: "P1";
       position: absolute;
       right: 6px;
       bottom: -16px;
@@ -166,9 +162,7 @@
     }
 
     .hero-side p,
-    .hero-side li {
-      color: rgba(248, 241, 230, 0.86);
-    }
+    .hero-side li { color: rgba(248, 241, 230, 0.86); }
 
     .sections {
       display: grid;
@@ -185,13 +179,8 @@
     }
 
     .grid-3,
-    .summary-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .grid-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    .summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     .block,
     .summary-tile,
@@ -256,68 +245,38 @@
       line-height: 1.75;
     }
 
-    .footer-note {
-      margin-top: 24px;
-    }
+    .footer-note { margin-top: 24px; }
 
-    ul {
-      margin: 0;
-      padding-left: 20px;
-    }
-
-    li + li {
-      margin-top: 8px;
-    }
+    ul { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 8px; }
 
     @media (max-width: 960px) {
       .hero,
       .grid-3,
       .grid-2,
-      .summary-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .page {
-        width: min(100% - 18px, 1120px);
-        padding-top: 18px;
-      }
-
-      .hero-copy,
-      .hero-side,
-      .section-card,
-      .footer-note {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-
-      .timeline-step {
-        padding-left: 64px;
-      }
+      .summary-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <main class="page">
     <div class="topbar">
-      <div class="tag">Research Conclusion</div>
-      <div>更新日期：2026-08-06</div>
+      <div class="tag">Phase-1 Conclusion</div>
+      <div>Updated 2026-08-10</div>
     </div>
 
     <section class="hero">
       <article class="hero-copy">
-        <div class="eyebrow">LE-GRA MVP</div>
-        <h1>P3.6 研究結論整理</h1>
+        <div class="eyebrow">研究主線收斂版</div>
+        <h1>第一階段研究結論</h1>
         <p>
-          這份結論稿聚焦在 P3.6 的核心問題：LE-GRA 在 coupled trace 上到底是
-          「學不起來」，還是只是先前沒有拿到真正 informative 的 supervision。
+          這一階段最重要的收穫，不是做出一個穩定擊敗所有 baseline 的 learner，
+          而是把問題本質釐清了：在 multicast grouping 裡，`CQI-only` 的資訊太粗，
+          真正能穩定帶來辨識力的，是 `resource-cost` 與更完整的 `multi-feature` 表示。
         </p>
         <p>
-          目前的證據顯示，真正的瓶頸不是 learner 在真實樣態資料上完全失效，
-          而是研究流程必須先成功建立、保留、並對齊到會讓 offline teacher
-          願意 split 的場景窗口。當這個條件成立後，LE-GRA 在多個 focused temporal
-          slices 上都可以完整重現 teacher。
+          換句話說，這份研究已經成功把主軸從「學習式方法是否一定更強」，
+          收斂成「什麼樣的特徵表示，比單純 CQI 更接近真實資源分群需求」。
         </p>
       </article>
 
@@ -325,22 +284,22 @@
         <div>
           <h2>一句話總結</h2>
           <p>
-            P3.6 最重要的發現不是「再換更強 learner」，而是
-            <strong>先找到真正有正增益 split 的 coupled regime</strong>。
+            第一階段最可信的結論是：
+            <strong>resource-cost / multi-feature 比 CQI-only 更值得當主方法線，LE-GRA 則保留為探索性支線。</strong>
           </p>
         </div>
         <div class="summary-grid">
           <div class="summary-tile">
-            <strong>2</strong>
-            <span>Recovered positive segments in P3.6i-2</span>
+            <strong>CQI</strong>
+            <span>重要起點，但已證明過於簡化</span>
           </div>
           <div class="summary-tile">
-            <strong>7</strong>
-            <span>Candidate temporal slices mined</span>
+            <strong>Cost</strong>
+            <span>目前最穩的主 baseline</span>
           </div>
           <div class="summary-tile">
-            <strong>1.0</strong>
-            <span>LE-GRA teacher imitation on seg_01 / seg_02</span>
+            <strong>Full</strong>
+            <span>更完整的 feature-based grouping 方向</span>
           </div>
         </div>
       </aside>
@@ -348,180 +307,144 @@
 
     <div class="sections">
       <section class="section-card">
-        <h2>研究問題與答案</h2>
+        <h2>一開始的假設，現在怎麼看</h2>
         <div class="grid-2">
           <div class="block">
-            <h3>原本的問題</h3>
+            <h3>原始想法</h3>
             <p>
-              在早期 coupled learner 測試裡，LE-GRA 看起來沒有明顯優勢，
-              甚至容易讓人懷疑它在真實 trace-like regime 上是不是學不起來。
+              一開始的研究出發點，是想知道 learner 能不能透過 embedding，
+              學出比 `CQI-only grouping` 更好的分群方式。
             </p>
           </div>
           <div class="block">
             <h3>現在的答案</h3>
             <p>
-              現在比較合理的答案是：不是 LE-GRA 本身完全失效，而是先前 train/test
-              split 沒有對齊到真實存在的 split-gain regime，所以 supervision 本身不夠 informative。
+              問題其實不是 learner 有沒有完全學會，而是單靠 learner 並沒有穩定帶來超額價值；
+              真正穩定有效的進步，反而來自更好的特徵表示。
             </p>
           </div>
         </div>
         <div class="claim">
-          可以主張的核心結論：只要 train side 與 test side 都落在真實存在的 positive-gain split regime 上，
-          LE-GRA 可以在 coupled trace 的 focused temporal slices 上完整重現 offline teacher。
+          第一階段最重要的收斂不是「LE-GRA 成功了」，而是
+          「CQI-only 不夠，resource-cost / multi-feature 才是比較對的問題表示法」。
         </div>
       </section>
 
       <section class="section-card">
-        <h2>證據鏈</h2>
+        <h2>我們現在可以正式主張的三件事</h2>
+        <div class="grid-3">
+          <div class="block">
+            <h3>1. Teacher + DP 框架成立</h3>
+            <p>
+              Offline teacher 搭配 exact DP allocator 已經被驗證是一套可用、可解釋、可公平比較的方法框架。
+              這條 backbone 沒問題。
+            </p>
+          </div>
+          <div class="block">
+            <h3>2. Resource-cost 有明確價值</h3>
+            <p>
+              研究一路做下來，最穩的正向訊號不是 learner 超車，
+              而是 resource-cost 一直比 CQI-only 更接近真實 grouping 需求。
+            </p>
+          </div>
+          <div class="block">
+            <h3>3. Multi-feature 值得當主線</h3>
+            <p>
+              richer feature 表示已經證明自己有研究價值，
+              而且它不像 learner 一樣依賴非常狹窄的 regime 才成立。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>我們也可以誠實承認的三件事</h2>
         <div class="timeline">
           <div class="timeline-step" data-step="1">
-            <h3>P3.6e：先把 split pressure 做出來</h3>
+            <h3>LE-GRA 不是通解</h3>
             <p>
-              在 `rb_budget_ratio = 0.32` 時，首次穩定出現真正的 positive-gain teacher split，
-              表示 coupled scenario 不是完全無法產生有用 supervision，而是要先把資源壓力調到對的位置。
+              它沒有穩定地在各種 family、各種 corridor、各種 teacher split 型態下都拉開差距。
+              大部分時候它不是回到 parity，就是只在很窄的 regime 才有優勢。
             </p>
           </div>
           <div class="timeline-step" data-step="2">
-            <h3>P3.6f：第一次 focused learner 失敗，暴露 supervision mismatch</h3>
+            <h3>LE-GRA 也不是主要實用解</h3>
             <p>
-              當測試 slice 有 split gain、但 train side 幾乎沒有正增益 supervision 時，
-              learner 表現就不會穩。這一輪更像是 protocol 問題，而不是演算法直接失敗。
+              從現在的結果來看，如果目標是做一個可信又可交代的方法，
+              直接使用 `resource-cost` 或 `multi-feature` 反而更穩。
             </p>
           </div>
           <div class="timeline-step" data-step="3">
-            <h3>P3.6g：重新設計 train-side supervision 後成功</h3>
+            <h3>但先前的時間沒有白費</h3>
             <p>
-              在 `0|1|2|3` 的 focused temporal window 上，只要 train/test 都對齊到同一段 split regime，
-              LE-GRA 與 teacher 完全對齊，證明 learner 並非不能學。
-            </p>
-          </div>
-          <div class="timeline-step" data-step="4">
-            <h3>P3.6i：激進 redesign 反而把 regime 破壞掉</h3>
-            <p>
-              把 northbound spacing 拉得太開之後，positive split family 全部消失，
-              顯示 informative regime 對 traffic overlap 與 cross-traffic 結構非常敏感。
-            </p>
-          </div>
-          <div class="timeline-step" data-step="5">
-            <h3>P3.6i-2：保守 redesign 把 regime 救回來</h3>
-            <p>
-              恢復原本節奏、只做溫和 speed ladder 之後，又找回 `2` 段 positive segments、
-              `7` 個 candidate slices，代表真正重要的是保住互動結構，而不是單純把人拉開。
+              因為這整段探索幫我們證明了哪條路不值得再硬推，
+              也幫我們找出真正重要的訊號其實在 feature representation，而不是 learner 本身。
             </p>
           </div>
         </div>
       </section>
 
       <section class="section-card">
-        <h2>最強實驗證據</h2>
+        <h2>為什麼這不是失敗，而是研究收斂</h2>
         <div class="grid-2">
           <div class="block">
-            <h3>seg_02：`0|1|2|3|4 @ gnb_2`</h3>
-            <ul>
-              <li>時間窗：`18.7s ~ 19.2s`</li>
-              <li>測試切法：train 到 `18.9s`，test `19.0s ~ 19.2s`</li>
-              <li>LE-GRA utility = Teacher utility = `0.6191`</li>
-              <li>Pairwise = ARI = NMI = `1.0`</li>
-            </ul>
+            <h3>如果從方法論來看</h3>
+            <p>
+              我們不是單純「做不出 learner」，
+              而是有系統地比較了 teacher、CQI、resource-cost、multi-feature、LE-GRA，
+              最後明確知道哪一條線值得留下。
+            </p>
           </div>
           <div class="block">
-            <h3>seg_01：`0|1|15|2|3|4|5 @ gnb_1`</h3>
-            <ul>
-              <li>時間窗：`43.7s ~ 43.9s`</li>
-              <li>兩個切法都成功：`43.7 -> 43.8~43.9`、`43.8 -> 43.9`</li>
-              <li>LE-GRA utility = Teacher utility = `0.6043`</li>
-              <li>Pairwise = ARI = NMI = `1.0`</li>
-            </ul>
+            <h3>如果從報告敘事來看</h3>
+            <p>
+              現在的故事反而更完整：
+              從直觀但不足的 CQI-only 出發，經過 teacher 與 learner 的探索，
+              最後收斂到更合理的 feature-based grouping。
+            </p>
           </div>
         </div>
         <div class="highlight-band">
-          <h3>為什麼 seg_01 很重要</h3>
+          <h3>真正留下來的貢獻</h3>
           <p>
-            `seg_01` 不只是另一段成功的 slice。它包含 cross-traffic 使用者 `15`，
-            發生在 `gnb_1`，而且 teacher gain (`0.05716`) 也明顯大於 `seg_02` (`0.01190`)。
-            也就是說，LE-GRA 成功重現的不是單一偶然 family，而是更高增益、結構更複雜的一段 split regime。
+            這份研究的真正價值，是把 multicast grouping 的問題重新定義得更精準：
+            不應只問「誰現在 CQI 差」，而要問「誰真的更耗資源、誰的服務狀態更容易造成 split 壓力」。
           </p>
         </div>
       </section>
 
       <section class="section-card">
-        <h2>這份研究現在可以怎麼說</h2>
+        <h2>接下來報告主線應該怎麼寫</h2>
         <div class="grid-3">
           <div class="block">
-            <h3>可以主張</h3>
+            <h3>主角</h3>
             <p>
-              LE-GRA 在 coupled trace-like regime 中不是失效的。
-              當 train/test 真正對齊到 positive-gain supervision 時，
-              它可以在多個 temporal slices 上完整重現 teacher。
+              把 `Offline teacher + DP`、`Resource-cost k-means`、`Multi-feature k-means`
+              當成主文的核心方法線。
             </p>
           </div>
           <div class="block">
-            <h3>也可以主張</h3>
+            <h3>LE-GRA 的位置</h3>
             <p>
-              場景設計本身是研究核心的一部分。Informative split regime
-              並不是自動存在，而是需要保留 overlap、cross-traffic、
-              channel ambiguity 與 resource pressure 的互動。
+              把 LE-GRA 放進 exploratory section 或 appendix，
+              當成「曾經探索過的學習式方向」與負結果分析。
             </p>
           </div>
           <div class="block">
-            <h3>還不能主張</h3>
+            <h3>主結論</h3>
             <p>
-              目前還不能說 LE-GRA 已經穩定優於強 hand-crafted baseline，
-              因為 Multi-feature 在這些 focused slices 上也同樣完美對齊 teacher。
+              報告的最終句子應改成：
+              richer feature-based grouping 比 CQI-only grouping 更能支撐有效的 multicast resource allocation。
             </p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section-card">
-        <h2>真正的研究價值</h2>
-        <p>
-          這一輪工作的價值，不只是多跑出幾個好看的分數，而是把整個研究脈絡釐清了：
-          問題不在於「演算法是不是完全沒用」，而在於
-          <strong>先前的 supervision pipeline 並沒有穩定地把 learner 帶進真正重要的 decision regime</strong>。
-        </p>
-        <p>
-          換句話說，P3.6 已經把研究焦點從「再試一個 learner trick」往前推到更成熟的問題定義：
-          什麼樣的場景條件會讓 teacher 真正傾向 split，
-          而 learner 又如何在那種 regime 上穩定泛化。
-        </p>
-      </section>
-
-      <section class="section-card">
-        <h2>下一步怎麼寫進後續工作</h2>
-        <div class="grid-2">
-          <div class="block">
-            <h3>短期下一步</h3>
-            <ul>
-              <li>整理成正式實驗章節，固定引用 `seg_01`、`seg_02`、`P3.6g` 三段證據。</li>
-              <li>做一份跨 slice 的 summary table，比較 family、teacher gain、LE-GRA imitation。</li>
-              <li>把「aggressive redesign 失敗、conservative redesign 成功」寫成設計 insight。</li>
-            </ul>
-          </div>
-          <div class="block">
-            <h3>中期研究方向</h3>
-            <ul>
-              <li>擴充更多 focused slices，但維持「先確認 supervision regime」的原則。</li>
-              <li>再比較 LE-GRA 與 Multi-feature 在更多 recovered regimes 上的穩定度。</li>
-              <li>等 protocol 穩定後，再談更大矩陣、更多 seeds 或 learner 改版。</li>
-            </ul>
           </div>
         </div>
       </section>
     </div>
 
-    <div class="footer-note">
-      <div>
-        <strong>目前最精準的報告收斂句：</strong>
-        P3.6 顯示 LE-GRA 的主要瓶頸不是 coupled trace 上完全失效，而是需要先成功建構並對齊到真正有正增益的 split-supervision regime。
-      </div>
-      <div>
-        建議搭配檔案：
-        `P3_6I_2_CONSERVATIVE_REDESIGN_ZH.md`、
-        `P3_6G_TRAIN_SIDE_SUPERVISION_REDESIGN_ZH.md`、
-        `SESSION_HANDOFF.md`
-      </div>
-    </div>
+    <footer class="footer-note">
+      <div><strong>第一階段最精準的結論：</strong>我們沒有得到一個普遍勝出的 learner，但成功證明了 `resource-cost / multi-feature` 比 `CQI-only` 更接近真實問題。</div>
+      <div><strong>現在的主方法定位：</strong>`Resource-cost k-means` 與 `Multi-feature k-means`。</div>
+    </footer>
   </main>
 </body>
 </html>

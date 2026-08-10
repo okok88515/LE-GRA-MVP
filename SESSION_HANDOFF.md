@@ -1,8 +1,8 @@
-# LE-GRA Research Session Handoff
+# MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-07
+Last updated: 2026-08-10
 
-This document is the continuity note for resuming the LE-GRA discussion in a
+This document is the continuity note for resuming the MBS grouping discussion in a
 new Codex task or on another computer. After pulling the repository, ask Codex
 to read this file together with `medium_matrix_results/*.csv` before proposing
 the next experiment.
@@ -14,40 +14,105 @@ summary before reading the detailed sections below.
 
 ### TL;DR
 
-- The current strongest new regime is:
-  - `3|4|5|6 @ gnb_2`
-  - bundle: `p3_6q23_dual_boundary_crossover_bundle/bundle`
-- The key late positive corridor is:
-  - `28.3s ~ 28.8s`
-- The teacher split there is:
-  - `3|5 / 4|6`
-- Plain baselines fail cleanly there:
-  - `CQI` / `Multi-feature k-means` collapse to single-group
-- Plain LE-GRA is close but not complete:
-  - it matches teacher on `28.4s ~ 28.8s`
-  - it still fails exactly at `28.3s`
+- The project narrative has been reset:
+  - the main story is no longer "prove LE-GRA is the universal winner"
+  - the main story is now "CQI-only grouping is too shallow, and
+    `resource-cost` / `multi-feature` grouping are better aligned with the
+    true multicast allocation problem"
+- Current method positioning:
+  - `Offline teacher + exact DP` = validated research backbone
+  - `resource-cost k-means` = strongest practical mainline method
+  - `multi-feature k-means` = richer mainline feature-based method
+  - `LE-GRA` = exploratory / appendix line, still useful but no longer the
+    headline contribution
+
+- The current best showcase corridor is now:
+  - `1|2|3|4|5|6 @ gnb_2`
+  - bundle: `p3_6r4_q10_history_conflict_bundle`
+  - corridor: `28.0s ~ 28.2s` with train support `27.7s ~ 27.9s`
+- On that corridor, we now have a larger clean gap:
+  - `Offline teacher = LE-GRA = 0.5694`
+  - `resource-cost k-means = 0.5426`
+  - `teacher - resource-cost = 0.0268`
+- This is stronger than the original `q10` showcase:
+  - old `q10` gap was `0.01276`
+  - `r4` roughly doubles the teacher-vs-resource-cost separation
+- A direct follow-up variant `r4b` was also tested:
+  - idea: reduce `ue6` instantaneous cost distinctiveness even further while
+    keeping its history-side weakness
+  - result:
+    - `Offline teacher = LE-GRA = 0.5694`
+    - `resource-cost k-means = 0.5525`
+    - gap shrinks to `0.0169`
+  - interpretation:
+    - the `r4` corridor is better balanced; pushing cost separation even lower
+      starts to help the baselines again instead of widening the gap
+- A stable control corridor still exists:
+  - `0|1|2|3|4 @ gnb_2`
+  - bundle: `p3_6r2c_five_user_dualweak_plateau_plus_bundle`
+  - corridor: `18.7s ~ 19.2s`
+- But `r2c` is still only a control:
+  - `Offline teacher = LE-GRA = resource-cost k-means`
+  - it proves stable split demand, but not a wider method gap
 
 ### Current bottleneck in one sentence
 
-The main unsolved problem is no longer general grouping quality; it is the
-earliest crossover-onset failure at `28.3s`, where LE-GRA still cannot switch
-the secondary weak role from `ue5` to `ue6` early enough.
+The main unsolved problem is no longer "can we make teacher split?"; it is
+"can we find or synthesize more corridors where richer grouping methods beat
+the strong `resource-cost` baseline instead of merely tying it."
 
 ### What has already been proven
 
-1. `28.4s ~ 28.8s` is recoverable once `28.3s` is included in support/train.
-2. `28.3s` is the first true split onset in this regime.
-3. Replay cannot help before `28.3s` because the pre-onset window
-   `27.9s ~ 28.2s` has zero positive-gain teacher splits.
-4. Candidate-conditioned weighting and stronger frontier hard negatives still
-   do not move `28.3s`.
+0. The biggest research-level conclusion is now representation-focused:
+   - `CQI-only` is too weak to describe the real grouping problem
+   - `resource-cost` is the clearest practical improvement over pure CQI
+   - `multi-feature` is a credible mainline direction
+   - `LE-GRA` is not a robust universal solution, even though it remains
+     valuable as an exploratory line
+
+1. The old UE-holdout evaluation was hiding good corridors by breaking the
+   exact family in test; family-preserving temporal evaluation is required.
+2. Under the correct protocol, the original `p3_6q10` is a real success case:
+   - `No grouping = 0.6139`
+   - `CQI = 0.6245`
+   - `resource-cost = 0.6298`
+   - `Offline teacher = LE-GRA = 0.6458`
+3. A stronger `q10` derivative now exists:
+   - bundle: `p3_6r4_q10_history_conflict_bundle`
+   - focused split:
+     - train `27.7 ~ 27.9`
+     - test `28.0 ~ 28.2`
+   - result:
+     - `No grouping = 0.4059`
+     - `CQI = 0.5437`
+     - `resource-cost = 0.5426`
+     - `Offline teacher = LE-GRA = 0.5694`
+   - key meaning:
+     - lower instantaneous cost dispersion plus stronger history-side conflict
+       can widen the teacher-vs-resource-cost gap
+4. A global miner plus batch evaluator now exists:
+   - `mine_family_corridors.py`
+   - `run_family_corridor_batch.py`
+5. Many positive corridors are still too easy:
+   - teacher splits
+   - but `resource-cost k-means` already matches teacher
+6. `p3_6r2c` proves we can now synthesize a stable split-demand plateau:
+   - family: `0|1|2|3|4 @ gnb_2`
+   - window: `18.7s ~ 19.2s`
+   - teacher split: `[[0, 1, 2, 4], [3]]`
+   - gain per snapshot: `0.12181`
+7. However, `r2c` still ties on the strong baseline:
+   - `No grouping = 0.3959`
+   - `CQI = 0.5174`
+   - `resource-cost = Offline teacher = LE-GRA = 0.5177`
 
 ### Do not do these first
 
 - do not jump to bigger matrices / more seeds / larger `Kmax`
-- do not repeat replay-only sweeps on `28.3s`
-- do not spend another round on small candidate-weight tuning only
+- do not go back to learner-side micro-tuning before picking a better corridor
+- do not assume "teacher splits" automatically means "resource-cost will fail"
 - do not assume the project still uses only raw CQI
+- do not write the report as if LE-GRA is still the only main character
 
 ### Important interpretation
 
@@ -65,20 +130,231 @@ the secondary weak role from `ue5` to `ue6` early enough.
 
 ### Best next step
 
-The most promising next move is to add continuous radio-quality signals beyond
-CQI quantization, then test them only on the `q23/q26` onset regime first.
+The most promising next move is corridor selection plus feature-centric
+mainline consolidation, not learner redesign.
 
 Recommended order:
 
-1. extend Simu5G export to populate:
-   - `wideband_sinr_db`
-   - `rsrp_dbm`
-   - `rsrq_db`
-   - per-band `sinr_db`
-2. add a focused feature mode such as:
-   - `history_cost_radio`
-   - or `full_radio_context`
-3. run only the `28.3s` onset-focused validation before any broad matrix
+1. keep using the automated pipeline:
+   - `mine_family_corridors.py`
+   - `run_family_corridor_batch.py`
+   - `run_focused_family_temporal_learner.py`
+2. search for families where:
+   - teacher needs a stable split for at least `>= 3` snapshots
+   - and `resource-cost k-means` does **not** already match teacher
+3. use synthetic family-window transforms only when they widen the
+   `teacher - resource-cost` gap, not just the `teacher - no-grouping` gap
+4. treat `p3_6q10` as the primary showcase and `p3_6r2c` as a useful control:
+   - `q10`: genuine method separation
+   - `r2c`: stable split-demand without additional separation
+5. when writing reports or summaries:
+   - present `Offline teacher + DP`, `resource-cost k-means`, and
+     `multi-feature k-means` as the mainline methods
+   - keep LE-GRA as a secondary exploratory branch
+
+### August 10 update: `r4` local sweep plateau is now explicit, and `n3` is the next source-family probe
+
+- We added a local automated sweep around the current best `r4` corridor:
+  - `search_q10_history_conflict_variants.py`
+  - output: `q10_history_conflict_variant_search/leaderboard.csv`
+- This sweep tested mild `ue4` / `ue5` decoy-history and weak-pair rebalancing
+  around the successful `p3_6r4_q10_history_conflict_bundle`.
+- Main result:
+  - none of the small local variants beats the current `r4` gap
+  - best variants only tie the existing result:
+    - `teacher - resource-cost = 0.0268`
+  - some variants raise teacher utility slightly, but also help the
+    `resource-cost` baseline rise with it
+- Interpretation:
+  - `r4` is not just "any nearby perturbation works"
+  - the current `q10/r4` line already sits on a local plateau
+  - more tiny local knob-turning is unlikely to create a new breakthrough
+
+- We then pivoted to the strongest alternative source family discovered by
+  `mine_source_family_candidates.py`:
+  - `3|4|5|6 @ gnb_2`
+  - source audit winner:
+    - `p3_6n3_teacher_audit`
+  - positive corridor length:
+    - `42` snapshots (`25.8s ~ 29.9s`)
+- Important baseline reality on the original `n3` family:
+  - teacher always uses the same easy split:
+    - `[[0, 1, 3], [2]]`
+  - which means the regime is abundant but too easy
+
+- New source-shift probe implemented:
+  - spec:
+    - `p3_6r5_n3_dualweak_history_conflict_spec.json`
+  - bundle:
+    - `p3_6r5_n3_dualweak_history_conflict_bundle`
+- Goal of `r5`:
+  - convert the easy `ue5` singleton regime into a harder dual-weak
+    `{ue4, ue5}` history-conflict corridor
+
+- `r5` first split (`25.8 ~ 27.3` train, `27.4 ~ 28.8` test):
+  - output:
+    - `_tmp_r5_family_temporal_hcq/main_comparison.csv`
+  - result:
+    - `train_positive_gain_count = 0`
+    - `test_positive_gain_count = 9`
+    - `Offline teacher = Resource-cost = 0.4044`
+    - `LE-GRA = 0.2914`
+  - meaning:
+    - the redesign did create a harder late test corridor
+    - but positive teacher supervision arrived too late for the chosen train
+      window
+
+- `r5` later split (`27.4 ~ 28.0` train, `28.1 ~ 28.8` test):
+  - output:
+    - `_tmp_r5b_family_temporal_hcq/main_comparison.csv`
+  - result:
+    - `train_positive_gain_count = 1`
+    - `test_positive_gain_count = 8`
+    - `Offline teacher = Resource-cost = LE-GRA = 0.3867`
+  - meaning:
+    - once positive support is present, LE-GRA transfers
+    - but `resource-cost` still fully catches the teacher
+
+- Updated interpretation after `r4` sweep + `r5` probe:
+  1. local `r4` perturbations are plateaued
+  2. source-family shift is the right direction
+  3. `n3` can be turned into a harder late corridor, so the source is usable
+  4. but the present `r5` transform still does not break the strong baseline
+  5. the next source-side redesign should target:
+     - earlier positive onset in train
+     - and dual-weak ambiguity that is *not* instantly recoverable by
+       resource-cost ranking
+
+### August 10 update: fast source-bank triage says the current positive-family bank is nearly exhausted
+
+- We ran a broad local search on the strongest alternative source family:
+  - script:
+    - `search_n3_dualweak_variants.py`
+  - results:
+    - `n3_dualweak_variant_search/leaderboard.csv`
+- This sweep completed `360` variants around `3|4|5|6 @ gnb_2`.
+- Hard result:
+  - `positive_gap_variants = 0`
+  - many variants create positive teacher corridors
+  - but none produce `teacher - resource-cost > 0`
+- Meaning:
+  - `n3` is not the next fast breakthrough source
+  - it behaves like a source where teacher split can be synthesized, but
+    `resource-cost` still follows too easily
+
+- We also re-checked the seemingly remaining five-user family candidate:
+  - `1|2|3|4|5 @ gnb_2`
+  - repo source investigated:
+    - `p3_6e2_budget_sweep/rb_032/teacher_audit/full_bundle/scenario_teacher_decisions.csv`
+- Result:
+  - actual positive snapshot count there is `0`
+  - so this family is not a live positive source under the current audited data
+- Interpretation:
+  - the old source-family ranking should not be treated as a fresh
+    "available next-family" list without revalidation
+  - after revalidation, the current positive-source bank is effectively:
+    1. `q10/r4` style six-user family
+    2. `r2c` style control family
+    3. `n3` style easy-singleton family that remains baseline-solvable
+
+- Updated fast conclusion:
+  - if the goal is specifically "find a larger gap quickly",
+    the highest-yield next move is no longer more local mining inside the
+    current source bank
+  - the next meaningful step should be:
+    - create a genuinely new source-family generation rule
+    - or introduce a new data-generation axis that makes dual-weak ambiguity
+      appear without instantly exposing the answer to resource-cost ranking
+
+### August 10 update: even `q10/r4` decoy-collision search does not beat the current best gap
+
+- We ran a new focused search on the only currently successful source line:
+  - script:
+    - `search_q10_decoy_collision_variants.py`
+  - output:
+    - `q10_decoy_collision_search/leaderboard.csv`
+- Search idea:
+  - keep the proven true weak pair `{ue2, ue6}`
+  - make `ue4` look more similar in instantaneous cost
+  - hope `resource-cost` would over-group the decoy while teacher still keeps
+    `{ue2, ue6}` as the real weak pair
+- Search scale:
+  - `288` variants
+- Hard result:
+  - best `teacher - resource-cost = 0.0`
+  - many variants still preserve positive teacher corridors
+  - but once the decoy gets strong enough, `resource-cost` catches up to
+    teacher completely
+- Meaning:
+  - the present `q10/r4` line is not just locally plateaued under tiny manual
+    tweaks
+  - it is also robustly plateaued under this larger decoy-collision sweep
+- Updated very short conclusion:
+  - current best gap remains:
+    - `0.0268` on `_tmp_r4_family_temporal_hcq/main_comparison.csv`
+  - if we want a larger gap quickly, the next move must be a new structural
+    data-generation axis rather than more local search around the current
+    positive-family bank
+
+### August 10 update: first new structural regime after the plateau is `r8`
+
+- We then stopped local static sweeps and built a more structural variant:
+  - spec:
+    - `p3_6r8_q10_temporal_decoy_flicker_spec.json`
+  - bundle:
+    - `p3_6r8_q10_temporal_decoy_flicker_bundle`
+- New idea:
+  - keep the train corridor aligned with the successful `r4` weak pair
+    `{ue2, ue6}`
+  - but introduce a *flickering* test-side instantaneous decoy on `ue4`
+  - this is different from the failed static decoy-collision sweep:
+    - the decoy is temporal, not constant
+    - so the test corridor is structurally harder instead of just being a
+      slightly different static ranking
+
+- Important teacher-side change:
+  - train `27.7 ~ 27.9` still uses the stable weak pair:
+    - `1|3|4|5 / 2|6`
+  - but test `28.0 ~ 28.2` now alternates:
+    - `28.0`: `1|3|4|5|6 / 2`
+    - `28.1`: `1|3|4|5 / 2|6`
+    - `28.2`: `1|3|4|5|6 / 2`
+  - this means the new corridor is not just another copy of `r4`
+  - it is the first post-plateau regime where the target structure itself
+    changes over time inside the focused test window
+
+- Focused learner result:
+  - output:
+    - `_tmp_r8_family_temporal_hcq/main_comparison.csv`
+  - numbers:
+    - `Offline teacher = 0.5748`
+    - `Resource-cost = 0.5692`
+    - `Multi-feature = 0.5577`
+    - `LE-GRA = 0.5089`
+    - `CQI = 0.5322`
+    - `No grouping = 0.3893`
+
+- Immediate meaning:
+  1. This is the first new structural regime after the long plateau that
+     re-opens a nonzero `teacher - resource-cost` gap:
+     - about `0.0056`
+  2. But LE-GRA does **not** transfer here yet:
+     - it drops below both `teacher` and `resource-cost`
+  3. So `r8` is not a better final showcase than `r4`
+  4. However, it is a real breakthrough in *benchmark construction*:
+     - we now have a new hard regime where the old learner no longer rides
+       the teacher automatically
+
+- Updated interpretation:
+  - `r4` remains the best current showcase because:
+    - `LE-GRA = teacher`
+    - and `teacher - resource-cost = 0.0268`
+  - `r8` is different:
+    - smaller teacher-vs-resource-cost gap
+    - but far more valuable as the next learner-improvement target
+  - in other words:
+    - `r4` is still the best success case
+    - `r8` is now the best genuinely new challenge case
 
 ### Minimum files to read next
 
@@ -86,9 +362,108 @@ Recommended order:
 2. `P3_6Q_24_DUAL_BOUNDARY_CROSSOVER_REGIME_ZH.md`
 3. `P3_6Q_25_SINGLE_SUPPORT_CROSSOVER_TRANSFER_ZH.md`
 4. `P3_6Q_26_EARLIEST_ONSET_FAILURE_ZH.md`
-5. `SIMU5G_RADIO_SCHEMA.md`
-6. `simu5g_raw_radio_export.py`
-7. `le_gra_mvp.py`
+5. `P3_6Q_27_RADIO_SIGNAL_READINESS_ZH.md`
+6. `P3_6Q_28_SOURCE_HOOK_AUDIT_ZH.md`
+7. `SIMU5G_RADIO_SCHEMA.md`
+8. `simu5g_raw_radio_export.py`
+9. `le_gra_mvp.py`
+
+### August 10 update: source hook is now working
+
+- `q29` and `q30` proved that PHY-level outer hooks were not reliable enough:
+  - `LtePhyEnb::requestFeedback()` did not emit a usable sidecar in the
+    `Multiple-UEs` smoke path
+  - `LtePhyUe::handleAirFrame()` also failed to produce a stable sidecar
+- `q31` moved the recorder down to the true measurement source:
+  - `simu5g/stack/phy/channelmodel/LteRealisticChannelModel.cc`
+  - function: `LteRealisticChannelModel::getSINR(...)`
+- This finally produced `raw_radio_diag.csv` successfully in the focused smoke
+  test.
+- Important alignment result:
+  - diag rows contain multiple contexts
+  - the subset `frame_type=2` and `direction=1`
+    (`FEEDBACKPKT` + `UL`) matches the main raw-radio row count exactly
+  - the exporter now prefers this subset when those columns are present
+
+Read `P3_6Q_31_CHANNELMODEL_DIAG_SUCCESS_ZH.md` before attempting the next
+radio-aware learner step.
+
+### August 10 update: focused teacher-positive subset is now reproducible
+
+- A reusable focused-subset builder now exists:
+  - `build_focused_teacher_subset_bundle.py`
+- It scans a coupled bundle with the current offline teacher and keeps only
+  scenarios that satisfy:
+  - `teacher_gain_vs_single >= min_gain`
+  - `teacher_group_count >= min_group_count`
+- It filters all three coupled views together:
+  - `bundle/`
+  - `radio/`
+  - `mobility/`
+- First validation target:
+  - source bundle: `p3_6i2_coupled_bundle`
+  - focused output: `p3_6i2_focused_teacher_subset`
+- Result:
+  - full bundle had `830` multi-user audited scenarios
+  - only `9` were positive-gain multi-group teacher windows
+  - they belong to just `2` families:
+    - `0|1|2|3|4 @ gnb_2` on `18.7s ~ 19.2s`
+    - `0|1|15|2|3|4|5 @ gnb_1` on `43.7s ~ 43.9s`
+- This confirms the previous dilution hypothesis:
+  - the full `p3_6i2` bundle is mostly non-splitting context
+  - broad averages hide the actual teacher-positive windows
+- But the focused rerun also revealed a second bottleneck:
+  - these `9` windows are mostly easy one-weak-user separations
+  - `CQI k-means`, `Multi-feature k-means`, and `Offline teacher`
+    all collapse to the same average utility on this subset
+  - `history_cost_quality` LE-GRA matches them exactly
+  - `history_cost_radio` LE-GRA is slightly worse, not better
+- Interpretation:
+  - radio export is no longer the blocker
+  - focused extraction is now solved
+  - the current `p3_6i2` positive windows are too easy to create a
+    meaningful method gap
+  - the next real need is a harder focused regime with genuine crossover /
+    multi-weak-user ambiguity, not just isolated single-outlier splits
+
+### August 10 update: q10 confirms the real issue was the evaluation protocol, not the regime itself
+
+- We tested a harder focused regime:
+  - source bundle: `p3_6q10_six_user_transition_extension_bundle`
+  - focused subset: `p3_6q10_focused_teacher_subset`
+  - strongest family: `1|2|3|4|5|6 @ gnb_2`
+  - teacher-positive corridor: `27.3s ~ 28.2s`
+- First result with the existing `run_p3_6_coupled_learner.py` looked flat again,
+  but that turned out to be a protocol artifact:
+  - the default split is UE-holdout
+  - it broke the six-user family into test scenarios like `3|4`
+  - once that happens, the teacher itself no longer needs to split
+  - so every method trivially ties
+- To verify this, we added:
+  - `run_focused_family_temporal_learner.py`
+- This new script preserves the exact family and only splits by time window.
+- On the preserved `1|2|3|4|5|6 @ gnb_2` family:
+  - train: `27.3s ~ 27.6s`
+  - test: `27.7s ~ 28.2s`
+  - both train and test have positive-gain teacher splits in every scenario
+- Result on that family-preserving temporal protocol:
+  - `No grouping`: `0.6139`
+  - `CQI k-means`: `0.6245`
+  - `Resource-cost k-means`: `0.6298`
+  - `Multi-feature k-means`: `0.6139`
+  - `Offline teacher`: `0.6458`
+  - `LE-GRA MVP`: `0.6458`
+- Interpretation:
+  - the project does now have a real, stable gap when the regime and protocol
+    are aligned correctly
+  - LE-GRA can fully recover the teacher on this family
+  - the main remaining gap is no longer "teacher vs LE-GRA"
+  - it is now:
+    1. finding more such family-preserving hard corridors
+    2. deciding whether radio features can improve robustness or transfer
+       beyond the already-solved quality/cost path
+  - `history_cost_radio` did not improve over `history_cost_quality` here;
+    both matched the teacher on the preserved family
 
 ## Research Goal
 
@@ -6795,3 +7170,291 @@ Recommended follow-up after resuming:
    - `history_cost_radio`
    - or `full_radio_context`
 3. test only on `q23/q26` first before any larger matrix
+
+## P3.6q-27: radio-aware learner path is ready, but the current coupled data still has 0% radio-signal coverage
+
+Artifact:
+
+- `P3_6Q_27_RADIO_SIGNAL_READINESS_ZH.md`
+- `audit_radio_signal_coverage.py`
+- `p3_6q27_q23_radio_coverage.csv`
+- `p3_6q27_p35_radio_coverage.csv`
+
+What was implemented:
+
+1. end-to-end radio-aware feature support is now wired up
+   - `simu5g_raw_radio_export.py`
+   - `trace_io.py`
+   - `run_p3_6_coupled_learner.py`
+   - `le_gra_mvp.py`
+
+2. new feature modes now exist
+   - `history_cost_radio`
+   - `full_radio_context`
+
+3. raw-radio exporter is now backward-compatible
+   - if optional raw fields exist, it preserves them
+   - otherwise old raw traces still work
+
+Most important readiness result:
+
+- on the current main regime bundle:
+  - `p3_6q23_dual_boundary_crossover_bundle`
+- and on the earlier baseline bundle:
+  - `p3_5_coupled_bundle`
+- the optional radio fields still have `0%` coverage:
+  - `wideband_sinr_db`
+  - `rsrp_dbm`
+  - `rsrq_db`
+  - `mcs`
+  - per-band `sinr_db`
+
+Why this matters:
+
+- the learner side is no longer the blocker for radio-aware experiments
+- the current blocker is now data availability
+- running `history_cost_radio` or `full_radio_context` on today's coupled
+  bundles would only add zero-filled columns, not new information
+
+Updated best next step:
+
+1. do not start a radio-feature learner sweep yet
+2. first extend the Simu5G recorder source so raw radio actually exports
+   `SINR/RSRP/RSRQ/MCS`
+3. rebuild a small coupled bundle and rerun `audit_radio_signal_coverage.py`
+4. only after coverage becomes non-zero, run focused `q23/q26` onset tests
+
+## P3.6q-28: source-hook audit shows the next real step is UE-PHY radio recorder expansion
+
+Artifacts:
+
+- `P3_6Q_28_SOURCE_HOOK_AUDIT_ZH.md`
+- `p3_6q28_apply_radio_recorder_v2.sh`
+- updated `p3_5_apply_recorders.sh`
+
+What we confirmed:
+
+1. current recorder is attached at the `LteMacEnb.cc` DL feedback path
+2. `LteFeedback` already exposes:
+   - `getBandCqi()`
+   - `getWbCqi()`
+3. `LteAmc` already exposes `getItbsPerCqi(cqi, dir)`
+4. so the current recorder can be safely expanded immediately with:
+   - `wideband_cqi`
+   - `itbs`
+5. the more important continuous signals are not imaginary:
+   - `LteRealisticChannelModel` exposes `getSINR(...)`
+   - `LteRealisticChannelModel` exposes `getRSRP(...)`
+   - `LteFeedbackComputationRealistic` explicitly receives the per-band `snr` vector
+   - `meanSnr(snr)` is already computed before wideband CQI mapping
+6. `RSRQ` still does not have a clear low-cost hook in the current path
+
+Why this matters:
+
+- this is the first time we have pinned the radio-expansion blocker down to an exact source-layer issue
+- the learner side is no longer the main unknown
+- if we want to test the hypothesis that CQI quantization is hiding the real separability,
+  the next meaningful experiment must come from a UE-PHY / feedback-computation recorder,
+  not from another learner-only tweak
+
+What was implemented this round:
+
+1. `p3_5_apply_recorders.sh` now installs a richer v2 header on fresh environments:
+   - `timestamp_s,ue_node_id,gnb_node_id,ue_module_path,band_index,cqi,tbs_bits_per_slot,total_bands,wideband_cqi,itbs`
+2. `p3_6q28_apply_radio_recorder_v2.sh` upgrades an already-patched `LteMacEnb.cc`
+   to the same v2 recorder without requiring a clean reinstall
+
+Layered plan from here:
+
+1. `Layer 1`:
+   - apply recorder v2
+   - rebuild Simu5G
+   - rerun a small recorder smoke trace
+   - verify raw CSV now contains `wideband_cqi,itbs`
+2. `Layer 2`:
+   - add UE-PHY / feedback-computation hook for:
+     - `sinr_db`
+     - `wideband_sinr_db`
+     - `rsrp_dbm`
+   - rerun `audit_radio_signal_coverage.py`
+3. only after those continuous fields become non-zero, return to `q23/q26`
+   focused learner validation
+
+## P3.6r-8 breakthrough: resource-anchor candidate generation closes the new hard gap
+
+Artifacts:
+
+- `p3_6r8_q10_temporal_decoy_flicker_spec.json`
+- `sweep_r8_learner_hooks.py`
+- `_tmp_r8_hook_sweeps/leaderboard.csv`
+- `_tmp_r8_hook_sweeps/resource_anchor_hybrid/teacher_imitation_diagnostics.csv`
+
+Focused regime:
+
+- bundle: `p3_6r8_q10_temporal_decoy_flicker_bundle/bundle`
+- family: `1|2|3|4|5|6 @ gnb_2`
+- split:
+  - train: `27.7 ~ 28.0`
+  - test: `28.1 ~ 28.2`
+
+Key teacher pattern:
+
+1. train includes both:
+   - `27.7 ~ 27.9`: `1|3|4|5 / 2|6`
+   - `28.0`: `1|3|4|5|6 / 2`
+2. test also includes both:
+   - `28.1`: `1|3|4|5 / 2|6`
+   - `28.2`: `1|3|4|5|6 / 2`
+3. so this is a real boundary regime, not a trivial always-pair or always-singleton case
+
+What failed:
+
+1. baseline LE-GRA on this split only reached `0.5552729409871294`
+2. learner-only focused tweaks:
+   - `scenario_focus`
+   - `candidate_bce`
+   - `frontier`
+   - `prototype_membership`
+   - `pair_warmup`
+   all only recovered to `resource-cost` parity:
+   - `0.5691723261457139`
+3. the weak-score head itself remained misaligned:
+   - it did not stably rank `ue2` as the top weak member
+   - so candidate-membership / frontier losses were often reinforcing the wrong frontier
+
+New insight:
+
+1. the true blocker on `r8` was not "the learner cannot represent the structure"
+2. the blocker was "the final candidate grouping set does not explicitly offer
+   the top-cost anchor + plausible cost partner corridor"
+3. for `28.1`, exact DP prefers `2|6`
+4. for `28.2`, exact DP prefers singleton `2`
+5. both decisions can be recovered if inference explicitly includes:
+   - singleton top-cost-user candidate
+   - top-cost-user + next-top-cost-partner candidates
+
+What was implemented:
+
+1. new grouping mode in `le_gra_mvp.py`:
+   - `resource_anchor_hybrid`
+2. this mode:
+   - anchors the highest mean resource-cost user
+   - explicitly enumerates:
+     - singleton anchor vs rest
+     - anchor + top-cost partner candidates
+   - unions those candidates with the existing embedding k-means candidates
+   - still uses exact DP utility selection to pick the final grouping
+
+Result:
+
+1. `resource_anchor_hybrid`:
+   - teacher = `0.5776122002896149`
+   - resource-cost = `0.5691723261457139`
+   - LE-GRA = `0.5776122002896149`
+2. `scenario_focus_resource_anchor` gives the same result
+3. diagnostics confirm exact teacher imitation on both test points:
+   - `28.1`: `2|6 / rest`
+   - `28.2`: `2 / rest`
+
+Interpretation:
+
+1. this is a real post-plateau result:
+   - we now have a second successful regime beyond `r4`
+2. the improvement did **not** come from more learner-side loss tweaking
+3. it came from a better structure-aware candidate space at inference time
+4. this strongly suggests the next productive direction is:
+   - localized candidate-space redesign
+   - not more isolated BCE / frontier / warmup sweeps
+
+Updated best comparison:
+
+1. `r4` remains the strongest large-gap showcase:
+   - teacher = LE-GRA = `0.5693854077668493`
+   - resource-cost = `0.5425549335649255`
+   - gap = `0.02683047420192386`
+2. `r8` is now the best new hard-boundary success case:
+   - teacher = LE-GRA = `0.5776122002896149`
+   - resource-cost = `0.5691723261457139`
+   - gap = `0.008439874143901016`
+
+Recommended next step:
+
+1. do not go back to learner-only local tweaks on `r8`
+2. use `resource_anchor_hybrid` as the new structural baseline
+3. next, search for additional families/regimes where:
+   - top-cost anchor is stable
+   - partner identity flickers across a narrow corridor
+   - plain resource-cost k-means still misses at least one boundary point
+4. if those regimes exist and `resource_anchor_hybrid` keeps winning,
+   we can frame the contribution more clearly as:
+   - "boundary-aware localized candidate generation"
+
+## August 10 follow-up: `resource_anchor_hybrid` is a narrow but reproducible phase transition, not a one-off
+
+Artifacts:
+
+- `compare_resource_anchor_corridors.py`
+- `_tmp_resource_anchor_corridor_compare/leaderboard.csv`
+- `search_r8_boundary_variants.py`
+- `r8_boundary_variant_search/leaderboard.csv`
+
+What we tested:
+
+1. first, we compared baseline LE-GRA vs `resource_anchor_hybrid` on four
+   representative corridors:
+   - `q10_main`
+   - `r8_boundary`
+   - `n3_long`
+   - `i2_m4b`
+2. then we ran a local 16-variant sweep around `r8` by only perturbing the
+   boundary-relevant knobs:
+   - `ue4` singleton-time decoy strength
+   - `ue4` pair-time decoy strength
+   - `ue6` pair-time support
+   - `ue6` singleton-time support
+
+Main result:
+
+1. `resource_anchor_hybrid` is **not** a universal improvement
+2. on easy / already-solved corridors:
+   - `q10_main`
+   - `n3_long`
+   - `i2_m4b`
+   it adds zero gain over baseline
+3. on the hard `r8_boundary` corridor:
+   - baseline LE-GRA = `0.5552729409871294`
+   - resource-anchor LE-GRA = `0.5776122002896149`
+   - exact gain = `+0.02233925930248548`
+4. the local `r8` sweep shows a clean threshold:
+   - when `ue4` singleton-time `rb_scale = 0.68`, baseline still fails and
+     resource-anchor fully closes the gap
+   - when `ue4` singleton-time `rb_scale = 0.72`, baseline already recovers
+     teacher by itself, so resource-anchor adds nothing
+
+Interpretation:
+
+1. this is strong evidence that the new mechanism is solving a very specific
+   regime:
+   - strongest weak user is stable
+   - the second weak partner is real but fragile
+   - a boundary-time decoy can temporarily steal the cost ranking
+2. so the contribution is becoming sharper:
+   - not "a better general learner"
+   - but "a better localized candidate generator for weak-partner flicker"
+3. the search also tells us why progress felt slow earlier:
+   - the informative band is narrow
+   - many nearby variants collapse back into a trivially solved regime
+
+Practical next move:
+
+1. stop broad random sweeps again
+2. if continuing this line, search specifically for more regimes with the same
+   signature:
+   - teacher-resource gap > 0
+   - baseline LE-GRA gap > 0
+   - top-cost anchor stable
+   - second weak partner flickers across a narrow corridor
+3. if we cannot find more than a small handful of such regimes, the honest
+   paper framing should be:
+   - a targeted mechanism for narrow boundary dual-weak corridors
+   - not a broad all-regime learner improvement
