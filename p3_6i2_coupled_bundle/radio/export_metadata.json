@@ -12,7 +12,13 @@
   "previous_quality_mode": "deterministic_controller_heterogeneous",
   "previous_quality_source": "deterministic_heterogeneous_adaptation_controller_from_radio_capacity_and_cell_load",
   "rb_abstraction": "Simu5G logical band",
-  "sinr_source": "not_exported_in_p3_4",
+  "sinr_source": "raw_optional_field",
+  "available_optional_raw_fields": [
+    "rsrp_dbm",
+    "sinr_db",
+    "wideband_sinr_db"
+  ],
+  "raw_diag_source": "C:\\Users\\Weber\\AppData\\Local\\Temp\\legra_p3_5_radio_j3llcj3p\\mapped_raw_radio_diag.csv",
   "ue_id_source": "SUMO_external_id_joined_by_OMNeT_module_path",
   "collapsed_same_bin_duplicates": 0,
   "quality_controller": {
@@ -40,6 +46,10 @@
       "conservative": 3.2,
       "balanced": 2.0,
       "aggressive": 1.1
-    }
+    },
+    "quality_bounds": [
+      0,
+      5
+    ]
   }
 }

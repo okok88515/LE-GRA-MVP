@@ -6,3 +6,4 @@ load_smoke_results_v2/
 .sim-env/
 opp_env.wsl
 *.log
+raw_radio_diag.csv

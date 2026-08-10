@@ -5,12 +5,20 @@
   "rate_formula": "rate_kbps = tbs_bits_per_slot / slot_duration_ms",
   "slot_duration_ms": 1.0,
   "snapshot_period_s": 0.1,
-  "snapshot_rule": "latest complete UE feedback in each floor-aligned time bin",
+  "snapshot_rule": "latest complete UE feedback in each floor-aligned time bin; if multiple gNB observations remain for one UE/time bin, keep the latest raw timestamp",
   "rb_budget_ratio": 0.5,
   "rb_budget_rule": "round(total_logical_bands * ratio), clipped to [1, total]",
   "previous_quality": 3,
+  "previous_quality_mode": "constant",
   "previous_quality_source": "explicit_experiment_control_not_video_measurement",
   "rb_abstraction": "Simu5G logical band",
-  "sinr_source": "not_exported_in_p3_4",
-  "ue_id_source": "SUMO_external_id_joined_by_OMNeT_module_path"
+  "sinr_source": "raw_optional_field",
+  "available_optional_raw_fields": [
+    "rsrp_dbm",
+    "sinr_db",
+    "wideband_sinr_db"
+  ],
+  "raw_diag_source": "C:\\Users\\Weber\\AppData\\Local\\Temp\\legra_p3_5_radio_4zinn05a\\mapped_raw_radio_diag.csv",
+  "ue_id_source": "SUMO_external_id_joined_by_OMNeT_module_path",
+  "collapsed_same_bin_duplicates": 0
 }

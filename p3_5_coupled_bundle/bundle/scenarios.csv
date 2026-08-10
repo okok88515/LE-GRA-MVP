@@ -23,7 +23,7 @@ schema_version,scenario_id,timestamp_s,serving_gnb,rb_available,total_rbs,disper
 1.0,simu5g_00000021,2.7,gnb_1,12,25,simu5g
 1.0,simu5g_00000022,2.8,gnb_1,12,25,simu5g
 1.0,simu5g_00000023,2.9,gnb_1,12,25,simu5g
-1.0,simu5g_00000024,3,gnb_1,12,25,simu5g
+1.0,simu5g_00000024,3.0,gnb_1,12,25,simu5g
 1.0,simu5g_00000025,3.1,gnb_1,12,25,simu5g
 1.0,simu5g_00000026,3.2,gnb_1,12,25,simu5g
 1.0,simu5g_00000027,3.3,gnb_1,12,25,simu5g
