@@ -66,6 +66,11 @@ class Scenario:
     distance: np.ndarray
     speed: np.ndarray
     direction_to_gnb: np.ndarray
+    rsrp_dbm: np.ndarray
+    rsrq_db: np.ndarray
+    wideband_sinr_db: np.ndarray
+    rb_sinr_db: np.ndarray
+    mcs: np.ndarray
     dispersion: str
 
 
@@ -233,10 +238,43 @@ def generate_scenario(
         distance=distance,
         speed=speed,
         direction_to_gnb=direction_to_gnb,
+        rsrp_dbm=np.full(n_users, np.nan, dtype=float),
+        rsrq_db=np.full(n_users, np.nan, dtype=float),
+        wideband_sinr_db=np.full(n_users, np.nan, dtype=float),
+        rb_sinr_db=np.full((n_users, n_rbs), np.nan, dtype=float),
+        mcs=np.full(n_users, np.nan, dtype=float),
         dispersion=dispersion,
     )
     scenario.features = build_feature_matrix(scenario, feature_mode="full")
     return scenario
+
+
+def _safe_feature_column(values: np.ndarray, *, fill: float = 0.0, scale: float = 1.0) -> np.ndarray:
+    """Convert optional trace-side radio values into stable feature columns."""
+
+    arr = np.asarray(values, dtype=float)
+    normalized = np.nan_to_num(arr / scale, nan=fill, posinf=fill, neginf=fill)
+    return normalized[:, None]
+
+
+def _safe_rb_optional_stats(values: np.ndarray) -> np.ndarray:
+    """Return stable per-user stats for optional RB-side measurements."""
+
+    arr = np.asarray(values, dtype=float)
+    n_users = arr.shape[0]
+    stats = np.zeros((n_users, 4), dtype=float)
+    for user_index in range(n_users):
+        row = arr[user_index]
+        finite = row[np.isfinite(row)]
+        if finite.size == 0:
+            continue
+        stats[user_index] = [
+            float(finite.mean()) / 40.0,
+            float(finite.min()) / 40.0,
+            float(finite.max()) / 40.0,
+            float(finite.std()) / 20.0,
+        ]
+    return stats
 
 
 def build_feature_matrix(scenario: Scenario, feature_mode: str) -> np.ndarray:
@@ -258,6 +296,15 @@ def build_feature_matrix(scenario: Scenario, feature_mode: str) -> np.ndarray:
             scenario.direction_to_gnb,
         ]
     )
+    radio_user = np.column_stack(
+        [
+            _safe_feature_column(scenario.rsrp_dbm, scale=140.0),
+            _safe_feature_column(scenario.rsrq_db, scale=30.0),
+            _safe_feature_column(scenario.wideband_sinr_db, scale=40.0),
+            _safe_feature_column(scenario.mcs, scale=28.0),
+        ]
+    )
+    rb_sinr_stats = _safe_rb_optional_stats(scenario.rb_sinr_db)
     # Scenario context is repeated per user so the point-wise encoder can
     # condition its embedding on resource pressure and switching state.
     quality_context = (
@@ -280,10 +327,22 @@ def build_feature_matrix(scenario: Scenario, feature_mode: str) -> np.ndarray:
         features = [scenario.cqi_history, cost_vec, load_context]
     elif feature_mode == "history_cost_context":
         features = [scenario.cqi_history, cost_vec, context]
+    elif feature_mode == "history_cost_radio":
+        features = [scenario.cqi_history, cost_vec, radio_user]
     elif feature_mode == "full":
         features = [scenario.cqi_history, rb_stats, mobility, cost_vec]
     elif feature_mode == "full_context":
         features = [scenario.cqi_history, rb_stats, mobility, cost_vec, context]
+    elif feature_mode == "full_radio_context":
+        features = [
+            scenario.cqi_history,
+            rb_stats,
+            rb_sinr_stats,
+            mobility,
+            cost_vec,
+            radio_user,
+            context,
+        ]
     else:
         raise ValueError(f"Unknown feature_mode: {feature_mode}")
     return np.column_stack(features).astype(np.float32)
@@ -1447,6 +1506,79 @@ def anchored_candidate_groups(
     return candidates
 
 
+def resource_anchor_candidate_groups(
+    scenario: Scenario,
+    embeddings: np.ndarray,
+    max_groups: int,
+    *,
+    partner_top_k: int = 2,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[list[int]]]:
+    """Build candidates around the highest resource-cost user.
+
+    This path is meant for boundary regimes where the hardest user is obvious,
+    but the second weak partner intermittently appears or disappears. We keep
+    the top-cost user as an anchor and explicitly offer:
+
+    - singleton anchor vs everyone else;
+    - anchor+partner pairs for the next few highest-cost users;
+    - optional residual k-means splits when more than two groups are allowed.
+    """
+
+    n_users = len(scenario.cqi_now)
+    if n_users == 0:
+        return []
+
+    user_costs = user_resource_cost_vector(scenario.rb_rates).mean(axis=1)
+    ranked_users = sorted(
+        range(n_users),
+        key=lambda idx: (float(user_costs[idx]), -idx),
+        reverse=True,
+    )
+    anchor = ranked_users[0]
+    candidate_partners = ranked_users[1 : 1 + max(1, partner_top_k)]
+
+    candidates: list[list[list[int]]] = [[list(range(n_users))]]
+
+    singleton_rest = [idx for idx in range(n_users) if idx != anchor]
+    candidates.append([[anchor], singleton_rest])
+    for total_groups in range(3, max_groups + 1):
+        if not singleton_rest:
+            break
+        residual_groups = min(total_groups - 1, len(singleton_rest))
+        sub_groups = kmeans(
+            embeddings[singleton_rest],
+            residual_groups,
+            n_init=kmeans_n_init,
+            seed=kmeans_seed + total_groups,
+        )
+        mapped_groups = [[anchor]]
+        for group in sub_groups:
+            mapped_groups.append(sorted([singleton_rest[idx] for idx in group]))
+        candidates.append(mapped_groups)
+
+    for partner_rank, partner in enumerate(candidate_partners, start=1):
+        anchor_pair = sorted([anchor, partner])
+        pair_rest = [idx for idx in range(n_users) if idx not in anchor_pair]
+        candidates.append([anchor_pair, pair_rest])
+        for total_groups in range(3, max_groups + 1):
+            if not pair_rest:
+                break
+            residual_groups = min(total_groups - 1, len(pair_rest))
+            sub_groups = kmeans(
+                embeddings[pair_rest],
+                residual_groups,
+                n_init=kmeans_n_init,
+                seed=kmeans_seed + total_groups + partner_rank,
+            )
+            mapped_groups = [anchor_pair]
+            for group in sub_groups:
+                mapped_groups.append(sorted([pair_rest[idx] for idx in group]))
+            candidates.append(mapped_groups)
+    return candidates
+
+
 def best_candidate_groups(
     scenario: Scenario,
     candidate_groupings: list[list[list[int]]],
@@ -1513,6 +1645,39 @@ def best_candidate_anchor_hybrid_groups(
         embeddings,
         max_groups,
         anchor_size=anchor_size,
+        kmeans_n_init=kmeans_n_init,
+        kmeans_seed=kmeans_seed,
+    )
+    kmeans_candidates = kmeans_candidate_groups(
+        embeddings,
+        max_groups,
+        kmeans_n_init=kmeans_n_init,
+        kmeans_seed=kmeans_seed,
+    )
+    return best_candidate_groups(
+        scenario,
+        anchored_candidates + kmeans_candidates,
+        switch_beta,
+    )
+
+
+def best_resource_anchor_hybrid_groups(
+    scenario: Scenario,
+    embeddings: np.ndarray,
+    max_groups: int,
+    switch_beta: float,
+    *,
+    partner_top_k: int = 2,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Union resource-anchor candidates with plain embedding k-means."""
+
+    anchored_candidates = resource_anchor_candidate_groups(
+        scenario,
+        embeddings,
+        max_groups,
+        partner_top_k=partner_top_k,
         kmeans_n_init=kmeans_n_init,
         kmeans_seed=kmeans_seed,
     )
@@ -1628,6 +1793,16 @@ def learned_grouping(
             anchor_size=getattr(model, "candidate_top_k", 2),
             kmeans_n_init=kmeans_n_init,
         )
+    if getattr(model, "grouping_mode", "kmeans_embedding") == "resource_anchor_hybrid":
+        embeddings = model.embed(scenario.features)
+        return best_resource_anchor_hybrid_groups(
+            scenario,
+            embeddings,
+            max_groups,
+            switch_beta,
+            partner_top_k=getattr(model, "candidate_top_k", 2),
+            kmeans_n_init=kmeans_n_init,
+        )
     embeddings = model.embed(scenario.features)
     return best_kmeans_groups(
         scenario, embeddings, max_groups, switch_beta,
@@ -1736,7 +1911,17 @@ def main() -> None:
     parser.add_argument("--scenario-mode", choices=["aligned", "ambiguous", "mixed"], default="mixed")
     parser.add_argument(
         "--feature-mode",
-        choices=["history_only", "history_cost", "history_cost_quality", "history_cost_load", "history_cost_context", "full", "full_context"],
+        choices=[
+            "history_only",
+            "history_cost",
+            "history_cost_quality",
+            "history_cost_load",
+            "history_cost_context",
+            "history_cost_radio",
+            "full",
+            "full_context",
+            "full_radio_context",
+        ],
         default="full",
         help="Feature ablation mode for the learned LE-GRA model.",
     )

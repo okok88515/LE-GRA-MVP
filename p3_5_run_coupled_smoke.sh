@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -n "${BASH_SOURCE[0]:-}" && "${BASH_SOURCE[0]}" != "bash" ]]; then
+  script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+else
+  script_dir="$(pwd)"
+fi
 workspace=/home/opp_env/p3_5_workspace
 runtime_output="$workspace/p3_5_coupled_output"
 repo_output="$script_dir/p3_5_coupled_output"
@@ -11,6 +15,7 @@ source /home/opp_env/.nix-profile/etc/profile.d/nix.sh
 
 mkdir -p "$runtime_output" "$repo_output"
 rm -f "$runtime_output/raw_radio.csv" \
+      "$runtime_output/raw_radio_diag.csv" \
       "$runtime_output/raw_mobility.csv" \
       "$runtime_output/launchd.log" \
       "$runtime_output/launchd.pid" \
@@ -28,6 +33,7 @@ opp_env run --workspace "$workspace" \
     opp_featuretool enable Simu5G_Cars
 
     export LEGRA_RADIO_RAW_CSV="$output/raw_radio.csv"
+    export LEGRA_RADIO_DIAG_RAW_CSV="$output/raw_radio_diag.csv"
     export LEGRA_MOBILITY_RAW_CSV="$output/raw_mobility.csv"
     export OMNETPP_NED_PACKAGE_EXCLUSIONS="$(tr "\n" ";" < "$INET_ROOT/.nedexclusions")"
 
@@ -63,13 +69,15 @@ opp_env run --workspace "$workspace" \
       -n "$SIMU5G_ROOT/simulations:$SIMU5G_ROOT/emulation:$SIMU5G_ROOT/src:$INET_ROOT/src:$VEINS_ROOT/src/veins:$VEINS_ROOT/subprojects/veins_inet/src/veins_inet"
 
     test -s "$output/raw_radio.csv"
+    test -s "$output/raw_radio_diag.csv"
     test -s "$output/raw_mobility.csv"
     test -s "$output/coupled.sca"
     echo P3_5_COUPLED_SIMULATION_OK
   '
 
 cp -f "$runtime_output/raw_radio.csv" "$repo_output/raw_radio.csv"
+cp -f "$runtime_output/raw_radio_diag.csv" "$repo_output/raw_radio_diag.csv"
 cp -f "$runtime_output/raw_mobility.csv" "$repo_output/raw_mobility.csv"
 cp -f "$runtime_output/launchd.log" "$repo_output/launchd.log"
 echo P3_5_COUPLED_OUTPUT_COPIED
-wc -l "$repo_output/raw_radio.csv" "$repo_output/raw_mobility.csv"
+wc -l "$repo_output/raw_radio.csv" "$repo_output/raw_radio_diag.csv" "$repo_output/raw_mobility.csv"

@@ -88,10 +88,18 @@ def export_trace_bundle(
                 "direction_to_gnb": scenario.direction_to_gnb[user_index],
                 "x_m": "",
                 "y_m": "",
-                "rsrp_dbm": "",
-                "rsrq_db": "",
-                "wideband_sinr_db": "",
-                "mcs": "",
+                "rsrp_dbm": _optional(
+                    None if np.isnan(scenario.rsrp_dbm[user_index]) else float(scenario.rsrp_dbm[user_index])
+                ),
+                "rsrq_db": _optional(
+                    None if np.isnan(scenario.rsrq_db[user_index]) else float(scenario.rsrq_db[user_index])
+                ),
+                "wideband_sinr_db": _optional(
+                    None if np.isnan(scenario.wideband_sinr_db[user_index]) else float(scenario.wideband_sinr_db[user_index])
+                ),
+                "mcs": _optional(
+                    None if np.isnan(scenario.mcs[user_index]) else int(round(float(scenario.mcs[user_index])))
+                ),
             })
             for rb_index in range(total_rbs):
                 rb_rows.append({
@@ -100,7 +108,9 @@ def export_trace_bundle(
                     "user_index": user_index,
                     "rb_index": rb_index,
                     "rate_kbps": scenario.rb_rates[user_index, rb_index],
-                    "sinr_db": "",
+                    "sinr_db": _optional(
+                        None if np.isnan(scenario.rb_sinr_db[user_index, rb_index]) else float(scenario.rb_sinr_db[user_index, rb_index])
+                    ),
                     "cqi": "",
                 })
 
@@ -202,8 +212,29 @@ def load_trace_bundle(
             distance=np.asarray([float(row["distance_m"]) for row in users]),
             speed=np.asarray([float(row["speed_mps"]) for row in users]),
             direction_to_gnb=np.asarray([float(row["direction_to_gnb"]) for row in users]),
+            rsrp_dbm=np.asarray([
+                np.nan if row.get("rsrp_dbm", "") == "" else float(row["rsrp_dbm"])
+                for row in users
+            ], dtype=float),
+            rsrq_db=np.asarray([
+                np.nan if row.get("rsrq_db", "") == "" else float(row["rsrq_db"])
+                for row in users
+            ], dtype=float),
+            wideband_sinr_db=np.asarray([
+                np.nan if row.get("wideband_sinr_db", "") == "" else float(row["wideband_sinr_db"])
+                for row in users
+            ], dtype=float),
+            rb_sinr_db=np.full((n_users, total_rbs), np.nan, dtype=float),
+            mcs=np.asarray([
+                np.nan if row.get("mcs", "") == "" else float(row["mcs"])
+                for row in users
+            ], dtype=float),
             dispersion=metadata.get("dispersion", "") or "trace",
         )
+        for row in rbs_by_scenario[scenario_id]:
+            user_index, rb_index = int(row["user_index"]), int(row["rb_index"])
+            if row.get("sinr_db", "") != "":
+                scenario.rb_sinr_db[user_index, rb_index] = float(row["sinr_db"])
         scenario.features = mvp.build_feature_matrix(scenario, feature_mode)
         scenarios.append(scenario)
     return scenarios

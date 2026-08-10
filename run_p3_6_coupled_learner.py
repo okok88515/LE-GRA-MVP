@@ -69,8 +69,29 @@ def _scenario_from_rows(
             [float(row["direction_to_gnb"]) for row in user_rows],
             dtype=float,
         ),
+        rsrp_dbm=np.asarray([
+            np.nan if row.get("rsrp_dbm", "") == "" else float(row["rsrp_dbm"])
+            for row in user_rows
+        ], dtype=float),
+        rsrq_db=np.asarray([
+            np.nan if row.get("rsrq_db", "") == "" else float(row["rsrq_db"])
+            for row in user_rows
+        ], dtype=float),
+        wideband_sinr_db=np.asarray([
+            np.nan if row.get("wideband_sinr_db", "") == "" else float(row["wideband_sinr_db"])
+            for row in user_rows
+        ], dtype=float),
+        rb_sinr_db=np.full((n_users, total_rbs), np.nan, dtype=float),
+        mcs=np.asarray([
+            np.nan if row.get("mcs", "") == "" else float(row["mcs"])
+            for row in user_rows
+        ], dtype=float),
         dispersion=metadata.get("dispersion", "") or "trace",
     )
+    for row in rb_rows:
+        if row.get("sinr_db", "") == "":
+            continue
+        scenario.rb_sinr_db[ue_index[row["ue_id"]], int(row["rb_index"])] = float(row["sinr_db"])
     scenario.features = mvp.build_feature_matrix(scenario, feature_mode)
     return scenario
 

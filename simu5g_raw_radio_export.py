@@ -22,6 +22,24 @@ RAW_FIELDS = {
     "total_bands",
 }
 
+RAW_DIAG_FIELDS = {
+    "timestamp_s",
+    "ue_node_id",
+    "gnb_node_id",
+    "band_index",
+    "sinr_db",
+    "wideband_sinr_db",
+    "rsrp_dbm",
+}
+
+OPTIONAL_RAW_FIELDS = {
+    "sinr_db",
+    "wideband_sinr_db",
+    "rsrp_dbm",
+    "rsrq_db",
+    "mcs",
+}
+
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8-sig") as handle:
@@ -38,6 +56,58 @@ def _write_csv(path: Path, fieldnames: list[str], rows: list[dict]) -> None:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+
+
+def _read_diag_csv(path: Path | None) -> list[dict[str, str]]:
+    if path is None or not path.exists():
+        return []
+    with path.open(newline="", encoding="utf-8-sig") as handle:
+        reader = csv.DictReader(handle)
+        missing = RAW_DIAG_FIELDS.difference(reader.fieldnames or ())
+        if missing:
+            raise ValueError(f"Missing raw diag columns: {sorted(missing)}")
+        rows = list(reader)
+    if not rows:
+        return rows
+    fieldnames = set(rows[0].keys())
+    if {"frame_type", "direction"}.issubset(fieldnames):
+        filtered = [
+            row
+            for row in rows
+            if row.get("frame_type") == "2" and row.get("direction") == "1"
+        ]
+        if filtered:
+            return filtered
+    return rows
+
+
+def _optional_numeric_text(value: str | None) -> str:
+    if value is None:
+        return ""
+    stripped = value.strip()
+    return "" if stripped == "" else stripped
+
+
+def _aggregate_optional_numeric(rows: list[dict[str, str]], field: str) -> str:
+    present = [
+        float(value)
+        for value in (_optional_numeric_text(row.get(field)) for row in rows)
+        if value != ""
+    ]
+    if not present:
+        return ""
+    return f"{sum(present) / len(present):.6f}"
+
+
+def _aggregate_optional_int(rows: list[dict[str, str]], field: str) -> str:
+    present = [
+        int(round(float(value)))
+        for value in (_optional_numeric_text(row.get(field)) for row in rows)
+        if value != ""
+    ]
+    if not present:
+        return ""
+    return str(int(round(sum(present) / len(present))))
 
 
 def _bin_time(timestamp: Decimal, period: Decimal) -> Decimal:
@@ -280,6 +350,7 @@ def export_raw_radio(
     previous_quality: int = 3,
     previous_quality_mode: str = "constant",
     ue_id_by_module: dict[str, str] | None = None,
+    raw_diag_csv: Path | str | None = None,
 ) -> dict[str, int]:
     if slot_duration_ms <= 0:
         raise ValueError("slot_duration_ms must be positive")
@@ -305,7 +376,44 @@ def export_raw_radio(
     if not 0 <= previous_quality < 6:
         raise ValueError("previous_quality must be in [0, 5]")
 
-    raw_rows = _read_csv(Path(raw_csv))
+    raw_csv = Path(raw_csv)
+    raw_rows = _read_csv(raw_csv)
+    if raw_diag_csv is None:
+        candidate = raw_csv.with_name(
+            raw_csv.name.replace("raw_radio.csv", "raw_radio_diag.csv")
+            if raw_csv.name.endswith("raw_radio.csv")
+            else raw_csv.stem + "_diag.csv"
+        )
+        raw_diag_csv = candidate if candidate.exists() else None
+    raw_diag_rows = _read_diag_csv(None if raw_diag_csv is None else Path(raw_diag_csv))
+    if raw_diag_rows:
+        diag_by_key: dict[tuple[str, str, str, str], dict[str, str]] = {}
+        for row in raw_diag_rows:
+            key = (
+                row["timestamp_s"],
+                row["ue_node_id"],
+                row["gnb_node_id"],
+                row["band_index"],
+            )
+            if key in diag_by_key:
+                raise ValueError(f"Duplicate raw diag row: {key}")
+            diag_by_key[key] = row
+        for row in raw_rows:
+            key = (
+                row["timestamp_s"],
+                row["ue_node_id"],
+                row["gnb_node_id"],
+                row["band_index"],
+            )
+            diag = diag_by_key.get(key)
+            if diag is None:
+                continue
+            for field in OPTIONAL_RAW_FIELDS:
+                if field in diag and field not in row:
+                    row[field] = diag[field]
+    available_optional_raw_fields = sorted(
+        field for field in OPTIONAL_RAW_FIELDS if raw_rows and field in raw_rows[0]
+    )
     period = Decimal(str(snapshot_period_s))
     snapshots: dict[tuple[Decimal, str, str], dict[Decimal, list[dict]]] = defaultdict(
         lambda: defaultdict(list)
@@ -357,6 +465,10 @@ def export_raw_radio(
             "ue_id": ue_id,
             "serving_gnb": gnb_id,
             "wideband_cqi": wideband_cqi,
+            "wideband_sinr_db": _aggregate_optional_numeric(rows, "wideband_sinr_db"),
+            "rsrp_dbm": _aggregate_optional_numeric(rows, "rsrp_dbm"),
+            "rsrq_db": _aggregate_optional_numeric(rows, "rsrq_db"),
+            "mcs": _aggregate_optional_int(rows, "mcs"),
             "total_bands": total_bands,
             "rb_available": rb_available,
             "latest_time": latest_time,
@@ -443,10 +555,10 @@ def export_raw_radio(
             "previous_quality": previous_quality_by_key[(timestamp, ue_id)],
             "total_rbs": record["total_bands"],
             "rb_available": record["rb_available"],
-            "wideband_sinr_db": "",
-            "rsrp_dbm": "",
-            "rsrq_db": "",
-            "mcs": "",
+            "wideband_sinr_db": record["wideband_sinr_db"],
+            "rsrp_dbm": record["rsrp_dbm"],
+            "rsrq_db": record["rsrq_db"],
+            "mcs": record["mcs"],
         })
         rows = record["rows"]
         by_band = {int(row["band_index"]): row for row in rows}
@@ -460,7 +572,7 @@ def export_raw_radio(
                 "serving_gnb": gnb_id,
                 "rb_index": band,
                 "rate_kbps": f"{rate_kbps:.6f}",
-                "sinr_db": "",
+                "sinr_db": _optional_numeric_text(raw.get("sinr_db")),
                 "cqi": raw["cqi"],
             })
 
@@ -498,7 +610,15 @@ def export_raw_radio(
         "previous_quality_mode": previous_quality_mode,
         "previous_quality_source": previous_quality_source,
         "rb_abstraction": "Simu5G logical band",
-        "sinr_source": "not_exported_in_p3_4",
+        "sinr_source": (
+            "raw_optional_field"
+            if "sinr_db" in available_optional_raw_fields
+            else "not_exported_in_p3_4"
+        ),
+        "available_optional_raw_fields": available_optional_raw_fields,
+        "raw_diag_source": (
+            str(Path(raw_diag_csv)) if raw_diag_csv is not None and raw_diag_rows else ""
+        ),
         "ue_id_source": (
             "Simu5G_internal_node_id" if ue_id_by_module is None
             else "SUMO_external_id_joined_by_OMNeT_module_path"
@@ -581,6 +701,7 @@ def export_raw_radio(
     )
     return {
         "raw_rows": len(raw_rows),
+        "raw_diag_rows": len(raw_diag_rows),
         "radio_users": len(user_rows),
         "radio_rbs": len(rb_rows),
         "dropped_out_of_coverage": len(snapshots) - len(user_rows),

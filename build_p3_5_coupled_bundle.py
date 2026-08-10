@@ -53,6 +53,8 @@ def build_coupled_bundle(
     raw_dir, out_dir = Path(raw_dir), Path(out_dir)
     raw_mobility = _read(raw_dir / "raw_mobility.csv")
     raw_radio = _read(raw_dir / "raw_radio.csv")
+    raw_radio_diag_path = raw_dir / "raw_radio_diag.csv"
+    raw_radio_diag = _read(raw_radio_diag_path) if raw_radio_diag_path.exists() else []
     period = Decimal(str(snapshot_period_s))
 
     module_to_sumo: dict[str, str] = {}
@@ -87,11 +89,33 @@ def build_coupled_bundle(
             (_bin(row["timestamp_s"], period), row["ue_module_path"])
         ]
     ]
+    filtered_radio_keys = {
+        (
+            row["timestamp_s"],
+            row["ue_node_id"],
+            row["gnb_node_id"],
+            row["band_index"],
+        )
+        for row in filtered_radio
+    }
+    filtered_radio_diag = [
+        row for row in raw_radio_diag
+        if (
+            row["timestamp_s"],
+            row["ue_node_id"],
+            row["gnb_node_id"],
+            row["band_index"],
+        ) in filtered_radio_keys
+    ]
 
     radio_dir = out_dir / "radio"
     with tempfile.TemporaryDirectory(prefix="legra_p3_5_radio_") as temp_dir:
         mapped_raw = Path(temp_dir) / "mapped_raw_radio.csv"
         _write(mapped_raw, list(filtered_radio[0]), filtered_radio)
+        mapped_diag = None
+        if filtered_radio_diag:
+            mapped_diag = Path(temp_dir) / "mapped_raw_radio_diag.csv"
+            _write(mapped_diag, list(filtered_radio_diag[0]), filtered_radio_diag)
         radio_counts = export_raw_radio(
             mapped_raw,
             radio_dir,
@@ -101,6 +125,7 @@ def build_coupled_bundle(
             previous_quality=previous_quality,
             previous_quality_mode=previous_quality_mode,
             ue_id_by_module=module_to_sumo,
+            raw_diag_csv=mapped_diag,
         )
     radio_users = _read(radio_dir / "radio_users.csv")
     retained = {(Decimal(row["timestamp_s"]), row["ue_id"]) for row in radio_users}
