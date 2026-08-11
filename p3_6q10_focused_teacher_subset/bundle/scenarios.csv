@@ -1,0 +1,16 @@
+schema_version,scenario_id,timestamp_s,serving_gnb,rb_available,total_rbs,dispersion
+1.0,simu5g_00000298,16.2,gnb_2,7,25,simu5g
+1.0,simu5g_00000300,16.3,gnb_2,7,25,simu5g
+1.0,simu5g_00000302,16.4,gnb_2,7,25,simu5g
+1.0,simu5g_00000520,27.3,gnb_2,7,25,simu5g
+1.0,simu5g_00000522,27.4,gnb_2,7,25,simu5g
+1.0,simu5g_00000524,27.5,gnb_2,7,25,simu5g
+1.0,simu5g_00000526,27.6,gnb_2,7,25,simu5g
+1.0,simu5g_00000528,27.7,gnb_2,7,25,simu5g
+1.0,simu5g_00000530,27.8,gnb_2,7,25,simu5g
+1.0,simu5g_00000532,27.9,gnb_2,7,25,simu5g
+1.0,simu5g_00000534,28.0,gnb_2,7,25,simu5g
+1.0,simu5g_00000536,28.1,gnb_2,7,25,simu5g
+1.0,simu5g_00000538,28.2,gnb_2,7,25,simu5g
+1.0,simu5g_00000596,31.1,gnb_2,7,25,simu5g
+1.0,simu5g_00000598,31.2,gnb_2,7,25,simu5g

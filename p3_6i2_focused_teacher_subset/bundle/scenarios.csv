@@ -1,0 +1,10 @@
+schema_version,scenario_id,timestamp_s,serving_gnb,rb_available,total_rbs,dispersion
+1.0,simu5g_00000348,18.7,gnb_2,7,25,simu5g
+1.0,simu5g_00000350,18.8,gnb_2,7,25,simu5g
+1.0,simu5g_00000352,18.9,gnb_2,7,25,simu5g
+1.0,simu5g_00000354,19.0,gnb_2,7,25,simu5g
+1.0,simu5g_00000356,19.1,gnb_2,7,25,simu5g
+1.0,simu5g_00000358,19.2,gnb_2,7,25,simu5g
+1.0,simu5g_00000847,43.7,gnb_1,7,25,simu5g
+1.0,simu5g_00000849,43.8,gnb_1,7,25,simu5g
+1.0,simu5g_00000851,43.9,gnb_1,7,25,simu5g

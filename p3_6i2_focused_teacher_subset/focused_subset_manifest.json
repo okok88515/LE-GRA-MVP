@@ -1,0 +1,46 @@
+{
+  "source_bundle": "C:\\Users\\Weber\\Documents\\LE-GRA-MVP\\p3_6i2_coupled_bundle",
+  "feature_mode": "history_cost_quality",
+  "switch_beta": 0.5,
+  "max_groups": null,
+  "min_gain": 1e-09,
+  "min_group_count": 2,
+  "time_margin_s": 0.0,
+  "decision_row_count": 830,
+  "seed_scenario_count": 9,
+  "kept_scenario_count": 9,
+  "kept_family_count": 2,
+  "kept_windows": [
+    {
+      "serving_gnb": "gnb_1",
+      "ue_ids": "0|1|15|2|3|4|5",
+      "seed_timestamps_s": [
+        43.7,
+        43.8,
+        43.9
+      ]
+    },
+    {
+      "serving_gnb": "gnb_2",
+      "ue_ids": "0|1|2|3|4",
+      "seed_timestamps_s": [
+        18.7,
+        18.8,
+        18.9,
+        19.0,
+        19.1,
+        19.2
+      ]
+    }
+  ],
+  "filtered_rows": {
+    "bundle\\scenarios.csv": 9,
+    "bundle\\users.csv": 51,
+    "bundle\\rb_rates.csv": 1275,
+    "mobility\\sumo_scenarios.csv": 9,
+    "mobility\\sumo_mobility.csv": 42,
+    "radio\\radio_users.csv": 51,
+    "radio\\radio_rbs.csv": 1275,
+    "radio\\quality_state.csv": 51
+  }
+}

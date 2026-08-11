@@ -1,0 +1,10 @@
+mobility_schema_version,scenario_id,timestamp_s,serving_gnb,user_count
+1.0,sumo_coupled_00000356,18.7,gnb_2,5
+1.0,sumo_coupled_00000358,18.8,gnb_2,5
+1.0,sumo_coupled_00000360,18.9,gnb_2,5
+1.0,sumo_coupled_00000362,19,gnb_2,5
+1.0,sumo_coupled_00000364,19.1,gnb_2,5
+1.0,sumo_coupled_00000366,19.2,gnb_2,5
+1.0,sumo_coupled_00000855,43.7,gnb_1,4
+1.0,sumo_coupled_00000857,43.8,gnb_1,4
+1.0,sumo_coupled_00000859,43.9,gnb_1,4

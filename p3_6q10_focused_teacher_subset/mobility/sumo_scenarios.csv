@@ -1,0 +1,16 @@
+mobility_schema_version,scenario_id,timestamp_s,serving_gnb,user_count
+1.0,sumo_coupled_00000306,16.2,gnb_2,4
+1.0,sumo_coupled_00000308,16.3,gnb_2,4
+1.0,sumo_coupled_00000310,16.4,gnb_2,4
+1.0,sumo_coupled_00000528,27.3,gnb_2,8
+1.0,sumo_coupled_00000530,27.4,gnb_2,8
+1.0,sumo_coupled_00000532,27.5,gnb_2,8
+1.0,sumo_coupled_00000534,27.6,gnb_2,8
+1.0,sumo_coupled_00000536,27.7,gnb_2,8
+1.0,sumo_coupled_00000538,27.8,gnb_2,8
+1.0,sumo_coupled_00000540,27.9,gnb_2,8
+1.0,sumo_coupled_00000542,28,gnb_2,8
+1.0,sumo_coupled_00000544,28.1,gnb_2,8
+1.0,sumo_coupled_00000546,28.2,gnb_2,8
+1.0,sumo_coupled_00000604,31.1,gnb_2,8
+1.0,sumo_coupled_00000606,31.2,gnb_2,8

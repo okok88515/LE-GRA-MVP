@@ -1,0 +1,58 @@
+{
+  "source_bundle": "C:\\Users\\Weber\\Documents\\LE-GRA-MVP\\p3_6q10_six_user_transition_extension_bundle",
+  "feature_mode": "history_cost_quality",
+  "switch_beta": 0.5,
+  "max_groups": null,
+  "min_gain": 1e-09,
+  "min_group_count": 2,
+  "time_margin_s": 0.0,
+  "decision_row_count": 820,
+  "seed_scenario_count": 15,
+  "kept_scenario_count": 15,
+  "kept_family_count": 3,
+  "kept_windows": [
+    {
+      "serving_gnb": "gnb_2",
+      "ue_ids": "0|1|2|3",
+      "seed_timestamps_s": [
+        16.2,
+        16.3,
+        16.4
+      ]
+    },
+    {
+      "serving_gnb": "gnb_2",
+      "ue_ids": "1|2|3|4|5|6",
+      "seed_timestamps_s": [
+        27.3,
+        27.4,
+        27.5,
+        27.6,
+        27.7,
+        27.8,
+        27.9,
+        28.0,
+        28.1,
+        28.2
+      ]
+    },
+    {
+      "serving_gnb": "gnb_2",
+      "ue_ids": "3|31|4|5|6",
+      "seed_timestamps_s": [
+        31.1,
+        31.2
+      ]
+    }
+  ],
+  "filtered_rows": {
+    "bundle\\scenarios.csv": 15,
+    "bundle\\users.csv": 82,
+    "bundle\\rb_rates.csv": 2050,
+    "mobility\\sumo_scenarios.csv": 15,
+    "mobility\\sumo_mobility.csv": 82,
+    "radio\\radio_users.csv": 82,
+    "radio\\radio_rbs.csv": 2050,
+    "radio\\quality_state.csv": 82
+  }
+}
