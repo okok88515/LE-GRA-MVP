@@ -1,0 +1,27 @@
+{
+  "source_dir": "C:\\Users\\Weber\\Documents\\LE-GRA-MVP\\p3_6g_temporal_learner",
+  "utility_gap_vs_no_grouping": 0.02206200204389097,
+  "adr_gap_vs_no_grouping": 985.7142857142858,
+  "teacher_like_methods": [
+    "CQI k-means",
+    "Resource-cost k-means",
+    "Multi-feature k-means",
+    "Offline teacher",
+    "LE-GRA MVP"
+  ],
+  "diag_average": {
+    "Multi-feature k-means": {
+      "pairwise_accuracy": 1.0,
+      "ari": 1.0,
+      "nmi": 1.0
+    },
+    "LE-GRA MVP": {
+      "pairwise_accuracy": 1.0,
+      "ari": 1.0,
+      "nmi": 1.0
+    }
+  },
+  "dataset": "p3_6g_temporal_focus",
+  "feature_mode": "history_cost_quality",
+  "rb_budget_ratio": 0.32
+}

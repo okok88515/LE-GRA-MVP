@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Method Metrics Report</title>
+  <style>
+    :root {
+      --paper: #f7f1e6;
+      --card: rgba(255, 252, 246, 0.88);
+      --ink: #16242d;
+      --muted: #5a6872;
+      --line: rgba(22, 36, 45, 0.12);
+      --accent: #c6542b;
+      --shadow: 0 22px 54px rgba(22, 36, 45, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(198, 84, 43, 0.14), transparent 30%),
+        linear-gradient(180deg, #faf5ec 0%, #efe5d5 100%);
+    }
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+    .hero, .card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.65);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 22px;
+    }
+    .hero h1, .card h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      letter-spacing: -0.03em;
+    }
+    .hero h1 { font-size: 2.7rem; }
+    .hero p, .card p, .card li, td, th {
+      line-height: 1.8;
+      color: #24404d;
+    }
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .card {
+      padding: 24px;
+    }
+    .eyebrow {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    img {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    @media (max-width: 960px) {
+      .grid.two {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Metrics Visualization</div>
+      <h1>目前方法 Metrics 圖表與分析</h1>
+      <p>
+        資料來源是 <code>p3_6g_temporal_learner/main_comparison.csv</code> 與
+        <code>p3_6g_temporal_learner/teacher_imitation_diagnostics.csv</code>。
+        這是一個 focused temporal regime，設定為 <code>feature_mode=history_cost_quality</code>、
+        <code>rb_budget_ratio=0.32</code>、<code>max_groups=3</code>。
+      </p>
+    </section>
+
+    <section class="card">
+      <div class="eyebrow">總結</div>
+      <h2>先看最重要的三句話</h2>
+      <ul>
+        <li>目前這個 regime 裡，<strong>除了 No grouping 之外，其它五個方法全部打平</strong>，包含 CQI、resource-cost、multi-feature、offline teacher 與 LE-GRA。</li>
+        <li>相對於 No grouping，這五個方法都把 utility 從 <strong>0.6402</strong> 提升到 <strong>0.6622</strong>，提升幅度是 <strong>0.0221</strong>。</li>
+        <li>在 teacher imitation 指標上，<strong>Multi-feature k-means 與 LE-GRA 平均 pairwise / ARI / NMI 全部都是 1.0</strong>，代表在這個 slice 上兩者都完整重建了 teacher 的群組結構。</li>
+      </ul>
+    </section>
+
+    <section class="grid two">
+      <article class="card">
+        <div class="eyebrow">Allocation</div>
+        <h2>Utility</h2>
+        <img src="utility_comparison.svg" alt="Utility comparison chart">
+      </article>
+      <article class="card">
+        <div class="eyebrow">Allocation</div>
+        <h2>ADR</h2>
+        <img src="adr_comparison.svg" alt="ADR comparison chart">
+      </article>
+      <article class="card">
+        <div class="eyebrow">Allocation</div>
+        <h2>RB Utilization</h2>
+        <img src="rb_utilization_comparison.svg" alt="RB utilization comparison chart">
+      </article>
+      <article class="card">
+        <div class="eyebrow">Allocation</div>
+        <h2>Average Switching</h2>
+        <img src="avg_switching_comparison.svg" alt="Average switching comparison chart">
+      </article>
+      <article class="card">
+        <div class="eyebrow">Allocation</div>
+        <h2>Fairness</h2>
+        <img src="fairness_comparison.svg" alt="Fairness comparison chart">
+      </article>
+      <article class="card">
+        <div class="eyebrow">Allocation</div>
+        <h2>Average Quality</h2>
+        <img src="average_quality_comparison.svg" alt="Average quality comparison chart">
+      </article>
+    </section>
+
+    <section class="grid two" style="margin-top: 18px;">
+      <article class="card">
+        <div class="eyebrow">Teacher Imitation</div>
+        <h2>Pairwise Accuracy</h2>
+        <img src="pairwise_accuracy_comparison.svg" alt="Pairwise accuracy comparison chart">
+      </article>
+      <article class="card">
+        <div class="eyebrow">Teacher Imitation</div>
+        <h2>ARI</h2>
+        <img src="ari_comparison.svg" alt="ARI comparison chart">
+      </article>
+      <article class="card">
+        <div class="eyebrow">Teacher Imitation</div>
+        <h2>NMI</h2>
+        <img src="nmi_comparison.svg" alt="NMI comparison chart">
+      </article>
+      <article class="card">
+        <div class="eyebrow">解讀</div>
+        <h2>圖表代表什麼</h2>
+        <ul>
+          <li><strong>Utility / ADR / Average Quality</strong>：代表最終 multicast allocation 的效益。</li>
+          <li><strong>RB Utilization</strong>：代表方法是否真的把可用 RB 預算用起來。</li>
+          <li><strong>Average Switching</strong>：越低越好，因為切換太多會被 utility 懲罰。</li>
+          <li><strong>Fairness</strong>：越接近 1 代表服務越平均。</li>
+          <li><strong>Pairwise / ARI / NMI</strong>：代表方法在群組結構上有多接近 offline teacher。</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top: 18px;">
+      <div class="eyebrow">分析</div>
+      <h2>這組結果的核心 insight</h2>
+      <ul>
+        <li><strong>No grouping 明顯較差</strong>：它的 utility、ADR、average quality、RB utilization 都明顯落後，代表這個 temporal regime 確實需要分群，不能把所有人硬綁一起。</li>
+        <li><strong>其餘五個方法完全重合</strong>：這表示在這個 focused slice 裡，真正困難的不是「要不要分群」，而是「只要你找到那個 teacher split，誰都能贏」。</li>
+        <li><strong>CQI 已經足夠</strong>：因為 CQI k-means、resource-cost、multi-feature、teacher、LE-GRA 全部同分，代表這個 slice 的可分結構已經強到 CQI 也能看見，feature richness 沒有被真正考驗到。</li>
+        <li><strong>LE-GRA 在這裡證明的是可學到，不是明顯超越</strong>：teacher imitation 指標 1.0 很漂亮，但 multi-feature k-means 也是 1.0，所以這個結果比較支持「LE-GRA 能學到 teacher」，而不是「LE-GRA 超越 hand-crafted feature baseline」。</li>
+        <li><strong>resource-cost / multi-feature 的價值沒有被否定，只是這個 regime 不夠 hard</strong>：當一個 slice 太乾淨、太容易 split 時， richer feature 的優勢自然不會被拉大。</li>
+      </ul>
+    </section>
+
+    <section class="card" style="margin-top: 18px;">
+      <div class="eyebrow">表格</div>
+      <h2>主要數值總表</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Utility</th>
+            <th>ADR (kbps)</th>
+            <th>RB Utilization</th>
+            <th>Avg Switching</th>
+            <th>Fairness</th>
+            <th>Average Quality</th>
+            <th>Avg Groups</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>No grouping</td><td>0.6402</td><td>3533.3</td><td>0.6012</td><td>0.2833</td><td>1.0000</td><td>3.1905</td><td>1.0000</td></tr>
+<tr><td>CQI k-means</td><td>0.6622</td><td>4519.0</td><td>0.8571</td><td>0.3405</td><td>0.9232</td><td>3.4762</td><td>1.5714</td></tr>
+<tr><td>Resource-cost k-means</td><td>0.6622</td><td>4519.0</td><td>0.8571</td><td>0.3405</td><td>0.9232</td><td>3.4762</td><td>1.5714</td></tr>
+<tr><td>Multi-feature k-means</td><td>0.6622</td><td>4519.0</td><td>0.8571</td><td>0.3405</td><td>0.9232</td><td>3.4762</td><td>1.5714</td></tr>
+<tr><td>Offline teacher</td><td>0.6622</td><td>4519.0</td><td>0.8571</td><td>0.3405</td><td>0.9232</td><td>3.4762</td><td>1.5714</td></tr>
+<tr><td>LE-GRA MVP</td><td>0.6622</td><td>4519.0</td><td>0.8571</td><td>0.3405</td><td>0.9232</td><td>3.4762</td><td>1.5714</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" style="margin-top: 18px;">
+      <div class="eyebrow">Teacher Imitation</div>
+      <h2>群組結構模仿指標平均值</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Pairwise Accuracy</th>
+            <th>ARI</th>
+            <th>NMI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Multi-feature k-means</td><td>1.0000</td><td>1.0000</td><td>1.0000</td></tr>
+<tr><td>LE-GRA MVP</td><td>1.0000</td><td>1.0000</td><td>1.0000</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

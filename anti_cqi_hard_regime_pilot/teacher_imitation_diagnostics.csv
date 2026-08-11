@@ -1,0 +1,17 @@
+scenario_mode,load_level,rb_budget_ratio,seed,test_index,kmax,feature_mode,method,pairwise_accuracy,ari,nmi,teacher_groups,predicted_groups
+anti_cqi_hard,focused,0.24,9,0,3,history_cost_quality,Multi-feature k-means,0.8333333333333334,0.6648199445983379,0.6266172073486219,2,2
+anti_cqi_hard,focused,0.24,9,0,3,history_cost_quality,LE-GRA MVP,0.8333333333333334,0.6648199445983379,0.6266172073486219,2,2
+anti_cqi_hard,focused,0.24,9,1,3,history_cost_quality,Multi-feature k-means,0.5606060606060606,0.23132530120481926,0.4257973666029115,2,3
+anti_cqi_hard,focused,0.24,9,1,3,history_cost_quality,LE-GRA MVP,0.5606060606060606,0.23132530120481926,0.4257973666029115,2,3
+anti_cqi_hard,focused,0.24,9,2,3,history_cost_quality,Multi-feature k-means,0.8333333333333334,0.6672777268560953,0.6509631395521195,2,2
+anti_cqi_hard,focused,0.24,9,2,3,history_cost_quality,LE-GRA MVP,1.0,1.0,1.0,2,2
+anti_cqi_hard,focused,0.24,9,3,3,history_cost_quality,Multi-feature k-means,0.696969696969697,0.39560439560439553,0.47913876749186385,2,2
+anti_cqi_hard,focused,0.24,9,3,3,history_cost_quality,LE-GRA MVP,0.5151515151515151,0.0,0.0,2,1
+anti_cqi_hard,focused,0.24,9,4,3,history_cost_quality,Multi-feature k-means,0.696969696969697,0.39560439560439553,0.47913876749186385,2,2
+anti_cqi_hard,focused,0.24,9,4,3,history_cost_quality,LE-GRA MVP,0.8333333333333334,0.6672777268560953,0.6509631395521195,2,2
+anti_cqi_hard,focused,0.24,9,5,3,history_cost_quality,Multi-feature k-means,1.0,1.0,1.0,2,2
+anti_cqi_hard,focused,0.24,9,5,3,history_cost_quality,LE-GRA MVP,0.696969696969697,0.39560439560439553,0.47913876749186385,2,2
+anti_cqi_hard,focused,0.24,9,6,3,history_cost_quality,Multi-feature k-means,0.7878787878787878,0.5741935483870968,0.5721469368418844,3,2
+anti_cqi_hard,focused,0.24,9,6,3,history_cost_quality,LE-GRA MVP,0.7878787878787878,0.5741935483870968,0.5721469368418844,3,2
+anti_cqi_hard,focused,0.24,9,7,3,history_cost_quality,Multi-feature k-means,0.696969696969697,0.39560439560439553,0.47913876749186385,2,2
+anti_cqi_hard,focused,0.24,9,7,3,history_cost_quality,LE-GRA MVP,1.0,1.0,1.0,2,2

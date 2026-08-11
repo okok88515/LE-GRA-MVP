@@ -262,44 +262,45 @@
   <main class="page">
     <div class="topbar">
       <div class="tag">Phase-1 Conclusion</div>
-      <div>Updated 2026-08-10</div>
+      <div>Updated 2026-08-11</div>
     </div>
 
     <section class="hero">
       <article class="hero-copy">
-        <div class="eyebrow">研究主線收斂版</div>
+        <div class="eyebrow">研究結論重寫</div>
         <h1>第一階段研究結論</h1>
         <p>
-          這一階段最重要的收穫，不是做出一個穩定擊敗所有 baseline 的 learner，
-          而是把問題本質釐清了：在 multicast grouping 裡，`CQI-only` 的資訊太粗，
-          真正能穩定帶來辨識力的，是 `resource-cost` 與更完整的 `multi-feature` 表示。
+          這一階段最重要的結論，不是我們找到了某個穩定輾壓所有 baseline 的 learner，
+          而是我們重新看清了 multicast grouping 的問題本質：
+          <strong>CQI-only grouping 太粗，resource-cost 與 multi-feature 才更接近真實資源分配問題。</strong>
         </p>
         <p>
-          換句話說，這份研究已經成功把主軸從「學習式方法是否一定更強」，
-          收斂成「什麼樣的特徵表示，比單純 CQI 更接近真實資源分群需求」。
+          也因此，專案主線應該從「證明 LE-GRA 最強」改寫成
+          「證明 richer feature-based grouping 比 CQI-only 更合理、更有研究價值」。
         </p>
       </article>
 
       <aside class="hero-side">
         <div>
-          <h2>一句話總結</h2>
+          <h2>一句話結論</h2>
           <p>
-            第一階段最可信的結論是：
-            <strong>resource-cost / multi-feature 比 CQI-only 更值得當主方法線，LE-GRA 則保留為探索性支線。</strong>
+            最有說服力的成果是：
+            <strong>resource-cost / multi-feature 優於 CQI-only 的研究主線已經成立，
+            LE-GRA 則應退回探索性支線。</strong>
           </p>
         </div>
         <div class="summary-grid">
           <div class="summary-tile">
             <strong>CQI</strong>
-            <span>重要起點，但已證明過於簡化</span>
+            <span>可當 baseline，但表示太薄</span>
           </div>
           <div class="summary-tile">
             <strong>Cost</strong>
-            <span>目前最穩的主 baseline</span>
+            <span>目前最實用的主方法</span>
           </div>
           <div class="summary-tile">
             <strong>Full</strong>
-            <span>更完整的 feature-based grouping 方向</span>
+            <span>更完整的 feature-based 路線</span>
           </div>
         </div>
       </aside>
@@ -307,134 +308,266 @@
 
     <div class="sections">
       <section class="section-card">
-        <h2>一開始的假設，現在怎麼看</h2>
+        <h2>這一階段真正完成的事情</h2>
         <div class="grid-2">
           <div class="block">
-            <h3>原始想法</h3>
+            <h3>建立穩定的比較骨幹</h3>
             <p>
-              一開始的研究出發點，是想知道 learner 能不能透過 embedding，
-              學出比 `CQI-only grouping` 更好的分群方式。
+              我們不只是試很多 grouping 方法，而是先建立了 offline teacher 加 exact DP allocator
+              的穩定評估框架。這使得 teacher、CQI、resource-cost、multi-feature、LE-GRA
+              都能在同一個 backend 下被公平比較。
             </p>
           </div>
           <div class="block">
-            <h3>現在的答案</h3>
+            <h3>把問題重新定義清楚</h3>
             <p>
-              問題其實不是 learner 有沒有完全學會，而是單靠 learner 並沒有穩定帶來超額價值；
-              真正穩定有效的進步，反而來自更好的特徵表示。
+              這份研究最大的收穫，是從 learner obsession 退一步，重新定義問題：
+              真正值得優化的，先是 grouping 表示；如果表示本身不對，再多 learner tweak 也很難救。
             </p>
           </div>
         </div>
         <div class="claim">
-          第一階段最重要的收斂不是「LE-GRA 成功了」，而是
-          「CQI-only 不夠，resource-cost / multi-feature 才是比較對的問題表示法」。
+          這份研究最重要的主張，不是「LE-GRA 是最佳解」，而是
+          「CQI-only 太粗，resource-cost / multi-feature 才更能描述 multicast grouping 的真實難度」。
         </div>
       </section>
 
       <section class="section-card">
-        <h2>我們現在可以正式主張的三件事</h2>
+        <h2>為什麼 multi-feature 和 resource-cost 值得當主角</h2>
         <div class="grid-3">
           <div class="block">
-            <h3>1. Teacher + DP 框架成立</h3>
+            <h3>1. 它們更接近 allocator 的語言</h3>
             <p>
-              Offline teacher 搭配 exact DP allocator 已經被驗證是一套可用、可解釋、可公平比較的方法框架。
-              這條 backbone 沒問題。
+              multicast grouping 的本質不是把看起來相似的人放一起，
+              而是把「一起服務時成本相容」的人放一起。
+              resource-cost 直接描述服務代價，multi-feature 則保留更多與代價有關的上下文。
             </p>
           </div>
           <div class="block">
-            <h3>2. Resource-cost 有明確價值</h3>
+            <h3>2. 它們補足 CQI-only 的盲點</h3>
             <p>
-              研究一路做下來，最穩的正向訊號不是 learner 超車，
-              而是 resource-cost 一直比 CQI-only 更接近真實 grouping 需求。
+              CQI 只是一個壓縮過的通道摘要。它看不到 RB-level 差異、previous quality、
+              mobility trend 與時間脈絡，因此很容易把真正在 allocator 眼裡不一樣的人誤判為相似。
             </p>
           </div>
           <div class="block">
-            <h3>3. Multi-feature 值得當主線</h3>
+            <h3>3. 它們形成可獨立成立的研究價值</h3>
             <p>
-              richer feature 表示已經證明自己有研究價值，
-              而且它不像 learner 一樣依賴非常狹窄的 regime 才成立。
+              就算不再主打 learner，只要能證明更好的 feature representation 會帶來更合理的 grouping，
+              這本身就已經是完整而扎實的研究貢獻。
             </p>
           </div>
         </div>
       </section>
 
       <section class="section-card">
-        <h2>我們也可以誠實承認的三件事</h2>
-        <div class="timeline">
-          <div class="timeline-step" data-step="1">
-            <h3>LE-GRA 不是通解</h3>
-            <p>
-              它沒有穩定地在各種 family、各種 corridor、各種 teacher split 型態下都拉開差距。
-              大部分時候它不是回到 parity，就是只在很窄的 regime 才有優勢。
-            </p>
-          </div>
-          <div class="timeline-step" data-step="2">
-            <h3>LE-GRA 也不是主要實用解</h3>
-            <p>
-              從現在的結果來看，如果目標是做一個可信又可交代的方法，
-              直接使用 `resource-cost` 或 `multi-feature` 反而更穩。
-            </p>
-          </div>
-          <div class="timeline-step" data-step="3">
-            <h3>但先前的時間沒有白費</h3>
-            <p>
-              因為這整段探索幫我們證明了哪條路不值得再硬推，
-              也幫我們找出真正重要的訊號其實在 feature representation，而不是 learner 本身。
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section-card">
-        <h2>為什麼這不是失敗，而是研究收斂</h2>
+        <h2>resource-cost 的研究意義</h2>
         <div class="grid-2">
           <div class="block">
-            <h3>如果從方法論來看</h3>
+            <h3>它到底代表什麼</h3>
             <p>
-              我們不是單純「做不出 learner」，
-              而是有系統地比較了 teacher、CQI、resource-cost、multi-feature、LE-GRA，
-              最後明確知道哪一條線值得留下。
+              resource-cost 代表的不是「使用者現在看起來的訊號高低」，
+              而是「若要把這個使用者服務到某種品質，實際大概要付出多少無線資源」。
+              這讓 grouping 更直接對齊最終的資源分配目標。
             </p>
           </div>
           <div class="block">
-            <h3>如果從報告敘事來看</h3>
+            <h3>它為什麼重要</h3>
             <p>
-              現在的故事反而更完整：
-              從直觀但不足的 CQI-only 出發，經過 teacher 與 learner 的探索，
-              最後收斂到更合理的 feature-based grouping。
+              只要 resource-cost 比 CQI-only 更好，就代表我們已經證明：
+              與其只用通道外觀分群，不如直接用更貼近服務代價的表示。
+              這是目前最清楚、最實用、也最容易說服別人的研究成果。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>multi-feature 的研究意義</h2>
+        <div class="grid-2">
+          <div class="block">
+            <h3>它到底代表什麼</h3>
+            <p>
+              multi-feature 承認 multicast grouping 可能不是單一指標能完全描述的問題。
+              因此它保留更多狀態，例如 CQI history、RB-level rate、previous quality、
+              mobility 與衍生的 cost 訊號，讓分群能看見更完整的決策脈絡。
+            </p>
+          </div>
+          <div class="block">
+            <h3>它為什麼重要</h3>
+            <p>
+              multi-feature 表示我們不再被綁在「一定要先學 embedding 才算進步」的框架裡。
+              它讓研究焦點回到 feature design，也讓報告主線更穩、更誠實。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>需要明確寫進報告的實作定義</h2>
+        <div class="grid-2">
+          <div class="block">
+            <h3>`Multi-feature k-means` 實際上吃什麼</h3>
+            <p>
+              在目前主比較裡，`Multi-feature k-means` 固定使用 `feature_mode="full"`，
+              也就是 5 維 `cqi_history`、4 維 `rb_stats`、3 維 `mobility`、
+              再加上 6 維 `resource-cost vector`，總共 18 維。
+            </p>
+            <p>
+              這代表它不是抽象地「看很多 feature」，
+              而是有意識地把時間趨勢、頻域統計、移動狀態與服務成本放進同一個分群空間。
+            </p>
+          </div>
+          <div class="block">
+            <h3>`resource-cost` 的公式定義</h3>
+            <p>
+              對每個使用者 u 與品質層 q，先把該使用者各 RB 可達速率由大到小排序，
+              再找出最小的 RB 數 m，使得前 m 個 RB 的速率總和至少達到該品質 bitrate `B_q`。
+              這個最小 m，就是 `c(u, q)`；若全部 RB 都不夠，則記為 `R + 1`。
+            </p>
+            <p>
+              它代表的不是「訊號分數」，而是「把這個人服務到這個品質所需的最小 RB 成本」。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>為什麼最後是這幾個 feature，而不是別的</h2>
+        <div class="grid-3">
+          <div class="block">
+            <h3>時間面</h3>
+            <p>
+              `cqi_history` 被留下來，是因為同一個當前 CQI 可能對應不同趨勢。
+              如果一個人正在靠近 gNB、另一個正在遠離，只看當下值很容易把它們誤判成相似。
+            </p>
+          </div>
+          <div class="block">
+            <h3>頻域面</h3>
+            <p>
+              `rb_stats` 與 `resource-cost` 被留下來，是因為 wideband CQI 壓掉了 RB-level dispersion。
+              但 multicast allocation 很在意的，往往正是這種「看起來一樣、實際花費不同」的差異。
+            </p>
+          </div>
+          <div class="block">
+            <h3>狀態面</h3>
+            <p>
+              `mobility` 與 `previous_quality` 被留下來，是因為 utility 不只獎勵高 bitrate，
+              也懲罰切換與不穩定服務。這些欄位讓 grouping 比較能反映服務過程，而不只是瞬時通道。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>feature 和 metrics 之間的關聯 insight</h2>
+        <div class="grid-2">
+          <div class="block">
+            <h3>對 allocation 指標</h3>
+            <p>
+              `resource-cost` 最直接連到 `utility`、`ADR`、`rb_utilization`，因為它本身就在估服務代價。
+              `previous_quality` 最直接連到 `avg_switching`，因為 utility 裡有 switching penalty。
+              `rb_stats`、`cqi_history`、`mobility` 則比較偏向改善 grouping 穩定性、served ratio 與 fairness。
+            </p>
+          </div>
+          <div class="block">
+            <h3>對 imitation 指標</h3>
+            <p>
+              `pairwise_accuracy`、`ARI`、`NMI` 用來回答另一個問題：
+              這些 feature 是否真的讓方法更接近 teacher 的群組結構。
+              如果 feature 能把 teacher 的 hardest split 輪廓顯現出來，
+              這三個指標通常會比 CQI-only 更早改善。
             </p>
           </div>
         </div>
         <div class="highlight-band">
-          <h3>真正留下來的貢獻</h3>
+          <h3>最重要 insight</h3>
           <p>
-            這份研究的真正價值，是把 multicast grouping 的問題重新定義得更精準：
-            不應只問「誰現在 CQI 差」，而要問「誰真的更耗資源、誰的服務狀態更容易造成 split 壓力」。
+            `resource-cost` 的強項，是直接對齊 allocation objective；
+            `multi-feature` 的強項，則是把 teacher 真正在意的異質性顯性化。
+            前者比較容易支撐「實用上更合理」，後者比較容易支撐「研究上 CQI-only 太薄」。
           </p>
         </div>
       </section>
 
       <section class="section-card">
-        <h2>接下來報告主線應該怎麼寫</h2>
+        <h2>LE-GRA 為什麼要退回支線</h2>
+        <div class="timeline">
+          <div class="timeline-step" data-step="1">
+            <h3>LE-GRA 有留下研究價值</h3>
+            <p>
+              它幫我們探索過 family、corridor、teacher split 與 boundary regime，
+              也逼我們看見很多 learner-side tweak 的上限。
+            </p>
+          </div>
+          <div class="timeline-step" data-step="2">
+            <h3>但它沒有長成穩定主角方法</h3>
+            <p>
+              目前證據不足以支撐 LE-GRA 是通解，也不足以證明它是能穩定勝過
+              resource-cost / multi-feature 的實用方法。
+            </p>
+          </div>
+          <div class="timeline-step" data-step="3">
+            <h3>所以最誠實的寫法是重排敘事順位</h3>
+            <p>
+              LE-GRA 應該被放在 exploratory branch、negative result、或 appendix；
+              主線則回到 richer feature representation 的價值。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>目前可以明確寫進報告的結論</h2>
+        <div class="grid-2">
+          <div class="block">
+            <h3>我們已經能主張的事</h3>
+            <p>
+              我們已經有足夠理由主張：
+              在這個 multicast grouping 問題上，單純用 CQI 分群會遺失關鍵資訊；
+              相比之下，resource-cost 與 multi-feature 更能反映真實服務代價與狀態差異。
+            </p>
+          </div>
+          <div class="block">
+            <h3>我們不該再硬主張的事</h3>
+            <p>
+              我們不應再把整篇研究包裝成「learner 一定比 hand-crafted baseline 強」，
+              因為目前最清楚的價值並不在這裡，而是在 feature-centric grouping 的重新定義。
+            </p>
+          </div>
+        </div>
+        <div class="highlight-band">
+          <h3>最適合的報告主軸</h3>
+          <p>
+            這份研究應被描述成：我們從 CQI-only 的直覺出發，透過 teacher + DP 框架，
+            驗證了 richer feature-based grouping 的必要性，並指出 resource-cost 與 multi-feature
+            是比 CQI-only 更有研究與實務價值的方向。
+          </p>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>下一階段最合理的寫法與方向</h2>
         <div class="grid-3">
           <div class="block">
-            <h3>主角</h3>
+            <h3>主線方法</h3>
             <p>
-              把 `Offline teacher + DP`、`Resource-cost k-means`、`Multi-feature k-means`
-              當成主文的核心方法線。
+              以 `Offline teacher + DP`、`Resource-cost k-means`、
+              `Multi-feature k-means` 為主角來整理結果與比較。
             </p>
           </div>
           <div class="block">
-            <h3>LE-GRA 的位置</h3>
+            <h3>LE-GRA 位置</h3>
             <p>
-              把 LE-GRA 放進 exploratory section 或 appendix，
-              當成「曾經探索過的學習式方向」與負結果分析。
+              把 LE-GRA 放在 exploratory section，說明它帶來的 insight，
+              但不要再讓它承擔主結論。
             </p>
           </div>
           <div class="block">
-            <h3>主結論</h3>
+            <h3>最終訊息</h3>
             <p>
-              報告的最終句子應改成：
-              richer feature-based grouping 比 CQI-only grouping 更能支撐有效的 multicast resource allocation。
+              這份研究的核心不是「學到一個神奇模型」，
+              而是「找到更對的 grouping representation」。
             </p>
           </div>
         </div>
@@ -442,8 +575,8 @@
     </div>
 
     <footer class="footer-note">
-      <div><strong>第一階段最精準的結論：</strong>我們沒有得到一個普遍勝出的 learner，但成功證明了 `resource-cost / multi-feature` 比 `CQI-only` 更接近真實問題。</div>
-      <div><strong>現在的主方法定位：</strong>`Resource-cost k-means` 與 `Multi-feature k-means`。</div>
+      <div><strong>第一階段核心貢獻：</strong>把專案主線從 learner 導向，重整成 feature-centric grouping 故事</div>
+      <div><strong>最重要主角：</strong>resource-cost k-means 與 multi-feature k-means</div>
     </footer>
   </main>
 </body>

@@ -139,6 +139,46 @@ def user_resource_cost_vector(rb_rates: np.ndarray) -> np.ndarray:
     return costs
 
 
+def generate_anti_cqi_hard_rb_cqi(
+    cqi_now: np.ndarray,
+    family_ids: np.ndarray,
+    n_rbs: int,
+) -> np.ndarray:
+    """Generate complementary RB profiles that wideband CQI cannot distinguish.
+
+    The goal is to create "anti-CQI" scenarios:
+
+    - users from different hidden families have very similar wideband CQI;
+    - but their per-RB support is complementary, so mixing them collapses the
+      multicast worst-user profile on almost every RB;
+    - resource-cost and richer temporal/context features can still recover the
+      correct split.
+    """
+
+    rb_axis = np.linspace(-1.0, 1.0, n_rbs)
+    rb_cqi = np.zeros((len(cqi_now), n_rbs), dtype=float)
+    for idx, family_id in enumerate(family_ids):
+        if family_id == 0:
+            # Broadband family: relatively even support across RBs.
+            shape = 0.30 * np.sin(2.0 * np.pi * rb_axis)
+            noise = np.random.normal(0.0, 0.12, size=n_rbs)
+        else:
+            # Peaky family: same wideband CQI, but only a narrow slice of RBs
+            # is truly strong while the rest is weak. This should inflate
+            # resource cost for medium/high video levels.
+            center = np.random.choice([-0.45, 0.45])
+            width = np.random.uniform(0.07, 0.11)
+            peak = 8.8 * np.exp(-((rb_axis - center) ** 2) / (2 * width**2))
+            penalties = -4.2 + 0.25 * np.cos(2.0 * np.pi * rb_axis)
+            shape = peak + penalties
+            noise = np.random.normal(0.0, 0.10, size=n_rbs)
+        raw = cqi_now[idx] + shape + noise
+        # Recenter so family identity is hidden from wideband CQI.
+        raw += cqi_now[idx] - np.mean(raw)
+        rb_cqi[idx] = np.clip(raw, 1, 15)
+    return rb_cqi
+
+
 def generate_scenario(
     n_users: int,
     n_rbs: int,
@@ -154,36 +194,57 @@ def generate_scenario(
     intentionally ambiguous so CQI-only grouping has blind spots.
     """
 
-    if dispersion == "high":
-        distance = np.random.uniform(50, 600, size=n_users)
-        base_cqi = 15.5 - distance / 45.0 + np.random.normal(0, 1.6, size=n_users)
-    elif dispersion == "mid":
-        distance = np.random.uniform(50, 320, size=n_users)
-        base_cqi = 15.0 - distance / 65.0 + np.random.normal(0, 1.1, size=n_users)
-    elif dispersion == "low":
-        distance = np.random.uniform(20, 120, size=n_users)
-        base_cqi = 14.5 - distance / 160.0 + np.random.normal(0, 0.7, size=n_users)
-    else:
-        raise ValueError(f"Unknown dispersion: {dispersion}")
-
-    speed = np.random.uniform(35, 45, size=n_users)
-    direction_to_gnb = np.random.uniform(-1.0, 1.0, size=n_users)
-
-    cqi_history = []
-    for lag in range(4, -1, -1):
-        # Positive direction_to_gNB means the user is moving toward the gNB,
-        # so CQI tends to improve over time.
-        trend = direction_to_gnb * (2 - lag) * 0.25
-        noise = np.random.normal(0, 0.55, size=n_users)
-        cqi_history.append(np.clip(base_cqi + trend + noise, 1, 15))
-    cqi_history = np.stack(cqi_history, axis=1)
-    cqi_now = np.clip(np.rint(cqi_history[:, -1]).astype(int), 1, 15)
-
     mode = scenario_mode
     if mode == "mixed":
         mode = "ambiguous" if np.random.rand() < 0.5 else "aligned"
-    if mode not in {"aligned", "ambiguous"}:
+    if mode not in {"aligned", "ambiguous", "anti_cqi_hard"}:
         raise ValueError(f"Unknown scenario_mode: {scenario_mode}")
+
+    if mode == "anti_cqi_hard":
+        hidden_families = np.array(
+            [(idx % 2) for idx in np.random.permutation(n_users)],
+            dtype=int,
+        )
+        distance = np.random.uniform(150, 235, size=n_users)
+        speed = np.random.uniform(37, 43, size=n_users)
+        direction_to_gnb = np.where(hidden_families == 0, 0.92, -0.92)
+        direction_to_gnb += np.random.normal(0.0, 0.04, size=n_users)
+        base_cqi = np.random.uniform(8.6, 9.4, size=n_users) + np.random.normal(0.0, 0.18, size=n_users)
+        cqi_history = []
+        for lag in range(4, -1, -1):
+            # Current CQI stays narrow, but the temporal path differs strongly
+            # by hidden family so history-aware features can separate them.
+            trend = direction_to_gnb * (2 - lag) * 0.42
+            noise = np.random.normal(0.0, 0.18, size=n_users)
+            cqi_history.append(np.clip(base_cqi + trend + noise, 1, 15))
+        cqi_history = np.stack(cqi_history, axis=1)
+        cqi_now = np.clip(np.rint(cqi_history[:, -1]).astype(int), 1, 15)
+        rb_cqi = generate_anti_cqi_hard_rb_cqi(cqi_now, hidden_families, n_rbs)
+    else:
+        if dispersion == "high":
+            distance = np.random.uniform(50, 600, size=n_users)
+            base_cqi = 15.5 - distance / 45.0 + np.random.normal(0, 1.6, size=n_users)
+        elif dispersion == "mid":
+            distance = np.random.uniform(50, 320, size=n_users)
+            base_cqi = 15.0 - distance / 65.0 + np.random.normal(0, 1.1, size=n_users)
+        elif dispersion == "low":
+            distance = np.random.uniform(20, 120, size=n_users)
+            base_cqi = 14.5 - distance / 160.0 + np.random.normal(0, 0.7, size=n_users)
+        else:
+            raise ValueError(f"Unknown dispersion: {dispersion}")
+
+        speed = np.random.uniform(35, 45, size=n_users)
+        direction_to_gnb = np.random.uniform(-1.0, 1.0, size=n_users)
+
+        cqi_history = []
+        for lag in range(4, -1, -1):
+            # Positive direction_to_gNB means the user is moving toward the gNB,
+            # so CQI tends to improve over time.
+            trend = direction_to_gnb * (2 - lag) * 0.25
+            noise = np.random.normal(0, 0.55, size=n_users)
+            cqi_history.append(np.clip(base_cqi + trend + noise, 1, 15))
+        cqi_history = np.stack(cqi_history, axis=1)
+        cqi_now = np.clip(np.rint(cqi_history[:, -1]).astype(int), 1, 15)
 
     if mode == "aligned":
         # Aligned mode: RB rates are mostly a noisy version of wideband CQI.
@@ -210,7 +271,14 @@ def generate_scenario(
     cost_vec = user_resource_cost_vector(rb_rates)
 
     previous_quality = np.clip(cqi_now // 3, 0, len(VIDEO_BITRATES_KBPS) - 1)
-    if mode == "ambiguous":
+    if mode == "anti_cqi_hard":
+        previous_quality = np.where(
+            hidden_families == 0,
+            np.random.choice([4, 5], size=n_users, p=[0.65, 0.35]),
+            np.random.choice([0, 1], size=n_users, p=[0.55, 0.45]),
+        )
+        previous_quality = np.clip(previous_quality, 0, len(VIDEO_BITRATES_KBPS) - 1)
+    elif mode == "ambiguous":
         # Same current CQI can still have different QoE history. This makes
         # switching penalty relevant in ways CQI-only grouping cannot see.
         previous_quality = np.clip(
@@ -223,6 +291,8 @@ def generate_scenario(
         if not 0.0 < rb_budget_ratio <= 1.0:
             raise ValueError("rb_budget_ratio must be in the interval (0, 1]")
         rb_available = max(1, int(round(rb_budget_ratio * n_rbs)))
+    elif mode == "anti_cqi_hard":
+        rb_available = max(1, int(round(np.random.uniform(0.26, 0.34) * n_rbs)))
     elif dynamic_rb:
         rb_available = int(np.random.uniform(0.45, 0.85) * n_rbs)
     else:
@@ -1908,7 +1978,11 @@ def main() -> None:
         default=0.40,
         help="Available RBs as a fraction of total RBs (default: 0.40).",
     )
-    parser.add_argument("--scenario-mode", choices=["aligned", "ambiguous", "mixed"], default="mixed")
+    parser.add_argument(
+        "--scenario-mode",
+        choices=["aligned", "ambiguous", "mixed", "anti_cqi_hard"],
+        default="mixed",
+    )
     parser.add_argument(
         "--feature-mode",
         choices=[

@@ -1,6 +1,6 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-10
+Last updated: 2026-08-11
 
 Artifact hygiene update (2026-08-11):
 
@@ -7488,3 +7488,91 @@ Practical next move:
    paper framing should be:
    - a targeted mechanism for narrow boundary dual-weak corridors
    - not a broad all-regime learner improvement
+
+## August 11 update: anti-CQI-hard mined regime finally re-opens a meaningful method gap
+
+Artifacts:
+
+- `run_anti_cqi_hard_regime.py`
+- `anti_cqi_hard_regime_pilot/main_comparison.csv`
+- `anti_cqi_hard_regime_pilot/scenario_audit.csv`
+- `anti_cqi_hard_regime_pilot/scenario_summary.csv`
+- `anti_cqi_hard_regime_pilot/teacher_imitation_diagnostics.csv`
+- `analysis_method_metrics/method_metrics_report_zh.html`
+
+What changed:
+
+1. we added a new generator mode in `le_gra_mvp.py`:
+   - `scenario_mode="anti_cqi_hard"`
+2. this mode intentionally creates families where:
+   - wideband CQI remains narrow
+   - RB-level profile shape differs
+   - temporal trend differs
+   - previous-quality prior differs
+   - RB budget is tighter
+3. the goal is explicit:
+   - make pure `CQI k-means` under-informative
+   - while keeping richer `resource-cost` / `multi-feature` signals useful
+4. we then built a mining script that does not accept arbitrary random cases;
+   it filters for scenarios where:
+   - `teacher_groups >= 2`
+   - `cqi_span` is small
+   - `teacher > no-grouping`
+   - `teacher > CQI`
+   - same-CQI users still show nontrivial cost dispersion
+
+Pilot result (`anti_cqi_hard_regime_pilot`, train=`16`, test=`8`, epochs=`3`):
+
+- `No grouping = 0.5555175114173516`
+- `CQI k-means = 0.5631905221082654`
+- `Resource-cost k-means = 0.5910372810788701`
+- `Multi-feature k-means = 0.5880622570961298`
+- `LE-GRA MVP = 0.5980196882224645`
+- `Offline teacher = 0.6317218347486369`
+
+ADR ordering in the same pilot:
+
+- `No grouping = 3000.0`
+- `CQI k-means = 3080.208333333333`
+- `Multi-feature k-means = 3453.125`
+- `LE-GRA MVP = 3700.0`
+- `Resource-cost k-means = 3721.875`
+- `Offline teacher = 4156.770833333334`
+
+Why this matters:
+
+1. this is the clearest recent evidence that the "all grouping-aware methods tie"
+   problem was partly a benchmark-design problem
+2. under the mined anti-CQI-hard corridor:
+   - `CQI k-means` is only slightly above `No grouping`
+   - `resource-cost` and `multi-feature` regain visible value
+   - `Offline teacher` still keeps a real gap
+3. this directly supports the reframed paper/mainline narrative:
+   - `CQI-only grouping` is too coarse
+   - `resource-cost` is a more allocation-aligned practical baseline
+   - `multi-feature` is a richer representation baseline
+   - `LE-GRA` is still exploratory unless it can consistently beat the stronger
+     feature-based baselines
+
+Current bottleneck:
+
+1. the pilot proves gap creation is possible
+2. but we still do **not** know whether the gap is stable after scaling to a
+   more formal benchmark size
+3. we also do not yet know whether `LE-GRA` can beat `resource-cost` reliably,
+   or whether `resource-cost` remains the best practical method
+
+Recommended next step:
+
+1. do **not** go back to the old plateau families first
+2. scale `anti_cqi_hard` into a formal benchmark run, for example:
+   - train `96`
+   - test `32`
+   - epochs `10`
+3. keep the generator fixed while scaling
+4. evaluate whether the ordering remains:
+   - `teacher > LE-GRA / resource-cost / multi-feature > CQI > no-grouping`
+5. only after that, decide whether to:
+   - refine LE-GRA further
+   - or fully re-center the thesis/report around `resource-cost` and
+     `multi-feature`
