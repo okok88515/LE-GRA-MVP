@@ -1,0 +1,11 @@
+bundle_root,table,field,present_rows,total_rows,coverage_ratio
+p3_6q23_dual_boundary_crossover_bundle,radio_users,wideband_sinr_db,0,3243,0.000000
+p3_6q23_dual_boundary_crossover_bundle,radio_users,rsrp_dbm,0,3243,0.000000
+p3_6q23_dual_boundary_crossover_bundle,radio_users,rsrq_db,0,3243,0.000000
+p3_6q23_dual_boundary_crossover_bundle,radio_users,mcs,0,3243,0.000000
+p3_6q23_dual_boundary_crossover_bundle,radio_rbs,sinr_db,0,81075,0.000000
+p3_6q23_dual_boundary_crossover_bundle,bundle_users,wideband_sinr_db,0,3203,0.000000
+p3_6q23_dual_boundary_crossover_bundle,bundle_users,rsrp_dbm,0,3203,0.000000
+p3_6q23_dual_boundary_crossover_bundle,bundle_users,rsrq_db,0,3203,0.000000
+p3_6q23_dual_boundary_crossover_bundle,bundle_users,mcs,0,3203,0.000000
+p3_6q23_dual_boundary_crossover_bundle,bundle_rb_rates,sinr_db,0,80075,0.000000
