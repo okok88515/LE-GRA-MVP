@@ -14,6 +14,24 @@ Artifact hygiene update (2026-08-11):
 - If resuming on a new machine, read `REPO_ARTIFACT_GUIDE_ZH.md` before
   deciding to commit any new large search output.
 
+Repo evidence update (2026-08-11):
+
+- The repo is now intentionally layered into:
+  1. main showcase artifacts
+  2. control / support artifacts
+  3. focused subset evidence
+- Main showcase now committed:
+  - `p3_6r4_q10_history_conflict_bundle`
+  - `p3_6r8_q10_temporal_decoy_flicker_bundle`
+  - `p3_6q27_*_radio_coverage.csv`
+- Supporting control / subset artifacts now committed:
+  - `p3_6r2b_*`
+  - `p3_6r2c_*`
+  - `p3_6i2_focused_teacher_subset`
+  - `p3_6q10_focused_teacher_subset`
+- The remaining untracked assets are now mostly exploratory side branches
+  rather than core narrative evidence.
+
 This document is the continuity note for resuming the MBS grouping discussion in a
 new Codex task or on another computer. After pulling the repository, ask Codex
 to read this file together with `medium_matrix_results/*.csv` before proposing
