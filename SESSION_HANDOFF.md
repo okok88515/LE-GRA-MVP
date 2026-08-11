@@ -2,6 +2,18 @@
 
 Last updated: 2026-08-10
 
+Artifact hygiene update (2026-08-11):
+
+- The repo now has a dedicated artifact policy note:
+  - `REPO_ARTIFACT_GUIDE_ZH.md`
+- `.gitignore` has been extended to hide clearly reproducible local outputs:
+  - `_tmp_*`
+  - corridor mining batch outputs
+  - large local variant-search directories
+  - auto-generated `p3_6r5s_* / p3_6r7_* / p3_6r8s_*` variant bundles
+- If resuming on a new machine, read `REPO_ARTIFACT_GUIDE_ZH.md` before
+  deciding to commit any new large search output.
+
 This document is the continuity note for resuming the MBS grouping discussion in a
 new Codex task or on another computer. After pulling the repository, ask Codex
 to read this file together with `medium_matrix_results/*.csv` before proposing

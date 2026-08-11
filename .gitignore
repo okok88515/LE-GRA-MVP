@@ -7,3 +7,22 @@ load_smoke_results_v2/
 opp_env.wsl
 *.log
 raw_radio_diag.csv
+
+# Generated temporary experiments and debug dumps
+_tmp_*/
+_tmp_*.csv
+_tmp_*.sh
+
+# Local mining / sweep outputs that are reproducible from scripts
+family_corridor_batch_runs_*/
+family_corridor_mining_global*/
+n3_dualweak_variant_search/
+q10_decoy_collision_search/
+q10_history_conflict_variant_search/
+r8_boundary_variant_search/
+source_family_candidates_latest/
+
+# Large generated variant bundles from automated searches
+p3_6r5s_*_bundle/
+p3_6r7_*_bundle/
+p3_6r8s_*_bundle/
