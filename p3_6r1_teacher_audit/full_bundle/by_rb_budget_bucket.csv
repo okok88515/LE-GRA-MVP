@@ -1,0 +1,2 @@
+rb_budget_bucket,scenario_count,multi_group_count,multi_group_ratio,mean_teacher_group_count,mean_teacher_gain_vs_single,max_teacher_gain_vs_single
+tight(<0.45),820,12,0.014634146341463415,1.0146341463414634,0.0005650024913679339,0.038608503576809006

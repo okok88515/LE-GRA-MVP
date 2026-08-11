@@ -1,0 +1,47 @@
+{
+  "name": "p3_6r2_five_user_dualweak_decoy",
+  "base_bundle": "p3_6o4_positive_family_decoy_bundle",
+  "out_dir": "p3_6r2_five_user_dualweak_decoy_bundle",
+  "intent": "Upgrade the 0|1|2|3|4 positive family from a simple singleton weak-user split into a decoy-rich dual-weak regime. The goal is to create a more q10-like corridor where ue3 is the true weak anchor and ue4 acts as a boundary weak user with misleading snapshot quality.",
+  "family": {
+    "serving_gnb": "gnb_2",
+    "target_ue_ids": "0|1|2|3|4",
+    "window_start_s": 18.7,
+    "window_end_s": 19.2
+  },
+  "windows": [
+    {
+      "start_s": 18.7,
+      "end_s": 18.8,
+      "ue_rules": {
+        "0": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 },
+        "1": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 },
+        "2": { "previous_quality": 3, "cqi_now_raw": 12.6, "history_offsets": [0.5, 0.3, 0.2, 0.1], "rb_scale": 0.92 },
+        "3": { "previous_quality": 0, "cqi_now_raw": 9.3, "history_offsets": [1.6, 1.2, 0.8, 0.4], "rb_scale": 0.56 },
+        "4": { "previous_quality": 3, "cqi_now_raw": 12.0, "history_offsets": [1.0, 0.7, 0.4, 0.2], "rb_scale": 0.76 }
+      }
+    },
+    {
+      "start_s": 18.9,
+      "end_s": 19.0,
+      "ue_rules": {
+        "0": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 },
+        "1": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 },
+        "2": { "previous_quality": 3, "cqi_now_raw": 12.4, "history_offsets": [0.4, 0.2, 0.1, 0.0], "rb_scale": 0.90 },
+        "3": { "previous_quality": 0, "cqi_now_raw": 8.9, "history_offsets": [1.8, 1.4, 1.0, 0.6], "rb_scale": 0.52 },
+        "4": { "previous_quality": 2, "cqi_now_raw": 11.2, "history_offsets": [1.2, 0.9, 0.6, 0.3], "rb_scale": 0.68 }
+      }
+    },
+    {
+      "start_s": 19.1,
+      "end_s": 19.2,
+      "ue_rules": {
+        "0": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 },
+        "1": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 },
+        "2": { "previous_quality": 3, "cqi_now_raw": 12.2, "history_offsets": [0.4, 0.3, 0.1, 0.0], "rb_scale": 0.92 },
+        "3": { "previous_quality": 1, "cqi_now_raw": 10.0, "history_offsets": [1.1, 0.8, 0.5, 0.2], "rb_scale": 0.60 },
+        "4": { "previous_quality": 0, "cqi_now_raw": 10.2, "history_offsets": [1.6, 1.2, 0.8, 0.4], "rb_scale": 0.60 }
+      }
+    }
+  ]
+}

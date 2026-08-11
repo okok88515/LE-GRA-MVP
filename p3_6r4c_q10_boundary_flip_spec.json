@@ -1,0 +1,38 @@
+{
+  "name": "p3_6r4c_q10_boundary_flip",
+  "base_bundle": "p3_6q10_six_user_transition_extension_bundle",
+  "out_dir": "p3_6r4c_q10_boundary_flip_bundle",
+  "intent": "Keep the r4 low-cost-gap philosophy, but force a short boundary flip where teacher should move from the weak pair {ue2, ue6} to singleton ue2. This targets the exact blind spot of resource-cost ranking: deciding whether ue6 should remain attached to the weak group when instantaneous cost evidence is only marginal.",
+  "family": {
+    "serving_gnb": "gnb_2",
+    "target_ue_ids": "1|2|3|4|5|6",
+    "window_start_s": 27.7,
+    "window_end_s": 28.2
+  },
+  "windows": [
+    {
+      "start_s": 27.7,
+      "end_s": 28.0,
+      "ue_rules": {
+        "1": { "previous_quality": 3, "history_offsets": [-0.2, -0.1, 0.0, 0.0], "rb_scale": 0.99 },
+        "2": { "previous_quality": 0, "cqi_now_raw": 8.9, "history_offsets": [1.6, 1.2, 0.8, 0.4], "rb_scale": 0.64 },
+        "3": { "previous_quality": 4, "history_offsets": [-0.1, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "4": { "previous_quality": 2, "cqi_now_raw": 12.4, "history_offsets": [0.3, 0.2, 0.1, 0.0], "rb_scale": 0.95 },
+        "5": { "previous_quality": 4, "cqi_now_raw": 12.8, "history_offsets": [0.3, 0.2, 0.1, 0.0], "rb_scale": 0.96 },
+        "6": { "previous_quality": 0, "cqi_now_raw": 10.7, "history_offsets": [1.4, 1.1, 0.8, 0.4], "rb_scale": 0.82 }
+      }
+    },
+    {
+      "start_s": 28.1,
+      "end_s": 28.2,
+      "ue_rules": {
+        "1": { "previous_quality": 3, "history_offsets": [-0.2, -0.1, 0.0, 0.0], "rb_scale": 0.99 },
+        "2": { "previous_quality": 0, "cqi_now_raw": 8.9, "history_offsets": [1.6, 1.2, 0.8, 0.4], "rb_scale": 0.62 },
+        "3": { "previous_quality": 4, "history_offsets": [-0.1, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "4": { "previous_quality": 2, "cqi_now_raw": 12.8, "history_offsets": [0.2, 0.1, 0.0, -0.1], "rb_scale": 0.96 },
+        "5": { "previous_quality": 4, "cqi_now_raw": 13.0, "history_offsets": [0.3, 0.2, 0.1, 0.0], "rb_scale": 0.97 },
+        "6": { "previous_quality": 2, "cqi_now_raw": 11.8, "history_offsets": [0.7, 0.5, 0.3, 0.1], "rb_scale": 0.92 }
+      }
+    }
+  ]
+}

@@ -1,0 +1,199 @@
+{
+  "schema": "legra-simu5g-radio-export-v1",
+  "source": "Simu5G LteMacEnb ALLBANDS feedback",
+  "rate_source": "Simu5G NrAmc::computeBitsPerRbBackground",
+  "rate_formula": "rate_kbps = tbs_bits_per_slot / slot_duration_ms",
+  "slot_duration_ms": 1.0,
+  "snapshot_period_s": 0.1,
+  "snapshot_rule": "latest complete UE feedback in each floor-aligned time bin; if multiple gNB observations remain for one UE/time bin, keep the latest raw timestamp",
+  "rb_budget_ratio": 0.28,
+  "rb_budget_rule": "round(total_logical_bands * ratio), clipped to [1, total]",
+  "previous_quality": 3,
+  "previous_quality_mode": "deterministic_controller_heterogeneous",
+  "previous_quality_source": "deterministic_heterogeneous_adaptation_controller_from_radio_capacity_and_cell_load",
+  "rb_abstraction": "Simu5G logical band",
+  "sinr_source": "not_exported_in_p3_4",
+  "ue_id_source": "SUMO_external_id_joined_by_OMNeT_module_path",
+  "collapsed_same_bin_duplicates": 0,
+  "quality_controller": {
+    "type": "ewma_buffer_adaptation_heterogeneous",
+    "bitrates_kbps": [
+      200.0,
+      550.0,
+      1500.0,
+      3000.0,
+      5800.0,
+      7500.0
+    ],
+    "effective_capacity_rule": "sum(top rb_available per-band rates) divided by active UE count in the same (timestamp, serving_gnb) snapshot",
+    "ewma_rule": "per-UE alpha profile; uniform mode uses 0.65 * previous + 0.35 * current",
+    "buffer_range_s": [
+      0.0,
+      12.0
+    ],
+    "initial_quality": {
+      "conservative": 0,
+      "balanced": 1,
+      "aggressive": 2
+    },
+    "initial_buffer_s": {
+      "conservative": 3.2,
+      "balanced": 2.0,
+      "aggressive": 1.1
+    }
+  },
+  "postprocess_variant": {
+    "name": "p3_6r4_q10_history_conflict_d3_ue5_decoy_mild",
+    "base_bundle": "p3_6q10_six_user_transition_extension_bundle",
+    "family": {
+      "serving_gnb": "gnb_2",
+      "target_ue_ids": "1|2|3|4|5|6",
+      "window_start_s": 27.7,
+      "window_end_s": 28.2
+    },
+    "intent": "Preserve the original q10 low-cost-gap character, but intensify the history-side weakness of ue2 and ue6 so teacher still prefers {ue2,ue6} while resource-cost sees only a moderate instantaneous spread. Use ue5 as the history-side decoy instead of ue4, to see whether the baseline is more sensitive to that flank.",
+    "windows": [
+      {
+        "start_s": 27.7,
+        "end_s": 28.0,
+        "ue_rules": {
+          "1": {
+            "previous_quality": 3,
+            "history_offsets": [
+              -0.2,
+              -0.1,
+              0.0,
+              0.0
+            ],
+            "rb_scale": 0.98
+          },
+          "2": {
+            "previous_quality": 0,
+            "cqi_now_raw": 8.9,
+            "history_offsets": [
+              1.6,
+              1.2,
+              0.8,
+              0.4
+            ],
+            "rb_scale": 0.62
+          },
+          "3": {
+            "previous_quality": 4,
+            "history_offsets": [
+              -0.1,
+              -0.1,
+              0.0,
+              0.0
+            ],
+            "rb_scale": 1.0
+          },
+          "4": {
+            "previous_quality": 2,
+            "cqi_now_raw": 12.4,
+            "history_offsets": [
+              0.3,
+              0.2,
+              0.1,
+              0.0
+            ],
+            "rb_scale": 0.94
+          },
+          "5": {
+            "previous_quality": 3,
+            "cqi_now_raw": 12.7,
+            "history_offsets": [
+              0.8,
+              0.7,
+              0.6,
+              0.5
+            ],
+            "rb_scale": 0.936
+          },
+          "6": {
+            "previous_quality": 0,
+            "cqi_now_raw": 10.6,
+            "history_offsets": [
+              1.5,
+              1.1,
+              0.7,
+              0.3
+            ],
+            "rb_scale": 0.78
+          }
+        }
+      },
+      {
+        "start_s": 28.1,
+        "end_s": 28.2,
+        "ue_rules": {
+          "1": {
+            "previous_quality": 3,
+            "history_offsets": [
+              -0.2,
+              -0.1,
+              0.0,
+              0.0
+            ],
+            "rb_scale": 0.98
+          },
+          "2": {
+            "previous_quality": 0,
+            "cqi_now_raw": 9.1,
+            "history_offsets": [
+              1.4,
+              1.0,
+              0.7,
+              0.4
+            ],
+            "rb_scale": 0.64
+          },
+          "3": {
+            "previous_quality": 4,
+            "history_offsets": [
+              -0.1,
+              -0.1,
+              0.0,
+              0.0
+            ],
+            "rb_scale": 1.0
+          },
+          "4": {
+            "previous_quality": 2,
+            "cqi_now_raw": 12.7,
+            "history_offsets": [
+              0.2,
+              0.1,
+              0.0,
+              -0.1
+            ],
+            "rb_scale": 0.95
+          },
+          "5": {
+            "previous_quality": 3,
+            "cqi_now_raw": 12.9,
+            "history_offsets": [
+              0.8,
+              0.7,
+              0.6,
+              0.5
+            ],
+            "rb_scale": 0.946
+          },
+          "6": {
+            "previous_quality": 0,
+            "cqi_now_raw": 10.8,
+            "history_offsets": [
+              1.3,
+              1.0,
+              0.6,
+              0.3
+            ],
+            "rb_scale": 0.8
+          }
+        }
+      }
+    ],
+    "generated_from_spec": "03_p3_6r4_q10_history_conflict_d3_ue5_decoy_mild.json"
+  }
+}

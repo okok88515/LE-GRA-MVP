@@ -1,0 +1,24 @@
+{
+  "name": "p3_6r6_e3_dualweak_pair",
+  "base_bundle": "p3_6e3_coupled_bundle",
+  "out_dir": "p3_6r6_e3_dualweak_pair_bundle",
+  "intent": "Turn the easy `ue3` singleton split in `0|1|2|3 @ gnb_2` into a harder `{ue2, ue3}` dual-weak regime, keeping ue2 only moderately weak in instantaneous cost so resource-cost ranking does not get the full answer for free.",
+  "family": {
+    "serving_gnb": "gnb_2",
+    "target_ue_ids": "0|1|2|3",
+    "window_start_s": 14.0,
+    "window_end_s": 15.1
+  },
+  "windows": [
+    {
+      "start_s": 14.0,
+      "end_s": 15.1,
+      "ue_rules": {
+        "0": { "previous_quality": 2, "history_offsets": [0.2, 0.1, 0.0, 0.0], "rb_scale": 0.98 },
+        "1": { "previous_quality": 2, "history_offsets": [0.1, 0.0, 0.0, 0.0], "rb_scale": 1.0 },
+        "2": { "previous_quality": 1, "cqi_now_raw": 11.0, "history_offsets": [1.3, 0.9, 0.5, 0.2], "rb_scale": 0.82 },
+        "3": { "previous_quality": 0, "cqi_now_raw": 9.0, "history_offsets": [1.6, 1.2, 0.8, 0.4], "rb_scale": 0.70 }
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "name": "p3_6r3_q10_dual_flip_corridor",
+  "base_bundle": "p3_6q10_six_user_transition_extension_bundle",
+  "out_dir": "p3_6r3_q10_dual_flip_corridor_bundle",
+  "intent": "Start from the only proven six-user showcase corridor (q10) and introduce a second weak-role flip inside the same family. The aim is to preserve q10's teacher-vs-resource-cost gap while making the weak subgroup membership less rank-stationary across time.",
+  "family": {
+    "serving_gnb": "gnb_2",
+    "target_ue_ids": "1|2|3|4|5|6",
+    "window_start_s": 27.3,
+    "window_end_s": 28.2
+  },
+  "windows": [
+    {
+      "start_s": 27.3,
+      "end_s": 27.3,
+      "ue_rules": {
+        "1": { "previous_quality": 3, "history_offsets": [-0.2, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "2": { "previous_quality": 0, "cqi_now_raw": 8.7, "history_offsets": [1.5, 1.1, 0.7, 0.3], "rb_scale": 0.50 },
+        "3": { "previous_quality": 4, "history_offsets": [-0.1, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "4": { "previous_quality": 2, "cqi_now_raw": 13.0, "history_offsets": [0.1, 0.0, -0.1, -0.2], "rb_scale": 0.95 },
+        "5": { "previous_quality": 4, "cqi_now_raw": 14.5, "history_offsets": [0.0, 0.0, 0.0, -0.1], "rb_scale": 0.98 },
+        "6": { "previous_quality": 2, "cqi_now_raw": 13.1, "history_offsets": [0.5, 0.3, 0.2, 0.1], "rb_scale": 0.82 }
+      }
+    },
+    {
+      "start_s": 27.4,
+      "end_s": 27.6,
+      "ue_rules": {
+        "1": { "previous_quality": 3, "history_offsets": [-0.2, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "2": { "previous_quality": 0, "cqi_now_raw": 8.6, "history_offsets": [1.3, 0.9, 0.5, 0.1], "rb_scale": 0.48 },
+        "3": { "previous_quality": 4, "history_offsets": [-0.1, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "4": { "previous_quality": 2, "cqi_now_raw": 12.2, "history_offsets": [0.0, -0.1, -0.2, -0.3], "rb_scale": 0.93 },
+        "5": { "previous_quality": 4, "cqi_now_raw": 12.6, "history_offsets": [0.4, 0.3, 0.2, 0.1], "rb_scale": 0.92 },
+        "6": { "previous_quality": 1, "cqi_now_raw": 11.4, "history_offsets": [1.1, 0.8, 0.5, 0.2], "rb_scale": 0.64 }
+      }
+    },
+    {
+      "start_s": 27.7,
+      "end_s": 27.9,
+      "ue_rules": {
+        "1": { "previous_quality": 3, "history_offsets": [-0.2, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "2": { "previous_quality": 0, "cqi_now_raw": 8.5, "history_offsets": [1.4, 1.0, 0.6, 0.2], "rb_scale": 0.49 },
+        "3": { "previous_quality": 4, "history_offsets": [-0.1, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "4": { "previous_quality": 2, "cqi_now_raw": 12.6, "history_offsets": [0.3, 0.2, 0.1, 0.0], "rb_scale": 0.95 },
+        "5": { "previous_quality": 1, "cqi_now_raw": 10.8, "history_offsets": [1.2, 0.8, 0.5, 0.2], "rb_scale": 0.60 },
+        "6": { "previous_quality": 3, "cqi_now_raw": 12.4, "history_offsets": [0.6, 0.4, 0.2, 0.1], "rb_scale": 0.88 }
+      }
+    },
+    {
+      "start_s": 28.0,
+      "end_s": 28.2,
+      "ue_rules": {
+        "1": { "previous_quality": 3, "history_offsets": [-0.2, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "2": { "previous_quality": 0, "cqi_now_raw": 8.7, "history_offsets": [1.1, 0.9, 0.6, 0.3], "rb_scale": 0.50 },
+        "3": { "previous_quality": 4, "history_offsets": [-0.1, -0.1, 0.0, 0.0], "rb_scale": 1.0 },
+        "4": { "previous_quality": 2, "cqi_now_raw": 12.8, "history_offsets": [0.2, 0.1, 0.0, -0.1], "rb_scale": 0.95 },
+        "5": { "previous_quality": 4, "cqi_now_raw": 12.8, "history_offsets": [0.4, 0.2, 0.1, 0.0], "rb_scale": 0.94 },
+        "6": { "previous_quality": 1, "cqi_now_raw": 11.2, "history_offsets": [1.0, 0.8, 0.5, 0.2], "rb_scale": 0.62 }
+      }
+    }
+  ]
+}

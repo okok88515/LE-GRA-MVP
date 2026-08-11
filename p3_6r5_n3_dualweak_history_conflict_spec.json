@@ -1,0 +1,34 @@
+{
+  "name": "p3_6r5_n3_dualweak_history_conflict",
+  "base_bundle": "p3_6n3_isolate_ue5_bundle",
+  "out_dir": "p3_6r5_n3_dualweak_history_conflict_bundle",
+  "intent": "Promote the easy `ue5` singleton split in the long `3|4|5|6 @ gnb_2` corridor into a harder dual-weak regime by making `ue4` history-side weak enough to pair with `ue5`, while keeping its instantaneous cost only moderately worse than the strong users.",
+  "family": {
+    "serving_gnb": "gnb_2",
+    "target_ue_ids": "3|4|5|6",
+    "window_start_s": 25.8,
+    "window_end_s": 28.8
+  },
+  "windows": [
+    {
+      "start_s": 25.8,
+      "end_s": 27.3,
+      "ue_rules": {
+        "3": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 },
+        "4": { "previous_quality": 2, "cqi_now_raw": 11.7, "history_offsets": [1.1, 0.8, 0.5, 0.2], "rb_scale": 0.82 },
+        "5": { "previous_quality": 1, "cqi_now_raw": 10.4, "history_offsets": [1.7, 1.3, 0.9, 0.5], "rb_scale": 0.72 },
+        "6": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 }
+      }
+    },
+    {
+      "start_s": 27.4,
+      "end_s": 28.8,
+      "ue_rules": {
+        "3": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 },
+        "4": { "previous_quality": 2, "cqi_now_raw": 11.5, "history_offsets": [1.2, 0.9, 0.6, 0.2], "rb_scale": 0.80 },
+        "5": { "previous_quality": 1, "cqi_now_raw": 10.2, "history_offsets": [1.8, 1.4, 1.0, 0.6], "rb_scale": 0.70 },
+        "6": { "previous_quality": 4, "history_offsets": [0.0, 0.0, 0.0, 0.0], "rb_scale": 1.0 }
+      }
+    }
+  ]
+}
