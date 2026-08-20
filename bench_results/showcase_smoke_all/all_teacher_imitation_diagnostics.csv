@@ -1,0 +1,11 @@
+benchmark_id,benchmark_title,cqi_dispersion,rb_heterogeneity,pressure,scenario_mode,rb_budget_ratio,seed,test_index,kmax,feature_mode,method,pairwise_accuracy,ari,nmi,teacher_groups,predicted_groups
+bench_d3_h1_p2_cqi_easy,CQI-easy aligned medium-pressure showcase,d3_widespread,h1_aligned,p2_medium,aligned,0.42,37,0,3,history_cost_quality,Multi-feature k-means,0.8333333333333334,0.6672777268560953,0.6509631395521195,2,2
+bench_d3_h1_p2_cqi_easy,CQI-easy aligned medium-pressure showcase,d3_widespread,h1_aligned,p2_medium,aligned,0.42,37,0,3,history_cost_quality,LE-GRA MVP,0.8333333333333334,0.6690975387420237,0.6666173010649037,2,3
+bench_d2_h2_p2_main_general,Main general corridor showcase,d2_midspread,h2_mild_heterogeneous,p2_medium,corridor_general,0.42,37,0,3,history_cost_quality,Multi-feature k-means,0.696969696969697,0.3866171003717473,0.4098997222992108,2,2
+bench_d2_h2_p2_main_general,Main general corridor showcase,d2_midspread,h2_mild_heterogeneous,p2_medium,corridor_general,0.42,37,0,3,history_cost_quality,LE-GRA MVP,0.696969696969697,0.0,0.0,2,1
+bench_d1_h3_p3_dense_hard,Dense-CQI hard stress showcase,d1_dense,h3_strong_heterogeneous,p3_high,anti_cqi_hard,0.28,37,0,3,history_cost_quality,Multi-feature k-means,0.5151515151515151,0.0638297872340425,0.23674660197196531,2,2
+bench_d1_h3_p3_dense_hard,Dense-CQI hard stress showcase,d1_dense,h3_strong_heterogeneous,p3_high,anti_cqi_hard,0.28,37,0,3,history_cost_quality,LE-GRA MVP,0.8333333333333334,0.5479452054794519,0.47653267348828643,2,2
+bench_d2_h3_p3_main_hard,Main hard corridor showcase,d2_midspread,h3_strong_heterogeneous,p3_high,corridor_general,0.34,37,0,3,history_cost_quality,Multi-feature k-means,0.5909090909090909,0.0,0.0,2,1
+bench_d2_h3_p3_main_hard,Main hard corridor showcase,d2_midspread,h3_strong_heterogeneous,p3_high,corridor_general,0.34,37,0,3,history_cost_quality,LE-GRA MVP,0.5909090909090909,0.0,0.0,2,1
+bench_d1_h1_p1_control_easy,Dense-CQI aligned low-pressure control,d1_dense,h1_aligned,p1_low,aligned,0.68,37,0,3,history_cost_quality,Multi-feature k-means,0.5909090909090909,0.15864022662889515,0.3018010287813581,2,3
+bench_d1_h1_p1_control_easy,Dense-CQI aligned low-pressure control,d1_dense,h1_aligned,p1_low,aligned,0.68,37,0,3,history_cost_quality,LE-GRA MVP,0.696969696969697,0.391705069124424,0.48616894363355706,2,2

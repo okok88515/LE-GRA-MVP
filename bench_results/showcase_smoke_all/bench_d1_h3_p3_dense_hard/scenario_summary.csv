@@ -1,0 +1,3 @@
+split,benchmark_id,benchmark_title,cqi_dispersion,rb_heterogeneity,pressure,scenario_mode,rb_budget_ratio,count,mean_teacher_gain_vs_cqi,mean_resource_gain_vs_cqi,mean_multifeature_gain_vs_cqi,mean_cqi_span,mean_same_cqi_cost_std
+train,bench_d1_h3_p3_dense_hard,Dense-CQI hard stress showcase,d1_dense,h3_strong_heterogeneous,p3_high,anti_cqi_hard,0.28,3.0,0.0556225399501008,0.004809492221049612,0.047694961194614804,2.6666666666666665,0.007699253716469477
+test,bench_d1_h3_p3_dense_hard,Dense-CQI hard stress showcase,d1_dense,h3_strong_heterogeneous,p3_high,anti_cqi_hard,0.28,1.0,0.05771390665259535,0.014428476663148615,0.0,2.0,0.006141897759917407

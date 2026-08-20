@@ -1,0 +1,3 @@
+split,benchmark_id,benchmark_title,cqi_dispersion,rb_heterogeneity,pressure,scenario_mode,rb_budget_ratio,count,mean_teacher_gain_vs_cqi,mean_resource_gain_vs_cqi,mean_multifeature_gain_vs_cqi,mean_cqi_span,mean_same_cqi_cost_std
+train,bench_d1_h1_p1_control_easy,Dense-CQI aligned low-pressure control,d1_dense,h1_aligned,p1_low,aligned,0.68,3.0,-0.005654077265331181,-0.01857768244323051,-0.00878645685003047,2.3333333333333335,0.0003858024691358042
+test,bench_d1_h1_p1_control_easy,Dense-CQI aligned low-pressure control,d1_dense,h1_aligned,p1_low,aligned,0.68,1.0,-0.007269527912568408,-0.01938540776684916,0.0,2.0,6.938893903907228e-18

@@ -7,6 +7,9 @@ load_smoke_results_v2/
 opp_env.wsl
 *.log
 raw_radio_diag.csv
+real_simu5g_data/raw_radio.csv
+real_simu5g_data/mid_raw_radio.csv
+real_simu5g_data/high_raw_radio.csv
 
 # Generated temporary experiments and debug dumps
 _tmp_*/

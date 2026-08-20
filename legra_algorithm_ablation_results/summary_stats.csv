@@ -1,0 +1,7 @@
+comparison,method_a,method_b,mean_diff_a_minus_b,ci95_lo,ci95_hi,p_value_raw,p_value_holm,win_rate_a_over_b,n_paired_units
+legra_full_none_vs_history_cost_none,LE-GRA[full_none],LE-GRA[history_cost_none],-0.00029716140153725754,-0.0009595994275084576,0.0003837810175344321,0.4002,0.6588,0.21703703703703703,2700
+legra_history_cost_utility_vs_none,LE-GRA[history_cost_utility],LE-GRA[history_cost_none],-0.0003568212172319965,-0.0010532395112600056,0.0003495654092832152,0.3294,0.6588,0.20333333333333334,2700
+legra_full_utility_vs_full_none,LE-GRA[full_utility],LE-GRA[full_none],-0.0004385392793830493,-0.001134816101848646,0.00025198647682646194,0.2168,0.6504,0.2025925925925926,2700
+legra_full_utility_vs_history_cost_none,LE-GRA[full_utility],LE-GRA[history_cost_none],-0.000735700680920307,-0.0014808906939911834,-2.5491604759267326e-05,0.0424,0.1696,0.21851851851851853,2700
+legra_full_utility_vs_multifeature,LE-GRA[full_utility],Multi-feature k-means,0.002802632941610824,0.0016385030229689476,0.003989168044154191,0.0,0.0,0.3011111111111111,2700
+legra_history_cost_none_vs_multifeature,LE-GRA[history_cost_none],Multi-feature k-means,0.0035383336225311307,0.00237114066327513,0.004732989134747067,0.0,0.0,0.30148148148148146,2700

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MBS Grouping Study | Benchmark 與腳本規劃</title>
+  <style>
+    :root {
+      --bg: #f4efe5;
+      --paper: rgba(255, 251, 246, 0.9);
+      --ink: #19252c;
+      --muted: #5c6970;
+      --line: rgba(25, 37, 44, 0.14);
+      --accent: #bc5c34;
+      --accent-soft: rgba(188, 92, 52, 0.12);
+      --deep: #24424e;
+      --green: #6f8574;
+      --shadow: 0 24px 64px rgba(20, 29, 35, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(188, 92, 52, 0.16), transparent 28%),
+        radial-gradient(circle at 86% 16%, rgba(111, 133, 116, 0.15), transparent 28%),
+        linear-gradient(180deg, #f8f3ea 0%, #ece2d3 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(25, 37, 44, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(25, 37, 44, 0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
+      opacity: 0.4;
+    }
+
+    .wrap {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 46px 0 72px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero,
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero {
+      padding: 42px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    h1 {
+      margin-top: 18px;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      max-width: 880px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.84;
+    }
+
+    .lead {
+      margin-top: 18px;
+      max-width: 900px;
+      font-size: 1.04rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .card {
+      padding: 28px;
+    }
+
+    .span-12 { grid-column: span 12; }
+    .span-8 { grid-column: span 8; }
+    .span-6 { grid-column: span 6; }
+    .span-4 { grid-column: span 4; }
+
+    .card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 14px;
+    }
+
+    .card h3 {
+      font-size: 1.04rem;
+      margin-bottom: 10px;
+      color: var(--deep);
+    }
+
+    .list,
+    .table {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .item,
+    .row,
+    pre {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.56);
+    }
+
+    .item,
+    .row {
+      padding: 16px 18px;
+    }
+
+    .item strong,
+    .row strong {
+      color: var(--ink);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(36, 66, 78, 0.08);
+      color: var(--deep);
+      font-size: 0.92rem;
+    }
+
+    .kicker {
+      font-size: 0.88rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    code {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 0.95em;
+      color: var(--deep);
+    }
+
+    pre {
+      margin: 16px 0 0;
+      padding: 16px 18px;
+      overflow-x: auto;
+      color: var(--deep);
+      line-height: 1.7;
+    }
+
+    .footer {
+      margin-top: 18px;
+      padding: 18px 22px;
+      border-radius: 20px;
+      background: rgba(36, 66, 78, 0.08);
+      color: var(--deep);
+      line-height: 1.76;
+    }
+
+    @media (max-width: 960px) {
+      .span-8, .span-6, .span-4 { grid-column: span 12; }
+      .hero, .card { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">BENCHMARK PLAN</div>
+      <h1>把場景框架真正落地成一套可以長期沿用的 benchmark 命名與腳本分層</h1>
+      <p class="lead">
+        既然實驗場景已經升級成
+        <strong>`CQI dispersion × RB heterogeneity × resource pressure`</strong>，
+        那 benchmark 與腳本也不應該再只是隨手命名。
+        更好的做法是：先定義一套穩定的場景代碼，再把 benchmark 分成
+        <strong>showcase、core matrix、full matrix、robustness、ablation</strong>
+        幾個層級。這樣之後不管你是自己跑、交接給別人跑、還是要寫論文，都能快速對齊。
+      </p>
+      <div class="chips">
+        <div class="chip">場景代碼固定化</div>
+        <div class="chip">腳本職責分層</div>
+        <div class="chip">輸出資料夾規則一致</div>
+        <div class="chip">先 showcase，再擴 matrix</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card span-12">
+        <div class="kicker">Naming Rule</div>
+        <h2>建議採用的場景代碼</h2>
+        <p>
+          我建議之後所有 benchmark 都統一用三段式代碼：
+          <code>d{dispersion}_h{heterogeneity}_p{pressure}</code>，
+          後面再接一個可讀名字。這樣你一眼就能知道它在場景矩陣中的位置。
+        </p>
+        <div class="table">
+          <div class="row"><strong>`d1`：</strong>CQI 密集（dense）</div>
+          <div class="row"><strong>`d2`：</strong>CQI 輕微分散（midspread）</div>
+          <div class="row"><strong>`d3`：</strong>CQI 高度分散（widespread）</div>
+          <div class="row"><strong>`h1`：</strong>RB profile aligned</div>
+          <div class="row"><strong>`h2`：</strong>RB mildly heterogeneous</div>
+          <div class="row"><strong>`h3`：</strong>RB strongly heterogeneous</div>
+          <div class="row"><strong>`p1`：</strong>low pressure</div>
+          <div class="row"><strong>`p2`：</strong>medium pressure</div>
+          <div class="row"><strong>`p3`：</strong>high pressure</div>
+        </div>
+        <pre><code>範例：
+bench_d2_h2_p2_main_general
+bench_d1_h3_p3_dense_hard
+bench_d3_h1_p2_cqi_easy</code></pre>
+      </article>
+
+      <article class="card span-6">
+        <div class="kicker">File Naming</div>
+        <h2>建議的檔名規則</h2>
+        <div class="list">
+          <div class="item"><strong>腳本：</strong><code>run_bench_*.py</code></div>
+          <div class="item"><strong>scenario spec：</strong><code>bench_d2_h2_p2_main_general_spec.json</code></div>
+          <div class="item"><strong>bundle：</strong><code>bench_d2_h2_p2_main_general_bundle/</code></div>
+          <div class="item"><strong>結果資料夾：</strong><code>bench_results/d2_h2_p2_main_general/</code></div>
+          <div class="item"><strong>報告：</strong><code>bench_report_d2_h2_p2_main_general.html</code></div>
+        </div>
+      </article>
+
+      <article class="card span-6">
+        <div class="kicker">Why This Helps</div>
+        <h2>這樣命名的好處</h2>
+        <div class="list">
+          <div class="item"><strong>對研究：</strong>一看就知道每個結果在矩陣哪一格。</div>
+          <div class="item"><strong>對交接：</strong>不用靠記憶猜 `r4 / r8 / q10` 到底是哪一類場景。</div>
+          <div class="item"><strong>對論文：</strong>很容易把 benchmark 表格、圖表與 appendix 對齊。</div>
+          <div class="item"><strong>對未來擴充：</strong>之後新增 radio-aware 或 trace-driven 版本，也能在同一規則下延伸。</div>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <div class="kicker">Scripts</div>
+        <h2>建議的腳本分層</h2>
+        <p>
+          不要再讓一支腳本同時扮演「找場景、訓練 learner、做 robustness、產出總報告」四種角色。
+          比較穩定的做法是拆成下面六種。
+        </p>
+        <div class="table">
+          <div class="row">
+            <strong><code>run_bench_showcase_suite.py</code></strong>
+            <span>只跑 5 個代表場景，給論文主文與快速 sanity check 用。</span>
+          </div>
+          <div class="row">
+            <strong><code>run_bench_core_matrix.py</code></strong>
+            <span>跑縮減版矩陣，通常是 9 格，用來驗證場景框架是否成立。</span>
+          </div>
+          <div class="row">
+            <strong><code>run_bench_full_matrix.py</code></strong>
+            <span>真正跑完整 `3 × 3 × 3 = 27` 格，只在主結論穩了之後再做。</span>
+          </div>
+          <div class="row">
+            <strong><code>run_bench_seed_robustness.py</code></strong>
+            <span>對少數關鍵 benchmark 做 seed sweep，確認不是單一 seed 巧合。</span>
+          </div>
+          <div class="row">
+            <strong><code>run_bench_feature_ablation.py</code></strong>
+            <span>固定 benchmark，只比較 `CQI / resource-cost / multi-feature / learner`。</span>
+          </div>
+          <div class="row">
+            <strong><code>build_bench_report.py</code></strong>
+            <span>把所有 csv 匯總成統一圖表與 HTML 報告。</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <div class="kicker">Benchmarks</div>
+        <h2>建議先定義的 benchmark 組合</h2>
+        <p>
+          先不要一開始就全鋪。最實際的做法是先有三個層次：
+          `showcase 5 格`、`core matrix 9 格`、`full matrix 27 格`。
+        </p>
+        <div class="table">
+          <div class="row">
+            <strong>Showcase Suite（5 格）</strong>
+            <span>給主文、proposal、口頭報告、快速驗證用。</span>
+            <pre><code>bench_d3_h1_p2_cqi_easy
+bench_d2_h2_p2_main_general
+bench_d1_h3_p3_dense_hard
+bench_d2_h3_p3_main_hard
+bench_d1_h1_p1_control_easy</code></pre>
+          </div>
+          <div class="row">
+            <strong>Core Matrix（9 格）</strong>
+            <span>固定 `pressure = p2` 與 `p3` 的重點區域，先驗證三軸框架。</span>
+            <pre><code>bench_d1_h1_p2
+bench_d1_h2_p2
+bench_d1_h3_p3
+bench_d2_h1_p2
+bench_d2_h2_p2
+bench_d2_h3_p3
+bench_d3_h1_p2
+bench_d3_h2_p2
+bench_d3_h3_p3</code></pre>
+          </div>
+          <div class="row">
+            <strong>Full Matrix（27 格）</strong>
+            <span>完整鋪開所有 `d1~d3 × h1~h3 × p1~p3`，適合最後做總表與 appendix。</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-6">
+        <div class="kicker">Recommended Order</div>
+        <h2>建議實際執行順序</h2>
+        <div class="list">
+          <div class="item"><strong>第 1 步：</strong>先跑 <code>run_bench_showcase_suite.py</code>，確認敘事是否成立。</div>
+          <div class="item"><strong>第 2 步：</strong>如果 showcase 有區分度，再跑 <code>run_bench_core_matrix.py</code>。</div>
+          <div class="item"><strong>第 3 步：</strong>挑 2~3 個最關鍵 benchmark 做 <code>seed_robustness</code>。</div>
+          <div class="item"><strong>第 4 步：</strong>最後才考慮 full matrix 與完整 appendix。</div>
+        </div>
+      </article>
+
+      <article class="card span-6">
+        <div class="kicker">Current Mapping</div>
+        <h2>和你目前 repo 的對應方式</h2>
+        <div class="list">
+          <div class="item"><strong><code>run_corridor_general_regime.py</code></strong> 可以先視為 `main_general` prototype。</div>
+          <div class="item"><strong><code>run_anti_cqi_hard_regime.py</code></strong> 可以保留，但改歸類成 `hard stress-test`，不要當主 benchmark 主線。</div>
+          <div class="item"><strong>舊的 `r4 / r8 / q10`</strong> 可保留為 appendix family bank，不必硬塞進新主矩陣名稱。</div>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <div class="kicker">Directory Layout</div>
+        <h2>建議的輸出資料夾結構</h2>
+        <pre><code>bench_results/
+  showcase/
+    bench_d3_h1_p2_cqi_easy/
+    bench_d2_h2_p2_main_general/
+    bench_d1_h3_p3_dense_hard/
+  core_matrix/
+    bench_d1_h1_p2/
+    bench_d1_h2_p2/
+    ...
+  robustness/
+    bench_d2_h2_p2_main_general_seed_sweep/
+  ablation/
+    bench_d2_h3_p3_main_hard_feature_ablation/
+  reports/
+    showcase_report.html
+    core_matrix_report.html</code></pre>
+        <div class="footer">
+          這樣未來你在看結果時，不會再出現「這個 csv 到底是哪次實驗跑出來的」的問題。
+          也更適合之後 push 到 GitHub、做交接、或整理論文附錄。
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <div class="kicker">Bottom Line</div>
+        <h2>一句話總結</h2>
+        <p>
+          之後的 benchmark 應該從「隨著研究過程長出來的個別 family 名稱」，
+          轉成「由場景框架主導的正式 benchmark 系統」。
+          我會建議你正式收斂成：
+          <strong>三段式場景代碼 + 六類腳本分工 + 5/9/27 三層 benchmark 組合</strong>。
+          這樣你接下來的每一次實驗，不只是在跑結果，也是在累積一套可解釋、可交接、可寫進論文的方法論。
+        </p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

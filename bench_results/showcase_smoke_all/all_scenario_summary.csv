@@ -1,0 +1,11 @@
+split,benchmark_id,benchmark_title,cqi_dispersion,rb_heterogeneity,pressure,scenario_mode,rb_budget_ratio,count,mean_teacher_gain_vs_cqi,mean_resource_gain_vs_cqi,mean_multifeature_gain_vs_cqi,mean_cqi_span,mean_same_cqi_cost_std
+train,bench_d3_h1_p2_cqi_easy,CQI-easy aligned medium-pressure showcase,d3_widespread,h1_aligned,p2_medium,aligned,0.42,3.0,0.021191595170458582,-0.003308675623215277,0.007078243370907826,11.333333333333334,0.017361111111111115
+test,bench_d3_h1_p2_cqi_easy,CQI-easy aligned medium-pressure showcase,d3_widespread,h1_aligned,p2_medium,aligned,0.42,1.0,0.014428476663148726,-0.0006136008800848858,0.0,10.0,0.005787037037037035
+train,bench_d2_h2_p2_main_general,Main general corridor showcase,d2_midspread,h2_mild_heterogeneous,p2_medium,corridor_general,0.42,3.0,0.00878645685003047,-0.004038626618093584,0.002423175970856173,5.0,0.006351891055222904
+test,bench_d2_h2_p2_main_general,Main general corridor showcase,d2_midspread,h2_mild_heterogeneous,p2_medium,corridor_general,0.42,1.0,0.004846351941712346,-0.01938540776684916,0.0,5.0,0.003982557994001215
+train,bench_d1_h3_p3_dense_hard,Dense-CQI hard stress showcase,d1_dense,h3_strong_heterogeneous,p3_high,anti_cqi_hard,0.28,3.0,0.0556225399501008,0.004809492221049612,0.047694961194614804,2.6666666666666665,0.007699253716469477
+test,bench_d1_h3_p3_dense_hard,Dense-CQI hard stress showcase,d1_dense,h3_strong_heterogeneous,p3_high,anti_cqi_hard,0.28,1.0,0.05771390665259535,0.014428476663148615,0.0,2.0,0.006141897759917407
+train,bench_d2_h3_p3_main_hard,Main hard corridor showcase,d2_midspread,h3_strong_heterogeneous,p3_high,corridor_general,0.34,3.0,0.017412730001172605,0.0,0.0,6.0,0.004424704487839383
+test,bench_d2_h3_p3_main_hard,Main hard corridor showcase,d2_midspread,h3_strong_heterogeneous,p3_high,corridor_general,0.34,1.0,0.021808583737705334,0.0,0.0,5.0,0.0057870370370370385
+train,bench_d1_h1_p1_control_easy,Dense-CQI aligned low-pressure control,d1_dense,h1_aligned,p1_low,aligned,0.68,3.0,-0.005654077265331181,-0.01857768244323051,-0.00878645685003047,2.3333333333333335,0.0003858024691358042
+test,bench_d1_h1_p1_control_easy,Dense-CQI aligned low-pressure control,d1_dense,h1_aligned,p1_low,aligned,0.68,1.0,-0.007269527912568408,-0.01938540776684916,0.0,2.0,6.938893903907228e-18

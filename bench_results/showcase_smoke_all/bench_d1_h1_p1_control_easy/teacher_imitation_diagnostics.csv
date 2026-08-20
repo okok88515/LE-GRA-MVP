@@ -1,0 +1,3 @@
+benchmark_id,benchmark_title,cqi_dispersion,rb_heterogeneity,pressure,scenario_mode,rb_budget_ratio,seed,test_index,kmax,feature_mode,method,pairwise_accuracy,ari,nmi,teacher_groups,predicted_groups
+bench_d1_h1_p1_control_easy,Dense-CQI aligned low-pressure control,d1_dense,h1_aligned,p1_low,aligned,0.68,37,0,3,history_cost_quality,Multi-feature k-means,0.5909090909090909,0.15864022662889515,0.3018010287813581,2,3
+bench_d1_h1_p1_control_easy,Dense-CQI aligned low-pressure control,d1_dense,h1_aligned,p1_low,aligned,0.68,37,0,3,history_cost_quality,LE-GRA MVP,0.696969696969697,0.391705069124424,0.48616894363355706,2,2

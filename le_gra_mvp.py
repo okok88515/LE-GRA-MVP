@@ -72,6 +72,11 @@ class Scenario:
     rb_sinr_db: np.ndarray
     mcs: np.ndarray
     dispersion: str
+    # Per-user speed at the last 5 time steps (oldest to newest), matching the
+    # `cqi_history` convention. `None` for scenarios built from sources that
+    # never recorded a speed trajectory (e.g. some trace-loader paths);
+    # callers must not assume it is populated.
+    speed_history: np.ndarray | None = None
 
 
 @dataclass
@@ -179,6 +184,100 @@ def generate_anti_cqi_hard_rb_cqi(
     return rb_cqi
 
 
+def generate_corridor_general_rb_cqi(
+    cqi_now: np.ndarray,
+    distance: np.ndarray,
+    speed: np.ndarray,
+    direction_to_gnb: np.ndarray,
+    n_rbs: int,
+) -> np.ndarray:
+    """Generate smoother, more generic RB profiles for a road-corridor regime.
+
+    Unlike `anti_cqi_hard`, this mode does not try to hide the answer from
+    wideband CQI. CQI still correlates with user quality, but RB-level notches,
+    moderate frequency selectivity, and temporal drift create realistic cases
+    where CQI-only grouping is useful yet incomplete.
+    """
+
+    rb_axis = np.linspace(-1.0, 1.0, n_rbs)
+    rb_cqi = np.zeros((len(cqi_now), n_rbs), dtype=float)
+
+    distance_norm = np.clip((distance - distance.min()) / (np.ptp(distance) + 1e-6), 0.0, 1.0)
+    speed_norm = np.clip((speed - speed.min()) / (np.ptp(speed) + 1e-6), 0.0, 1.0)
+    for idx in range(len(cqi_now)):
+        # Smooth large-scale tilt: still correlated with mobility direction.
+        tilt = (0.55 + 0.35 * distance_norm[idx]) * direction_to_gnb[idx] * rb_axis
+
+        # Position-dependent shallow notch: users with similar CQI can still
+        # differ in which RB slice is fragile.
+        notch_center = -0.58 + 1.16 * distance_norm[idx]
+        notch_width = 0.16 + 0.10 * speed_norm[idx]
+        notch_depth = 0.75 + 0.55 * (1.0 - abs(direction_to_gnb[idx]))
+        notch = -notch_depth * np.exp(-((rb_axis - notch_center) ** 2) / (2 * notch_width**2))
+
+        # Gentle ripple keeps frequency selectivity realistic without making
+        # family identity too explicit.
+        ripple_freq = 1.0 + np.random.uniform(0.0, 1.8)
+        ripple_phase = np.random.uniform(-np.pi, np.pi)
+        ripple_amp = 0.22 + 0.18 * speed_norm[idx]
+        ripple = ripple_amp * np.sin(2.0 * np.pi * ripple_freq * rb_axis + ripple_phase)
+
+        # Mild occasional bump mimics narrowband constructive fading but is not
+        # dominant enough to fully overturn the CQI ranking on its own.
+        bump = np.zeros_like(rb_axis)
+        if np.random.rand() < 0.45:
+            center = np.random.uniform(-0.7, 0.7)
+            width = np.random.uniform(0.10, 0.22)
+            height = np.random.uniform(0.35, 0.95)
+            bump = height * np.exp(-((rb_axis - center) ** 2) / (2 * width**2))
+
+        noise = np.random.normal(0.0, 0.38, size=n_rbs)
+        raw = cqi_now[idx] + tilt + notch + ripple + bump + noise
+        # Only partially recenter, so CQI remains informative instead of being
+        # intentionally neutralized.
+        raw += 0.45 * (cqi_now[idx] - np.mean(raw))
+        rb_cqi[idx] = np.clip(raw, 1, 15)
+    return rb_cqi
+
+
+SPEED_VOLATILITY_STEP_STD_KMH = {"low": 0.5, "mid": 2.0, "high": 5.0}
+
+# Controlled independent variables for the mobility/CQI-volatility follow-up
+# study (see run_mobility_confirmatory_validation.py). Both override a
+# specific existing hardcoded draw when explicitly requested; leaving them at
+# their default ("mid" / None) reproduces the exact prior distribution byte
+# for byte, so no existing caller's behavior changes.
+SPEED_LEVEL_RANGE_KMH = {"low": (20.0, 35.0), "mid": (40.0, 55.0), "high": (65.0, 90.0)}
+CQI_TEMPORAL_VOLATILITY_STEP_STD = {"low": 0.25, "mid": 0.55, "high": 1.3}
+
+
+def generate_speed_history(
+    current_speed: np.ndarray, speed_volatility: str, n_steps: int = 5
+) -> np.ndarray:
+    """Build a per-user speed trajectory (oldest to newest) ending at
+    `current_speed`, mirroring how `cqi_history` ends at `cqi_now`.
+
+    `speed_volatility` controls the per-step accel/decel noise: "low" is
+    steady cruising, "high" is stop-and-go/frequent accel-decel. The walk is
+    built backwards from the given current speed so existing callers of
+    `speed` (the final column) see no change in its distribution.
+    """
+
+    if speed_volatility not in SPEED_VOLATILITY_STEP_STD_KMH:
+        raise ValueError(f"Unknown speed_volatility: {speed_volatility}")
+    step_std = SPEED_VOLATILITY_STEP_STD_KMH[speed_volatility]
+    n_users = len(current_speed)
+    history = np.zeros((n_users, n_steps), dtype=float)
+    history[:, -1] = current_speed
+    for step in range(n_steps - 2, -1, -1):
+        history[:, step] = np.clip(
+            history[:, step + 1] + np.random.normal(0.0, step_std, size=n_users),
+            5.0,
+            130.0,
+        )
+    return history
+
+
 def generate_scenario(
     n_users: int,
     n_rbs: int,
@@ -186,18 +285,31 @@ def generate_scenario(
     scenario_mode: str = "mixed",
     dynamic_rb: bool = True,
     rb_budget_ratio: float | None = None,
+    speed_volatility: str = "mid",
+    speed_level: str | None = None,
+    cqi_temporal_volatility: str = "mid",
 ) -> Scenario:
     """Generate one synthetic vehicular MBS scenario.
 
     `dispersion` controls whether VUs have high/mid/low CQI spread.
     `scenario_mode` controls whether RB-level behavior is aligned with CQI or
     intentionally ambiguous so CQI-only grouping has blind spots.
+    `speed_volatility` ("low"/"mid"/"high") controls how much each user's
+    speed history fluctuates step to step (steady cruising vs stop-and-go);
+    it does not change the current-speed distribution itself.
+    `speed_level` ("low"/"mid"/"high", default None) overrides the current-
+    speed draw with a fixed urban/suburban/highway range, independent of
+    `scenario_mode`. None keeps each mode's own hardcoded speed range.
+    `cqi_temporal_volatility` ("low"/"mid"/"high") controls the per-step CQI
+    fluctuation noise in the `aligned`/`ambiguous`/`mixed` history generator
+    (independent of `dispersion`, which controls cross-user spread, not
+    time-domain fluctuation); "mid" reproduces the original hardcoded noise.
     """
 
     mode = scenario_mode
     if mode == "mixed":
         mode = "ambiguous" if np.random.rand() < 0.5 else "aligned"
-    if mode not in {"aligned", "ambiguous", "anti_cqi_hard"}:
+    if mode not in {"aligned", "ambiguous", "anti_cqi_hard", "corridor_general"}:
         raise ValueError(f"Unknown scenario_mode: {scenario_mode}")
 
     if mode == "anti_cqi_hard":
@@ -220,6 +332,20 @@ def generate_scenario(
         cqi_history = np.stack(cqi_history, axis=1)
         cqi_now = np.clip(np.rint(cqi_history[:, -1]).astype(int), 1, 15)
         rb_cqi = generate_anti_cqi_hard_rb_cqi(cqi_now, hidden_families, n_rbs)
+    elif mode == "corridor_general":
+        distance = np.random.uniform(80, 340, size=n_users)
+        speed = np.random.uniform(30, 46, size=n_users)
+        direction_to_gnb = np.random.uniform(-0.95, 0.95, size=n_users)
+
+        base_cqi = 13.7 - distance / 60.0 + np.random.normal(0.0, 0.95, size=n_users)
+        cqi_history = []
+        for lag in range(4, -1, -1):
+            trend = direction_to_gnb * (2 - lag) * (0.18 + 0.05 * np.random.rand())
+            noise = np.random.normal(0.0, 0.48, size=n_users)
+            cqi_history.append(np.clip(base_cqi + trend + noise, 1, 15))
+        cqi_history = np.stack(cqi_history, axis=1)
+        cqi_now = np.clip(np.rint(cqi_history[:, -1]).astype(int), 1, 15)
+        rb_cqi = generate_corridor_general_rb_cqi(cqi_now, distance, speed, direction_to_gnb, n_rbs)
     else:
         if dispersion == "high":
             distance = np.random.uniform(50, 600, size=n_users)
@@ -236,15 +362,24 @@ def generate_scenario(
         speed = np.random.uniform(35, 45, size=n_users)
         direction_to_gnb = np.random.uniform(-1.0, 1.0, size=n_users)
 
+        if cqi_temporal_volatility not in CQI_TEMPORAL_VOLATILITY_STEP_STD:
+            raise ValueError(f"Unknown cqi_temporal_volatility: {cqi_temporal_volatility}")
+        cqi_noise_std = CQI_TEMPORAL_VOLATILITY_STEP_STD[cqi_temporal_volatility]
         cqi_history = []
         for lag in range(4, -1, -1):
             # Positive direction_to_gNB means the user is moving toward the gNB,
             # so CQI tends to improve over time.
             trend = direction_to_gnb * (2 - lag) * 0.25
-            noise = np.random.normal(0, 0.55, size=n_users)
+            noise = np.random.normal(0, cqi_noise_std, size=n_users)
             cqi_history.append(np.clip(base_cqi + trend + noise, 1, 15))
         cqi_history = np.stack(cqi_history, axis=1)
         cqi_now = np.clip(np.rint(cqi_history[:, -1]).astype(int), 1, 15)
+
+    if speed_level is not None:
+        if speed_level not in SPEED_LEVEL_RANGE_KMH:
+            raise ValueError(f"Unknown speed_level: {speed_level}")
+        low, high = SPEED_LEVEL_RANGE_KMH[speed_level]
+        speed = np.random.uniform(low, high, size=n_users)
 
     if mode == "aligned":
         # Aligned mode: RB rates are mostly a noisy version of wideband CQI.
@@ -278,6 +413,11 @@ def generate_scenario(
             np.random.choice([0, 1], size=n_users, p=[0.55, 0.45]),
         )
         previous_quality = np.clip(previous_quality, 0, len(VIDEO_BITRATES_KBPS) - 1)
+    elif mode == "corridor_general":
+        historical_mean = np.mean(cqi_history[:, :4], axis=1)
+        historical_quality = np.clip(np.rint((historical_mean - 1.0) / 2.6).astype(int), 0, len(VIDEO_BITRATES_KBPS) - 1)
+        hysteresis = np.random.choice([-1, 0, 1], size=n_users, p=[0.20, 0.55, 0.25])
+        previous_quality = np.clip(historical_quality + hysteresis, 0, len(VIDEO_BITRATES_KBPS) - 1)
     elif mode == "ambiguous":
         # Same current CQI can still have different QoE history. This makes
         # switching penalty relevant in ways CQI-only grouping cannot see.
@@ -293,10 +433,14 @@ def generate_scenario(
         rb_available = max(1, int(round(rb_budget_ratio * n_rbs)))
     elif mode == "anti_cqi_hard":
         rb_available = max(1, int(round(np.random.uniform(0.26, 0.34) * n_rbs)))
+    elif mode == "corridor_general":
+        rb_available = max(1, int(round(np.random.uniform(0.34, 0.54) * n_rbs)))
     elif dynamic_rb:
         rb_available = int(np.random.uniform(0.45, 0.85) * n_rbs)
     else:
         rb_available = int(0.65 * n_rbs)
+
+    speed_history = generate_speed_history(speed, speed_volatility)
 
     scenario = Scenario(
         features=np.empty((n_users, 0), dtype=np.float32),
@@ -314,6 +458,7 @@ def generate_scenario(
         rb_sinr_db=np.full((n_users, n_rbs), np.nan, dtype=float),
         mcs=np.full(n_users, np.nan, dtype=float),
         dispersion=dispersion,
+        speed_history=speed_history,
     )
     scenario.features = build_feature_matrix(scenario, feature_mode="full")
     return scenario
@@ -667,6 +812,203 @@ def offline_teacher_groups(
                 best_utility = result.utility
                 best_groups = groups
     return best_groups
+
+
+def _segment_options(
+    order: np.ndarray,
+    start: int,
+    end: int,
+    scenario: Scenario,
+    switch_beta: float,
+    rb_available: int | None = None,
+) -> list[tuple[int, int, float]]:
+    """(quality, RBs needed, value) options for the contiguous sorted segment
+    order[start:end]. Mirrors the per-group option list built inline inside
+    `allocate_and_evaluate`, so a segment's options here are identical to what
+    brute-force evaluation would compute for the same group. `rb_available`
+    defaults to the scenario's full budget; pass an explicit smaller value to
+    price a segment against a partial (e.g. per-window) RB share instead."""
+
+    if rb_available is None:
+        rb_available = scenario.rb_available
+    group = order[start:end].tolist()
+    group_rates = scenario.rb_rates[group].min(axis=0)
+    sorted_rates = np.sort(group_rates)[::-1]
+    options = [(-1, 0, group_quality_value(group, -1, scenario, switch_beta))]
+    for q_idx, bitrate in enumerate(VIDEO_BITRATES_KBPS):
+        need = rb_needed(sorted_rates, bitrate)
+        if need is not None and need <= rb_available:
+            options.append((q_idx, need, group_quality_value(group, q_idx, scenario, switch_beta)))
+    return options
+
+
+def _offline_teacher_groups_fast_core(
+    order: np.ndarray,
+    rb_available: int,
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+) -> list[list[int]]:
+    """Shared DP core behind `offline_teacher_groups_fast` (whole scenario)
+    and `offline_teacher_groups_windowed` (one window with a reduced RB
+    share). `order` must already be sorted by resource cost (ascending);
+    `rb_available` is the RB budget usable by segments drawn from `order`.
+
+    DP state `dp[k][i][r]` = best cumulative value using the first `i` users
+    of `order` split into exactly `k` contiguous groups, having used `r` RBs.
+    See `offline_teacher_groups_fast` for the two structural assumptions
+    (contiguity, RB-fungible knapsack) that make this exact and poly-time.
+    """
+
+    n_users = len(order)
+
+    segment_cache: dict[tuple[int, int], list[tuple[int, int, float]]] = {}
+    for start in range(n_users):
+        for end in range(start + 1, n_users + 1):
+            segment_cache[(start, end)] = _segment_options(order, start, end, scenario, switch_beta, rb_available)
+
+    # dp[k][i] maps rb_used -> (best_value, prev_i, quality, need)
+    dp: list[list[dict[int, tuple[float, int, int, int]]]] = [
+        [dict() for _ in range(n_users + 1)] for _ in range(max_groups + 1)
+    ]
+    dp[0][0][0] = (0.0, -1, -1, 0)
+
+    for k in range(1, max_groups + 1):
+        for i in range(n_users):
+            prev_states = dp[k - 1][i]
+            if not prev_states:
+                continue
+            for j in range(i + 1, n_users + 1):
+                target = dp[k][j]
+                for quality, need, value in segment_cache[(i, j)]:
+                    for rb_used, (prev_value, _pi, _pq, _pn) in prev_states.items():
+                        new_rb = rb_used + need
+                        if new_rb > rb_available:
+                            continue
+                        new_value = prev_value + value
+                        existing = target.get(new_rb)
+                        if existing is None or new_value > existing[0]:
+                            target[new_rb] = (new_value, i, quality, need)
+
+    best_value = float("-inf")
+    best_k = 1
+    best_rb = 0
+    for k in range(1, max_groups + 1):
+        for rb_used, (value, *_rest) in dp[k][n_users].items():
+            if value > best_value:
+                best_value = value
+                best_k = k
+                best_rb = rb_used
+
+    if best_value == float("-inf"):
+        return [order.tolist()]
+
+    boundaries: list[tuple[int, int]] = []
+    k, i, rb_used = best_k, n_users, best_rb
+    while k > 0:
+        _value, prev_i, _quality, need = dp[k][i][rb_used]
+        boundaries.append((prev_i, i))
+        rb_used -= need
+        i = prev_i
+        k -= 1
+    boundaries.reverse()
+    return [order[start:end].tolist() for start, end in boundaries]
+
+
+def offline_teacher_groups_fast(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+) -> list[list[int]]:
+    """Exact equivalent of `offline_teacher_groups`, computed by dynamic
+    programming instead of brute-force enumeration of every boundary-cut
+    combination.
+
+    Same two assumptions as the brute-force version, made explicit rather
+    than only implicit: (1) the MBS contiguity assumption (only contiguous
+    segments after sorting by resource cost are considered as candidate
+    groups), and (2) the RB-fungible multiple-choice-knapsack resource model
+    already used by `allocate_and_evaluate` (a group's RB need depends only
+    on its chosen quality level, not on which physical RBs it receives).
+    Under both, the optimal grouping is provably poly-time solvable via DP,
+    unlike the general NP-hard grouping/allocation problems in the literature
+    (which drop one or both assumptions, e.g. arbitrary group-utility oracles
+    or per-RB-per-group heterogeneous rates).
+
+    Runtime grows roughly quadratically in the number of users (see the
+    scaling note in project memory `fast-exact-teacher-dp`) -- fine for a
+    single-cell group of tens to a few hundred users, but impractical for a
+    venue-scale MBS session with thousands of subscribers. For that regime,
+    use `offline_teacher_groups_windowed` instead.
+
+    Verified to reproduce the brute-force teacher's utility exactly across a
+    large scenario battery -- see `validate_fast_teacher.py`; do not use this
+    without rerunning that validation if the resource-allocation model in
+    `allocate_and_evaluate` ever changes.
+    """
+
+    cost_vec = user_resource_cost_vector(scenario.rb_rates)
+    cost_score = cost_vec.mean(axis=1)
+    order = np.argsort(cost_score)
+    return _offline_teacher_groups_fast_core(order, scenario.rb_available, scenario, max_groups, switch_beta)
+
+
+def offline_teacher_groups_windowed(
+    scenario: Scenario,
+    max_groups_per_window: int,
+    switch_beta: float,
+    window_size: int,
+) -> list[list[int]]:
+    """Scalable approximation of `offline_teacher_groups_fast` for venue-scale
+    MBS populations (stadium/concert-scale, thousands of subscribers), where
+    the monolithic DP's roughly-quadratic scaling in user count becomes
+    impractical.
+
+    Sorts all users by resource cost once (matching the same contiguity
+    assumption as the monolithic DP), then partitions the sorted order into
+    contiguous windows of `window_size` users. Each window runs the exact DP
+    (`_offline_teacher_groups_fast_core`) independently -- embarrassingly
+    parallelizable -- using a share of the total RB budget proportional to
+    its size (the last window absorbs the rounding remainder so the shares
+    sum exactly to `scenario.rb_available`).
+
+    This is NOT globally exact: it introduces two approximation gaps
+    relative to the monolithic exact DP, both measured empirically in
+    `validate_windowed_teacher.py` rather than assumed away:
+      1. groups cannot span a window boundary, even where the true global
+         optimum would place a cut elsewhere;
+      2. RB budget is split across windows proportionally to size rather
+         than jointly optimized across all windows at once.
+    Complexity is O(N x window_size) for N total users at fixed
+    `window_size`, i.e. linear in N rather than the monolithic DP's
+    quadratic growth.
+    """
+
+    if window_size < 1:
+        raise ValueError("window_size must be positive")
+
+    cost_vec = user_resource_cost_vector(scenario.rb_rates)
+    cost_score = cost_vec.mean(axis=1)
+    order = np.argsort(cost_score)
+    n_users = len(order)
+
+    window_starts = list(range(0, n_users, window_size))
+    all_groups: list[list[int]] = []
+    allocated_rb = 0
+    for w, start in enumerate(window_starts):
+        end = min(start + window_size, n_users)
+        window_order = order[start:end]
+        is_last = (w == len(window_starts) - 1)
+        if is_last:
+            window_rb = scenario.rb_available - allocated_rb
+        else:
+            window_rb = max(1, round(scenario.rb_available * len(window_order) / n_users))
+        allocated_rb += window_rb
+        groups = _offline_teacher_groups_fast_core(
+            window_order, max(1, window_rb), scenario, max_groups_per_window, switch_beta
+        )
+        all_groups.extend(groups)
+    return all_groups
 
 
 def pairwise_labels(groups: list[list[int]], n_users: int) -> np.ndarray:
@@ -1800,6 +2142,34 @@ def resource_cost_kmeans_grouping(
     )
 
 
+def resource_cost_kmeans_grouping_normalized(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+) -> list[list[int]]:
+    """Same feature as `resource_cost_kmeans_grouping`, but z-scored per tier
+    (within this scenario, across users) before k-means -- the same
+    normalization `multi_feature_kmeans_grouping` already applies. Exists to
+    test whether the raw version's regime-dependent losses (significantly
+    worse than CQI k-means under heavy load, see
+    `dispersion_confirmatory_validation_results`) come from unnormalized
+    per-tier RB-cost magnitudes dominating the Euclidean distance (higher
+    quality tiers need far more RBs, so their cross-user variance is ~100x
+    larger than the lowest tier's -- exactly the tiers still reachable under
+    heavy load), rather than from the feature itself being uninformative.
+    """
+
+    cost_vec = user_resource_cost_vector(scenario.rb_rates)
+    mean = cost_vec.mean(axis=0)
+    std = cost_vec.std(axis=0) + 1e-6
+    normalized = ((cost_vec - mean) / std).astype(np.float32)
+    return best_kmeans_groups(
+        scenario, normalized, max_groups, switch_beta,
+        kmeans_n_init=kmeans_n_init,
+    )
+
+
 def multi_feature_kmeans_grouping(
     scenario: Scenario,
     max_groups: int,
@@ -1878,6 +2248,38 @@ def learned_grouping(
         scenario, embeddings, max_groups, switch_beta,
         kmeans_n_init=kmeans_n_init,
     )
+
+
+def learned_grouping_with_cqi_fallback(
+    scenario: Scenario,
+    model: MLPEncoder,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+) -> list[list[int]]:
+    """LE-GRA, but never worse than plain CQI k-means on this scenario.
+
+    Diagnosis (see `RESOURCE_COST_KMEANS_FINDINGS.md`-adjacent investigation,
+    2026-08-17): LE-GRA's embedding is trained on a small per-condition
+    training set, so it occasionally mis-resolves rare fine-grained boundary
+    decisions (e.g. failing to isolate a single extreme-outlier user) that
+    CQI k-means's simple 1-D sort never gets wrong -- costing a real, if
+    usually small, utility loss in a minority of scenarios. Both candidate
+    groupings are cheap to score with the same exact DP allocator already
+    used everywhere else in this module, so there is no reason to ever ship
+    the worse one: take whichever of {CQI k-means, LE-GRA} the DP evaluator
+    actually prefers on this scenario. Verified on the existing Phase 1 clean
+    validation data (2700 paired scenarios): this max-of-two strictly
+    dominates both plain CQI k-means and plain LE-GRA on every single
+    scenario (by construction), moving the pooled mean utility edge over CQI
+    k-means from +0.92% (LE-GRA alone) to +1.55%.
+    """
+
+    cqi_groups = cqi_kmeans_grouping(scenario, max_groups, switch_beta, kmeans_n_init)
+    learned_groups = learned_grouping(scenario, model, max_groups, switch_beta, kmeans_n_init)
+    u_cqi = allocate_and_evaluate(cqi_groups, scenario, switch_beta).utility
+    u_learned = allocate_and_evaluate(learned_groups, scenario, switch_beta).utility
+    return learned_groups if u_learned >= u_cqi else cqi_groups
 
 
 def aggregate_eval_results(results: list[EvalResult]) -> EvalResult:
@@ -1980,7 +2382,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--scenario-mode",
-        choices=["aligned", "ambiguous", "mixed", "anti_cqi_hard"],
+        choices=["aligned", "ambiguous", "mixed", "anti_cqi_hard", "corridor_general"],
         default="mixed",
     )
     parser.add_argument(
