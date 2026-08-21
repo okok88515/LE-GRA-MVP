@@ -116,11 +116,12 @@
   .insight strong { color: var(--ink); }
 
   .formula-steps { display: flex; flex-direction: column; gap: 10px; }
-  .formula-step { background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; padding: 12px 18px; }
-  .formula-step .step-label { font-size: 0.76rem; color: var(--ink-muted); font-weight: 700; letter-spacing: 0.04em; margin-bottom: 5px; }
-  .formula-step .formula { font-family: "SF Mono", Consolas, "Cascadia Code", Menlo, monospace; font-size: 0.98rem; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.7; white-space: pre-wrap; }
-  .formula-step .formula .op { color: var(--ink-muted); }
-  .formula-step .note { margin: 6px 0 0; font-size: 0.82rem; color: var(--ink-2); }
+  .formula-step { background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; padding: 14px 20px; }
+  .formula-step .step-label { font-size: 0.76rem; color: var(--ink-muted); font-weight: 700; letter-spacing: 0.04em; margin-bottom: 7px; }
+  .formula-step .formula { margin: 2px 0; overflow-x: auto; }
+  .formula-step .formula math { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Noto Serif TC", serif; font-size: 1.28rem; color: var(--ink); }
+  .formula-step .formula-def { margin: 2px 0 0; font-size: 0.82rem; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+  .formula-step .note { margin: 8px 0 0; font-size: 0.82rem; color: var(--ink-2); }
 
   .table-toggle {
     align-self: flex-start; font-size: 0.76rem; color: var(--ink-2);
@@ -542,35 +543,84 @@ function buildTitleSlide() {
 function buildFormulaSlide() {
   const el = document.createElement("div");
   el.className = "slide";
+  const M_SUM_I_G = `<munder><mo>&#x2211;</mo><mrow><mi>i</mi><mo>&#x2208;</mo><mi>G</mi></mrow></munder>`;
+  const M_SUM_K = `<munder><mo>&#x2211;</mo><mi>k</mi></munder>`;
   const steps = [
     {
       label: "1. 畫質分數 -- log-normalized bitrate (0~1)",
-      formula: "b(q) = ( ln R[q] - ln R[0] ) / ( ln R[5] - ln R[0] )\nR = [200, 550, 1500, 3000, 5800, 7500] kbps,  q ∈ {0..5}",
+      math: `<math display="block">
+        <mi>b</mi><mo>(</mo><mi>q</mi><mo>)</mo><mo>=</mo>
+        <mfrac>
+          <mrow><mi>ln</mi><msub><mi>R</mi><mi>q</mi></msub><mo>&#x2212;</mo><mi>ln</mi><msub><mi>R</mi><mn>0</mn></msub></mrow>
+          <mrow><mi>ln</mi><msub><mi>R</mi><mn>5</mn></msub><mo>&#x2212;</mo><mi>ln</mi><msub><mi>R</mi><mn>0</mn></msub></mrow>
+        </mfrac>
+      </math>`,
+      def: "R₀..R₅ = 200, 550, 1500, 3000, 5800, 7500 kbps（q 對應的畫質等級，q ∈ {0,...,5}）",
       note: "用log而不是原始kbps，是刻意的邊際效益遞減設計：把一個人從200→550 kbps跟從5800→7500 kbps，在utility裡看起來一樣重要，而不是後者的\"kbps差距\"大就給更高分數——這也是後面\"CQI k-means的原始ADR能超過近似最優解\"的根本原因(它們優化的目標不一樣)。",
     },
     {
       label: "2. 換頻懲罰 -- 這裡本來就有 video quality fluctuation",
-      formula: "switch_i(q) = | q - previous_quality_i | / 5",
-      note: "previous_quality_i 是使用者i上一次的畫質等級。這一項本來就存在於utility公式裡，只是是「單步」(跟上一次比)版本，不是「過去N步的變異數」版本。",
+      math: `<math display="block">
+        <msub><mtext>switch</mtext><mi>i</mi></msub><mo>(</mo><mi>q</mi><mo>)</mo><mo>=</mo>
+        <mfrac>
+          <mrow><mo>|</mo><mi>q</mi><mo>&#x2212;</mo><msub><mi>p</mi><mi>i</mi></msub><mo>|</mo></mrow>
+          <mn>5</mn>
+        </mfrac>
+      </math>`,
+      def: "p_i = 使用者 i 上一次的畫質等級（previous_quality_i，同樣落在 0~5）",
+      note: "這一項本來就存在於utility公式裡，只是是「單步」(跟上一次比)版本，不是「過去N步的變異數」版本。",
     },
     {
       label: "3. 一個群組(multicast，共用同一個畫質q)的總價值",
-      formula: "若 q = -1 (未服務)：  V(G,q) = -2 × |G|\n若 q ≥ 0：          V(G,q) = Σ_{i∈G} [ b(q) - β·switch_i(q) ]",
-      note: "β = switch_beta，本專案實驗多數設 0.5。同一群組每個人分數不同，是因為每個人自己的previous_quality不同，即使拿到同一個畫質q，換頻懲罰也不同。",
+      math: `<math display="block">
+        <mi>V</mi><mo>(</mo><mi>G</mi><mo>,</mo><mi>q</mi><mo>)</mo><mo>=</mo>
+        <mrow><mo>{</mo>
+          <mtable columnalign="left" rowspacing="0.6em">
+            <mtr>
+              <mtd><mrow><mo>&#x2212;</mo><mn>2</mn><mo>&#x00D7;</mo><mo>|</mo><mi>G</mi><mo>|</mo></mrow></mtd>
+              <mtd><mtext>&#x2003;若 q = &#x2212;1（未服務）</mtext></mtd>
+            </mtr>
+            <mtr>
+              <mtd><mrow>${M_SUM_I_G}<mo>[</mo><mi>b</mi><mo>(</mo><mi>q</mi><mo>)</mo><mo>&#x2212;</mo><mi>&#x03B2;</mi><mo>&#x22C5;</mo><msub><mtext>switch</mtext><mi>i</mi></msub><mo>(</mo><mi>q</mi><mo>)</mo><mo>]</mo></mrow></mtd>
+              <mtd><mtext>&#x2003;若 q &#x2265; 0</mtext></mtd>
+            </mtr>
+          </mtable>
+        </mrow>
+      </math>`,
+      def: "β = switch_beta，本專案實驗多數設 0.5",
+      note: "同一群組每個人分數不同，是因為每個人自己的previous_quality不同，即使拿到同一個畫質q，換頻懲罰也不同。",
     },
     {
       label: "4. RB可行性 -- multicast worst-user約束",
-      formula: "群組在RB j的可用速率 = min_{i∈G} rate(i, j)   ← 最差成員決定\n把各RB速率由大到小排序，取前N個RB使總速率 ≥ R[q] 的最小N\n= RBneed(G, q)（若窮舉所有RB仍不夠，此畫質對這個群組不可行）",
-      note: "這就是「多人共用同一份廣播訊號，只能配到讓最差成員也能解碼的傳輸速率」的實體限制。",
+      math: `<math display="block">
+        <msub><mi>rate</mi><mi>G</mi></msub><mo>(</mo><mi>j</mi><mo>)</mo><mo>=</mo>
+        <munder><mo movablelimits="false">min</mo><mrow><mi>i</mi><mo>&#x2208;</mo><mi>G</mi></mrow></munder>
+        <mi>rate</mi><mo>(</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo>)</mo>
+      </math>`,
+      def: "把各 RB 的 rate_G(j) 由大到小排序，取前 N 個使總和 ≥ R_q 的最小 N，記為 RBneed(G, q)（若窮舉所有RB仍不夠，此畫質對這個群組不可行）",
+      note: "這就是「多人共用同一份廣播訊號，只能配到讓最差成員也能解碼的傳輸速率」的實體限制——rate(i,j) 是使用者 i 在 RB j 上的速率，取群組內最差者。",
     },
     {
       label: "5. 最佳化 -- exact DP / multiple-choice knapsack",
-      formula: "max  Σ_k V(G_k, q_k)\ns.t. Σ_k RBneed(G_k, q_k) ≤ RB_available",
+      math: `<math display="block">
+        <munder><mo movablelimits="false">max</mo><mtext></mtext></munder>
+        ${M_SUM_K}<mi>V</mi><mo>(</mo><msub><mi>G</mi><mi>k</mi></msub><mo>,</mo><msub><mi>q</mi><mi>k</mi></msub><mo>)</mo>
+        <mspace width="1.4em"/>
+        <mtext>s.t.</mtext><mspace width="0.4em"/>
+        ${M_SUM_K}<mtext>RBneed</mtext><mo>(</mo><msub><mi>G</mi><mi>k</mi></msub><mo>,</mo><msub><mi>q</mi><mi>k</mi></msub><mo>)</mo>
+        <mo>&#x2264;</mo><msub><mi>RB</mi><mtext>available</mtext></msub>
+      </math>`,
+      def: "",
       note: "每個群組是一個「物品類別」，每個畫質等級是一個「選項」，RB預算是背包容量——這是這個問題在「群組已固定」時可以用DP精確求解的原因。offline teacher做的事，是連分組本身也一起窮舉(但只窮舉「依資源成本排序後的連續切割」，見前頁「近似最優解」說明)，取整體utility最高的分組+畫質組合。",
     },
     {
       label: "6. 最終回報的 utility 指標",
-      formula: "utility = ( 1 / n ) × Σ_k V(G_k, q_k)          ← 每人平均效用",
+      math: `<math display="block">
+        <mtext>utility</mtext><mo>=</mo>
+        <mfrac><mn>1</mn><mi>n</mi></mfrac>
+        ${M_SUM_K}<mi>V</mi><mo>(</mo><msub><mi>G</mi><mi>k</mi></msub><mo>,</mo><msub><mi>q</mi><mi>k</mi></msub><mo>)</mo>
+      </math>`,
+      def: "n = 總使用者數（每人平均效用）",
       note: "投影片其他每一頁的\"utility\"數字，都是這個式子在不同方法/離散度下算出來的平均值。",
     },
   ];
@@ -583,7 +633,8 @@ function buildFormulaSlide() {
         ${steps.map(s => `
           <div class="formula-step">
             <div class="step-label">${s.label}</div>
-            <div class="formula">${s.formula}</div>
+            <div class="formula">${s.math}</div>
+            ${s.def ? `<p class="formula-def">${s.def}</p>` : ""}
             <p class="note">${s.note}</p>
           </div>
         `).join("")}
