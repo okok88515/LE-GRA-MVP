@@ -1,6 +1,52 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-11
+Last updated: 2026-08-21
+
+## READ THIS FIRST (2026-08-21 correction -- supersedes the TL;DR below)
+
+Everything from "Quick Restart For Another Agent" through the August 11
+entries below was written during an earlier research phase whose narrative
+had temporarily reframed the project as "resource-cost / multi-feature are
+the mainline methods, LE-GRA is a secondary exploratory line." **That framing
+was reversed again after 2026-08-11 and is no longer current.** Do not trust
+the "Current method positioning" / "Do not do these first" bullets a few
+lines down -- they are historical, not current guidance.
+
+Current, authoritative status as of 2026-08-21:
+
+- **The project's actual purpose is interview preparation**: the user is
+  interviewing about their own published paper ("Resource Allocation for 5G
+  Vehicular Users' MBS using a CQI-based k-means Grouping Method," Huang &
+  Liao, IEEE MSWiM 2025). Everything in this repo beyond the paper itself is
+  honest post-publication personal extension work, framed explicitly as such
+  -- never as part of the published paper.
+- **LE-GRA (learned embedding + k-means + a CQI-fallback ensemble) is the
+  headline post-publication extension again** (reversed back from the Aug 11
+  reframing above). `resource-cost k-means` and `multi-feature k-means` are
+  ablation baselines under it, not competing mainline methods. `Offline
+  teacher + exact DP` is a pseudo-optimal reference baseline -- see the
+  contiguity caveat below, it is NOT a true global optimum.
+- **This repo now has a second, actively-maintained continuity mechanism**:
+  a Claude Code memory store at
+  `C:\Users\Weber\.claude\projects\c--Users-Weber-Documents-LE-GRA-MVP\memory\`
+  (indexed by `MEMORY.md` in that same folder). That memory store is more
+  current and more granular than this file for anything after 2026-08-11 --
+  if you are an agent picking this repo back up, read `MEMORY.md` there
+  first, then treat this file's August 21 section (at the very bottom) as
+  the connecting summary between that memory and the pre-08-11 research log
+  above.
+- **The single most important recent finding**: `offline_teacher_groups`/
+  `offline_teacher_groups_fast` are NOT true global optima -- by their own
+  docstring, they only search contiguous-by-resource-cost partitions. At low
+  CQI dispersion this is lossy (confirmed: teacher loses on its own utility
+  metric in 100% of 600 n=150 low-dispersion test scenarios). A validated
+  fix (`offline_teacher_groups_multikey`, added 2026-08-21) closes this gap
+  to 0% at n=150. See the "August 21" section at the end of this file and
+  the `teacher-contiguity-limitation` memory entry for full detail.
+
+See the new section titled "## August 21 update: interview-prep pivot,
+dispersion-stratified benchmark suite, and offline-teacher contiguity fix"
+at the very end of this file for what actually happened this session.
 
 Artifact hygiene update (2026-08-11):
 
@@ -38,6 +84,10 @@ to read this file together with `medium_matrix_results/*.csv` before proposing
 the next experiment.
 
 ## Quick Restart For Another Agent
+
+**(Historical -- see "READ THIS FIRST (2026-08-21 correction)" at the top of
+this file before trusting anything below; the mainline-vs-LE-GRA positioning
+here was reversed again after 2026-08-11.)**
 
 If you are Claude / Codex / another agent resuming this repo, start from this
 summary before reading the detailed sections below.
@@ -7576,3 +7626,144 @@ Recommended next step:
    - refine LE-GRA further
    - or fully re-center the thesis/report around `resource-cost` and
      `multi-feature`
+
+## August 21 update: interview-prep pivot, dispersion-stratified benchmark suite, and offline-teacher contiguity fix
+
+This entry closes the gap between the August 11 log above and the current
+state of the repo. It was written by Claude Code, not Codex; going forward,
+prefer the memory store at
+`C:\Users\Weber\.claude\projects\c--Users-Weber-Documents-LE-GRA-MVP\memory\`
+(`MEMORY.md` there is the index) for anything after this date -- it is
+updated more granularly than this file.
+
+### Context: the actual goal is interview prep, and LE-GRA is the headline again
+
+The user is preparing for a job interview that references their own
+published paper (Huang & Liao, IEEE MSWiM 2025, CQI-based k-means MBS
+grouping) as a resume topic. All work in this repo beyond the paper itself
+is framed, honestly, as the user's own post-publication extension work --
+never presented as part of the published paper. Sometime after the August 11
+entries above (in sessions not captured in this file), the project narrative
+reverted from "resource-cost/multi-feature mainline, LE-GRA secondary" back
+to: **LE-GRA (learned embedding + k-means + a CQI-fallback ensemble) is the
+headline extension; resource-cost k-means and multi-feature k-means are
+closed ablation baselines under it.**
+
+### What was built/found this session
+
+1. **Paper-style dispersion-stratified benchmark**: `run_dispersion_metrics_breakdown.py`
+   and `run_dispersion_metrics_breakdown_legra.py` (the latter adds LE-GRA,
+   training one fresh model per dispersion level). Mirrors the paper's own
+   Figure 4 -- fixed scenario conditions, only CQI dispersion (low/mid/high)
+   varies, each method reported as % of the best method in that cell. This
+   replaced an earlier pooled/randomized-dispersion comparison that diluted
+   the real dispersion-dependent effects the user's paper shows.
+2. **New `mid_v2` dispersion calibration** in `le_gra_mvp.py`'s
+   `generate_scenario` (additive only -- the original `"mid"` branch is
+   untouched): the original `"mid"` never pushed worst-case CQI below ~9,
+   so "no grouping" barely lost to grouped methods at mid dispersion, unlike
+   the paper's own mid-dispersed condition. `mid_v2` widens the distance
+   range and steepens the CQI-distance slope to produce a real low-CQI tail,
+   calibrated only against the resulting CQI histogram (not against any
+   grouping-method outcome).
+3. **User-count scaling confirmed** (n=24/50/150/300/500, see
+   `dispersion_metrics_breakdown_n*_results/`): larger populations
+   independently amplify the "no grouping" collapse at mid dispersion (ADR
+   ratio 85%->43% from n=24 to n=500), because a bigger population is more
+   likely to contain a catastrophically bad-CQI outlier. At n>=150 and high
+   dispersion, "no grouping"'s absolute ADR floors at exactly the lowest
+   video-bitrate tier and stops moving with n (a floor effect, not noise).
+4. **Interview prep materials**: `INTERVIEW_PREP_GUIDE.md` +
+   `interview_prep_guide.html` (rehearsal doc, published as a Claude
+   artifact) and `metrics_slides.html` (a click-through slide deck of the
+   dispersion-stratified comparison across all 5 metrics x 3 dispersions x
+   6 methods, also published as an artifact).
+5. **Found and fixed a real limitation in the "Offline teacher" baseline**:
+   `offline_teacher_groups`/`offline_teacher_groups_fast` are, by their own
+   docstring, only exact within contiguous-by-resource-cost partitions after
+   sorting users -- not a true global optimum. This surfaced because the
+   user noticed "Offline teacher" was not the utility-maximum at low
+   dispersion in `dispersion_metrics_breakdown_legra_n150_results` (it
+   should be, since utility is literally its own optimization objective).
+   Root cause (confirmed via a concrete case study): at low CQI dispersion,
+   CQI collapses to only ~3 distinct values, so many users tie on CQI while
+   the continuous resource-cost sort key used for contiguity is near-noise
+   among those ties -- the contiguous-by-cost DP then mixes different CQI
+   values into the same group, while CQI k-means (which clusters directly
+   on CQI) does not.
+   - Added `offline_teacher_groups_multikey` (runs the same exact DP under 3
+     sort keys -- resource cost, raw CQI, CQI-then-cost -- keeps whichever
+     scores highest) and `offline_teacher_groups_bruteforce_exact` (true
+     global optimum via full partition enumeration, small n only) to
+     `le_gra_mvp.py`.
+   - Validated at small scale (`validate_contiguity_assumption.py`, n=6/8/10/12,
+     195 scenarios total): `multikey` matched the true brute-force global
+     optimum in **100%** of all scenarios; plain `fast` lost to the true
+     optimum in up to 100% of low-dispersion scenarios (worse as n grows).
+   - Confirmed at the real n=150 scale used for the dispersion breakdown
+     (`run_teacher_multikey_full_scale.py`, 600 scenarios/dispersion): the
+     low-dispersion loss rate of plain `fast` (100% of 600 scenarios losing
+     to the best heuristic on utility) drops to **0%** with `multikey`;
+     mid/high dispersion (already near-100% correct) also tighten to 0%/0.2%.
+   - `metrics_slides.html`'s utility slide now explains this limitation and
+     the validated fix explicitly, instead of calling the teacher a
+     "theoretical ceiling" (relabeled "近似最優解" / approximate-optimal
+     everywhere in the deck).
+   - First attempt at the small-scale validation used the wrong RB-budget
+     ratio (copy-pasted from a different sibling script's local constant,
+     1.0 instead of the project's actual medium-load convention of 0.25
+     imported from `run_standard_matrix.LOAD_RATIOS`) -- caught by noticing
+     the recomputed numbers didn't match the cached CSV, fixed, and rerun
+     before being reported. See the `feedback-research-rigor` memory entry.
+6. **Found, not yet applied**: `run_dispersion_metrics_breakdown_legra.py`
+   wires "LE-GRA MVP" to plain `mvp.learned_grouping(...)`, not the
+   already-implemented, already-validated `learned_grouping_with_cqi_fallback`
+   (which takes whichever of {CQI k-means, LE-GRA} the exact-DP evaluator
+   actually prefers per scenario, so it can never score below plain CQI
+   k-means). This is very likely why LE-GRA loses to CQI k-means at high
+   dispersion in the n=150 breakdown (83.7% vs 85.4% of best). User declined
+   to spend the compute rerunning this as of 2026-08-21; see the
+   `legra-cqi-fallback-unused` memory entry if revisiting.
+
+### Repo state at this handoff
+
+- `le_gra_mvp.py`: modified (added `mid_v2` dispersion branch,
+  `offline_teacher_groups_multikey`, `_all_partitions_upto_k`,
+  `offline_teacher_groups_bruteforce_exact`; nothing else touched).
+- New scripts: `run_dispersion_metrics_breakdown.py`,
+  `run_dispersion_metrics_breakdown_legra.py`,
+  `validate_contiguity_assumption.py`, `run_teacher_multikey_full_scale.py`.
+- New result directories (all committed):
+  `dispersion_metrics_breakdown_results/`,
+  `dispersion_metrics_breakdown_n150_results/`,
+  `dispersion_metrics_breakdown_n150_full_results/`,
+  `dispersion_metrics_breakdown_n300_results/`,
+  `dispersion_metrics_breakdown_n500_results/`,
+  `dispersion_metrics_breakdown_legra_n150_results/`,
+  `contiguity_validation_results/`, `teacher_multikey_full_scale_results/`.
+- New interview-prep artifacts: `INTERVIEW_PREP_GUIDE.md`,
+  `interview_prep_guide.html`, `metrics_slides.html`.
+- All of the above committed and pushed to `origin/main` at commit
+  `df2a337` ("Add dispersion-stratified benchmark suite and offline-teacher
+  contiguity fix"), 2026-08-21.
+
+### Recommended next step (as of 2026-08-21)
+
+1. If asked to widen LE-GRA's margin over CQI k-means legitimately: swap in
+   `learned_grouping_with_cqi_fallback` for the n=150 breakdown (see item 6
+   above) before trying anything else -- it is already built and validated,
+   not a new design.
+2. Do not try to make `multi-feature k-means` beat CQI k-means by a wide
+   margin in "aligned" mode -- in that mode, RB rates are literally
+   `CQI + noise`, so CQI is already close to a sufficient statistic and no
+   clustering method has much room above it. Multi-feature's role is to show
+   that raw feature richness alone (without learning) does not reliably beat
+   CQI -- inflating its margin would undermine that ablation's point.
+   `multi_feature_kmeans_grouping` already z-score-normalizes its feature
+   matrix before k-means, so the common "unnormalized large-magnitude
+   feature dominates the distance metric" failure mode is not the issue.
+3. If extending the other 4 metrics (adr_kbps, served_ratio, average_quality,
+   system_spectral_efficiency) to the `multikey` teacher for a fully updated
+   slide dataset: only `utility` was recomputed so far; each additional
+   metric needs its own re-evaluation pass over the same 1800 scenarios
+   (~1.6h at n=150 for utility alone, so budget accordingly).
