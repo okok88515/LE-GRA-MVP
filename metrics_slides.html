@@ -1,0 +1,593 @@
+<title>方法比較投影片</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface:      #fcfcfb;
+    --plane:        #f9f9f7;
+    --ink:          #0b0b0b;
+    --ink-2:        #52514e;
+    --ink-muted:    #898781;
+    --grid:         #e1e0d9;
+    --baseline:     #c3c2b7;
+    --border:       rgba(11,11,11,0.10);
+    --card-shadow:  0 1px 2px rgba(11,11,11,0.05), 0 10px 30px rgba(11,11,11,0.06);
+
+    --s1: #2a78d6; /* No grouping */
+    --s2: #eb6834; /* CQI k-means */
+    --s3: #1baf7a; /* Resource-cost k-means */
+    --s4: #eda100; /* Multi-feature k-means */
+    --s5: #e87ba4; /* Offline teacher */
+    --s6: #008300; /* LE-GRA MVP */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface:      #1a1a19;
+      --plane:        #0d0d0d;
+      --ink:          #ffffff;
+      --ink-2:        #c3c2b7;
+      --ink-muted:    #898781;
+      --grid:         #2c2c2a;
+      --baseline:     #383835;
+      --border:       rgba(255,255,255,0.10);
+      --card-shadow:  0 1px 2px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.45);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface:      #1a1a19;
+    --plane:        #0d0d0d;
+    --ink:          #ffffff;
+    --ink-2:        #c3c2b7;
+    --ink-muted:    #898781;
+    --grid:         #2c2c2a;
+    --baseline:     #383835;
+    --border:       rgba(255,255,255,0.10);
+    --card-shadow:  0 1px 2px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.45);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--plane);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    overflow: hidden;
+  }
+
+  .deck { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .slide { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; padding: 4.5vh 5vw; }
+  .slide.active { display: flex; }
+
+  .card {
+    width: min(1180px, 100%);
+    max-height: 100%;
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 38px 48px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .kicker { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; }
+  h1.big { font-size: 2.1rem; margin: 0; font-weight: 700; line-height: 1.25; text-wrap: balance; }
+  h2.slide-title { font-size: 1.5rem; margin: 0; font-weight: 700; line-height: 1.3; }
+  .subtitle { color: var(--ink-2); font-size: 0.94rem; margin: 0; max-width: 80ch; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 10px 0 2px; border-top: 1px solid var(--grid); margin-top: 2px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.8rem; color: var(--ink-2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+
+  .panel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .panel {
+    background: var(--plane);
+    border: 1px solid var(--grid);
+    border-radius: 14px;
+    padding: 14px 16px 10px;
+  }
+  .panel h3 { font-size: 0.86rem; margin: 0 0 4px; font-weight: 700; text-align: center; }
+  .panel .panel-sub { font-size: 0.68rem; color: var(--ink-muted); text-align: center; margin: 0 0 10px; }
+
+  .chart-wrap { position: relative; overflow-x: auto; }
+  svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
+  .bar-label { font-size: 12px; fill: var(--ink); font-weight: 700; }
+  .val-label { font-size: 9.5px; fill: var(--ink-muted); font-weight: 500; }
+  .cat-label { font-size: 11.5px; fill: var(--ink-2); }
+  .cat-label.ceiling { font-style: italic; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline-rule { stroke: var(--baseline); stroke-width: 1; }
+  .axis-tick { font-size: 10px; fill: var(--ink-muted); }
+
+  .tooltip {
+    position: absolute; pointer-events: none;
+    background: var(--ink); color: var(--surface);
+    font-size: 12px; padding: 6px 10px; border-radius: 8px;
+    transform: translate(-50%, -130%);
+    white-space: nowrap; opacity: 0; transition: opacity 0.1s ease; z-index: 5; font-weight: 600;
+  }
+
+  .insight { margin-top: 2px; padding: 13px 18px; background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; font-size: 0.9rem; color: var(--ink-2); }
+  .insight strong { color: var(--ink); }
+
+  .table-toggle {
+    align-self: flex-start; font-size: 0.76rem; color: var(--ink-2);
+    background: none; border: 1px solid var(--grid); border-radius: 20px;
+    padding: 5px 14px; cursor: pointer; font-family: inherit;
+  }
+  .table-toggle:hover { border-color: var(--ink-muted); color: var(--ink); }
+  .table-toggle:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; display: none; }
+  table.data-table.shown { display: table; }
+  table.data-table th, table.data-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  table.data-table th { color: var(--ink-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .mini-panel h3 { font-size: 0.86rem; margin: 0 0 8px; color: var(--ink-2); font-weight: 700; text-align: center; }
+
+  .takeaways { display: flex; flex-direction: column; gap: 12px; margin-top: 2px; }
+  .takeaway { display: flex; gap: 14px; align-items: flex-start; padding: 12px 18px; background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; }
+  .takeaway .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex: none; }
+  .takeaway p { margin: 0; font-size: 0.9rem; color: var(--ink-2); }
+  .takeaway p strong { color: var(--ink); }
+
+  .nav { position: absolute; bottom: 20px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 18px; z-index: 10; }
+  .nav button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--card-shadow); }
+  .nav button:disabled { opacity: 0.3; cursor: default; }
+  .nav button:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+  .dots { display: flex; gap: 6px; }
+  .dots button { width: 8px; height: 8px; border-radius: 50%; border: none; padding: 0; box-shadow: none; background: var(--baseline); }
+  .dots button.on { background: var(--ink); width: 20px; border-radius: 5px; }
+  .counter { font-size: 0.76rem; color: var(--ink-muted); font-variant-numeric: tabular-nums; min-width: 3.4em; text-align: center; }
+
+  @media (max-width: 900px) {
+    .panel-grid, .mini-grid { grid-template-columns: 1fr; }
+    .card { padding: 26px 20px 24px; }
+  }
+</style>
+
+<div class="deck" id="deck">
+  <div id="slides"></div>
+  <div class="nav">
+    <button id="prevBtn" aria-label="上一頁">‹</button>
+    <div class="dots" id="dots"></div>
+    <span class="counter" id="counter"></span>
+    <button id="nextBtn" aria-label="下一頁">›</button>
+  </div>
+</div>
+
+<script>
+/* ---------- shared method identity ---------- */
+const DISP_METHODS = [
+  { key: "no_grouping", label: "No grouping",          short: "不分組",       color: "var(--s1)" },
+  { key: "cqi",         label: "CQI k-means",           short: "CQI",         color: "var(--s2)" },
+  { key: "cost",        label: "Resource-cost k-means",  short: "Resource-cost", color: "var(--s3)" },
+  { key: "multi",       label: "Multi-feature k-means",  short: "Multi-feature", color: "var(--s4)" },
+  { key: "teacher",     label: "Offline teacher",        short: "近似最優解",   color: "var(--s5)", ceiling: true },
+  { key: "legra",       label: "LE-GRA MVP",             short: "LE-GRA(我們)", color: "var(--s6)", ours: true },
+];
+
+const POOLED_METHODS = [
+  { key: "no_grouping", label: "No grouping",             short: "不分組",        color: "var(--s1)" },
+  { key: "cqi",         label: "CQI k-means",              short: "CQI 分群",      color: "var(--s2)" },
+  { key: "cost",        label: "Resource-cost k-means",    short: "資源成本分群",   color: "var(--s3)" },
+  { key: "multi",       label: "Multi-feature k-means",    short: "多特徵分群",     color: "var(--s4)" },
+  { key: "teacher",     label: "Offline teacher (近似最優解)", short: "近似最優解",    color: "var(--s5)" },
+  { key: "legra",       label: "LE-GRA MVP (我們的方法)",    short: "LE-GRA(我們)",  color: "var(--s6)", ours: true },
+];
+
+/* ---------- dispersion-stratified data (50 users, aligned mode, medium load, 30 seeds x 20 scenarios/cell) ----------
+   "mid" here uses a recalibrated CQI-dispersion formula ("mid_v2" in le_gra_mvp.py): the
+   original "mid" branch rarely pushed worst-case CQI below ~9 (checked directly: p5=9 across
+   720 draws), so a single unified "no grouping" bottleneck stayed mild -- unlike the published
+   paper's own mid-dispersed condition. mid_v2 widens the distance range and steepens the slope
+   so a real low-CQI tail exists, calibrated against the resulting CQI histogram alone (not
+   against any grouping-method outcome) before this comparison was run. Also moved from 24 to
+   50 users, matching the paper's own single-MMS scale (Section 4: "when the number of VUs is
+   50") -- confirmed directly that user count amplifies the no-grouping collapse independently
+   of dispersion (e.g. mid_v2 ADR: no-grouping was 84% of teacher at 24 users, 65% at 50 users). */
+const DISPERSIONS = [
+  { key: "low",  label: "Low-dispersed(集中)" },
+  { key: "mid",  label: "Mid-dispersed(重新校準)" },
+  { key: "high", label: "High-dispersed(分散)" },
+];
+
+const DISP_DATA = {
+  utility: {
+    low:  { no_grouping: 0.9318, cqi: 0.9408, cost: 0.9329, multi: 0.9429, teacher: 0.9337, legra: 0.9333 },
+    mid:  { no_grouping: 0.6702, cqi: 0.7055, cost: 0.7359, multi: 0.7281, teacher: 0.7752, legra: 0.7299 },
+    high: { no_grouping: 0.1229, cqi: 0.3756, cost: 0.3210, multi: 0.3584, teacher: 0.4396, legra: 0.3680 },
+  },
+  adr_kbps: {
+    low:  { no_grouping: 7500.00, cqi: 6974.45, cost: 7436.56, multi: 6828.87, teacher: 7374.09, legra: 7409.98 },
+    mid:  { no_grouping: 2923.42, cqi: 3665.43, cost: 4502.99, multi: 3995.55, teacher: 4847.06, legra: 4661.11 },
+    high: { no_grouping: 550.00,  cqi: 1979.57, cost: 1340.33, multi: 1759.27, teacher: 1877.63, legra: 1706.62 },
+  },
+  served_ratio: {
+    low:  { no_grouping: 1.0000, cqi: 1.0000, cost: 1.0000, multi: 1.0000, teacher: 1.0000, legra: 1.0000 },
+    mid:  { no_grouping: 1.0000, cqi: 1.0000, cost: 0.9997, multi: 0.9999, teacher: 0.9980, legra: 1.0000 },
+    high: { no_grouping: 1.0000, cqi: 1.0000, cost: 0.9914, multi: 0.9965, teacher: 0.9994, legra: 1.0000 },
+  },
+  average_quality: {
+    low:  { no_grouping: 5.0000, cqi: 4.6909, cost: 4.9627, multi: 4.6056, teacher: 4.9259, legra: 4.9471 },
+    mid:  { no_grouping: 2.9483, cqi: 3.0626, cost: 3.3436, multi: 3.2008, teacher: 3.5351, legra: 3.3767 },
+    high: { no_grouping: 1.0000, cqi: 1.7932, cost: 1.6146, multi: 1.7755, teacher: 1.9552, legra: 1.7484 },
+  },
+  system_spectral_efficiency: {
+    low:  { no_grouping: 250.00, cqi: 232.48, cost: 247.89, multi: 227.63, teacher: 245.80, legra: 247.00 },
+    mid:  { no_grouping: 97.45,  cqi: 122.18, cost: 150.10, multi: 133.19, teacher: 161.57, legra: 155.37 },
+    high: { no_grouping: 18.33,  cqi: 65.99,  cost: 44.68,  multi: 58.64,  teacher: 62.59,  legra: 56.89 },
+  },
+};
+
+const METRIC_META = [
+  { id: "utility",    title: "效用分數 (Utility Score)",     unit: "", decimals: 3,
+    insight: "150人規模、含 LE-GRA：中離散度時 <strong>LE-GRA(94.2%) 表現接近 resource-cost(94.9%)，明顯優於 CQI(91.0%)</strong>；但<strong>高離散度時 LE-GRA(83.7%) 反而輸給 CQI(85.4%)</strong>——這是「aligned」情境本身沒有 CQI 看不到的結構性盲點，高離散度時 CQI 直接排序反而夠用，LE-GRA 的額外特徵沒有額外資訊可以發揮。<br><br>⚠️ <strong>低離散度這一格「近似最優解」不是最高分</strong>(93.4%，輸給multi-feature的100%與CQI的99.8%)：直接檢查該DP的原始碼可確認它明文只在「依資源成本排序後取連續切割」的受限空間內窮舉，並非真全域最優解。低離散度時CQI只剩3個離散值(13/14/15)，大量使用者CQI完全相同，而排序用的連續資源成本分數在同CQI使用者之間近乎雜訊，導致連續切割會把不同CQI的人混在一起；CQI k-means直接按CQI分群反而切得更乾淨。中/高離散度時CQI夠連續、排序才與真實通道品質一致，這兩格近似最優解仍確實是最高分。這不是程式bug，是這個exact-DP方法論本身的已知限制。<br><br>✅ <strong>已找到並驗證修正方式</strong>：改用「多排序鍵ensemble」(同一個DP分別用資源成本、CQI、CQI+成本三種排序各跑一次，取分數最高者)。在n=6~12的小規模上，這個ensemble在全部195個測試情境都100%命中brute-force真正的全域最優解；在150人全規模上重新驗證(600個情境/離散度)：低離散度的「連續切割輸給全域最優」比例從100%降到<strong>0%</strong>，中離散度從1.3%降到0%，高離散度從0.3%降到0.2%(幾乎完全補齊)。這個ensemble成本只是原本DP的3倍(在n=150仍是毫秒~秒級)，是一個已驗證、幾乎零額外成本的替代方案。" },
+  { id: "adr_kbps",   title: "平均資料速率 ADR (kbps)",       unit: " kbps", decimals: 0,
+    insight: "150人規模：中離散度時「不分組」ADR 只剩近似最優解的 <strong>60.3%</strong>，高離散度崩到 <strong>27.8%</strong>(原論文 Method C 在高離散度是 15.2%，量級相符)；<strong>LE-GRA 在中離散度(96.2%)贏過 resource-cost(92.9%)跟 multi-feature(82.4%)</strong>，但高離散度時輸給 CQI——高離散度時 CQI 分群本身的 ADR 甚至超過近似最優解，因為它優化的是log-utility(含公平性)，不是原始平均速率，兩者目標不同並不矛盾。" },
+  { id: "served_ratio", title: "服務覆蓋率 (Served Ratio)",   unit: "", decimals: 4, isPercentMetric: true,
+    insight: "這項指標在所有離散度、所有方法下都貼著 100%(LE-GRA 甚至每格都剛好 100%)——不太能區分方法優劣，真正的差異在「服務到什麼畫質」，不是「有沒有服務到」(見左側 ADR / 畫質等級)。" },
+  { id: "average_quality", title: "平均畫質等級 (0–5)",        unit: " 級", decimals: 2,
+    insight: "高離散度時「不分組」平均只能給到 <strong>1.00 級</strong>(最優解 1.96 級的 51%)；中離散度時 LE-GRA(3.38 級，95.5%)贏過 CQI(3.06 級，86.6%)——這是使用者實際會感覺到的畫質落差，且 LE-GRA 的優勢在中離散度最明顯。" },
+  { id: "system_spectral_efficiency", title: "系統頻譜效率 (bps/Hz)", unit: " bps/Hz", decimals: 2,
+    insight: "跟 ADR 呈現完全一致的排序(兩者本質上是同一個底層效果的不同量測角度)：中離散度時「不分組」只剩 60.3% 的頻譜效率，高離散度時只剩 27.8%；LE-GRA 在中離散度(96.2%)穩定領先其餘分組方法。" },
+];
+
+function fmtNum(v, decimals) {
+  return v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+/* ---------- % of best mini bar chart (paper Figure-4 style) ---------- */
+function buildPctChart(values, methodList, unit, decimals) {
+  const width = 320, rowH = 30, gap = 10, leftPad = 100, topPad = 6;
+  const best = Math.max(...methodList.map(m => values[m.key]));
+  const plotRight = width - 44;
+  const height = topPad + methodList.length * (rowH + gap) - gap + 4;
+
+  // Category label sits to the LEFT of its own bar, vertically centered on
+  // the same row -- never stacked above/below a bar, which earlier testing
+  // showed readers misattribute to the neighboring row (see
+  // dispersion_and_scale_calibration.md / session notes 2026-08-20).
+  let svg = `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="百分比長條圖">`;
+  [0, 25, 50, 75, 100].forEach(t => {
+    const x = leftPad + (t / 100) * (plotRight - leftPad);
+    svg += `<line class="gridline" x1="${x}" y1="${topPad - 2}" x2="${x}" y2="${height - 2}" />`;
+  });
+  methodList.forEach((m, i) => {
+    const v = values[m.key];
+    const pct = best > 0 ? (v / best) * 100 : 0;
+    const y = topPad + i * (rowH + gap);
+    const barY = y + rowH * 0.18;
+    const barH = rowH * 0.64;
+    const barW = Math.max(((pct / 100) * (plotRight - leftPad)), 2);
+    svg += `<text class="cat-label${m.ceiling ? " ceiling" : ""}" x="${leftPad - 8}" y="${barY + barH / 2 + 4}" text-anchor="end">${m.short}</text>`;
+    svg += `<rect class="bar" data-idx="${i}" x="${leftPad}" y="${barY}" width="${barW}" height="${barH}" rx="3" fill="${m.color}" />`;
+    svg += `<text class="bar-label" x="${leftPad + barW + 6}" y="${barY + barH / 2 + 4}">${pct.toFixed(1)}%</text>`;
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+function attachPctHover(container, methodList, values, unit, decimals) {
+  const svg = container.querySelector("svg.chart");
+  const tooltip = container.querySelector(".tooltip");
+  const best = Math.max(...methodList.map(m => values[m.key]));
+  svg.querySelectorAll("rect.bar").forEach((rect, i) => {
+    const m = methodList[i];
+    const v = values[m.key];
+    const pct = best > 0 ? (v / best) * 100 : 0;
+    const show = (evt) => {
+      const box = container.getBoundingClientRect();
+      tooltip.style.left = (evt.clientX - box.left) + "px";
+      tooltip.style.top = (evt.clientY - box.top) + "px";
+      tooltip.textContent = m.label + " · " + fmtNum(v, decimals) + unit + " · " + pct.toFixed(1) + "% of best";
+      tooltip.style.opacity = "1";
+    };
+    rect.addEventListener("mousemove", show);
+    rect.addEventListener("mouseenter", show);
+    rect.addEventListener("mouseleave", () => { tooltip.style.opacity = "0"; });
+  });
+}
+
+function buildDispersionMetricSlide(meta) {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const panels = DISPERSIONS.map(d => {
+    const values = DISP_DATA[meta.id][d.key];
+    return `
+      <div class="panel">
+        <h3>${d.label}</h3>
+        <p class="panel-sub">% 為該情境下相對「最佳方法」的比例</p>
+        <div class="chart-wrap" data-metric="${meta.id}" data-disp="${d.key}"><div class="tooltip"></div></div>
+      </div>`;
+  }).join("");
+
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Metric · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格 · 含 LE-GRA)</span>
+      <h2 class="slide-title">${meta.title}</h2>
+      <div class="legend">
+        ${DISP_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}${m.ceiling ? "(排序後取連續切割的DP解，非全域窮舉——低離散度時CQI大量重複值會讓此假設失真，可能被非連續分群方法超過，詳見utility頁說明)" : ""}</span>`).join("")}
+      </div>
+      <div class="panel-grid">${panels}</div>
+      <button class="table-toggle" type="button">顯示數據表</button>
+      <table class="data-table">
+        <thead><tr><th>方法</th><th>Low</th><th>Mid</th><th>High</th></tr></thead>
+        <tbody>
+          ${DISP_METHODS.map(m => `<tr><td>${m.label}</td>${DISPERSIONS.map(d => {
+            const v = DISP_DATA[meta.id][d.key][m.key];
+            return `<td>${fmtNum(v, meta.decimals)}${meta.unit}</td>`;
+          }).join("")}</tr>`).join("")}
+        </tbody>
+      </table>
+      <div class="insight">${meta.insight}</div>
+    </div>
+  `;
+
+  el.querySelectorAll(".chart-wrap").forEach(wrap => {
+    const disp = wrap.getAttribute("data-disp");
+    const values = DISP_DATA[meta.id][disp];
+    const svg = buildPctChart(values, DISP_METHODS, meta.unit, meta.decimals);
+    wrap.insertAdjacentHTML("afterbegin", svg);
+    attachPctHover(wrap, DISP_METHODS, values, meta.unit, meta.decimals);
+  });
+
+  const toggle = el.querySelector(".table-toggle");
+  const table = el.querySelector(".data-table");
+  toggle.addEventListener("click", () => {
+    const shown = table.classList.toggle("shown");
+    toggle.textContent = shown ? "隱藏數據表" : "顯示數據表";
+  });
+  return el;
+}
+
+/* ---------- pooled reference slide (includes LE-GRA, absolute utility, mixed dispersion) ---------- */
+const POOLED_UTILITY = { no_grouping: 0.64372, cqi: 0.70773, cost: 0.70688, multi: 0.71166, teacher: 0.72915, legra: 0.71426 };
+
+function buildPooledReferenceSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const width = 820, rowH = 46, gap = 10, leftPad = 210, rightPad = 90, topPad = 8;
+  const plotW = width - leftPad - rightPad;
+  const raw = POOLED_METHODS.map(m => POOLED_UTILITY[m.key]);
+  const maxV = Math.max(...raw) * 1.12;
+  const height = topPad + POOLED_METHODS.length * (rowH + gap);
+  let svg = `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="整體平均效用長條圖">`;
+  [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+    const x = leftPad + t * plotW;
+    svg += `<line class="gridline" x1="${x}" y1="${topPad - 2}" x2="${x}" y2="${height - 2}" />`;
+    svg += `<text class="axis-tick" x="${x}" y="${height + 2}" text-anchor="middle">${fmtNum(t * maxV, 2)}</text>`;
+  });
+  POOLED_METHODS.forEach((m, i) => {
+    const v = POOLED_UTILITY[m.key];
+    const y = topPad + i * (rowH + gap);
+    const barY = y + rowH * 0.18, barH = rowH * 0.64;
+    const w = (v / maxV) * plotW;
+    svg += `<text class="cat-label" x="${leftPad - 14}" y="${y + rowH / 2 + 4}" text-anchor="end">${m.short}</text>`;
+    svg += `<rect class="bar" x="${leftPad}" y="${barY}" width="${Math.max(w, 2)}" height="${barH}" rx="4" fill="${m.color}" />`;
+    svg += `<text class="bar-label" x="${leftPad + w + 10}" y="${barY + barH / 2 + 4}">${fmtNum(v, 3)}</text>`;
+    if (m.ours) {
+      svg += `<rect x="${leftPad - 14 - 46}" y="${y + rowH / 2 - 9}" width="42" height="18" rx="6" fill="${m.color}" />`;
+      svg += `<text class="bar-label" x="${leftPad - 14 - 25}" y="${y + rowH / 2 + 4}" text-anchor="middle" style="fill:#fff;font-size:10.5px;">OURS</text>`;
+    }
+  });
+  svg += `</svg>`;
+
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Reference · 混合離散度 pooled 平均(5 種情境模式 × 3 負載 × 6 seed，n=2700 / 方法)</span>
+      <h2 class="slide-title">整體平均效用──含 LE-GRA</h2>
+      <p class="subtitle">前面幾頁刻意分開了離散度，才能看到「不分組崩潰」這種被平均掉的效應；這頁換回原本混合各種情境的整體平均，加入 LE-GRA 做對照。差異幅度自然比單一高離散度情境小很多，這是預期中的事，不是矛盾。</p>
+      <div class="legend">${POOLED_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}</span>`).join("")}</div>
+      <div class="chart-wrap">${svg}</div>
+      <div class="insight">LE-GRA(0.714)比 CQI 分群(0.708)高約 <strong>0.9%</strong>；近似最優解(0.729)顯示仍有進一步空間。混合各種離散度後，任何單一方法的相對優勢都會被拉近，這正是本頁跟前 5 頁的差異所在。</div>
+    </div>
+  `;
+  return el;
+}
+
+/* ---------- real Simu5G data slide (unchanged structure, absolute utility) ---------- */
+const REAL_DATA = {
+  title: "真實資料驗證：Simu5G + SUMO",
+  subtitle: "在真實5G網路模擬(非合成模擬器)上，依 CQI 離散度分層檢視 resource-cost 分群法 vs. CQI 分群法(效用分數，每格 n=15，單次模擬)。",
+  dispersions: [
+    { key: "low",  label: "Low(集中)", values: { no_grouping: 0.44771, cqi: 0.44771, cost: 0.44771, multi: 0.44771, teacher: 0.44771 } },
+    { key: "mid",  label: "Mid",       values: { no_grouping: 0.29752, cqi: 0.32662, cost: 0.32059, multi: 0.32395, teacher: 0.33562 } },
+    { key: "high", label: "High(分散)", values: { no_grouping: -0.08623, cqi: 0.11892, cost: 0.14839, multi: 0.12966, teacher: 0.18501 } },
+  ],
+};
+
+const REAL_DATA_METHODS = DISP_METHODS.filter(m => m.key !== "legra");
+
+function buildRealDataMiniChart(values) {
+  const width = 300, rowH = 34, gap = 10, leftPad = 96, rightPad = 60, topPad = 6;
+  const plotW = width - leftPad - rightPad;
+  const raw = REAL_DATA_METHODS.map(m => values[m.key]);
+  const minV = Math.min(0, ...raw);
+  const maxV = Math.max(...raw) * 1.15;
+  const scale = v => ((v - minV) / (maxV - minV)) * plotW;
+  const zeroX = leftPad + scale(0);
+  const height = topPad + REAL_DATA_METHODS.length * (rowH + gap);
+  let svg = `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="真實資料效用長條圖">`;
+  REAL_DATA_METHODS.forEach((m, i) => {
+    const v = values[m.key];
+    const y = topPad + i * (rowH + gap);
+    const barY = y + rowH * 0.16, barH = rowH * 0.56;
+    const vx = leftPad + scale(v);
+    const x0 = Math.min(zeroX, vx), w = Math.abs(vx - zeroX);
+    svg += `<text class="cat-label" x="${leftPad - 8}" y="${y + rowH / 2 + 4}" text-anchor="end">${m.short}</text>`;
+    svg += `<rect class="bar" x="${x0}" y="${barY}" width="${Math.max(w, 1)}" height="${barH}" rx="3" fill="${m.color}" />`;
+    const anchor = vx >= zeroX ? "start" : "end";
+    svg += `<text class="bar-label" x="${vx + (vx >= zeroX ? 6 : -6)}" y="${barY + barH / 2 + 4}" text-anchor="${anchor}" style="font-size:11px;">${fmtNum(v, 3)}</text>`;
+  });
+  svg += `<line class="baseline-rule" x1="${zeroX}" y1="${topPad - 2}" x2="${zeroX}" y2="${height - 2}" />`;
+  svg += `</svg>`;
+  return svg;
+}
+
+function buildRealDataSlide(data) {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const panels = data.dispersions.map(d => `<div class="mini-panel"><h3>${d.label}</h3>${buildRealDataMiniChart(d.values)}</div>`).join("");
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Bonus · 真實 Simu5G + SUMO + Veins 模擬(非合成資料)</span>
+      <h2 class="slide-title">${data.title}</h2>
+      <p class="subtitle">${data.subtitle}</p>
+      <div class="legend">${REAL_DATA_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}</span>`).join("")}</div>
+      <div class="mini-grid">${panels}</div>
+      <div class="insight">LE-GRA 未在真實資料上測試(15 個情境不足以訓練模型，見上方一頁的說明)。Resource-cost 分群在 <strong>high(高離散)</strong>情境下明顯贏過 CQI 分群(0.148 vs 0.119)，在 <strong>low(低離散)</strong>情境下所有方法完全打平——跟左邊合成模擬器分層後的發現(高離散度才是分組價值所在)方向一致。每格 n=15、單次模擬，是方向性佐證，不是嚴謹統計確認。</div>
+    </div>
+  `;
+  return el;
+}
+
+/* ---------- user-count sensitivity slide ---------- */
+const USER_COUNT_LEVELS = [
+  { n: 24,  seq: "#b7d3f6", note: "30 seed × 20 情境/格" },
+  { n: 50,  seq: "#6da7ec", note: "30 seed × 20 情境/格" },
+  { n: 150, seq: "#2a78d6", note: "30 seed × 20 情境/格" },
+  { n: 300, seq: "#184f95", note: "15 seed × 10 情境/格" },
+  { n: 500, seq: "#0d366b", note: "10 seed × 6 情境/格" },
+];
+const USER_COUNT_ADR_PCT = {
+  mid:  { 24: 85.27, 50: 65.29, 150: 60.31, 300: 55.99, 500: 42.99 },
+  high: { 24: 24.90, 50: 22.62, 150: 27.78, 300: 31.02, 500: 31.99 },
+};
+const USER_COUNT_ADR_ABS = {
+  // absolute "No grouping" ADR (kbps) -- shows the high-dispersion floor
+  // effect the % ratio alone would obscure.
+  high: { 24: 791.3, 50: 573.8, 150: 550.0, 300: 550.0, 500: 550.0 },
+};
+
+function buildUserCountMiniChart(dispKey, showAbs) {
+  const width = 300, rowH = 34, gap = 10, leftPad = 118, topPad = 6;
+  const plotRight = width - 44;
+  const height = topPad + USER_COUNT_LEVELS.length * (rowH + gap) - gap + 4;
+  let svg = `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="使用者數量效應長條圖">`;
+  [0, 25, 50, 75, 100].forEach(t => {
+    const x = leftPad + (t / 100) * (plotRight - leftPad);
+    svg += `<line class="gridline" x1="${x}" y1="${topPad - 2}" x2="${x}" y2="${height - 2}" />`;
+  });
+  USER_COUNT_LEVELS.forEach((lvl, i) => {
+    const pct = USER_COUNT_ADR_PCT[dispKey][lvl.n];
+    const y = topPad + i * (rowH + gap);
+    const barY = y + rowH * 0.18, barH = rowH * 0.64;
+    const barW = Math.max(((pct / 100) * (plotRight - leftPad)), 2);
+    const absVal = showAbs && USER_COUNT_ADR_ABS[dispKey] ? USER_COUNT_ADR_ABS[dispKey][lvl.n] : null;
+    const label = `n=${lvl.n}人${absVal != null ? ` (${absVal.toFixed(0)}kbps)` : ""}`;
+    svg += `<text class="cat-label" x="${leftPad - 8}" y="${barY + barH / 2 + 4}" text-anchor="end">${label}</text>`;
+    svg += `<rect class="bar" x="${leftPad}" y="${barY}" width="${barW}" height="${barH}" rx="3" fill="${lvl.seq}" />`;
+    svg += `<text class="bar-label" x="${leftPad + barW + 6}" y="${barY + barH / 2 + 4}">${pct.toFixed(1)}%</text>`;
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+function buildUserCountSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Sensitivity · 「不分組」ADR 佔最佳方法百分比，隨使用者數量變化(aligned 模式 · medium 負載 · 全部皆完整樣本量)</span>
+      <h2 class="slide-title">使用者數量的影響</h2>
+      <p class="subtitle">同一份離散度設定下，把使用者數從 24 人一路拉到 500 人，「不分組」相對於最佳方法的差距如何變化——顏色深淺代表使用者數量(淺→深 = 24 → 500 人)，不是方法身分。</p>
+      <div class="panel-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="panel">
+          <h3>Mid-dispersed(重新校準)</h3>
+          <p class="panel-sub">單調遞減：85% → 65% → 60% → 56% → 43%</p>
+          <div class="chart-wrap">${buildUserCountMiniChart("mid", false)}</div>
+        </div>
+        <div class="panel">
+          <h3>High-dispersed</h3>
+          <p class="panel-sub">絕對值(括號內)從 150 人起卡在 550 kbps 不再往下掉</p>
+          <div class="chart-wrap">${buildUserCountMiniChart("high", true)}</div>
+        </div>
+      </div>
+      <div class="insight">中離散度呈現清楚、單調的趨勢(全部使用完整樣本量，30 seed × 20 情境/格起，人數越多樣本量沒有縮減)：使用者越多，「不分組」被拖垮得越嚴重(85.3% → 65.3% → 60.3% → 56.0% → 43.0%)——母體越大，出現極端低 CQI 使用者的機率越高。高離散度那格的百分比不是單調的(24.9%→22.6%→27.8%→31.0%→32.0%)，但<strong>這不是雜訊</strong>：看絕對值就懂了——「不分組」的ADR從150人開始精確卡在 <strong>550 kbps</strong>(剛好是第2畫質等級的位元率)不再下降，代表使用者一多，幾乎必然存在極端低CQI的使用者把整個群組釘死在這一級；百分比會晃動，是因為分母(當下最佳方法)隨人數變化，不是「不分組」自己變好了。</div>
+    </div>
+  `;
+  return el;
+}
+
+function buildTitleSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  el.innerHTML = `
+    <div class="card" style="align-items:flex-start;">
+      <span class="kicker">LE-GRA · 方法比較</span>
+      <h1 class="big">依 CQI 離散度分層的方法比較</h1>
+      <p class="subtitle">仿照原論文 Figure 4 的呈現方式：150 位使用者(比對論文單一MMS 50人規模放大3倍，測試使用者數量的放大效應)、固定情境模式與負載，只讓 CQI 離散度(low/mid/high)變化，每個方法用「佔該情境最佳方法的百分比」呈現，同時保留絕對數值。中離散度的公式經過重新校準(原始版本的最差CQI很少低於9，撐不起真正的差距，已改用能製造出低CQI尾端使用者的版本)。前 5 頁是 6 種方法(不分組、CQI、resource-cost、multi-feature、近似最優解、<strong>LE-GRA</strong>)，每個離散度都各自為 LE-GRA 重新訓練了一個模型；之後補一頁使用者數量效應、一頁混合離散度的整體平均對照，最後附真實 Simu5G 資料驗證。</p>
+      <div class="legend" style="margin-top:12px;">
+        ${DISP_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.label}</span>`).join("")}
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+function buildTakeawaySlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const items = [
+    { color: "var(--s1)", html: "<strong>「不分組」的表現完全取決於離散度、也受使用者數量放大</strong>：低離散度時它甚至是最好的(不需要分組)，中離散度已有感知得到的差距(150人時約60%)，高離散度崩到只剩最優解的 28%——跟原論文 Method C 的量級一致。使用者數從24人拉到500人時，中離散度的ADR差距單調擴大(85%→65%→60%→56%→43%)；高離散度時「不分組」的絕對ADR從150人起卡在550kbps不再下降(見「使用者數量的影響」頁)。" },
+    { color: "var(--s6)", html: "<strong>LE-GRA 的優勢在「aligned」情境裡是有條件的</strong>：中離散度時明顯領先 CQI(94~96% vs 91%)，但<strong>高離散度時反而輸給 CQI</strong>(84% vs 85%)——因為 aligned 情境本身沒有 CQI 看不到的結構性盲點，高離散度時單純排序 CQI 就幾乎夠用，LE-GRA 額外學到的特徵沒有多餘資訊可以發揮。這跟之前發現「LE-GRA 贏在 CQI 有結構性盲點的情境(如 anti_cqi_hard)」完全一致，不是矛盾。" },
+    { color: "var(--s5)", html: "<strong>「近似最優解」在中/高離散度都還有領先所有方法一段距離</strong>，代表包括 LE-GRA 在內的所有啟發式方法都還沒觸頂；高離散度時 CQI 的原始 ADR 甚至超過它，因為它優化的是含公平性的 log-utility，不是原始平均速率，兩者目標不同。但它<strong>不是真全域最優解</strong>——其DP只在「依資源成本排序後取連續切割」的受限空間內窮舉；低離散度時因CQI大量重複值(只剩13/14/15三種)，連續切割假設失真，utility指標本身也被multi-feature/CQI k-means超過(93.4% vs 100%/99.8%)。" },
+    { color: "var(--s2)", html: "<strong>真實 Simu5G 資料</strong>複現了「離散度才是分組價值的關鍵」這個發現，不是只在自己寫的模擬器裡才成立。" },
+  ];
+  el.innerHTML = `
+    <div class="card" style="align-items:flex-start;">
+      <span class="kicker">總結</span>
+      <h2 class="slide-title">四個結論</h2>
+      <div class="takeaways">${items.map(it => `<div class="takeaway"><span class="dot" style="background:${it.color}"></span><p>${it.html}</p></div>`).join("")}</div>
+    </div>
+  `;
+  return el;
+}
+
+/* ---------- assemble deck ---------- */
+const slidesEl = document.getElementById("slides");
+const slideEls = [
+  buildTitleSlide(),
+  ...METRIC_META.map(buildDispersionMetricSlide),
+  buildUserCountSlide(),
+  buildPooledReferenceSlide(),
+  buildRealDataSlide(REAL_DATA),
+  buildTakeawaySlide(),
+];
+slideEls.forEach(s => slidesEl.appendChild(s));
+
+let current = 0;
+const dotsEl = document.getElementById("dots");
+slideEls.forEach((_, i) => {
+  const b = document.createElement("button");
+  b.setAttribute("aria-label", "第 " + (i + 1) + " 頁");
+  b.addEventListener("click", () => goTo(i));
+  dotsEl.appendChild(b);
+});
+const counterEl = document.getElementById("counter");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+function render() {
+  slideEls.forEach((s, i) => s.classList.toggle("active", i === current));
+  [...dotsEl.children].forEach((d, i) => d.classList.toggle("on", i === current));
+  counterEl.textContent = (current + 1) + " / " + slideEls.length;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === slideEls.length - 1;
+}
+function goTo(i) { current = Math.max(0, Math.min(slideEls.length - 1, i)); render(); }
+prevBtn.addEventListener("click", () => goTo(current - 1));
+nextBtn.addEventListener("click", () => goTo(current + 1));
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight" || e.key === " ") { goTo(current + 1); e.preventDefault(); }
+  if (e.key === "ArrowLeft") { goTo(current - 1); e.preventDefault(); }
+});
+render();
+</script>

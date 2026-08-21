@@ -1,0 +1,457 @@
+<title>面試逐字稿與問答手冊</title>
+<style>
+  :root {
+    --bg: #F3F5F8;
+    --surface: #FFFFFF;
+    --surface-soft: #EAEEF3;
+    --ink: #1A2233;
+    --ink-soft: #5B6472;
+    --ink-faint: #8B94A3;
+    --accent: #0F8B8D;
+    --accent-soft: #E3F3F3;
+    --alert: #C2410C;
+    --alert-soft: #FBEBE3;
+    --rule: #D7DEE6;
+    --shadow: 0 1px 2px rgba(26,34,51,0.04), 0 8px 24px rgba(26,34,51,0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151F;
+      --surface: #171E2B;
+      --surface-soft: #1E2636;
+      --ink: #E7EBF2;
+      --ink-soft: #9AA5B4;
+      --ink-faint: #6B7585;
+      --accent: #4FD1D9;
+      --accent-soft: #17313A;
+      --alert: #F0885B;
+      --alert-soft: #33221C;
+      --rule: #2A3241;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #10151F;
+    --surface: #171E2B;
+    --surface-soft: #1E2636;
+    --ink: #E7EBF2;
+    --ink-soft: #9AA5B4;
+    --ink-faint: #6B7585;
+    --accent: #4FD1D9;
+    --accent-soft: #17313A;
+    --alert: #F0885B;
+    --alert-soft: #33221C;
+    --rule: #2A3241;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 0;
+    max-width: 1180px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  nav.rail {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 48px 20px 48px 32px;
+    border-right: 1px solid var(--rule);
+  }
+
+  .rail-title {
+    font-family: "Noto Serif TC", "Songti TC", Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin: 0 0 4px;
+  }
+
+  .rail-sub {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    margin: 0 0 32px;
+    letter-spacing: 0.04em;
+  }
+
+  .rail ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .rail a {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .rail a:hover, .rail a:focus-visible {
+    background: var(--surface-soft);
+    color: var(--ink);
+  }
+
+  .rail a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .rail .num {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 1.4em;
+  }
+
+  main {
+    padding: 56px 56px 120px;
+    max-width: 760px;
+  }
+
+  header.hero {
+    margin-bottom: 56px;
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  h1.title {
+    font-family: "Noto Serif TC", "Songti TC", Georgia, serif;
+    font-size: 2.15rem;
+    line-height: 1.35;
+    margin: 0 0 14px;
+    text-wrap: balance;
+    font-weight: 700;
+  }
+
+  .lede {
+    font-size: 1.02rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .lede strong { color: var(--ink); }
+
+  section.block {
+    margin-bottom: 64px;
+    scroll-margin-top: 32px;
+  }
+
+  .block-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .block-num {
+    font-family: "Noto Serif TC", Georgia, serif;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.5rem;
+    color: var(--accent-soft);
+    -webkit-text-stroke: 1.4px var(--accent);
+    color: transparent;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  h2 {
+    font-family: "Noto Serif TC", "Songti TC", Georgia, serif;
+    font-size: 1.35rem;
+    margin: 0;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-family: "Noto Serif TC", "Songti TC", Georgia, serif;
+    font-size: 1.05rem;
+    color: var(--accent);
+    margin: 28px 0 10px;
+    font-weight: 700;
+  }
+
+  p { margin: 0 0 16px; color: var(--ink); }
+  .block p:last-child { margin-bottom: 0; }
+
+  .pitch {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 24px 26px;
+    box-shadow: var(--shadow);
+    font-size: 1.02rem;
+  }
+
+  ul.plain, ol.plain {
+    margin: 0 0 16px;
+    padding-left: 1.3em;
+  }
+  ul.plain li, ol.plain li { margin-bottom: 10px; }
+  ul.plain li:last-child, ol.plain li:last-child { margin-bottom: 0; }
+
+  .qa {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .qa-card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .qa-card .q {
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0 0 8px;
+    font-size: 0.98rem;
+  }
+
+  .qa-card .a { margin: 0; color: var(--ink); }
+
+  .redline {
+    background: var(--alert-soft);
+    border: 1px solid color-mix(in srgb, var(--alert) 35%, var(--rule));
+    border-left: 3px solid var(--alert);
+    border-radius: 10px;
+    padding: 22px 26px;
+  }
+
+  .redline ul.plain { margin-bottom: 0; }
+  .redline li::marker { color: var(--alert); }
+
+  .mantras {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .mantra {
+    font-family: "Noto Serif TC", "Songti TC", Georgia, serif;
+    font-size: 1.28rem;
+    line-height: 1.6;
+    color: var(--ink);
+    padding: 6px 0 6px 22px;
+    border-left: 3px solid var(--accent);
+    text-wrap: balance;
+  }
+
+  .mantra .idx {
+    font-family: -apple-system, sans-serif;
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  code {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    background: var(--surface-soft);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.92em;
+  }
+
+  .scope-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.94rem;
+  }
+  .scope-table th, .scope-table td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .scope-table th {
+    color: var(--ink-faint);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .scope-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--rule); background: var(--surface); }
+  .scope-wrap .scope-table { border: none; }
+  .scope-wrap .scope-table td, .scope-wrap .scope-table th { border-bottom: 1px solid var(--rule); }
+  .scope-wrap tr:last-child td { border-bottom: none; }
+
+  footer.note {
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    nav.rail { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--rule); padding: 28px 24px; }
+    main { padding: 40px 24px 100px; }
+  }
+</style>
+
+<div class="shell">
+  <nav class="rail" aria-label="章節導覽">
+    <p class="rail-title">面試逐字稿</p>
+    <p class="rail-sub">LE-GRA 反覆演練手冊</p>
+    <ol>
+      <li><a href="#pitch"><span class="num">01</span>電梯簡報</a></li>
+      <li><a href="#story"><span class="num">02</span>完整故事</a></li>
+      <li><a href="#tech"><span class="num">03</span>技術細節備查</a></li>
+      <li><a href="#scope"><span class="num">04</span>誠實的邊界</a></li>
+      <li><a href="#qa"><span class="num">05</span>常見追問 Q&amp;A</a></li>
+      <li><a href="#redline"><span class="num">06</span>絕對紅線</a></li>
+      <li><a href="#mantras"><span class="num">07</span>一句話記憶點</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <span class="eyebrow">Interview Rehearsal · LE-GRA</span>
+      <h1 class="title">面試逐字稿與問答手冊</h1>
+      <p class="lede">核心原則：<strong>誠實的「發表論文 + 個人後續延伸探索」框架</strong>，沒有任何需要隱瞞或編造的地方。所有數字都是實際跑出來的，被追問時都可以攤開來講。</p>
+    </header>
+
+    <section class="block" id="pitch">
+      <div class="block-head"><span class="block-num">01</span><h2>電梯簡報版本(30 秒)</h2></div>
+      <div class="pitch">
+        「我的碩論用 CQI 做 k-means 分群來解決 5G 車載多播的資源分配問題。發表之後我自己延伸做了幾件事：先用 exact DP 把原本的暴力搜尋加速了一千倍；接著發現手刻更多特徵去做分群其實不穩定，深入查出是 k-means 對離群值敏感的問題；後來改用學習出來的 embedding 取代手刻特徵，並加了一個保底機制讓它保證不會比原本的方法差；最後還在真實的 Simu5G 模擬環境上驗證了這些發現，不只是紙上模擬。」
+      </div>
+    </section>
+
+    <section class="block" id="story">
+      <div class="block-head"><span class="block-num">02</span><h2>完整故事版本</h2></div>
+
+      <h3>起因</h3>
+      <p>我原本發表的方法(k-GBRM)是純粹用 CQI 做 k-means 分群，刻意只看通道品質、不看人數，避免把好使用者跟差使用者混在一起。但這個設計有先天限制：CQI 只是單一數字，看不到移動軌跡、歷史通道變化、或分組後實際會消耗多少資源。我想知道如果分群不只看 CQI，是不是真的能做得更好。</p>
+
+      <h3>核心概念</h3>
+      <p>先嘗試最直覺的做法──手動把更多資訊(每個使用者在各品質等級下需要的資源量)當特徵直接餵給 k-means，但這條路後來被自己的驗證推翻了。於是改用一個小型神經網路，先學出一個 embedding，再對 embedding 做 k-means──分群本質還是 k-means，只是依據的空間是學習出來的。訓練這個 embedding 需要「正解」當監督訊號，也就是每個情境下真正最優的分組方式。</p>
+
+      <h3>遇到的困難</h3>
+      <ol class="plain">
+        <li>算真正最優解太慢(窮舉需要 30 秒/情境)。後來發現這個問題有特殊結構(排序後最優解必為連續分段)，可以用動態規劃精確求解，把時間壓到 0.03 秒，快了一千倍，且是精確解不是近似。</li>
+        <li>手刻特徵餵給 k-means 不穩定──某些情境下贏 CQI，資源緊繃時卻輸得更多。深入查出是 k-means 對離群值敏感：少數通道極差的使用者的資源成本值會被裁切成同一個「不可行」的極端值，讓 k-means 誤把他們單獨挑出來，而不是在 CQI 真正該切的地方切。</li>
+        <li>即使換成學習出來的 embedding，仍會在少數情境下輸給純 CQI 分群──原因是每個訓練情境的樣本數有限，模型在「該不該把單一極端離群使用者獨立成一組」這種罕見邊界判斷上不夠穩定。解法是加一個保底機制：同時算 CQI 分群跟 embedding 分群兩者的真實效用，取較高的那個──這在數學上保證了「絕不會比 CQI 分群差」，因為 <code>E[max(X,Y)] ≥ max(E[X],E[Y])</code> 恆成立，且只要兩者存在交叉(沒有誰完全支配誰)就會嚴格更好。而這個效用比較機制其實就是原本論文 Algorithm 2「試過所有候選、挑效用最高者」的同一個設計原則往外推一層。</li>
+      </ol>
+
+      <h3>贏在哪裡</h3>
+      <p>整體平均贏 CQI 分群約 1%，但真正有意義的地方是：在 CQI 本身就有結構性盲點的情境(例如兩個使用者當下 CQI 接近但移動模式或通道歷史完全不同)，學出來的方法能贏 CQI 分群多達 10%，而且資源越緊繃差距越明顯；在 CQI 本身就足夠代表通道品質的一般情境，兩者表現持平，不會變差。不是「處處都好一點」，而是「在 CQI 看不到的地方，它能看到，其他地方不會變差」。</p>
+
+      <h3>真實資料驗證(補充深度用)</h3>
+      <p>除了合成模擬器，我還在真實的 Simu5G + SUMO(5G 網路模擬 + 車流模擬)環境上重新驗證了核心發現：resource-cost 分群法在 CQI 高度離散的真實情境下確實贏 CQI(+4% 左右)，在 CQI 集中(訊號普遍良好)的情境下所有方法趨於一致──這跟合成模擬器的結論、甚至跟我原論文對 low-dispersed 情境的結論方向一致，不是只在自己寫的模擬器裡才成立。</p>
+    </section>
+
+    <section class="block" id="tech">
+      <div class="block-head"><span class="block-num">03</span><h2>技術細節備查</h2></div>
+      <p><strong>LE-GRA 完整 pipeline：</strong>CQI 歷史(5 步)+資源成本向量 → 標準化 → 3 層 MLP(48→48→8 維，L2 normalize) → 對比學習(teacher 最優分組轉成 pairwise 標籤，同組拉近/異組推遠) → embedding 上做 k-means(k=1..Kmax 全試) → DP 選最優 k → 跟 CQI 分群比效用取較高者。</p>
+      <p><strong>訓練規模：</strong>每個訓練條件 60 個情境、6 個 epoch、每次抽樣最多 160 對正/負樣本、學習率 0.01──刻意輕量，方便解釋。</p>
+      <p><strong>exact DP 的定位：</strong>不是近似演算法，是精確解，前提是兩個結構假設──(1) 排序後最優解必為連續分段 (2) RB 是同質可互換資源(每組需要的 RB 數只跟選擇的品質等級有關，不跟哪些實體 RB 有關)。這兩個假設讓問題落在多項式可解的特例，不是文獻上證明 NP-hard 的一般情況。</p>
+    </section>
+
+    <section class="block" id="scope">
+      <div class="block-head"><span class="block-num">04</span><h2>誠實的邊界</h2></div>
+      <p>被問局限性時直接講，不用迴避：</p>
+      <div class="scope-wrap">
+        <table class="scope-table">
+          <tbody>
+            <tr><td>整體優勢幅度</td><td>平均只贏約 1%，不是壓倒性優勢，優勢集中在特定情境。</td></tr>
+            <tr><td>手刻特徵基線</td><td>resource-cost / multi-feature 已知不穩定，這是後續改用 embedding 的動機，不是遮起來的缺點。</td></tr>
+            <tr><td>真實資料樣本</td><td>只有 15 個樣本、單一次模擬(沒有多個亂數種子)，是方向性佐證，不是嚴謹的統計確認。</td></tr>
+            <tr><td>LE-GRA 於真實資料</td><td>沒有在真實資料上訓練測試過，15 個情境遠不夠訓練一個神經網路，這是誠實的 scope 邊界。</td></tr>
+            <tr><td>exact DP 的規模上限</td><td>使用者數到數百人以上會變慢(約 n^2.3 成長)，windowed 版本還在探索中，不用主動提。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="block" id="qa">
+      <div class="block-head"><span class="block-num">05</span><h2>常見追問 Q&amp;A</h2></div>
+      <div class="qa">
+        <div class="qa-card">
+          <p class="q">Q. 為什麼還要用 k-means？現在都用 deep learning 了。</p>
+          <p class="a">k-means 本身不是問題，問題是分群依據的特徵。我把 k-means 保留當作分群的最後一步(可解釋、確定性)，但讓一個學出來的 embedding 來決定分群依據的空間，而不是手動設計特徵。這樣兼顧可解釋性跟表達能力。</p>
+        </div>
+        <div class="qa-card">
+          <p class="q">Q. 你怎麼確定學出來的方法沒有過擬合、不會在真實環境失敗？</p>
+          <p class="a">三層驗證──(1) pre-registered、非搜尋式的合成模擬器驗證，涵蓋 5 種情境模式 x 3 種負載，Holm 校正；(2) 針對 resource-cost/multi-feature 的機制做過落地案例分析，不只看統計數字；(3) 在真實 Simu5G + SUMO 資料上重新驗證，方向一致。</p>
+        </div>
+        <div class="qa-card">
+          <p class="q">Q. 為什麼一開始選的手刻特徵方法後來被推翻？這代表方法論有問題嗎？</p>
+          <p class="a">不是方法論問題，是誠實回報負面結果的紀律──我先驗證了它不穩定，深入找出離群值敏感的具體機制，用實際案例展示原因，這個過程本身比一次就找到乾淨答案更能展現排查能力。</p>
+        </div>
+        <div class="qa-card">
+          <p class="q">Q. LE-GRA 會不會有時候比原本的 CQI 分群差？</p>
+          <p class="a">單獨用的話會，我量化過原因(訓練樣本有限、罕見邊界判斷不穩)，並加了一個保底機制(取兩者效用較高者)從結構上保證不會比 CQI 差，這個機制本身有數學證明支持。</p>
+        </div>
+        <div class="qa-card">
+          <p class="q">Q. 這個工作發表了嗎？</p>
+          <p class="a">沒有，這是我發表論文之後自己延伸做的探索，用來加深對這個問題的理解，不是投稿內容。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="redline">
+      <div class="block-head"><span class="block-num">06</span><h2>絕對紅線(誠信原則)</h2></div>
+      <div class="redline">
+        <ul class="plain">
+          <li>不要說 LE-GRA / resource-cost / exact DP / 真實 Simu5G 驗證是論文裡的內容──這些都是論文之後的個人延伸。</li>
+          <li>如果被問到論文細節但記不清楚，就誠實說「這部分要回去查一下論文」，不要臨場編造。</li>
+          <li>不要用「thesis 跟投稿版本不同」這類說法解釋任何不一致──誠實的「後續延伸」框架完全足夠，且沒有下檔風險。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="block" id="mantras">
+      <div class="block-head"><span class="block-num">07</span><h2>一句話記憶點</h2></div>
+      <div class="mantras">
+        <p class="mantra"><span class="idx">01</span>分群本質不變，但分群依據的空間從手刻特徵變成學出來的 embedding。</p>
+        <p class="mantra"><span class="idx">02</span>效用評估本來就是 k-GBRM 自己的設計原則，我只是多套用一層去選方法。</p>
+        <p class="mantra"><span class="idx">03</span>贏的地方不多，但贏在 CQI 真正看不到的地方，且結構上保證不會變差。</p>
+      </div>
+    </section>
+
+    <footer class="note">私人面試準備筆記，僅供反覆演練使用。</footer>
+  </main>
+</div>

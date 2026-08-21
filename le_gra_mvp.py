@@ -353,6 +353,24 @@ def generate_scenario(
         elif dispersion == "mid":
             distance = np.random.uniform(50, 320, size=n_users)
             base_cqi = 15.0 - distance / 65.0 + np.random.normal(0, 1.1, size=n_users)
+        elif dispersion == "mid_v2":
+            # Recalibrated mid-dispersed variant (2026-08-20): the original
+            # "mid" branch above never pushes worst-case CQI much below ~9
+            # (720-sample check: min=6, p5=9), so a single unified group's
+            # worst-user bottleneck stays "decent" and "no grouping" barely
+            # loses to grouped methods at mid dispersion -- unlike the
+            # published paper's own mid-dispersed condition, where Method C
+            # (no grouping) clearly collapses relative to k-GBRM (e.g. ADR
+            # ~22% of the best method). This variant widens the distance
+            # range and steepens the CQI-distance slope so a real low-CQI
+            # tail exists (p5~7, min~4-5) while keeping the median (~10-11)
+            # distinctly better than "high" (p50~8) and worse than "mid"
+            # above (p50~12) -- calibrated only against the resulting CQI
+            # histogram, not against any grouping-method comparison. Added
+            # as a new option rather than changing "mid" itself so every
+            # prior validation that used "mid" is unaffected.
+            distance = np.random.uniform(50, 380, size=n_users)
+            base_cqi = 15.0 - distance / 50.0 + np.random.normal(0, 1.3, size=n_users)
         elif dispersion == "low":
             distance = np.random.uniform(20, 120, size=n_users)
             base_cqi = 14.5 - distance / 160.0 + np.random.normal(0, 0.7, size=n_users)
@@ -951,6 +969,100 @@ def offline_teacher_groups_fast(
     cost_score = cost_vec.mean(axis=1)
     order = np.argsort(cost_score)
     return _offline_teacher_groups_fast_core(order, scenario.rb_available, scenario, max_groups, switch_beta)
+
+
+def offline_teacher_groups_multikey(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+) -> list[list[int]]:
+    """Ensemble of `offline_teacher_groups_fast` under a few different sort
+    orders, returning whichever achieves the highest utility.
+
+    `offline_teacher_groups_fast` only tries the resource-cost sort order.
+    Resource cost approximates channel quality, but the two diverge when many
+    users tie on CQI: at low CQI dispersion the resource-cost score is close
+    to noise among tied users, so a contiguous-by-cost DP can slice a CQI-tied
+    block into pieces that mix different CQI values, while a contiguous-by-CQI
+    DP would keep it intact (see project memory `teacher-contiguity-limitation`,
+    found via `validate_contiguity_assumption.py`). Trying a couple of
+    plausible sort keys and keeping the best is still exact only WITHIN each
+    key's own contiguous-partition space -- this narrows, but does not close,
+    the gap to a true global optimum. Use `offline_teacher_groups_bruteforce_exact`
+    for that, small-n only.
+    """
+
+    cost_vec = user_resource_cost_vector(scenario.rb_rates)
+    cost_score = cost_vec.mean(axis=1)
+    candidate_orders = [
+        np.argsort(cost_score),
+        np.argsort(scenario.cqi_now),
+        np.lexsort((cost_score, scenario.cqi_now)),
+    ]
+
+    best_groups = None
+    best_utility = -1e9
+    for order in candidate_orders:
+        groups = _offline_teacher_groups_fast_core(order, scenario.rb_available, scenario, max_groups, switch_beta)
+        result = allocate_and_evaluate(groups, scenario, switch_beta)
+        if result.utility > best_utility:
+            best_utility = result.utility
+            best_groups = groups
+    return best_groups
+
+
+def _all_partitions_upto_k(n_users: int, max_groups: int):
+    """Yield every partition of range(n_users) into 1..max_groups non-empty,
+    unordered groups exactly once, via restricted growth strings. Count grows
+    as sum_{j=1}^{max_groups} S(n_users, j) (Stirling 2nd kind) -- only
+    tractable for small n_users (roughly <= 12-13 at max_groups=3); this is a
+    validation tool, not something to call at production scale."""
+
+    labels = [0] * n_users
+
+    def rec(i: int, max_label_used: int):
+        if i == n_users:
+            groups: list[list[int]] = [[] for _ in range(max_label_used + 1)]
+            for user, label in enumerate(labels):
+                groups[label].append(user)
+            yield groups
+            return
+        upper = min(max_label_used, max_groups - 1)
+        for label in range(upper + 1):
+            labels[i] = label
+            yield from rec(i + 1, max(max_label_used, label + 1))
+
+    if n_users == 0:
+        return
+    labels[0] = 0
+    yield from rec(1, 1)
+
+
+def offline_teacher_groups_bruteforce_exact(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+) -> list[list[int]]:
+    """True global-optimum teacher: exhaustively evaluates EVERY partition of
+    the users into 1..max_groups non-empty groups (not just contiguous
+    segments after some sort order), and returns the utility-maximizing one.
+
+    This is the search `offline_teacher_groups`/`offline_teacher_groups_fast`
+    deliberately do NOT perform -- see their docstrings' contiguity assumption.
+    Combinatorially explosive (see `_all_partitions_upto_k`); only usable for
+    small scenarios (n_users roughly <= 12-13), as a validation baseline to
+    measure how much utility the contiguity assumption actually costs, not as
+    a deployable algorithm. See `validate_contiguity_assumption.py`."""
+
+    n_users = len(scenario.cqi_now)
+    best_groups = [list(range(n_users))]
+    best_utility = -1e9
+    for groups in _all_partitions_upto_k(n_users, max_groups):
+        result = allocate_and_evaluate(groups, scenario, switch_beta)
+        if result.utility > best_utility:
+            best_utility = result.utility
+            best_groups = groups
+    return best_groups
 
 
 def offline_teacher_groups_windowed(
