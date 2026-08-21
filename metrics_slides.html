@@ -115,6 +115,13 @@
   .insight { margin-top: 2px; padding: 13px 18px; background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; font-size: 0.9rem; color: var(--ink-2); }
   .insight strong { color: var(--ink); }
 
+  .formula-steps { display: flex; flex-direction: column; gap: 10px; }
+  .formula-step { background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; padding: 12px 18px; }
+  .formula-step .step-label { font-size: 0.76rem; color: var(--ink-muted); font-weight: 700; letter-spacing: 0.04em; margin-bottom: 5px; }
+  .formula-step .formula { font-family: "SF Mono", Consolas, "Cascadia Code", Menlo, monospace; font-size: 0.98rem; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.7; white-space: pre-wrap; }
+  .formula-step .formula .op { color: var(--ink-muted); }
+  .formula-step .note { margin: 6px 0 0; font-size: 0.82rem; color: var(--ink-2); }
+
   .table-toggle {
     align-self: flex-start; font-size: 0.76rem; color: var(--ink-2);
     background: none; border: 1px solid var(--grid); border-radius: 20px;
@@ -532,6 +539,60 @@ function buildTitleSlide() {
   return el;
 }
 
+function buildFormulaSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const steps = [
+    {
+      label: "1. 畫質分數 -- log-normalized bitrate (0~1)",
+      formula: "b(q) = ( ln R[q] - ln R[0] ) / ( ln R[5] - ln R[0] )\nR = [200, 550, 1500, 3000, 5800, 7500] kbps,  q ∈ {0..5}",
+      note: "用log而不是原始kbps，是刻意的邊際效益遞減設計：把一個人從200→550 kbps跟從5800→7500 kbps，在utility裡看起來一樣重要，而不是後者的\"kbps差距\"大就給更高分數——這也是後面\"CQI k-means的原始ADR能超過近似最優解\"的根本原因(它們優化的目標不一樣)。",
+    },
+    {
+      label: "2. 換頻懲罰 -- 這裡本來就有 video quality fluctuation",
+      formula: "switch_i(q) = | q - previous_quality_i | / 5",
+      note: "previous_quality_i 是使用者i上一次的畫質等級。這一項本來就存在於utility公式裡，只是是「單步」(跟上一次比)版本，不是「過去N步的變異數」版本。",
+    },
+    {
+      label: "3. 一個群組(multicast，共用同一個畫質q)的總價值",
+      formula: "若 q = -1 (未服務)：  V(G,q) = -2 × |G|\n若 q ≥ 0：          V(G,q) = Σ_{i∈G} [ b(q) - β·switch_i(q) ]",
+      note: "β = switch_beta，本專案實驗多數設 0.5。同一群組每個人分數不同，是因為每個人自己的previous_quality不同，即使拿到同一個畫質q，換頻懲罰也不同。",
+    },
+    {
+      label: "4. RB可行性 -- multicast worst-user約束",
+      formula: "群組在RB j的可用速率 = min_{i∈G} rate(i, j)   ← 最差成員決定\n把各RB速率由大到小排序，取前N個RB使總速率 ≥ R[q] 的最小N\n= RBneed(G, q)（若窮舉所有RB仍不夠，此畫質對這個群組不可行）",
+      note: "這就是「多人共用同一份廣播訊號，只能配到讓最差成員也能解碼的傳輸速率」的實體限制。",
+    },
+    {
+      label: "5. 最佳化 -- exact DP / multiple-choice knapsack",
+      formula: "max  Σ_k V(G_k, q_k)\ns.t. Σ_k RBneed(G_k, q_k) ≤ RB_available",
+      note: "每個群組是一個「物品類別」，每個畫質等級是一個「選項」，RB預算是背包容量——這是這個問題在「群組已固定」時可以用DP精確求解的原因。offline teacher做的事，是連分組本身也一起窮舉(但只窮舉「依資源成本排序後的連續切割」，見前頁「近似最優解」說明)，取整體utility最高的分組+畫質組合。",
+    },
+    {
+      label: "6. 最終回報的 utility 指標",
+      formula: "utility = ( 1 / n ) × Σ_k V(G_k, q_k)          ← 每人平均效用",
+      note: "投影片其他每一頁的\"utility\"數字，都是這個式子在不同方法/離散度下算出來的平均值。",
+    },
+  ];
+  el.innerHTML = `
+    <div class="card" style="align-items:flex-start;">
+      <span class="kicker">目標函數</span>
+      <h2 class="slide-title">Utility 公式：系統實際在優化什麼</h2>
+      <p class="subtitle">出自 <code>le_gra_mvp.py</code> 的 <code>group_quality_value</code> / <code>normalized_bitrate_score</code> / <code>allocate_and_evaluate</code>。這是一個「公平性加權的log-bitrate效用」，不是原始平均速率(ADR)——這也是後面幾頁「CQI在ADR/頻譜效率上贏過近似最優解」看起來矛盾、但其實是優化目標不同的根本原因。</p>
+      <div class="formula-steps">
+        ${steps.map(s => `
+          <div class="formula-step">
+            <div class="step-label">${s.label}</div>
+            <div class="formula">${s.formula}</div>
+            <p class="note">${s.note}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  return el;
+}
+
 function buildTakeawaySlide() {
   const el = document.createElement("div");
   el.className = "slide";
@@ -555,6 +616,7 @@ function buildTakeawaySlide() {
 const slidesEl = document.getElementById("slides");
 const slideEls = [
   buildTitleSlide(),
+  buildFormulaSlide(),
   ...METRIC_META.map(buildDispersionMetricSlide),
   buildUserCountSlide(),
   buildPooledReferenceSlide(),
