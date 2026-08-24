@@ -14,6 +14,7 @@ fair_input_dataset_v1/
 real_simu5g_multiseed_data/**/coupled.sca
 real_simu5g_multiseed_data/**/coupled.vec
 real_simu5g_multiseed_data/**/coupled.vci
+real_simu5g_multiseed_data/**/scenario/gui-settings.xml
 
 # Generated temporary experiments and debug dumps
 _tmp_*/
