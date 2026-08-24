@@ -18,8 +18,8 @@ pattern -- this is the plain single-vehicle-type, 4-direction design that
 predates the "targeted family" scenario redesigns.
 
 What this script does NOT attempt: training a fresh LE-GRA model on this
-data. One 35s run yields ~26 usable one-second snapshots after all 24
-vehicles have departed and 5 steps of history are available -- nowhere near
+data. One 90s run yields 15 usable one-second snapshots where all 24 vehicles
+have complete 25-band coverage and 5 steps of history -- nowhere near
 enough to split into a meaningful train/test set for a neural net (the
 synthetic protocol uses 60-90 training scenarios per condition). Only the
 non-learned baselines (CQI k-means, resource-cost k-means, multi-feature
@@ -28,8 +28,8 @@ more simulation runs, which is out of scope for this pass.
 
 Modeling choices (disclosed, not hidden)
 ------------------------------------------
-- `wideband_cqi` in the export is always 0 (not populated by the custom
-  logger) -- this script derives a wideband CQI proxy as
+- Native `wideband_cqi` is unavailable in the restored recorder export, so
+  this script derives a wideband CQI proxy as
   round(mean(per-band CQI)) per user per snapshot, clipped to [1, 15].
 - Per-band CQI within a 1-second bucket uses the LAST report in that bucket
   (closest to "the most recent CQI report as of this allocation cycle"),

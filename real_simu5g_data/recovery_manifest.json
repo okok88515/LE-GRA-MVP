@@ -1,0 +1,72 @@
+{
+  "recovery_date": "2026-08-24",
+  "purpose": "Restore the three P3.7 raw radio exports that were referenced by the parser but absent from the repository and WSL output workspace.",
+  "environment": {
+    "wsl_distribution": "LE-GRA-opp-env",
+    "workspace": "/home/opp_env/p3_5_workspace",
+    "omnetpp": "6.3.0 build 251110-bb3d6a4731",
+    "inet": "4.6.0",
+    "simu5g": "1.4.3",
+    "veins": "5.3.1",
+    "configuration": "P3_7_Clean_DL",
+    "simulation_time_limit_s": 90,
+    "users": 24,
+    "bands": 25
+  },
+  "scenario_reconstruction": {
+    "base_network": "simu5g-1.4.3/simulations/nr/cars/heterogeneous.net.xml",
+    "base_gui": "simu5g-1.4.3/simulations/nr/cars/gui-settings.xml",
+    "launch_and_sumo_config": "p3_6_coupled_scenario",
+    "route": "real_simu5g_data/heterogeneous.rou.xml",
+    "runner": "real_simu5g_data/run_p3_7.sh",
+    "notes": "The Windows runner copy was converted from CRLF to LF only inside the WSL recovery directory. Source and compiled libraries already contained the P3.5 radio and mobility recorder hooks."
+  },
+  "source_sha256": {
+    "omnetpp.ini": "DE27656CA2EF7F33D0141C42E33D254FD64A2C723E949025A32C8866984545A2",
+    "omnetpp_mid.ini": "00F6AA27DE240AC45D2C9FA91B1CC759EBDD8999DDA65D58222DB253317853D6",
+    "omnetpp_high.ini": "60C9DD1E33C21C9DEF703449B2577CA974300D48F709AD700AD7ADBE98944B30",
+    "heterogeneous.rou.xml": "57855A790C6C477F2068B78079716540C793477A67106B5F2719DDE98BC4D97E",
+    "run_p3_7.sh": "8F76A60E0AC260E77A7AD98A938F37481A41BEF7365ECF51CF688C6380DCF2B3",
+    "simu5g_p3_5_module_path.patch": "2DDFC7B7D5FFFDA9B8D775CE68D6A048DB01D8355809981DC889EB15F51C2D1A",
+    "veins_p3_5_mobility_recorder.patch": "BAE3A597447C6B50B8BA93DD0D3CB19F892E43DE881C7CC5E46DA1100745CD43"
+  },
+  "outputs": {
+    "low": {
+      "radio_file": "raw_radio.csv",
+      "radio_rows_including_header": 4593276,
+      "radio_bytes": 196728860,
+      "radio_sha256": "3B9010259FEE6CE95E4FDC8008FC5D6592EE0D4EBA5F3D3995A6978937B8FA02",
+      "mobility_file": "raw_mobility.csv",
+      "mobility_rows_including_header": 11001,
+      "mobility_sha256": "C6DCA4A2FBC5B98F744885C55EC9BEB23CF09605FE41E403A5B5386E37F0D83C"
+    },
+    "mid": {
+      "radio_file": "mid_raw_radio.csv",
+      "radio_rows_including_header": 4593276,
+      "radio_bytes": 193941919,
+      "radio_sha256": "3468EB3C43A20F64F2AC03C3EC9D3524914A2FD848FE5EFC509288AADA8B93CB",
+      "mobility_file": "mid_raw_mobility.csv",
+      "mobility_rows_including_header": 11001,
+      "mobility_sha256": "C6DCA4A2FBC5B98F744885C55EC9BEB23CF09605FE41E403A5B5386E37F0D83C"
+    },
+    "high": {
+      "radio_file": "high_raw_radio.csv",
+      "radio_rows_including_header": 4593276,
+      "radio_bytes": 190294028,
+      "radio_sha256": "6535AB3D4AE999685C74BA9D5AD8B6BA76845C939091AE18F0C5E648C9D1639B",
+      "mobility_file": "high_raw_mobility.csv",
+      "mobility_rows_including_header": 11001,
+      "mobility_sha256": "C6DCA4A2FBC5B98F744885C55EC9BEB23CF09605FE41E403A5B5386E37F0D83C"
+    }
+  },
+  "parser_validation": {
+    "usable_scenarios_per_dispersion": 15,
+    "users_per_scenario": 24,
+    "bands_per_user": 25,
+    "history_steps": 5,
+    "low_cqi_mean_std": [14.786, 0.523],
+    "mid_cqi_mean_std": [12.692, 2.137],
+    "high_cqi_mean_std": [9.425, 3.105],
+    "real_validation_results_matches_committed_table": true
+  }
+}
