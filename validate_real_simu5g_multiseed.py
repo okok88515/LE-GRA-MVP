@@ -1,0 +1,181 @@
+"""Validate protocol-v3 real Simu5G runs and write aggregate QA artifacts."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+from collections import defaultdict
+from pathlib import Path
+
+import numpy as np
+
+from parse_real_simu5g_data import build_scenarios
+
+
+DISPERSIONS = ("low", "mid", "high")
+EXPECTED_SEEDS = tuple(range(1, 11))
+RB_RATIO = {"low": 0.5, "mid": 0.5, "high": 0.5}
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(4 * 1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def validate(root: Path) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    mobility_by_seed: dict[int, set[str]] = defaultdict(set)
+    route_metadata_by_seed: dict[int, set[str]] = defaultdict(set)
+
+    for seed in EXPECTED_SEEDS:
+        for dispersion in DISPERSIONS:
+            run_dir = root / dispersion / f"seed_{seed:04d}"
+            manifest_path = run_dir / "run_manifest.json"
+            if not manifest_path.is_file():
+                raise AssertionError(f"missing manifest: {manifest_path}")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+            if manifest["status"] != "complete":
+                raise AssertionError(f"run is not complete: {run_dir}")
+            if manifest["protocol_version"] != "3.0":
+                raise AssertionError(f"wrong protocol version: {run_dir}")
+            if manifest["seed"] != seed or manifest["dispersion"] != dispersion:
+                raise AssertionError(f"manifest identity mismatch: {run_dir}")
+            if manifest["omnetpp_seed_set"] != seed or manifest["sumo_seed"] != seed:
+                raise AssertionError(f"seed mismatch: {run_dir}")
+            # Seeded vehicle speeds change how long cars remain in the scene,
+            # so total row counts are expected to vary. These lower bounds
+            # catch truncation; the parser completeness gate below is the
+            # authoritative learner-facing check.
+            if manifest["radio"]["rows_including_header"] < 4_500_000:
+                raise AssertionError(f"radio export appears truncated: {run_dir}")
+            if manifest["mobility"]["rows_including_header"] < 10_000:
+                raise AssertionError(f"mobility export appears truncated: {run_dir}")
+
+            radio_path = run_dir / manifest["radio"]["file"]
+            mobility_path = run_dir / manifest["mobility"]["file"]
+            for path, section in (
+                (radio_path, manifest["radio"]),
+                (mobility_path, manifest["mobility"]),
+            ):
+                actual = sha256_file(path)
+                if actual != section["gzip_sha256"]:
+                    raise AssertionError(f"gzip hash mismatch: {path}")
+
+            mobility_hash = manifest["mobility"]["uncompressed_sha256"]
+            mobility_by_seed[seed].add(mobility_hash)
+            metadata_path = run_dir / "scenario" / "mobility_seed.json"
+            route_metadata_by_seed[seed].add(sha256_file(metadata_path))
+
+            scenarios = build_scenarios(
+                RB_RATIO[dispersion],
+                radio_path=radio_path,
+                mobility_path=mobility_path,
+            )
+            if len(scenarios) != 15:
+                raise AssertionError(
+                    f"expected 15 complete scenarios, got {len(scenarios)}: {run_dir}"
+                )
+            cqi = np.concatenate([scenario.cqi_now for scenario in scenarios])
+            rows.append(
+                {
+                    "dispersion": dispersion,
+                    "seed": seed,
+                    "usable_scenarios": len(scenarios),
+                    "users": int(scenarios[0].cqi_now.size),
+                    "bands": int(scenarios[0].rb_rates.shape[1]),
+                    "history_steps": int(scenarios[0].cqi_history.shape[1]),
+                    "cqi_mean": float(cqi.mean()),
+                    "cqi_std": float(cqi.std()),
+                    "cqi_min": int(cqi.min()),
+                    "cqi_p05": float(np.quantile(cqi, 0.05)),
+                    "cqi_median": float(np.median(cqi)),
+                    "cqi_p95": float(np.quantile(cqi, 0.95)),
+                    "cqi_max": int(cqi.max()),
+                    "duration_s": int(manifest["duration_s"]),
+                    "radio_gzip_bytes": radio_path.stat().st_size,
+                    "mobility_gzip_bytes": mobility_path.stat().st_size,
+                    "radio_uncompressed_sha256": manifest["radio"]["uncompressed_sha256"],
+                    "mobility_uncompressed_sha256": mobility_hash,
+                }
+            )
+            print(
+                f"PASS {dispersion}/seed_{seed:04d}: scenarios=15 "
+                f"CQI={cqi.mean():.3f}+/-{cqi.std():.3f}",
+                flush=True,
+            )
+
+    for seed in EXPECTED_SEEDS:
+        if len(mobility_by_seed[seed]) != 1:
+            raise AssertionError(
+                f"seed {seed}: low/mid/high do not share one mobility trajectory"
+            )
+        if len(route_metadata_by_seed[seed]) != 1:
+            raise AssertionError(
+                f"seed {seed}: low/mid/high route metadata differs"
+            )
+    if len({next(iter(mobility_by_seed[seed])) for seed in EXPECTED_SEEDS}) != 10:
+        raise AssertionError("expected 10 unique mobility trajectories across seeds")
+    if len({next(iter(route_metadata_by_seed[seed])) for seed in EXPECTED_SEEDS}) != 10:
+        raise AssertionError("expected 10 unique generated route profiles across seeds")
+    return rows
+
+
+def write_outputs(root: Path, rows: list[dict[str, object]]) -> None:
+    csv_path = root / "multiseed_qa.csv"
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+    by_dispersion: dict[str, dict[str, float]] = {}
+    for dispersion in DISPERSIONS:
+        subset = [row for row in rows if row["dispersion"] == dispersion]
+        by_dispersion[dispersion] = {
+            "runs": len(subset),
+            "usable_scenarios": sum(int(row["usable_scenarios"]) for row in subset),
+            "mean_of_run_cqi_means": float(np.mean([row["cqi_mean"] for row in subset])),
+            "mean_of_run_cqi_stds": float(np.mean([row["cqi_std"] for row in subset])),
+            "min_run_cqi_mean": float(np.min([row["cqi_mean"] for row in subset])),
+            "max_run_cqi_mean": float(np.max([row["cqi_mean"] for row in subset])),
+        }
+
+    aggregate = {
+        "dataset": "real_simu5g_multiseed_data",
+        "protocol_version": "3.0",
+        "status": "validated",
+        "dispersions": list(DISPERSIONS),
+        "seeds": list(EXPECTED_SEEDS),
+        "runs": len(rows),
+        "usable_scenarios": sum(int(row["usable_scenarios"]) for row in rows),
+        "unique_mobility_trajectories": 10,
+        "same_mobility_across_dispersions_for_each_seed": True,
+        "by_dispersion": by_dispersion,
+        "qa_csv": csv_path.name,
+    }
+    (root / "aggregate_manifest.json").write_text(
+        json.dumps(aggregate, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "root", type=Path, nargs="?", default=Path("real_simu5g_multiseed_data")
+    )
+    args = parser.parse_args()
+    rows = validate(args.root)
+    write_outputs(args.root, rows)
+    print(
+        f"MULTISEED_QA_PASS runs={len(rows)} scenarios="
+        f"{sum(int(row['usable_scenarios']) for row in rows)}"
+    )
+
+
+if __name__ == "__main__":
+    main()

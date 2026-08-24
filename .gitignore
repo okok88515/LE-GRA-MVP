@@ -9,6 +9,12 @@ opp_env.wsl
 raw_radio_diag.csv
 fair_input_dataset_v1/
 
+# Per-run OMNeT++ scalar/vector auxiliaries are reproducible and not consumed
+# by the learner-facing parser. Raw radio/mobility CSV archives remain tracked.
+real_simu5g_multiseed_data/**/coupled.sca
+real_simu5g_multiseed_data/**/coupled.vec
+real_simu5g_multiseed_data/**/coupled.vci
+
 # Generated temporary experiments and debug dumps
 _tmp_*/
 _tmp_*.csv

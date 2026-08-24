@@ -45,8 +45,10 @@ Modeling choices (disclosed, not hidden)
 from __future__ import annotations
 
 import csv
+import gzip
 import re
 from pathlib import Path
+from typing import TextIO
 
 import numpy as np
 
@@ -59,13 +61,21 @@ GNB_POS = {1: (200.0, 80.0), 2: (200.0, 320.0)}
 CAR_RE = re.compile(r"car\[(\d+)\]")
 
 
+def open_csv_text(path: Path) -> TextIO:
+    """Open either an ordinary CSV or a per-run gzip archive as text."""
+
+    if path.suffix == ".gz":
+        return gzip.open(path, mode="rt", encoding="utf-8", newline="")
+    return path.open(encoding="utf-8", newline="")
+
+
 def load_radio(path: Path) -> dict[tuple[int, int], dict[int, int]]:
     """Return {(bucket_second, car_index): {band_index: cqi}} using the last
     report per (bucket, car, band)."""
 
     data: dict[tuple[int, int], dict[int, int]] = {}
     gnb_of: dict[tuple[int, int], int] = {}
-    with path.open(encoding="utf-8") as f:
+    with open_csv_text(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
             car = int(CAR_RE.search(row["ue_module_path"]).group(1))
@@ -81,7 +91,7 @@ def load_mobility(path: Path) -> dict[tuple[int, int], tuple[float, float, float
     closest to each integer second."""
 
     best: dict[tuple[int, int], tuple[float, float, float, float]] = {}
-    with path.open(encoding="utf-8") as f:
+    with open_csv_text(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
             t = float(row["timestamp_s"])

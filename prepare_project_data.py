@@ -29,6 +29,7 @@ LFS_FILES = (
     "real_simu5g_data/raw_radio.csv",
     "real_simu5g_data/mid_raw_radio.csv",
     "real_simu5g_data/high_raw_radio.csv",
+    "real_simu5g_multiseed_data/**",
 )
 
 
