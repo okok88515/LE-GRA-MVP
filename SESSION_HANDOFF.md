@@ -1,6 +1,132 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-21
+Last updated: 2026-08-25
+
+## CURRENT HANDOFF — 2026-08-25 (AUTHORITATIVE; READ THIS FIRST)
+
+This section supersedes every older "recommended next step" in the historical
+log below. The old sections remain only as research provenance.
+
+### Current objective
+
+The goal is not to minimize computation. The goal is to find a useful,
+defensible grouping insight that can beat the published CQI k-means baseline.
+The comparison must remain fair: all methods may access the same predeclared
+input variables and use the same utility, RB budgets, group-count constraints,
+and downstream allocation. Only the grouping algorithm may differ.
+
+Do not change utility weights or method inputs after seeing the result of one
+method. Freeze the protocol first.
+
+### Data completed this session
+
+1. The missing original P3.7 Simu5G radio exports were reconstructed and
+   versioned through Git LFS.
+2. The reproducible fair-input benchmark pipeline is complete:
+   - generated locally as `fair_input_dataset_v1/`
+   - 16,200 scenarios in 9 compressed NumPy shards
+   - intentionally ignored because fixed seeds can rebuild it
+3. The real Simu5G protocol-v3 multi-seed dataset is complete:
+   - path: `real_simu5g_multiseed_data/`
+   - seeds: `1..10`
+   - dispersions: `low`, `mid`, `high`
+   - 30 separately preserved simulator runs
+   - 15 complete snapshots per run
+   - 450 learner-facing scenarios total
+   - 24 users, 25 bands, 5 CQI history steps
+   - 10 distinct mobility trajectories
+   - for each seed, low/mid/high share the same mobility input and differ only
+     in radio power
+4. Full QA passed:
+   - `MULTISEED_QA_PASS runs=30 scenarios=450`
+   - gzip hashes and run manifests verified
+   - 10 unique mobility hashes across seeds
+   - one shared mobility hash across dispersions within each seed
+
+Authoritative machine-readable summaries:
+
+- `real_simu5g_multiseed_data/aggregate_manifest.json`
+- `real_simu5g_multiseed_data/multiseed_qa.csv`
+- `REAL_SIMU5G_MULTISEED.md`
+- `REAL_SIMU5G_DATA_COMPLETION.md`
+
+Aggregate CQI mean / mean within-run standard deviation:
+
+- low: `14.761 / 0.602` (still strongly saturated near CQI 15)
+- mid: `12.583 / 2.182`
+- high: `9.188 / 3.010`
+
+### Git state at handoff
+
+Everything above is committed and pushed to `origin/main`:
+
+- `4dd6dd2` — Add reproducible Simu5G multi-seed protocol
+- `9906a6e` — Add validated 10-seed Simu5G dataset
+
+The three legacy mobility CSVs may appear as modified on Windows because of
+line-ending detection. Their Git object hash and file-content hash are
+unchanged; do not commit those false-positive modifications.
+
+### Tomorrow: exact startup on the other computer
+
+```powershell
+git pull
+git lfs install
+python .\prepare_project_data.py
+python .\validate_real_simu5g_multiseed.py
+```
+
+`prepare_project_data.py` hydrates both the original real Simu5G inputs and
+the protocol-v3 multi-seed LFS archive, verifies the original hashes, and
+builds/validates `fair_input_dataset_v1` when absent. The full multi-seed
+validator takes several minutes because it parses all 30 runs.
+
+If cloning from scratch, follow `OTHER_MACHINE_QUICKSTART.md` first.
+
+### Next implementation task
+
+Build `run_real_multiseed_baseline.py` and run the non-learned fair comparison
+before training LE-GRA.
+
+Required matrix:
+
+- methods: CQI k-means, resource-cost k-means, multi-feature k-means
+- dispersions: low, mid, high
+- loads: light, medium, heavy
+- simulation seeds: 1..10
+- same utility, variables, K constraints, RB budget, and allocation for all
+  methods
+
+Required output and statistical unit:
+
+1. Average the 15 adjacent snapshots within each run first.
+2. Treat the simulation seed/trajectory as the independent unit (`n=10` per
+   dispersion), never the 450 adjacent snapshots.
+3. Report paired
+   `delta_utility = method_utility - cqi_kmeans_utility` per seed.
+4. Report mean, median, seed-level bootstrap 95% CI, win rate, and worst case.
+5. Break utility into its declared components so any improvement can be
+   explained as a real insight rather than only a scalar score.
+
+Decision order:
+
+1. Determine whether resource-cost or multi-feature grouping consistently
+   beats CQI k-means on real multi-seed data.
+2. Identify the dispersion/load regime and utility component causing the gain.
+3. Only then train LE-GRA to reproduce or improve that signal.
+4. If neither non-learned method wins, inspect the frozen utility and feature
+   sufficiency before redesigning the learner.
+
+### Remaining limitations — do not overclaim
+
+- Ten seeds complete the exploratory target; 20 seeds remain the target for a
+  confirmatory statistical claim.
+- `previous_quality` is still not a measured application-layer state.
+- Native wideband CQI is unavailable; the parser uses the disclosed mean
+  per-band CQI proxy.
+- RSRP, RSRQ, SINR, and MCS remain unavailable for this dataset.
+- Low dispersion has a ceiling effect and should eventually gain a
+  low-dispersion but non-saturated companion condition.
 
 ## READ THIS FIRST (2026-08-21 correction -- supersedes the TL;DR below)
 

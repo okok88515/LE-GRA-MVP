@@ -1,6 +1,22 @@
 # Company Machine Quickstart
 
-Last updated: 2026-08-06
+Last updated: 2026-08-25
+
+## 2026-08-25 current-status notice
+
+This file remains the company-machine **simulator environment** checklist.
+Its older research-priority statements below are historical and are no longer
+the authoritative project handoff.
+
+The real protocol-v3 dataset is now complete and pushed to GitHub:
+
+- 10 seeds × low/mid/high = 30 runs
+- 450 complete learner-facing scenarios
+- latest dataset commit: `9906a6e`
+
+For the current research state and tomorrow's exact next task, read the top of
+`SESSION_HANDOFF.md`. For cloning, Git LFS hydration, and data validation, use
+`OTHER_MACHINE_QUICKSTART.md`.
 
 This note is the practical day-to-day checklist for using the company machine
 as the P3.5/P3.6 coupled-simulation workstation.
