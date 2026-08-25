@@ -65,6 +65,9 @@ METHODS = {
     "CQI+cost+joint 3-way union": lambda s: mvp.cqi_resource_joint_hybrid_kmeans_grouping(
         s, KMAX, SWITCH_BETA, KMEANS_N_INIT
     ),
+    "CQI+cost+switching 3-way union (no joint)": lambda s: mvp.cqi_cost_switching_hybrid_kmeans_grouping(
+        s, KMAX, SWITCH_BETA, KMEANS_N_INIT
+    ),
     "CQI+cost+joint+switching 4-way union": lambda s: mvp.cqi_resource_switching_hybrid_kmeans_grouping(
         s, KMAX, SWITCH_BETA, KMEANS_N_INIT
     ),

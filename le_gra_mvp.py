@@ -2470,11 +2470,21 @@ def cqi_resource_switching_hybrid_kmeans_grouping(
     kmeans_n_init: int = 10,
     kmeans_seed: int = 0,
 ) -> list[list[int]]:
-    """`cqi_resource_joint_hybrid_kmeans_grouping`'s 3-way union (CQI + cost +
-    joint[CQI,cost]) plus a FOURTH candidate family clustered on joint
-    [CQI, previous_quality] -- so users who currently share a similar viewing
-    state (and thus a similar switching cost for whatever tier the group ends
-    up assigned) can be grouped together.
+    """SUPERSEDED 2026-08-25 by `cqi_cost_switching_hybrid_kmeans_grouping`
+    (the adopted final method) -- kept for the ablation history/comparison,
+    not the current headline. `cqi_resource_joint_hybrid_kmeans_grouping`'s
+    3-way union (CQI + cost + joint[CQI,cost]) plus a FOURTH candidate family
+    clustered on joint [CQI, previous_quality] -- so users who currently
+    share a similar viewing state (and thus a similar switching cost for
+    whatever tier the group ends up assigned) can be grouped together.
+
+    The joint[CQI,cost] family this function still includes was found to
+    contribute negligibly once switching is also in the pool (identical to
+    the joint-free 3-way on 600/600 low-dispersion scenarios, 30/600 at high
+    dispersion, material only at mid dispersion at +0.0076) -- see
+    `cqi_cost_switching_hybrid_kmeans_grouping`'s docstring for the full
+    comparison. Not worth the extra k-means run + DP pass per scenario, so
+    the simpler 3-way (no joint) is the adopted method going forward.
 
     Motivation (2026-08-25): the user's published paper's original method
     never considered quality-switching stability -- CQI/cost/joint clustering
@@ -2513,6 +2523,50 @@ def cqi_resource_switching_hybrid_kmeans_grouping(
         kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
         + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
         + kmeans_candidate_groups(joint_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(switching_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
+def cqi_cost_switching_hybrid_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """THE ADOPTED FINAL METHOD (2026-08-25): 3-way union WITHOUT the
+    joint[CQI,cost] family -- CQI + resource-cost + switching-aware
+    joint[CQI, previous_quality]. Skips the family used by
+    `cqi_resource_joint_hybrid_kmeans_grouping`.
+
+    Added 2026-08-25 to test the user's suspicion that the candidate pool
+    (which had grown to 4 named families -- see project memory
+    `paper-hybrid-candidate-method`) included a variable that wasn't pulling
+    its weight. Of the two "extra" families beyond the paper's own 2-way
+    method (joint[CQI,cost] and switching), joint[CQI,cost] was the weaker
+    candidate: it recombines features already covered by CQI/cost alone (no
+    new information source, unlike switching's previous_quality axis), and
+    its marginal contribution to the 4-way union was negligible at 2 of 3
+    dispersions -- confirmed by direct per-scenario comparison against
+    `cqi_resource_switching_hybrid_kmeans_grouping` (the 4-way, WITH joint):
+    at low dispersion the two are IDENTICAL on all 600/600 scenarios (joint
+    is never selected there); at high dispersion joint is selected in only
+    30/600 (5%) scenarios (+0.0009 mean utility); only at mid dispersion is
+    the effect material (209/600 scenarios, +0.0076, ~1% of mean utility).
+    Adopted as the final method 2026-08-25: the simplification (one fewer
+    k-means run + DP pass per scenario) was judged worth this small cost.
+    Still zero losses vs plain CQI k-means at every dispersion (low
+    555win/45tie/0loss, mid 515/85/0, high 295/305/0).
+    """
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    switching = np.column_stack([cqi_rep, scenario.previous_quality.reshape(-1, 1).astype(float)])
+    switching_rep = ((switching - switching.mean(axis=0)) / (switching.std(axis=0) + 1e-6)).astype(np.float32)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
         + kmeans_candidate_groups(switching_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
     )
     return best_candidate_groups(scenario, candidates, switch_beta)
