@@ -2395,6 +2395,71 @@ def cqi_resource_hybrid_kmeans_grouping(
     return best_candidate_groups(scenario, candidates, switch_beta)
 
 
+def cqi_resource_joint_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Alternative to `cqi_resource_hybrid_kmeans_grouping`: instead of a
+    UNION of two separate candidate families (one k-means run per
+    representation), concatenate CQI and the resource-cost vector into ONE
+    z-scored feature space and run a SINGLE k-means++ family on it (still
+    k=1..Kmax, still scored/selected by the same exact-DP utility).
+
+    Added 2026-08-25 to directly answer "why not just joint-cluster on both
+    variables instead of unioning two separate clusterings?" -- see project
+    memory `paper-hybrid-candidate-method`. This is mechanistically close to
+    `multi_feature_kmeans_grouping` (also a single joint-feature-space
+    clustering, just with a broader feature set) -- which is already known
+    to sometimes lose to CQI k-means at high dispersion. Kept for direct,
+    controlled comparison against the union approach using ONLY the same two
+    variables (no extra mobility/rb_stats features multi-feature also has),
+    to isolate whether "union of separate clusterings" vs "one joint
+    clustering" is itself the deciding factor, independent of feature-set
+    breadth.
+    """
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    joint = np.column_stack([cqi_rep, cost_rep])
+    normalized = ((joint - joint.mean(axis=0)) / (joint.std(axis=0) + 1e-6)).astype(np.float32)
+    return best_kmeans_groups(
+        scenario, normalized, max_groups, switch_beta,
+        kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++",
+    )
+
+
+def cqi_resource_joint_hybrid_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """`cqi_resource_hybrid_kmeans_grouping`'s 2-way union (CQI candidates +
+    resource-cost candidates) plus a THIRD candidate family from the joint
+    [CQI, resource-cost] clustering used by
+    `cqi_resource_joint_kmeans_grouping` (which underperforms alone -- see
+    project memory `paper-hybrid-candidate-method` -- but a union can only
+    ever do as well as or better than its best single family, since
+    `best_candidate_groups` always keeps whichever candidate actually scores
+    highest). Added 2026-08-25 to test whether adding the joint-clustering
+    family closes any of the 2-way union's remaining losses."""
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    joint = np.column_stack([cqi_rep, cost_rep])
+    joint_rep = ((joint - joint.mean(axis=0)) / (joint.std(axis=0) + 1e-6)).astype(np.float32)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        + kmeans_candidate_groups(joint_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
 def cqi_resource_rbprofile_hybrid_kmeans_grouping(
     scenario: Scenario,
     max_groups: int,

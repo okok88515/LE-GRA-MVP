@@ -59,7 +59,13 @@ METHODS = {
     "Multi-feature k-means (k-means++)": lambda s: mvp.best_kmeans_groups(
         s, _multi_feature_rep(s), KMAX, SWITCH_BETA, kmeans_n_init=KMEANS_N_INIT, init="kmeans++",
     ),
-    "CQI+resource-cost hybrid (paper method)": lambda s: mvp.cqi_resource_hybrid_kmeans_grouping(
+    "CQI+resource-cost joint k-means (single clustering)": lambda s: mvp.cqi_resource_joint_kmeans_grouping(
+        s, KMAX, SWITCH_BETA, KMEANS_N_INIT
+    ),
+    "CQI+resource-cost hybrid (paper method, union)": lambda s: mvp.cqi_resource_hybrid_kmeans_grouping(
+        s, KMAX, SWITCH_BETA, KMEANS_N_INIT
+    ),
+    "CQI+cost+joint 3-way union": lambda s: mvp.cqi_resource_joint_hybrid_kmeans_grouping(
         s, KMAX, SWITCH_BETA, KMEANS_N_INIT
     ),
 }
