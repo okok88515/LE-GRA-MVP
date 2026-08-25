@@ -68,6 +68,7 @@ METHODS = {
     "CQI+cost+joint 3-way union": lambda s: mvp.cqi_resource_joint_hybrid_kmeans_grouping(
         s, KMAX, SWITCH_BETA, KMEANS_N_INIT
     ),
+    "Offline teacher (near-optimal, multikey)": lambda s: mvp.offline_teacher_groups_multikey(s, KMAX, SWITCH_BETA),
 }
 
 
@@ -92,6 +93,7 @@ def main() -> None:
                     rows.append({
                         "dispersion": dispersion, "seed": seed, "scenario_index": scenario_index,
                         "method": name, "utility": result.utility, "adr_kbps": result.adr_kbps,
+                        "fairness": result.fairness,
                     })
         progress(f"  dispersion={dispersion} done")
 
@@ -110,15 +112,17 @@ def main() -> None:
             sub = [r for r in cell if r["method"] == name]
             u = np.array([r["utility"] for r in sub])
             adr = np.array([r["adr_kbps"] for r in sub])
+            fair = np.array([r["fairness"] for r in sub])
             diff = u - cqi_u
             summary_rows.append({
                 "dispersion": dispersion, "method": name,
                 "mean_utility": float(u.mean()), "mean_adr_kbps": float(adr.mean()),
+                "mean_fairness": float(fair.mean()),
                 "mean_diff_vs_cqi": float(diff.mean()),
                 "win": int((diff > 1e-9).sum()), "tie": int((np.abs(diff) <= 1e-9).sum()), "loss": int((diff < -1e-9).sum()),
             })
             progress(
-                f"  {dispersion:8s} {name:42s} mean_utility={u.mean():+.4f} "
+                f"  {dispersion:8s} {name:42s} mean_utility={u.mean():+.4f} mean_adr={adr.mean():8.1f} mean_fairness={fair.mean():.4f} "
                 f"diff_vs_cqi={diff.mean():+.5f} win={int((diff>1e-9).sum())} "
                 f"tie={int((np.abs(diff)<=1e-9).sum())} loss={int((diff<-1e-9).sum())} (/{len(sub)})"
             )
