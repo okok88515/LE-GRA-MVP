@@ -1,90 +1,78 @@
 # Prompt for the next Codex session
 
-把下面這段直接貼給下一個 Codex / Claude 使用：
+把下面這段直接貼給下一個 Codex 使用：
 
 ```text
-請先完整閱讀這個 LE-GRA-MVP 專案的最新研究交接，不要一開始就擴大實驗，也不要先把 exploratory 變體全部收進 repo。
+請在 LE-GRA-MVP 專案延續 2026-08-26 的 real Simu5G conditional-gating
+研究。先不要改 utility、features、K、allocator 或 gate threshold。
 
-閱讀順序：
-1. END_OF_DAY_HANDOFF_2026-08-11_ZH.md
-2. SESSION_HANDOFF.md
-3. REPO_ARTIFACT_GUIDE_ZH.md
-4. UNTRACKED_TRIAGE_2026-08-11_ZH.md
-5. project_overview_zh.html
-6. report_conclusion_zh.html
-7. roadmap_todo.html
-8. project_overview.html
+開始前：
+1. 執行 `git status`，不要提交三個 legacy mobility CSV 的 Windows
+   line-ending 假修改。
+2. 完整閱讀 `SESSION_HANDOFF.md` 最上方的 2026-08-26 authoritative
+   section。
+3. 閱讀 `REAL_SIMU5G_CONDITIONAL_GATING.md`、
+   `REAL_SIMU5G_TEMPORAL_REGIME_ANALYSIS.md`、`REAL_SIMU5G_MULTISEED.md`。
+4. 用中文先摘要目前結論，再開始修改或執行。
 
-開始前先做：
-1. 先看 `git status`
-2. 用一句話總結目前研究主線
-3. 確認目前 repo 的主線敘事已改成：
-   - `resource-cost / multi-feature` 是主角
-   - `Offline teacher + exact DP` 是 backbone
-   - `LE-GRA` 是 exploratory / appendix line
+目前已完成：
+- 真實 Simu5G 10 seeds × low/mid/high，每 run 15 snapshots。
+- method-owned previous_quality 的 closed-loop evaluation。
+- CQI、CQI+cost 2-way、always-on switching 3-way 比較。
+- switching source attribution、regime tree、path-erosion analysis。
+- conditional margin gate 與 seed-level LOSO threshold selection。
+- eta=0 精確重現 3-way，eta=infinity 精確重現 2-way。
 
-目前研究主線：
-- 不再把問題寫成「證明 LE-GRA 是通用最佳方法」
-- 現在主線是：
-  - `CQI-only grouping` 太粗
-  - `resource-cost` 與 `multi-feature` 更接近真實 multicast grouping 問題
-  - 研究價值在於建立 feature-rich grouping pipeline 與 teacher-aligned evaluation
+核心結果：
+- CQI+cost 是穩健 core；switching 是少量 conditional refinement。
+- LOSO gated 在 mid/high pooled utility 相對 2-way 為 +0.001301，
+  95% CI [+0.000542,+0.002176]，seed W/T/L 9/1/0。
+- 相對 CQI 為 +0.024411，CI [+0.020382,+0.028432]，10/0/0。
+- 相對 always-on 3-way 為 +0.000060，CI 跨 0，尚未證明 gating
+  整體顯著優於 always-on。
+- 9/10 folds 選 eta=.020；seed_0006 fold 以極小差距選 .005，仍發生
+  mid/light path trap。
 
-目前 repo 已經整理成三層證據：
+下一步是 confirmatory data，不是繼續調門檻：
+- 事先凍結 eta=.020。
+- 生 seed_0011..seed_0030，共 20 個新 seeds。
+- 每 seed 跑 low/mid/high，共 60 個 Simu5G runs；三種 load 是從同一
+  trace 後處理，不是額外 simulator runs。
+- 預估 raw generation 32–36 分鐘，完整 QA+分析約 45–50 分鐘，抓一小時。
+- 新 20 seeds 必須保留為 confirmatory test set，不可再拿來調 eta。
 
-1. 主線 showcase
-   - `r4`
-   - `r8`
-   - `q27 radio coverage`
+先做必要 plumbing：
+- 讓 `validate_real_simu5g_multiseed.py` 和 temporal confirmatory runner
+  接受明確 seed range，而非寫死 1..10。
+- 固定 gate eta=.020，只跑 CQI、2-way、always-on 3-way、fixed-gated。
+- 不要先跑七個 eta sweep，也不要用新 seeds 重選 eta。
 
-2. control / support
-   - `r2b`
-   - `r2c`
+raw batch command：
+`python .\run_real_simu5g_multiseed.py --seeds 11-30`
 
-3. focused subset evidence
-   - `p3_6i2_focused_teacher_subset`
-   - `p3_6q10_focused_teacher_subset`
+批次預設輸出在 WSL：
+`/home/opp_env/p3_5_workspace/p3_7_multiseed_v3_outputs`
+批次可續跑，不會覆寫完成 runs。
 
-目前已經進 git 並 push 的最新 commits：
-- `968a387` Add artifact hygiene guide and untracked triage
-- `b3cb157` Add core r4/r8 showcase artifacts and radio coverage summaries
-- `505faf5` Add focused subset and plateau control artifacts
+完成後主要判準：
+1. confirmatory mid/high pooled gated-vs-2way 的 seed-level paired CI > 0。
+2. high/light、high/medium 增益重現。
+3. mid/light 不再出現系統性負向結果。
+4. fixed gate 明確打敗 CQI。
+5. 分開報告原 10 seeds exploratory 與新 20 seeds confirmatory，最後才
+   可另報 combined 30-seed sensitivity analysis。
 
-目前最重要的研究判斷：
-1. LE-GRA 不是通解
-2. LE-GRA 也不是目前最穩定、最值得主推的唯一方法
-3. `resource-cost` 與 `multi-feature` 更適合當主線敘事
-4. LE-GRA 的價值仍在：
-   - 幫助辨識困難 regime
-   - 幫助分析 learner failure mode
-   - 幫助界定 localized candidate generation 的價值
+fixed-gate confirmation 完成後，三條長期研究方向都要保留並依序探索；
+詳細 protocol 在 `POST_CQI_RESEARCH_ROADMAP_ZH.md`：
+1. 同 CQI、不同頻率選擇性：完整 RB profile、pairwise overlap/regret
+   graph、spectral/correlation/graph partitioning，並和 full-profile
+   k-means 做同輸入公平比較。
+2. 同 CQI、不同 QoE switching state：學習或近似 pairwise same-group
+   utility regret，而不是只把 previous_quality 當 joint k-means 座標。
+3. 短期趨勢：顯式 slope/volatility/outage/forecast，並把 teacher 改為
+   future-H cumulative utility；真實 future 只能當 oracle ceiling。
 
-現在不要優先做的事：
-- 不要先擴大 matrix / seeds / Kmax
-- 不要先回去做 learner-side 微調 sweep
-- 不要先把所有 exploratory bundles 都 commit
-- 不要先重寫整個方法線
-
-目前 repo 管理規則：
-- 先讀 `REPO_ARTIFACT_GUIDE_ZH.md`
-- `_tmp_*`、大批自動搜尋輸出、可重建 sweep 結果不要直接 commit
-- 若要收新資產，優先只收：
-  - 會出現在報告中的主線證據
-  - 最佳 showcase regime
-  - 高價值 control regime
-
-目前還留在本機、尚未進 git 的主要 exploratory 資產：
-- `r1 / r2 / r3 / r5 / r6`
-- `r4` 的局部 decoy 變體
-
-下一步建議優先順序：
-1. 先判斷剩下的 untracked exploratory 資產中，是否有少數代表性 failure/control 值得保留
-2. 若要補 repo，優先挑 appendix 等級的代表性案例，而不是全收
-3. 若要補報告，優先整理：
-   - `r4` 為什麼是最大 gap showcase
-   - `r8` 為什麼是 hard-boundary benchmark
-   - `r2c` 為什麼是 stable split-demand control
-4. 若要繼續研究，優先從 feature-centric / resource-aware 角度出發，而不是先把 LE-GRA 擴成大矩陣
-
-回答請以中文為主，先講清楚你目前理解的研究脈絡、repo 現況、未完成項，再開始做事。
+三條先各自做 ablation，最後才整合成 dynamic compatibility graph。
+不要把 seeds 11..30 同時宣稱為 fixed-gate 與未來新方法的 untouched
+confirmatory set；看過後若用於新方法，只能算 exploratory/nested-CV。
 ```

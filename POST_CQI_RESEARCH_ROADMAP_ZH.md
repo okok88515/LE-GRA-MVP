@@ -1,0 +1,228 @@
+# 超越 CQI k-means 的三條研究方向
+
+更新日期：2026-08-26
+
+## 研究目標與共同規則
+
+目標不是減少計算量，而是找出 CQI k-means 原理上看不到、且能穩定
+轉化成 utility 增益的資訊。三條方向都要走，但先分開驗證機制，最後
+才考慮整合成一個動態 compatibility graph。
+
+所有比較固定使用：
+
+- 相同的 real Simu5G snapshots、load、RB budget 與 `Kmax`
+- 相同的 exact-DP allocation
+- 相同 utility：normalized log bitrate 減去 `0.5 ×` normalized quality
+  switching magnitude；unserved penalty 不變
+- simulator seed/trajectory 為統計獨立單位
+- 同一實驗宣告的輸入變數要對所有競爭方法開放；差異應來自分群法，
+  不能只讓新方法偷看額外變數
+- published CQI k-means 保留為歷史 anchor；另加「相同新輸入 + k-means」
+  作為真正隔離演算法效果的公平 baseline
+- 所有 threshold、horizon、graph hyperparameter 只可由 training seeds
+  選擇，test seeds 不得回頭調參
+
+## 方向一：同 CQI、不同頻率選擇性
+
+### 遺失的資訊
+
+兩名使用者可以有相同 wideband CQI，但每個 RB 的通道形狀不同。一人
+可能在多數 RB 上穩定，另一人只有少數 RB 很好；若兩人的好 RB 位置
+不重疊，multicast 同組後會產生 bottleneck。CQI k-means 看不到這個
+差異。
+
+現有 multi-feature 只把 RB rate 壓成 mean/min/max/std，也會丟掉
+「好 RB 出現在哪裡」以及兩名使用者好 RB 是否重疊的資訊。resource-
+cost vector 則只回答單一使用者需要多少 RB，沒有直接回答兩人是否
+適合同組。
+
+核心假設：
+
+> Wideband CQI 無法描述使用者間的頻域相容性；multicast grouping
+> 應根據 pairwise RB-profile compatibility，而不是單一使用者的
+> scalar channel quality。
+
+### 要測的方法
+
+1. 保留完整 25-band RB-rate profile，或先壓成少數連續頻域區塊。
+2. 定義 pairwise overlap，例如 normalized overlap、cosine/correlation、
+   共同高效率 RB 比例，以及兩人同組造成的 exact utility regret。
+3. 由 pairwise compatibility 建 user graph。
+4. 比較 spectral clustering、correlation clustering、graph partitioning
+   與 constrained agglomerative merging。
+
+### 公平基線與主要 ablation
+
+- CQI k-means：published anchor
+- resource-cost k-means：scalar/vector cost baseline
+- full RB-profile k-means：使用完全相同的 25-band input，隔離「資訊」與
+  「graph algorithm」的效果
+- block-profile k-means：確認完整頻域位置是否真的必要
+- overlap graph without utility regret：確認簡單相似度是否已足夠
+- exact-regret graph：檢驗 utility-aware edge 是否是主要來源
+
+### Go/no-go 證據
+
+- 在 matched/similar CQI pairs 中，RB-profile overlap 能預測 teacher
+  split 或同組 regret
+- graph method 在 seed-level paired utility 上勝過 full-profile k-means，
+  才能聲稱是 compatibility graph 的貢獻，而不只是多看了特徵
+- 增益應集中於 mid/high dispersion，並能由 bottleneck RB 或 served
+  ratio 的改變解釋
+
+## 方向二：同 CQI、不同 QoE switching state
+
+### 遺失的資訊
+
+兩名當前 CQI 相同的使用者，前一時刻可能分別處於高、低畫質。強迫
+兩人選同一 group quality，可能讓其中一人承擔較大 switching loss。
+CQI k-means 完全看不到這個狀態；把 `previous_quality` 當作 joint
+k-means 的另一個座標，也不等於學到 switching penalty 的非線性影響。
+
+目前的 real closed-loop attribution 已提供初步證據：
+
+- switching candidate 在 mid/high 840 transitions 中只嚴格勝出 60 次
+- `previous_quality_std` 是最強的 regime feature
+- previous quality 幾乎同質的 404 transitions 中沒有 strict win
+- top heterogeneity quartile 的 strict-win rate 為 20.2%
+
+這證明狀態異質性有訊號，但還沒有驗證真正的 pairwise regret graph。
+
+### Pairwise regret 定義
+
+對候選 pair 定義：
+
+\[
+R_{ij}=U_i^{\mathrm{separate}}+U_j^{\mathrm{separate}}
+      -U_{ij}^{\mathrm{same\ group}}
+\]
+
+此 regret 應在同一 decision state、相同 load 與 RB budget 下計算或近似，
+自然包含：
+
+- CQI bottleneck
+- RB cost
+- previous quality
+- switching penalty
+- 當下 load
+
+核心假設：
+
+> 當 CQI 相同時，previous-quality divergence 可以預測 utility-aware
+> teacher split，而且該 split 的增益不是單純由 CQI 或 resource cost
+> 解釋。
+
+### 要測的方法
+
+1. 先以 exact two-user regret 建 oracle/diagnostic graph。
+2. 再用可部署的解析近似或小模型預測 `R_ij`，不要直接模仿 teacher
+   group label。
+3. 對 regret graph 做 min-cut、spectral/correlation clustering，或受
+   `Kmax` 限制的 agglomerative merging。
+4. 分開測 channel-only regret、channel+previous-quality regret，以及
+   完整 load-aware regret。
+
+### 公平基線與主要 ablation
+
+- `[CQI, previous_quality]` k-means
+- 相同 regret-derived pair features 的一般 k-means/embedding baseline
+- always-on 3-way switching candidate
+- fixed `eta=.020` conditional candidate gate
+- exact regret graph 與 learned regret graph
+
+只有 learned/graph method 勝過使用相同輸入的 joint k-means，才可把
+增益歸因於 pairwise objective，而不只是加入 `previous_quality`。
+
+## 方向三：短期趨勢與多時槽 utility
+
+### 遺失的資訊
+
+兩名使用者當前都是 CQI 8，但一人可能由 `[4,5,6,7,8]` 持續改善，
+另一人由 `[12,11,10,9,8]` 持續惡化。snapshot CQI k-means 視為完全
+相同；一般 contrastive learning 即使看見五步 history，也不保證會
+學到「未來方向相反」對 switching 與 group persistence 的重要性。
+
+核心假設：
+
+> Grouping 不應只最佳化單一 snapshot，而應最佳化未來 `H` 個時槽的
+> 累積 utility；history 只有在 objective 獎勵未來穩定性時才會持續
+> 產生價值。
+
+### 顯式時間特徵
+
+- CQI slope
+- recent-window volatility、minimum 與 downside deviation
+- outage probability
+- 預測下一時刻 CQI 或 RB profile
+- previous group membership、group age 與 regrouping cost
+- trend disagreement between candidate group members
+
+### 要測的方法
+
+1. 先做 causal hand-crafted trend baseline：只用當下以前資料。
+2. 建一個 next-step predictor，並明確和使用真實 future CQI 的 oracle
+   lookahead upper bound 分開報告。
+3. 將 teacher objective 改為
+
+\[
+\max_{g_{t:t+H-1}}
+\sum_{h=0}^{H-1}\gamma^h U_{t+h}
+-\lambda_g C_{\mathrm{regroup}}
+\]
+
+4. 比較 greedy snapshot、minimum-margin gate、one-step lookahead 與
+   windowed teacher imitation。
+
+### 因果與公平限制
+
+- 部署方法在時間 `t` 不得使用真實 `t+1` CQI；真實 future 只能作
+  oracle ceiling
+- 所有 competitor 都可使用相同五步 history 與衍生 trend features
+- horizon `H`、discount `gamma`、regrouping penalty 只能用 training
+  seeds 選擇
+- train/test 必須按 simulator seed 切分，不能把相鄰 snapshots 分到
+  不同 split
+
+## 執行順序
+
+### Step 0：先完成已凍結的 gating confirmation
+
+- 產生 `seed_0011..0030`
+- 固定 `eta=.020`
+- 不用新 seeds 重選 threshold
+- 分開報 original 10-seed exploratory 與 new 20-seed confirmatory
+
+這批新 20 seeds 是 fixed-gate 的 confirmatory set。一旦看過結果，它們
+就不能再被稱為三個新方向的 untouched confirmatory set；新方向可先用
+seed-level nested CV 探索，最終主張仍需另外保留新 seeds 或預先宣告的
+holdout。
+
+### Step 1：頻域相容性
+
+這是尚未充分利用、而且現有 25-band raw profile 已可直接支援的資訊。
+先比較 full-profile k-means 與 pairwise overlap/regret graph，可最快判斷
+「RB 位置重疊」是否真的是 CQI 遺失的有效 insight。
+
+### Step 2：QoE pairwise regret
+
+沿用已確認的 previous-quality heterogeneity signal，把現有 candidate
+gate 升級為真正以 pairwise utility regret 為 edge 的 grouping method。
+先用 exact regret 建 diagnostic ceiling，再決定是否值得學習近似。
+
+### Step 3：短期 horizon
+
+先做 one-step causal predictor 與 oracle ceiling，確認未來資訊有足夠
+上限；若 ceiling 本身沒有增益，就不要先投入複雜 sequence model。
+若有，再建立 windowed utility teacher 與 persistence-aware grouping。
+
+### Step 4：最後才整合
+
+若三條 ablation 各自成立，最終可建立 dynamic compatibility graph：
+
+```text
+edge(i,j,t) = predicted cumulative same-group regret over horizon H
+```
+
+edge 同時使用 RB-profile overlap、previous-quality divergence、load 與
+CQI trend，再由 graph partitioner 在 `Kmax` 約束下分群。整合模型必須
+和每條單獨方向做 ablation，避免只得到一個難以解釋的 feature soup。

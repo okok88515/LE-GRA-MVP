@@ -94,6 +94,11 @@ class EvalResult:
     avg_switching: float
     fairness: float
     groups: int
+    # Per-user quality chosen by the exact allocator.  This is intentionally
+    # optional because aggregate results do not have one meaningful assignment,
+    # while trajectory evaluators need the concrete assignment to feed q(t)
+    # back as previous_quality at t+1.
+    user_quality: np.ndarray | None = None
 
 
 def set_seed(seed: int) -> None:
@@ -693,6 +698,7 @@ def allocate_and_evaluate(
             avg_switching=0.0,
             fairness=0.0,
             groups=len(groups),
+            user_quality=np.full(len(scenario.cqi_now), -1, dtype=int),
         )
 
     # Exact quality assignment via dynamic programming.
@@ -756,6 +762,7 @@ def allocate_and_evaluate(
         avg_switching=float(switching.mean()),
         fairness=jain_fairness(user_bitrate),
         groups=len(groups),
+        user_quality=best_user_quality.copy(),
     )
 
 

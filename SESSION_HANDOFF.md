@@ -1,8 +1,158 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 
-## CURRENT HANDOFF — 2026-08-25 (AUTHORITATIVE; READ THIS FIRST)
+## CURRENT HANDOFF — 2026-08-26 (AUTHORITATIVE; READ THIS FIRST)
+
+This section supersedes the 2026-08-25 handoff and every older next-step
+recommendation below. Older sections remain only as research provenance.
+
+### Current research conclusion
+
+The real 10-seed Simu5G experiment is now temporal and closed-loop. Each
+method owns its `previous_quality` state, served users advance to the exact-DP
+assigned quality, unserved users retain their last delivered quality, and the
+first of 15 usable snapshots is a common warm-up. The simulator seed is the
+independent statistical unit.
+
+The robust algorithmic core is CQI+resource-cost 2-way candidate union.
+Switching `[CQI, previous_quality]` is useful only in a small regime-dependent
+subset and should be treated as a conditional refinement, not an
+unconditionally active third source.
+
+The implemented conditional gate admits the best switching candidate only if
+
+```text
+U(best switching candidate) - U(best CQI/cost candidate) > eta
+```
+
+Every eta follows a separate closed-loop trajectory. The tested grid was
+`{0, .005, .010, .020, .030, .050, infinity}`. Leave-one-seed-out selection
+holds the same seed number out jointly across low/mid/high and all loads.
+
+Primary LOSO result over the six mid/high cells:
+
+- gated minus CQI k-means: `+0.024411`, 95% CI
+  `[+0.020382, +0.028432]`, seed W/T/L `10/0/0`
+- gated minus 2-way: `+0.001301`, 95% CI
+  `[+0.000542, +0.002176]`, seed W/T/L `9/1/0`
+- gated minus always-on 3-way: `+0.000060`, 95% CI
+  `[-0.000110, +0.000241]`; no statistically clear overall difference
+- switching admission rate falls from 4.84% at `eta=0` to 2.62% under LOSO
+- high/light and high/medium both have clearly positive cell-level intervals
+  versus 2-way
+
+Nine of ten folds select `eta=.020`. The fold holding out seed 0006 selects
+`.005` by only `0.000021` training utility and reproduces the known mid/light
+path trap. A full-data exploratory `.020` run removes that observed mid/light
+loss, but it is not independent evidence.
+
+Therefore the next experiment must freeze `eta=.020` before observing new
+results. Do not retune utility, features, eta, or grouping constraints on the
+confirmatory seeds.
+
+### New files completed and validated
+
+- `le_gra_mvp.py`: exact allocation now returns optional per-user quality for
+  closed-loop state feedback
+- `run_real_multiseed_temporal_closed_loop.py`
+- `run_real_multiseed_temporal_regime_analysis.py`
+- `analyze_real_multiseed_temporal_regimes.py`
+- `run_real_multiseed_conditional_gating.py`
+- `REAL_SIMU5G_TEMPORAL_CLOSED_LOOP.md`
+- `REAL_SIMU5G_TEMPORAL_REGIME_ANALYSIS.md`
+- `REAL_SIMU5G_CONDITIONAL_GATING.md`
+- `real_multiseed_temporal_closed_loop_results/`
+- `real_multiseed_temporal_regime_results/`
+- `real_multiseed_conditional_gating_results/`
+
+Validation completed:
+
+- 4,050 closed-loop baseline transition rows
+- 1,350 attribution rows; production 3-way reproduction max error 0
+- 9,450 fixed-eta transition rows and 1,350 LOSO gated rows
+- `eta=0` exactly reproduces always-on 3-way over all 1,350 transitions
+- `eta=infinity` exactly reproduces 2-way over all 1,350 transitions
+- Python compilation and `git diff --check` pass
+
+### Tomorrow on the other computer
+
+Start with:
+
+```powershell
+git pull origin main
+git lfs pull
+git status
+```
+
+Then read, in order:
+
+1. this 2026-08-26 section
+2. `REAL_SIMU5G_CONDITIONAL_GATING.md`
+3. `REAL_SIMU5G_TEMPORAL_REGIME_ANALYSIS.md`
+4. `REAL_SIMU5G_MULTISEED.md`
+
+Confirmatory target:
+
+- generate real Simu5G `seed_0011` through `seed_0030`
+- retain low/mid/high with identical scenario settings
+- three application loads continue to be derived from each radio trace; they
+  are not extra Simu5G runs
+- total new simulator runs: `20 seeds x 3 dispersions = 60`
+- freeze conditional gate at `eta=.020`
+- preserve the new 20 seeds as a confirmatory set; do not use them to retune
+  eta
+
+Measured timing from the existing batch: seeds 1..10 across all three
+dispersions ran from 15:38:41 to 15:54:55 UTC, about 16.2 minutes wall time.
+At the same serial-run speed, 20 new seeds should need 32--36 minutes for raw
+generation and about 45--50 minutes including copy, QA, parsing, and fixed-gate
+evaluation. Budget one hour. Expected additional compressed dataset size is
+about 0.8--0.9 GB.
+
+Before running the confirmatory analysis, update the current hard-coded
+`1..10` seed constants in `validate_real_simu5g_multiseed.py` and the temporal
+evaluation entry point, or add explicit train/test seed-range arguments. Do
+not change the gate or utility while making this plumbing change. The raw
+batch command is:
+
+```powershell
+python .\run_real_simu5g_multiseed.py --seeds 11-30
+```
+
+The batch writes under WSL by default to
+`/home/opp_env/p3_5_workspace/p3_7_multiseed_v3_outputs`. It is resumable and
+does not overwrite completed runs.
+
+The three legacy mobility CSVs may still appear modified on Windows solely
+because of line-ending detection. Their content was not changed and they
+must not be committed:
+
+- `real_simu5g_data/raw_mobility.csv`
+- `real_simu5g_data/mid_raw_mobility.csv`
+- `real_simu5g_data/high_raw_mobility.csv`
+
+### Longer research roadmap: pursue all three CQI-information gaps
+
+After the fixed-gate confirmatory run, pursue all three directions recorded
+in `POST_CQI_RESEARCH_ROADMAP_ZH.md`:
+
+1. same wideband CQI but different frequency-selective RB profiles: build
+   pairwise RB-overlap/utility-regret graphs and compare graph partitioning
+   against full-profile k-means using identical inputs
+2. same CQI but different QoE switching states: move from a joint-coordinate
+   switching candidate to pairwise load-aware utility regret
+3. opposite short-term CQI trends: change the objective from a single
+   snapshot to causal predicted or windowed cumulative utility with group
+   persistence cost
+
+All three are intended research branches. Isolate each mechanism first and
+combine them only after separate ablations succeed. The new seeds 11..30 are
+the untouched confirmatory set for the already-frozen `.020` gate; after they
+are inspected, they cannot also be described as untouched confirmation for
+methods designed later.
+
+## Historical handoff — 2026-08-25
 
 This section supersedes every older "recommended next step" in the historical
 log below. The old sections remain only as research provenance.

@@ -1,0 +1,9 @@
+feature,importance
+previous_quality_std,0.8991828671738961
+cqi_std,0.07617701727449812
+cqi_temporal_delta,0.024640115551605807
+cqi_history_volatility,0.0
+previous_quality_cqi_mismatch,0.0
+cost_std_across_users,0.0
+cqi_cost_rank_disagreement,0.0
+previous_quality_rb_pressure,0.0

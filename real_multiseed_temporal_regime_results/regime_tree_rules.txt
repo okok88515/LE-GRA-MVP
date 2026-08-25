@@ -1,0 +1,13 @@
+|--- previous_quality_std <= 0.2381
+|   |--- class: 0
+|--- previous_quality_std >  0.2381
+|   |--- previous_quality_std <= 0.5102
+|   |   |--- cqi_std <= 2.3199
+|   |   |   |--- class: 0
+|   |   |--- cqi_std >  2.3199
+|   |   |   |--- class: 1
+|   |--- previous_quality_std >  0.5102
+|   |   |--- cqi_temporal_delta <= 2.2292
+|   |   |   |--- class: 1
+|   |   |--- cqi_temporal_delta >  2.2292
+|   |   |   |--- class: 1

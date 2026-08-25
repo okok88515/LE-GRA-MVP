@@ -1,0 +1,3 @@
+eta_label,expected_method,n_rows,max_abs_utility_error,passed
+eta_0.000,CQI+cost+switching 3-way union,1350,0.0,1
+eta_inf,CQI+cost 2-way union,1350,0.0,1
