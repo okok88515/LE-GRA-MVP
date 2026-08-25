@@ -1,18 +1,22 @@
-"""Does the user's published paper's actual method -- CQI k-means++ unioned
-with resource-cost k-means++ candidates, picking whichever the exact-DP
+"""Does the user's published paper's actual method -- CQI k-means unioned
+with resource-cost k-means candidates, picking whichever the exact-DP
 allocator scores highest -- beat plain CQI k-means, across all three
 dispersion levels (not just mid, as `run_adr_objective_experiment.py`
 found for resource-cost-only clustering)?
 
 `cqi_resource_hybrid_kmeans_grouping` (added 2026-08-25 to le_gra_mvp.py)
-implements this: k-means++ seeding (not this project's default plain-random
-restart) on BOTH the CQI representation and the resource-cost representation,
-unioned into one candidate pool, scored by the same exact-DP utility used
-everywhere else. Same synthetic dispersion-stratified protocol as
-`run_dispersion_metrics_breakdown_legra.py` (aligned mode, medium load =
+implements this: plain-random-restart k-means (this project's standard
+`kmeans_candidate_groups` default) on BOTH the CQI representation and the
+resource-cost representation, unioned into one candidate pool, scored by the
+same exact-DP utility used everywhere else. k-means++ seeding was tested as
+a separate variable and removed 2026-08-25 at the user's request -- it
+showed only a small, inconsistent effect on its own (see project memory
+`paper-hybrid-candidate-method`), and the candidate-union mechanism is the
+thing being demonstrated here. Same synthetic dispersion-stratified protocol
+as `run_dispersion_metrics_breakdown_legra.py` (aligned mode, medium load =
 run_standard_matrix.LOAD_RATIOS["medium"] = 0.25) for direct comparability.
 
-Now reports all 5 non-fairness metrics (utility, adr_kbps, served_ratio,
+Reports all 5 non-fairness metrics (utility, adr_kbps, served_ratio,
 average_quality, system_spectral_efficiency) plus fairness (Jain's index),
 and includes the 3-way (+joint) and 4-way (+switching-state-aware) unions.
 "Offline teacher (fast, cheap ceiling)" uses the cheap contiguity-restricted
@@ -44,29 +48,13 @@ SEEDS = list(range(1, 31))
 SCENARIOS_PER_SEED = 20
 OUT_DIR = Path("hybrid_candidate_experiment_results")
 
-def _multi_feature_rep(s):
-    rep = mvp.build_feature_matrix(s, "full")
-    mean, std = rep.mean(axis=0), rep.std(axis=0) + 1e-6
-    return ((rep - mean) / std).astype(np.float32)
-
 
 METHODS = {
     "No grouping": lambda s: [list(range(len(s.cqi_now)))],
     "CQI k-means": lambda s: mvp.cqi_kmeans_grouping(s, KMAX, SWITCH_BETA, KMEANS_N_INIT),
-    "CQI k-means (k-means++)": lambda s: mvp.best_kmeans_groups(
-        s, s.cqi_now.reshape(-1, 1).astype(float), KMAX, SWITCH_BETA,
-        kmeans_n_init=KMEANS_N_INIT, init="kmeans++",
-    ),
     "Resource-cost k-means": lambda s: mvp.resource_cost_kmeans_grouping(s, KMAX, SWITCH_BETA, KMEANS_N_INIT),
-    "Resource-cost k-means (k-means++)": lambda s: mvp.best_kmeans_groups(
-        s, mvp.user_resource_cost_vector(s.rb_rates), KMAX, SWITCH_BETA,
-        kmeans_n_init=KMEANS_N_INIT, init="kmeans++",
-    ),
     "Multi-feature k-means": lambda s: mvp.multi_feature_kmeans_grouping(
         s, KMAX, SWITCH_BETA, feature_mode="full", kmeans_n_init=KMEANS_N_INIT
-    ),
-    "Multi-feature k-means (k-means++)": lambda s: mvp.best_kmeans_groups(
-        s, _multi_feature_rep(s), KMAX, SWITCH_BETA, kmeans_n_init=KMEANS_N_INIT, init="kmeans++",
     ),
     "CQI+resource-cost joint k-means (single clustering)": lambda s: mvp.cqi_resource_joint_kmeans_grouping(
         s, KMAX, SWITCH_BETA, KMEANS_N_INIT

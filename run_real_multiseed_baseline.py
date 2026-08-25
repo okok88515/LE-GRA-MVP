@@ -51,10 +51,6 @@ OUT_DIR = Path("real_multiseed_baseline_results")
 METHODS = {
     "No grouping": lambda s: mvp.cqi_kmeans_grouping(s, 1, SWITCH_BETA, KMEANS_N_INIT),
     "CQI k-means": lambda s: mvp.cqi_kmeans_grouping(s, KMAX, SWITCH_BETA, KMEANS_N_INIT),
-    "CQI k-means (k-means++)": lambda s: mvp.best_kmeans_groups(
-        s, s.cqi_now.reshape(-1, 1).astype(float), KMAX, SWITCH_BETA,
-        kmeans_n_init=KMEANS_N_INIT, init="kmeans++",
-    ),
     "Resource-cost k-means": lambda s: mvp.resource_cost_kmeans_grouping(s, KMAX, SWITCH_BETA, KMEANS_N_INIT),
     "Multi-feature k-means": lambda s: mvp.multi_feature_kmeans_grouping(
         s, KMAX, SWITCH_BETA, feature_mode="full", kmeans_n_init=KMEANS_N_INIT

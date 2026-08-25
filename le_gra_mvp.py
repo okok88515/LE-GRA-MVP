@@ -2367,30 +2367,32 @@ def cqi_resource_hybrid_kmeans_grouping(
     kmeans_n_init: int = 10,
     kmeans_seed: int = 0,
 ) -> list[list[int]]:
-    """Reproduces the user's published paper's method: k-means++ clustering
-    (not the plain-random-restart `kmeans()` default), with candidates drawn
-    from BOTH a CQI clustering and a resource-cost clustering (not just CQI
+    """Reproduces the user's published paper's method: candidates drawn from
+    BOTH a CQI clustering and a resource-cost clustering (not just CQI
     alone) -- the union is scored by actually solving the exact-DP resource
     allocation for each candidate and keeping the one with the highest
     realized utility, same selection mechanism as every other k-means
     baseline here (`best_candidate_groups`), just over a richer candidate
-    pool and with k-means++ seeding.
+    pool. Uses this project's standard plain-random-restart k-means (the
+    `kmeans_candidate_groups` default) for every candidate family -- k-means++
+    seeding was tested as a separate variable and removed 2026-08-25 at the
+    user's request, since it showed only a small, inconsistent effect on its
+    own and the candidate-union mechanism is the thing being demonstrated
+    (see project memory `paper-hybrid-candidate-method`).
 
     Added 2026-08-25 after the user clarified their paper's method is
-    "CQI k-means + resource-cost concept," not resource-cost-only clustering
-    -- see project memory `paper-hybrid-candidate-method`. This differs from
-    `resource_cost_kmeans_grouping` (which replaces the CQI representation
-    entirely) in two ways: it keeps CQI-based candidates in the pool instead
-    of dropping them, and it uses k-means++ instead of plain random-restart
-    seeding for every candidate (CQI and resource-cost alike).
+    "CQI k-means + resource-cost concept," not resource-cost-only clustering.
+    This differs from `resource_cost_kmeans_grouping` (which replaces the CQI
+    representation entirely) by keeping CQI-based candidates in the pool
+    instead of dropping them.
     """
 
     cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
     cost_rep = user_resource_cost_vector(scenario.rb_rates)
     candidates = kmeans_candidate_groups(
-        cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++"
+        cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed
     ) + kmeans_candidate_groups(
-        cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++"
+        cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed
     )
     return best_candidate_groups(scenario, candidates, switch_beta)
 
@@ -2405,8 +2407,9 @@ def cqi_resource_joint_kmeans_grouping(
     """Alternative to `cqi_resource_hybrid_kmeans_grouping`: instead of a
     UNION of two separate candidate families (one k-means run per
     representation), concatenate CQI and the resource-cost vector into ONE
-    z-scored feature space and run a SINGLE k-means++ family on it (still
-    k=1..Kmax, still scored/selected by the same exact-DP utility).
+    z-scored feature space and run a SINGLE plain-random-restart k-means
+    family on it (still k=1..Kmax, still scored/selected by the same
+    exact-DP utility).
 
     Added 2026-08-25 to directly answer "why not just joint-cluster on both
     variables instead of unioning two separate clusterings?" -- see project
@@ -2427,7 +2430,7 @@ def cqi_resource_joint_kmeans_grouping(
     normalized = ((joint - joint.mean(axis=0)) / (joint.std(axis=0) + 1e-6)).astype(np.float32)
     return best_kmeans_groups(
         scenario, normalized, max_groups, switch_beta,
-        kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++",
+        kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed,
     )
 
 
@@ -2453,9 +2456,9 @@ def cqi_resource_joint_hybrid_kmeans_grouping(
     joint = np.column_stack([cqi_rep, cost_rep])
     joint_rep = ((joint - joint.mean(axis=0)) / (joint.std(axis=0) + 1e-6)).astype(np.float32)
     candidates = (
-        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
-        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
-        + kmeans_candidate_groups(joint_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(joint_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
     )
     return best_candidate_groups(scenario, candidates, switch_beta)
 
@@ -2505,10 +2508,10 @@ def cqi_resource_switching_hybrid_kmeans_grouping(
     switching = np.column_stack([cqi_rep, scenario.previous_quality.reshape(-1, 1).astype(float)])
     switching_rep = ((switching - switching.mean(axis=0)) / (switching.std(axis=0) + 1e-6)).astype(np.float32)
     candidates = (
-        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
-        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
-        + kmeans_candidate_groups(joint_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
-        + kmeans_candidate_groups(switching_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(joint_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(switching_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
     )
     return best_candidate_groups(scenario, candidates, switch_beta)
 
@@ -2547,9 +2550,9 @@ def cqi_resource_rbprofile_hybrid_kmeans_grouping(
     ])
     rb_stats_rep = ((rb_stats - rb_stats.mean(axis=0)) / (rb_stats.std(axis=0) + 1e-6)).astype(np.float32)
     candidates = (
-        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
-        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
-        + kmeans_candidate_groups(rb_stats_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(rb_stats_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
     )
     return best_candidate_groups(scenario, candidates, switch_beta)
 
