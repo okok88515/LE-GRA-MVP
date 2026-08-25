@@ -2491,14 +2491,16 @@ def cqi_resource_switching_hybrid_kmeans_grouping(
     picks it.
 
     Empirically validated (aligned mode, medium load, 600 scenarios/dispersion,
-    see `run_hybrid_candidate_experiment.py`): strictly beats the 3-way union
-    at every dispersion level, with zero regressions at low dispersion --
-    low: +0.0101 mean utility vs the 3-way union (win=560/600, tie=40, loss=0),
-    and its low-dispersion utility (0.9515) exactly matches the independently
-    validated multikey near-optimal ceiling; mid: +0.0006 (win=550, tie=43,
-    loss=7); high: +0.0076 (win=317, tie=221, loss=62). Also improves fairness
-    (Jain's index) over plain CQI k-means at mid (0.8544 vs 0.7996) and high
-    (0.6765 vs 0.6267) dispersion.
+    see `run_hybrid_candidate_experiment.py`, rerun 2026-08-25 after removing
+    k-means++ initialization as a controlled variable -- see project memory
+    `paper-hybrid-candidate-method`): strictly beats the 3-way union at every
+    dispersion level, with zero losses anywhere -- low: +0.0101 mean utility
+    vs the 3-way union (win=553/600, tie=47, loss=0), and its low-dispersion
+    utility (0.9514) comes within 0.0001 of the independently validated
+    multikey near-optimal ceiling (0.9515) without exactly matching it;
+    mid: +0.0008 (win=19, tie=581, loss=0); high: +0.0091 (win=191, tie=409,
+    loss=0). Also improves fairness (Jain's index) over plain CQI k-means at
+    mid (0.8510 vs 0.7996) and high (0.6753 vs 0.6267) dispersion.
     """
 
     cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)

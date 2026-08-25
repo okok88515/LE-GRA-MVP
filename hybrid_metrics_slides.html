@@ -154,6 +154,23 @@
   table.wtl-table td.wtl-tie { background: var(--plane); }
   table.wtl-table td.wtl-tie .wtl-count { color: var(--ink-muted); }
 
+  table.spec-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  table.spec-table th, table.spec-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  table.spec-table th { color: var(--ink-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  table.spec-table td.spec-name { font-weight: 700; white-space: nowrap; }
+  table.spec-table td.spec-name .spec-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; }
+  table.spec-table tr.spec-aside td { opacity: 0.6; font-style: italic; }
+  table.spec-table td.spec-dim { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px 5px 9px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; border: 1.5px solid var(--chip-color); color: var(--ink); background: var(--plane); white-space: nowrap; }
+  .chip .chip-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--chip-color); flex: none; }
+  .recipe-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .recipe-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 16px; background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; }
+  .recipe-row.recipe-ours { border-color: var(--s7); border-width: 1.5px; }
+  .recipe-row .recipe-label { font-size: 0.78rem; color: var(--ink-muted); font-weight: 700; min-width: 168px; flex: none; }
+  .recipe-row .recipe-chips { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .recipe-row .op { color: var(--ink-muted); font-weight: 700; font-size: 1rem; }
+
   .mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .mini-panel h3 { font-size: 0.86rem; margin: 0 0 8px; color: var(--ink-2); font-weight: 700; text-align: center; }
 
@@ -821,6 +838,76 @@ function buildHybridLogicSlide() {
   return el;
 }
 
+/* ---------- candidate source spec table ---------- */
+const CANDIDATE_SOURCES = [
+  { tag: "①", name: "CQI", color: "var(--s2)", feature: "<code>cqi_now</code> — 目前這一刻的wideband CQI", dim: "1維", norm: "無(原始值)",
+    insight: "現有baseline本來就用的representation，放進聯集是「保底」：①的候選永遠都在池子裡，所以聯集<strong>永遠不會比單獨CQI k-means差</strong>，其他來源只能加分、不能扣分。" },
+  { tag: "②", name: "Resource-cost", color: "var(--s3)", feature: "<code>user_resource_cost_vector(rb_rates)</code> — 6個畫質等級(200/550/1500/3000/5800/7500 kbps)各自需要幾個RB", dim: "6維", norm: "無(原始值，同單位)",
+    insight: "同樣的CQI，不同使用者因per-RB profile不同，達到同一畫質實際要用的RB數可能差很多——這是CQI看不到的「真實傳輸成本」差異。加進聯集後，當cost比CQI更能反映實際分群優劣時，DP評分會自動選到它。" },
+  { tag: "③", name: "Joint[CQI, Cost]", color: "var(--ink-muted)", feature: "①+② 串接成一個向量", dim: "7維(1+6)", norm: "z-score",
+    insight: "假設「同時看CQI+Cost相似度」能找到①②各自都找不到的切法。實測<strong>單獨用它是三者中最差的</strong>(被迫同時滿足兩個目標，是一種妥協)，但放進聯集只要偶爾找到更好切法就是純加分——3-way比2-way進步：低+0.0006、中+0.0079、高+0.0019，0個變差。" },
+  { tag: "④", name: "Joint[CQI, 前次畫質]", color: "var(--s7)", feature: "①+<code>previous_quality</code> 串接(見下方說明)", dim: "2維", norm: "z-score",
+    insight: "Utility公式本來就有換頻懲罰，但①②③做clustering時完全沒看過<code>previous_quality</code>——懲罰只在DP選候選時被動生效，clustering沒機會主動找「換頻穩定」的切法。加入④等於把這個盲點也交給聯集處理——4-way比3-way進步：低+0.0101、中+0.0008、高+0.0091，<strong>三個離散度都是0個變差</strong>。" },
+];
+const CANDIDATE_SOURCES_ASIDE = [
+  { tag: "⑤", name: "RB-profile(側支實驗)", feature: "<code>rb_rates</code> 的 mean/min/max/std", dim: "4維", norm: "z-score",
+    insight: "假設per-RB rate的「形狀」(不只平均值)藏有CQI/Cost都看不到的資訊，在ambiguous模式應該更有感。實測只帶來小幅、跟情境模式無關的加分，沒有驗證到原本的假設——列為側支實驗，未納入主線4-way。" },
+];
+const RECIPES = [
+  { label: "2-way(論文方法)", tags: ["①", "②"], ours: false },
+  { label: "Joint單一(反例，無聯集)", tags: ["③"], ours: false },
+  { label: "3-way", tags: ["①", "②", "③"], ours: false },
+  { label: "4-way(我們的方法)", tags: ["①", "②", "③", "④"], ours: true },
+  { label: "RB-profile 3-way(側支實驗)", tags: ["①", "②", "⑤"], ours: false },
+];
+function chipFor(tag) {
+  const all = CANDIDATE_SOURCES.concat(CANDIDATE_SOURCES_ASIDE.map(s => ({ ...s, color: "var(--ink-muted)" })));
+  const s = all.find(x => x.tag === tag);
+  return `<span class="chip" style="--chip-color:${s.color}"><span class="chip-dot"></span>${s.tag} ${s.name}</span>`;
+}
+
+function buildCandidateSpecSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Spec · 候選來源規格表</span>
+      <h2 class="slide-title">四個候選來源，各用了哪些變因？</h2>
+      <p class="subtitle">每個來源各自對自己的特徵空間跑 k=1..K<sub>max</sub> 的 k-means(plain random-restart)，所有產生出的候選分群方案<strong>取聯集</strong>放進同一個池子，最後由exact DP實際評分、取utility最高者。下表是每個來源實際用的變因。</p>
+      <table class="spec-table">
+        <thead><tr><th>候選來源</th><th>特徵(實際變因)</th><th>維度・正規化</th><th>為什麼加入 → 如何改進utility</th></tr></thead>
+        <tbody>
+          ${CANDIDATE_SOURCES.map(s => `<tr>
+            <td class="spec-name"><span class="spec-dot" style="background:${s.color}"></span>${s.tag} ${s.name}</td>
+            <td>${s.feature}</td>
+            <td class="spec-dim">${s.dim}<br>${s.norm}</td>
+            <td>${s.insight}</td>
+          </tr>`).join("")}
+          ${CANDIDATE_SOURCES_ASIDE.map(s => `<tr class="spec-aside">
+            <td class="spec-name">${s.tag} ${s.name}</td>
+            <td>${s.feature}</td>
+            <td class="spec-dim">${s.dim}<br>${s.norm}</td>
+            <td>${s.insight}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+      <div class="insight">⚠️ <strong><code>previous_quality</code> 不是「上一次的CQI」</strong>，是「上一次被分配到的影片畫質等級」(0~5的整數，對應到200/550/1500/3000/5800/7500 kbps六個等級中的哪一個)。在整份投影片使用的<code>aligned</code>模式下，<code>previous_quality = cqi_now // 3</code>——是目前CQI的一個粗化、<strong>幾乎確定性</strong>的函數(相關係數約0.98)，不是真正獨立的歷史狀態，所以④帶來的獨立資訊量本來就有限；<code>ambiguous</code>模式下previous_quality會疊加隨機擾動、不再是CQI的確定性函數，理論上④應該更有價值，但目前尚未針對這點重新驗證。</div>
+      <p style="margin:6px 0 0; font-size:0.76rem; color:var(--ink-muted); font-weight:700; letter-spacing:0.04em;">2-way ~ 4-way 怎麼組成的</p>
+      <div class="recipe-list">
+        ${RECIPES.map(r => `
+          <div class="recipe-row${r.ours ? " recipe-ours" : ""}">
+            <span class="recipe-label">${r.label}</span>
+            <span class="recipe-chips">
+              ${r.tags.map((t, i) => (i > 0 ? `<span class="op">∪</span>` : "") + chipFor(t)).join("")}
+            </span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  return el;
+}
+
 function buildHybridResultsSlide() {
   const el = document.createElement("div");
   el.className = "slide";
@@ -906,6 +993,7 @@ const slideEls = [
   buildTitleSlide(),
   buildFormulaSlide(),
   buildHybridLogicSlide(),
+  buildCandidateSpecSlide(),
   buildHybridResultsSlide(),
   ...METRIC_META.map(buildDispersionMetricSlide),
   buildUserCountSlide(),
