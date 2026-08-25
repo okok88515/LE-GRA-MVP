@@ -876,8 +876,9 @@ function buildHybridResultsSlide() {
     </div>`).join("");
   el.innerHTML = `
     <div class="card">
-      <span class="kicker">Result · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格)</span>
-      <h2 class="slide-title">Hybrid 方法結果：3-way 版本三個離散度都贏或打平 CQI</h2>
+      <span class="kicker">Result · 效用分數 (Utility Score) · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格)</span>
+      <h2 class="slide-title">Hybrid 方法結果(效用分數)：3-way 版本三個離散度都贏或打平 CQI</h2>
+      <p class="subtitle">下面每個百分比都是 <strong>utility</strong>(跟前面「Utility 公式」頁同一套公平性加權log-utility)，不是ADR——同一批分組方式的原始ADR請見「平均資料速率 ADR」頁，兩者目標不同、數字不會一樣。</p>
       <div class="legend">${HYBRID_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}${m.ceiling ? "(多排序鍵ensemble修正版，已確認接近真實全域最優解——小規模195/195brute-force全命中，n=150低離散度0%淨損失)" : ""}</span>`).join("")}</div>
       <div class="panel-grid">${panels}</div>
       <div class="insight">📏 <strong>這張圖的100%基準是「近似最優解」，不是hybrid 3-way自己</strong>——這樣才能看出hybrid距離真正的天花板還有多遠：低離散度3-way已經到 <strong>98.9%</strong>；中離散度到 <strong>96.1%</strong>(2-way是95.1%，CQI只有90.7%)；高離散度到 <strong>87.6%</strong>(2-way是87.2%，CQI 85.0%)——高離散度是目前離最優解最遠的一格，還有較大進步空間。<br><br>⚠️ <strong>「Joint(反例)」— 直接把CQI跟resource-cost合併成一個特徵空間做單一clustering，反而是三個方法裡最差的</strong>：高離散度時只有近似最優解的69.5%，甚至輸給單獨的resource-cost(72.7%)，因為被迫用同一組分群同時滿足兩個目標，是一種妥協。<br><br>✅ <strong>3-way聯集(CQI候選∪Cost候選∪Joint候選)是目前最佳的啟發式版本</strong>：低離散度從2-way的近似打平轉為<strong>真的贏過CQI</strong>(124/600情境獲勝)；中離散度更進一步領先CQI(+0.042，550/600勝)；高離散度也略為提升(+0.011，223/600勝)。即使Joint單獨測很差，把它加進聯集依然是純粹加分——聯集的邏輯是「每個候選都實際跑DP評分，選分數最高的」，Joint只有在少數它剛好切得更好的情境才會被選中，其他時候被自動忽略，不會拖累結果。這證實了「聯集只會更好、不會更差」的機制本身。</div>
@@ -911,9 +912,9 @@ function buildHybridRealDataSlide() {
     </tr>`).join("");
   el.innerHTML = `
     <div class="card">
-      <span class="kicker">Bonus · 真實 Simu5G + SUMO + Veins，10 個獨立seed(非合成資料)</span>
-      <h2 class="slide-title">Hybrid 方法在真實資料上的驗證</h2>
-      <p class="subtitle">同一份10-seed真實資料集(見前面「真實資料驗證」頁)，把Hybrid <strong>2-way</strong>方法(CQI∪Cost，論文方法)加進三方法比較——每一格是10個獨立seed對CQI k-means的勝/平/負，深綠=9~10勝，外框綠=有輸有贏但淨值仍正向，白底=完全打平。<em>3-way版本(多加Joint候選)目前只在合成資料驗證過，真實資料驗證待補。</em></p>
+      <span class="kicker">Bonus · 效用分數 (Utility Score) · 真實 Simu5G + SUMO + Veins，10 個獨立seed(非合成資料)</span>
+      <h2 class="slide-title">Hybrid 方法在真實資料上的驗證(效用分數)</h2>
+      <p class="subtitle">同一份10-seed真實資料集(見前面「真實資料驗證」頁)，把Hybrid <strong>2-way</strong>方法(CQI∪Cost，論文方法)加進三方法比較——每一格是10個獨立seed對CQI k-means的<strong>utility</strong>勝/平/負(跟「Utility 公式」頁同一套公平性加權log-utility，不是ADR)，深綠=9~10勝，外框綠=有輸有贏但淨值仍正向，白底=完全打平。<em>3-way版本(多加Joint候選)目前只在合成資料驗證過，真實資料驗證待補。</em></p>
       <table class="wtl-table">
         <thead><tr><th class="corner"></th>${HYBRID_REAL_LOADS.map(l => `<th>${l.label} 負載</th>`).join("")}</tr></thead>
         <tbody>${rows}</tbody>
