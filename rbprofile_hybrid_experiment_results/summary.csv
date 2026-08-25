@@ -1,0 +1,17 @@
+mode,dispersion,method,mean_utility,mean_diff_vs_cqi,win,tie,loss
+aligned,mid_v2,CQI k-means,0.7054539577654928,0.0,0,600,0
+aligned,mid_v2,Multi-feature k-means,0.7281491775578431,0.022695219792350414,462,21,117
+aligned,mid_v2,CQI+cost hybrid (2-way),0.7397155899969123,0.034261632231419537,533,57,10
+aligned,mid_v2,CQI+cost+RBprofile hybrid (3-way),0.7421227164898915,0.03666875872439862,573,18,9
+aligned,high,CQI k-means,0.3755688029539793,0.0,0,600,0
+aligned,high,Multi-feature k-means,0.35835620785197725,-0.017212595102002095,228,3,369
+aligned,high,CQI+cost hybrid (2-way),0.385030342381414,0.009461539427434646,192,331,77
+aligned,high,CQI+cost+RBprofile hybrid (3-way),0.38691035310081273,0.011341550146833471,243,282,75
+ambiguous,mid_v2,CQI k-means,0.6645640330222837,0.0,0,600,0
+ambiguous,mid_v2,Multi-feature k-means,0.685836567998835,0.02127253497655137,493,22,85
+ambiguous,mid_v2,CQI+cost hybrid (2-way),0.7006109543084801,0.036046921286196534,527,67,6
+ambiguous,mid_v2,CQI+cost+RBprofile hybrid (3-way),0.7023919003043831,0.037827867282099456,566,28,6
+ambiguous,high,CQI k-means,0.3492252385167671,0.0,0,600,0
+ambiguous,high,Multi-feature k-means,0.32865229371670573,-0.02057294480006141,210,1,389
+ambiguous,high,CQI+cost hybrid (2-way),0.3550039360495694,0.005778697532802292,154,380,66
+ambiguous,high,CQI+cost+RBprofile hybrid (3-way),0.35643492326275494,0.007209684745987766,185,349,66

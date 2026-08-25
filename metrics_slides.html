@@ -136,6 +136,22 @@
   table.data-table th, table.data-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
   table.data-table th { color: var(--ink-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
 
+  table.wtl-table { width: 100%; border-collapse: separate; border-spacing: 8px; }
+  table.wtl-table th { font-size: 0.76rem; color: var(--ink-muted); font-weight: 700; padding: 4px; }
+  table.wtl-table th.corner { visibility: hidden; }
+  table.wtl-table td.wtl-cell {
+    border-radius: 10px; padding: 10px 8px; text-align: center; border: 1px solid var(--grid);
+  }
+  table.wtl-table .wtl-count { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  table.wtl-table .wtl-diff { font-size: 0.74rem; color: var(--ink-2); margin-top: 2px; }
+  table.wtl-table td.wtl-strong { background: var(--s6); border-color: var(--s6); }
+  table.wtl-table td.wtl-strong .wtl-count { color: #ffffff; }
+  table.wtl-table td.wtl-strong .wtl-diff { color: rgba(255,255,255,0.85); }
+  table.wtl-table td.wtl-mixed { background: var(--plane); border-color: var(--s6); border-width: 1.5px; }
+  table.wtl-table td.wtl-mixed .wtl-count { color: var(--s6); }
+  table.wtl-table td.wtl-tie { background: var(--plane); }
+  table.wtl-table td.wtl-tie .wtl-count { color: var(--ink-muted); }
+
   .mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .mini-panel h3 { font-size: 0.86rem; margin: 0 0 8px; color: var(--ink-2); font-weight: 700; text-align: center; }
 
@@ -246,6 +262,58 @@ const METRIC_META = [
   { id: "system_spectral_efficiency", title: "系統頻譜效率 (bps/Hz)", unit: " bps/Hz", decimals: 2,
     insight: "跟 ADR 呈現完全一致的排序(兩者本質上是同一個底層效果的不同量測角度)：中離散度時「不分組」只剩 60.3% 的頻譜效率，高離散度時只剩 27.8%；LE-GRA 在中離散度(96.2%)穩定領先其餘分組方法。" },
 ];
+
+/* ---------- CQI+resource-cost hybrid candidate experiment (2026-08-25) ----------
+   Source: run_hybrid_candidate_experiment.py, same protocol as the dispersion-
+   breakdown slides (150 users, aligned mode, medium load = run_standard_matrix.
+   LOAD_RATIOS["medium"]=0.25, 30 seeds x 20 scenarios/cell = 600 scenarios/cell),
+   selection objective = the SAME log-utility formula as the formula slide (NOT
+   the ADR-only objective explored separately, see `adr-objective-experiment`
+   memory -- that experiment found ADR-as-objective does NOT make resource-cost/
+   multi-feature beat CQI at high dispersion; this hybrid-candidate mechanism is
+   what actually does). */
+const HYBRID_METHODS = [
+  { key: "no_grouping", label: "No grouping",                       short: "不分組",         color: "var(--s1)" },
+  { key: "cqi",         label: "CQI k-means(現有 baseline)",          short: "CQI(現有)",       color: "var(--s2)" },
+  { key: "cqi_pp",      label: "CQI k-means(k-means++初始化)",        short: "CQI(k-means++)",  color: "var(--s4)" },
+  { key: "cost",        label: "Resource-cost k-means",              short: "Resource-cost",   color: "var(--s3)" },
+  { key: "multi",       label: "Multi-feature k-means",              short: "Multi-feature",   color: "var(--s5)" },
+  { key: "hybrid",      label: "CQI+Resource-cost 候選聯集(論文方法)", short: "Hybrid(論文方法)", color: "var(--s6)", ours: true },
+];
+
+const HYBRID_DATA = {
+  low:  { no_grouping: 0.9318, cqi: 0.9408, cqi_pp: 0.9406, cost: 0.9329, multi: 0.9429, hybrid: 0.9406 },
+  mid:  { no_grouping: 0.6702, cqi: 0.7055, cqi_pp: 0.7057, cost: 0.7359, multi: 0.7281, hybrid: 0.7397 },
+  high: { no_grouping: 0.1229, cqi: 0.3756, cqi_pp: 0.3795, cost: 0.3210, multi: 0.3584, hybrid: 0.3850 },
+};
+
+// win/tie/loss = hybrid vs plain CQI k-means, counted per scenario (out of 600/dispersion)
+// (deck-wide convention: the "mid" display key is the mid_v2-calibrated dispersion level)
+const HYBRID_VS_CQI = {
+  low:  { win: 0,   tie: 590, loss: 10 },
+  mid:  { win: 533, tie: 57,  loss: 10 },
+  high: { win: 192, tie: 331, loss: 77 },
+};
+
+/* ---------- hybrid method, REAL Simu5G data (10 seeds x 3 dispersion x 3 load) ----------
+   Source: run_real_multiseed_baseline.py after adding the hybrid method, same
+   real_simu5g_multiseed_data as the main real-data slide. win/tie/loss counted in SEEDS
+   (10 per cell), not the 15 within-seed snapshots -- see real-data-multiseed-baseline memory. */
+const HYBRID_REAL_LOADS = [
+  { key: "light",  label: "Light" },
+  { key: "medium", label: "Medium" },
+  { key: "heavy",  label: "Heavy" },
+];
+const HYBRID_REAL_WTL = {
+  low:  { light: { win: 0,  tie: 10, loss: 0, diff:  0.0000 }, medium: { win: 0,  tie: 10, loss: 0, diff:  0.0000 }, heavy: { win: 0, tie: 10, loss: 0, diff:  0.0000 } },
+  mid:  { light: { win: 10, tie: 0,  loss: 0, diff:  0.0059 }, medium: { win: 10, tie: 0,  loss: 0, diff:  0.0064 }, heavy: { win: 4, tie: 4,  loss: 2, diff:  0.0002 } },
+  high: { light: { win: 10, tie: 0,  loss: 0, diff:  0.0117 }, medium: { win: 10, tie: 0,  loss: 0, diff:  0.0086 }, heavy: { win: 9, tie: 1,  loss: 0, diff:  0.0446 } },
+};
+function wtlTier(cell) {
+  if (cell.win >= 9) return "wtl-strong";
+  if (cell.win === 0 && cell.loss === 0) return "wtl-tie";
+  return "wtl-mixed";
+}
 
 function fmtNum(v, decimals) {
   return v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -649,6 +717,192 @@ function buildFormulaSlide() {
   return el;
 }
 
+function buildHybridFlowSvg() {
+  const LX = 40, LW = 300, LC = LX + LW / 2;
+  const RAX = 440, RW1 = 142, RAC = RAX + RW1 / 2;
+  const RBX = 598, RBC = RBX + RW1 / 2;
+  const RFX = 440, RFW = 300, RC = RFX + RFW / 2;
+  const rowY = { r1: 40, r2: 130, r3: 220, r4: 312, r5: 402, r6: 482 };
+  const H = 40;
+
+  const box = (x, y, w, h, lines, hi) => {
+    const stroke = hi ? "var(--s6)" : "currentColor";
+    const sw = hi ? 1.8 : 1.2;
+    const ty = y + h / 2 - (lines.length - 1) * 7;
+    const text = lines.map((line, i) =>
+      `<tspan x="${x + w / 2}" y="${ty + i * 14}">${line}</tspan>`
+    ).join("");
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" fill="var(--plane)" stroke="${stroke}" stroke-width="${sw}" />
+      <text x="${x + w / 2}" y="${ty}" text-anchor="middle" font-size="12.5" fill="currentColor">${text}</text>`;
+  };
+  const varrow = (x, y1, y2, hi) =>
+    `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2 - 2}" stroke="${hi ? "var(--s6)" : "currentColor"}" stroke-width="${hi ? 1.8 : 1.3}" marker-end="url(#${hi ? "arrowH" : "arrowN"})" />`;
+  const diagArrow = (x1, y1, x2, y2, hi) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2 - 2}" stroke="${hi ? "var(--s6)" : "currentColor"}" stroke-width="${hi ? 1.8 : 1.3}" marker-end="url(#${hi ? "arrowH" : "arrowN"})" />`;
+
+  let svg = `<svg viewBox="0 0 800 545" role="img" aria-label="CQI k-means 與 Hybrid 候選聯集方法流程比較">
+    <defs>
+      <marker id="arrowN" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+      <marker id="arrowH" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--s6)"/></marker>
+    </defs>
+    <text x="${LC}" y="24" text-anchor="middle" font-size="13.5" font-weight="700" fill="currentColor">① CQI k-means(現有)</text>
+    <text x="${RC}" y="24" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--s6)">② Hybrid 候選聯集(論文方法)</text>
+
+    ${box(LX, rowY.r1, LW, H, ["CQI"], false)}
+    ${box(RAX, rowY.r1, RW1, H, ["CQI"], false)}
+    ${box(RBX, rowY.r1, RW1, H, ["Resource-cost 向量"], true)}
+
+    ${varrow(LC, rowY.r1 + H, rowY.r2, false)}
+    ${varrow(RAC, rowY.r1 + H, rowY.r2, true)}
+    ${varrow(RBC, rowY.r1 + H, rowY.r2, true)}
+
+    ${box(LX, rowY.r2, LW, H, ["k-means(隨機初始化)"], false)}
+    ${box(RAX, rowY.r2, RW1, H, ["k-means++", "(k=1..Kmax)"], true)}
+    ${box(RBX, rowY.r2, RW1, H, ["k-means++", "(k=1..Kmax)"], true)}
+
+    ${varrow(LC, rowY.r2 + H, rowY.r3, false)}
+    ${diagArrow(RAC, rowY.r2 + H, RC - 30, rowY.r3, true)}
+    ${diagArrow(RBC, rowY.r2 + H, RC + 30, rowY.r3, true)}
+
+    ${box(LX, rowY.r3, LW, 44, ["候選分群(僅CQI, k=1..Kmax)"], false)}
+    ${box(RFX, rowY.r3, RFW, 44, ["候選聯集 = CQI候選 ∪ Cost候選"], true)}
+
+    ${varrow(LC, rowY.r3 + 44, rowY.r4, false)}
+    ${varrow(RC, rowY.r3 + 44, rowY.r4, false)}
+
+    ${box(LX, rowY.r4, LW, H, ["逐一 exact DP 分配 → 算 utility"], false)}
+    ${box(RFX, rowY.r4, RFW, H, ["逐一 exact DP 分配 → 算 utility"], false)}
+
+    ${varrow(LC, rowY.r4 + H, rowY.r5, false)}
+    ${varrow(RC, rowY.r4 + H, rowY.r5, false)}
+
+    ${box(LX, rowY.r5, LW, H, ["取 utility 最高的候選"], false)}
+    ${box(RFX, rowY.r5, RFW, H, ["取 utility 最高的候選"], false)}
+
+    ${varrow(LC, rowY.r5 + H, rowY.r6, false)}
+    ${varrow(RC, rowY.r5 + H, rowY.r6, false)}
+
+    ${box(LX, rowY.r6, LW, H, ["輸出：CQI k-means 分群"], false)}
+    ${box(RFX, rowY.r6, RFW, H, ["輸出：Hybrid 分群"], true)}
+
+    <line x1="${LX + LW + 20}" y1="${rowY.r4 - 8}" x2="${LX + LW + 20}" y2="${rowY.r5 + H + 8}" stroke="currentColor" stroke-width="1" stroke-dasharray="3,3" opacity="0.4" />
+    <text x="${LX + LW + 20}" y="${(rowY.r4 + rowY.r5 + H) / 2 + 4}" text-anchor="middle" font-size="10.5" fill="var(--ink-muted)" transform="rotate(-90 ${LX + LW + 20} ${(rowY.r4 + rowY.r5 + H) / 2})">兩邊機制完全相同</text>
+  </svg>`;
+  return svg;
+}
+
+function buildHybridLogicSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const steps = [
+    {
+      label: "現有 baseline 本來就在做什麼",
+      body: `<code>CQI k-means</code>不是「clustering完就結束」：它試 k=1..K<sub>max</sub> 每一種，每個 k 都真的用exact DP解一次資源分配、算出實際utility，取utility最高的 k 當最終分群——這個「產生候選、實際分配、挑最高分」的機制本來就存在，差別在候選<strong>只從CQI這一種representation來</strong>，而且k-means本身的初始中心點是<strong>plain random restart</strong>(隨機挑k個點當起始中心，跑10次取inertia最低者)。`,
+    },
+    {
+      label: "改動 1：k-means++ 初始化",
+      math: `<math display="block">
+        <mi>P</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo>
+        <mfrac>
+          <msup><mrow><mi>D</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mn>2</mn></msup>
+          <mrow><munder><mo>&#x2211;</mo><mrow><mi>x</mi><mo>'</mo><mo>&#x2208;</mo><mi>X</mi></mrow></munder><msup><mrow><mi>D</mi><mo>(</mo><mi>x</mi><mo>'</mo><mo>)</mo></mrow><mn>2</mn></msup></mrow>
+        </mfrac>
+      </math>`,
+      def: "D(x) = x 到「已選中心點」中最近者的距離",
+      body: `舊版隨機挑起始點，容易讓兩個初始中心太靠近、白白浪費一個群；k-means++改成<strong>機率正比於D(x)²</strong>依序選點——離已選中心越遠的點，越容易被選為下一個中心，讓初始中心自然散開。同樣的「試k=1..K<sub>max</sub>、實際分配、挑最高分」流程，只是每次k-means跑的初始化方式不同。單獨測(CQI k-means改k-means++、其他都不變)，高離散度就從0.3756進步到0.3795——光是初始化方式就有感。`,
+    },
+    {
+      label: "改動 2：CQI + Resource-cost 候選聯集",
+      body: `這就是使用者論文裡實際的方法：<strong>不要只從一種representation生成候選</strong>。分別對「CQI」跟「resource-cost向量」各自跑一輪k-means++(k=1..K<sub>max</sub>)，兩邊產生的候選分群<strong>取聯集</strong>，聯集裡的每一個候選都實際跑DP分配、算utility，最終取分數最高的那一個。CQI候選確保「至少不會比單獨CQI k-means差」，resource-cost候選則是「額外的機會」——當resource-cost這個representation剛好切得更好時，聯集會自動選到它。`,
+    },
+    {
+      label: "用的是哪個utility？",
+      body: `跟前面「Utility 公式」那頁完全一樣的<strong>公平性加權log-utility</strong>(log-bitrate分數 − 換頻懲罰)，不是稍早另外測試的「純ADR目標」。稍早那個實驗發現：把目標函數換成純ADR，並不會讓resource-cost/multi-feature在高離散度贏過CQI，甚至讓CQI領先更多——真正有效的不是換目標函數，是這裡的「候選聯集 + k-means++」這個候選產生機制本身。`,
+    },
+  ];
+  el.innerHTML = `
+    <div class="card" style="align-items:flex-start;">
+      <span class="kicker">新方法 · 2026-08-25</span>
+      <h2 class="slide-title">k-means++ 與 CQI+Resource-cost 候選聯集</h2>
+      <p class="subtitle">出自 <code>le_gra_mvp.py</code> 的 <code>_kmeans_plusplus_centers</code> / <code>cqi_resource_hybrid_kmeans_grouping</code>。重現使用者論文裡「CQI k-means + resource-cost概念」的實際方法：分群依據仍是CQI，但用k-means++初始化，並多加一組resource-cost候選一起挑最高分。</p>
+      <figure class="chart-wrap" style="margin:4px 0 2px;">
+        ${buildHybridFlowSvg()}
+        <figcaption class="panel-sub" style="margin-top:6px;">Hybrid比CQI k-means多出兩個東西：①resource-cost這條候選來源(綠框)、②兩邊k-means都改用k-means++初始化(綠框)——候選聯集之後，兩邊用完全相同的DP分配+挑最高分機制。</figcaption>
+      </figure>
+      <div class="formula-steps">
+        ${steps.map(s => `
+          <div class="formula-step">
+            <div class="step-label">${s.label}</div>
+            ${s.math ? `<div class="formula">${s.math}</div>` : ""}
+            ${s.def ? `<p class="formula-def">${s.def}</p>` : ""}
+            <p class="note">${s.body}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+function buildHybridResultsSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const panels = DISPERSIONS.map(d => `
+    <div class="panel">
+      <h3>${d.label}</h3>
+      <p class="panel-sub">% 為該情境下相對「最佳方法」的比例；vs CQI(現有)： ${HYBRID_VS_CQI[d.key].win}勝 / ${HYBRID_VS_CQI[d.key].tie}平 / ${HYBRID_VS_CQI[d.key].loss}負(共600情境)</p>
+      <div class="chart-wrap" data-disp="${d.key}"><div class="tooltip"></div></div>
+    </div>`).join("");
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Result · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格)</span>
+      <h2 class="slide-title">Hybrid 方法結果：三個離散度都不輸 CQI</h2>
+      <div class="legend">${HYBRID_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}</span>`).join("")}</div>
+      <div class="panel-grid">${panels}</div>
+      <div class="insight">低離散度<strong>幾乎打平</strong>(99.8% vs CQI的99.8%，10/600小輸，屬雜訊等級)；中離散度<strong>明顯領先</strong>(100.0% 為該格最高分，比CQI現有版本高 <strong>+0.034</strong>，533/600情境獲勝)；高離散度<strong>仍然領先</strong>(100.0%，比CQI現有版本高 <strong>+0.009</strong>，192/600獲勝、只有77/600輸)。單獨的resource-cost(83.4%)、multi-feature(93.1%)在高離散度都輸給CQI——hybrid同時保留CQI候選當安全網、又多一組resource-cost候選當機會，兩個機制疊加起來，才是三個離散度都不輸、中高離散度都贏的關鍵，不是單靠某一個representation。</div>
+    </div>
+  `;
+  el.querySelectorAll(".chart-wrap").forEach(wrap => {
+    const disp = wrap.getAttribute("data-disp");
+    const values = HYBRID_DATA[disp];
+    const svg = buildPctChart(values, HYBRID_METHODS, "", 4);
+    wrap.insertAdjacentHTML("afterbegin", svg);
+    attachPctHover(wrap, HYBRID_METHODS, values, "", 4);
+  });
+  return el;
+}
+
+function buildHybridRealDataSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const dispRowLabel = { low: "低離散度", mid: "中離散度", high: "高離散度" };
+  const rows = DISPERSIONS.map(d => `
+    <tr>
+      <th>${dispRowLabel[d.key]}</th>
+      ${HYBRID_REAL_LOADS.map(l => {
+        const c = HYBRID_REAL_WTL[d.key][l.key];
+        const tier = wtlTier(c);
+        return `<td class="wtl-cell ${tier}">
+          <div class="wtl-count">${c.win}勝 / ${c.tie}平 / ${c.loss}負</div>
+          <div class="wtl-diff">${c.diff >= 0 ? "+" : ""}${c.diff.toFixed(4)} vs CQI</div>
+        </td>`;
+      }).join("")}
+    </tr>`).join("");
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Bonus · 真實 Simu5G + SUMO + Veins，10 個獨立seed(非合成資料)</span>
+      <h2 class="slide-title">Hybrid 方法在真實資料上的驗證</h2>
+      <p class="subtitle">同一份10-seed真實資料集(見前面「真實資料驗證」頁)，把Hybrid方法加進三方法比較——每一格是10個獨立seed對CQI k-means的勝/平/負，深綠=9~10勝，外框綠=有輸有贏但淨值仍正向，白底=完全打平。</p>
+      <table class="wtl-table">
+        <thead><tr><th class="corner"></th>${HYBRID_REAL_LOADS.map(l => `<th>${l.label} 負載</th>`).join("")}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="insight"><strong>9個(離散度×負載)組合裡，Hybrid沒有在任何一格淨輸給CQI k-means</strong>——5格是10/10全勝(mid×light/medium、high×light/medium、high×heavy的9勝1平)，其餘都是打平或淨正向(mid×heavy是4勝4平2負，但平均仍是+0.0002)。對比同一份真實資料上單獨測的resource-cost/multi-feature(在mid×heavy、high×medium都是2~3勝、7~8負)，Hybrid明顯更穩定——這跟合成資料的發現完全一致，而且真實資料上的表現又更乾淨。</div>
+    </div>
+  `;
+  return el;
+}
+
 function buildTakeawaySlide() {
   const el = document.createElement("div");
   el.className = "slide";
@@ -677,6 +931,9 @@ const slideEls = [
   buildUserCountSlide(),
   buildPooledReferenceSlide(),
   buildRealDataSlide(REAL_DATA),
+  buildHybridLogicSlide(),
+  buildHybridResultsSlide(),
+  buildHybridRealDataSlide(),
   buildTakeawaySlide(),
 ];
 slideEls.forEach(s => slidesEl.appendChild(s));

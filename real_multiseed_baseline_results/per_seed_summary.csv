@@ -1,451 +1,631 @@
 dispersion,load,seed,method,mean_utility,n_scenarios
 high,heavy,seed_0001,No grouping,-0.4,15
 high,heavy,seed_0001,CQI k-means,-0.07106023854625827,15
+high,heavy,seed_0001,CQI k-means (k-means++),-0.06558733929349131,15
 high,heavy,seed_0001,Resource-cost k-means,-0.052652994084107604,15
 high,heavy,seed_0001,Multi-feature k-means,-0.08598632741744096,15
+high,heavy,seed_0001,CQI+resource-cost hybrid (paper method),-0.021475118539175792,15
 high,heavy,seed_0001,Offline teacher,0.00373232145728296,15
 high,heavy,seed_0002,No grouping,-1.2,15
 high,heavy,seed_0002,CQI k-means,-0.2754538104258499,15
+high,heavy,seed_0002,CQI k-means (k-means++),-0.2708933274617065,15
 high,heavy,seed_0002,Resource-cost k-means,-0.24228738817706835,15
 high,heavy,seed_0002,Multi-feature k-means,-0.2748736178273552,15
+high,heavy,seed_0002,CQI+resource-cost hybrid (paper method),-0.2167477244904807,15
 high,heavy,seed_0002,Offline teacher,-0.06202192892076011,15
 high,heavy,seed_0003,No grouping,-0.4,15
 high,heavy,seed_0003,CQI k-means,-0.10008265630278858,15
+high,heavy,seed_0003,CQI k-means (k-means++),-0.1062184044568388,15
 high,heavy,seed_0003,Resource-cost k-means,-0.053150530379813696,15
 high,heavy,seed_0003,Multi-feature k-means,-0.05870608593536926,15
+high,heavy,seed_0003,CQI+resource-cost hybrid (paper method),-0.053150530379813696,15
 high,heavy,seed_0003,Offline teacher,0.00033382216910351483,15
 high,heavy,seed_0004,No grouping,-0.8,15
 high,heavy,seed_0004,CQI k-means,-0.13515656743160592,15
+high,heavy,seed_0004,CQI k-means (k-means++),-0.1214751185391758,15
 high,heavy,seed_0004,Resource-cost k-means,-0.09709743852855204,15
 high,heavy,seed_0004,Multi-feature k-means,-0.07388014371491765,15
+high,heavy,seed_0004,CQI+resource-cost hybrid (paper method),-0.07288507112350547,15
 high,heavy,seed_0004,Offline teacher,-0.020230478560423273,15
 high,heavy,seed_0005,No grouping,-0.9333333333333333,15
 high,heavy,seed_0005,CQI k-means,-0.22719598670030852,15
+high,heavy,seed_0005,CQI k-means (k-means++),-0.2150898029977852,15
 high,heavy,seed_0005,Resource-cost k-means,-0.19311714816290335,15
 high,heavy,seed_0005,Multi-feature k-means,-0.18822444150863102,15
+high,heavy,seed_0005,CQI+resource-cost hybrid (paper method),-0.17313304003187122,15
 high,heavy,seed_0005,Offline teacher,-0.03946908148738356,15
 high,heavy,seed_0006,No grouping,-0.6666666666666666,15
 high,heavy,seed_0006,CQI k-means,-0.092867580775563,15
+high,heavy,seed_0006,CQI k-means (k-means++),-0.13125893336874578,15
 high,heavy,seed_0006,Resource-cost k-means,-0.07777777777777777,15
 high,heavy,seed_0006,Multi-feature k-means,-0.11326656889951263,15
+high,heavy,seed_0006,CQI+resource-cost hybrid (paper method),-0.0527356503868962,15
 high,heavy,seed_0006,Offline teacher,-0.006631685970781723,15
 high,heavy,seed_0007,No grouping,-0.4,15
 high,heavy,seed_0007,CQI k-means,-0.05945159113944109,15
+high,heavy,seed_0007,CQI k-means (k-means++),-0.05945159113944109,15
 high,heavy,seed_0007,Resource-cost k-means,-0.03888888888888888,15
 high,heavy,seed_0007,Multi-feature k-means,-0.07744555408764885,15
+high,heavy,seed_0007,CQI+resource-cost hybrid (paper method),-0.017412171870738506,15
 high,heavy,seed_0007,Offline teacher,0.014347494751662571,15
 high,heavy,seed_0008,No grouping,-0.26666666666666666,15
 high,heavy,seed_0008,CQI k-means,-0.04170719557857366,15
+high,heavy,seed_0008,CQI k-means (k-means++),-0.04170719557857366,15
 high,heavy,seed_0008,Resource-cost k-means,-0.05920362223107534,15
 high,heavy,seed_0008,Multi-feature k-means,-0.05920362223107534,15
+high,heavy,seed_0008,CQI+resource-cost hybrid (paper method),-0.04170719557857366,15
 high,heavy,seed_0008,Offline teacher,-0.0024034266967672695,15
 high,heavy,seed_0009,No grouping,-0.5333333333333333,15
 high,heavy,seed_0009,CQI k-means,-0.1407121229871615,15
+high,heavy,seed_0009,CQI k-means (k-means++),-0.14120965928286758,15
 high,heavy,seed_0009,Resource-cost k-means,-0.09353202815582083,15
 high,heavy,seed_0009,Multi-feature k-means,-0.12172308744754154,15
+high,heavy,seed_0009,CQI+resource-cost hybrid (paper method),-0.09353202815582083,15
 high,heavy,seed_0009,Offline teacher,-0.005553957076580962,15
 high,heavy,seed_0010,No grouping,-0.9333333333333333,15
 high,heavy,seed_0010,CQI k-means,-0.2388872904099143,15
+high,heavy,seed_0010,CQI k-means (k-means++),-0.2388872904099143,15
 high,heavy,seed_0010,Resource-cost k-means,-0.20182323409827257,15
 high,heavy,seed_0010,Multi-feature k-means,-0.19676521483842313,15
+high,heavy,seed_0010,CQI+resource-cost hybrid (paper method),-0.1942775333598927,15
 high,heavy,seed_0010,Offline teacher,-0.010611976336430433,15
 high,light,seed_0001,No grouping,0.16717219535724573,15
 high,light,seed_0001,CQI k-means,0.2904803594186004,15
+high,light,seed_0001,CQI k-means (k-means++),0.2904844715847068,15
 high,light,seed_0001,Resource-cost k-means,0.2974485187309192,15
 high,light,seed_0001,Multi-feature k-means,0.2905117770937187,15
+high,light,seed_0001,CQI+resource-cost hybrid (paper method),0.29918383165800244,15
 high,light,seed_0001,Offline teacher,0.319221724797629,15
 high,light,seed_0002,No grouping,0.14329045316335345,15
 high,light,seed_0002,CQI k-means,0.2567178420067041,15
+high,light,seed_0002,CQI k-means (k-means++),0.2559698750963354,15
 high,light,seed_0002,Resource-cost k-means,0.26801408693451795,15
 high,light,seed_0002,Multi-feature k-means,0.26257769437794576,15
+high,light,seed_0002,CQI+resource-cost hybrid (paper method),0.2692786713173919,15
 high,light,seed_0002,Offline teacher,0.29754883763232093,15
 high,light,seed_0003,No grouping,0.16717219535724573,15
 high,light,seed_0003,CQI k-means,0.28591679858032315,15
+high,light,seed_0003,CQI k-means (k-means++),0.28444630632865114,15
 high,light,seed_0003,Resource-cost k-means,0.2874276066005119,15
 high,light,seed_0003,Multi-feature k-means,0.2914388305025763,15
+high,light,seed_0003,CQI+resource-cost hybrid (paper method),0.29593133669965166,15
 high,light,seed_0003,Offline teacher,0.320449223534364,15
 high,light,seed_0004,No grouping,0.14329045316335345,15
 high,light,seed_0004,CQI k-means,0.2761601281753829,15
+high,light,seed_0004,CQI k-means (k-means++),0.2773268501655582,15
 high,light,seed_0004,Resource-cost k-means,0.2860740579183378,15
 high,light,seed_0004,Multi-feature k-means,0.27056898674430346,15
+high,light,seed_0004,CQI+resource-cost hybrid (paper method),0.2893915229817836,15
 high,light,seed_0004,Offline teacher,0.308698585255465,15
 high,light,seed_0005,No grouping,0.13134958206640732,15
 high,light,seed_0005,CQI k-means,0.2678071023582607,15
+high,light,seed_0005,CQI k-means (k-means++),0.26924882810724793,15
 high,light,seed_0005,Resource-cost k-means,0.2698613492212639,15
 high,light,seed_0005,Multi-feature k-means,0.2814881857808835,15
+high,light,seed_0005,CQI+resource-cost hybrid (paper method),0.2808032438432344,15
 high,light,seed_0005,Offline teacher,0.30570924169630964,15
 high,light,seed_0006,No grouping,0.1550786748459065,15
 high,light,seed_0006,CQI k-means,0.28126319673528644,15
+high,light,seed_0006,CQI k-means (k-means++),0.279388036370772,15
 high,light,seed_0006,Resource-cost k-means,0.29055708707207056,15
 high,light,seed_0006,Multi-feature k-means,0.2677664415099597,15
+high,light,seed_0006,CQI+resource-cost hybrid (paper method),0.29309203728014066,15
 high,light,seed_0006,Offline teacher,0.31512370362999526,15
 high,light,seed_0007,No grouping,0.16717219535724573,15
 high,light,seed_0007,CQI k-means,0.2821740097622613,15
+high,light,seed_0007,CQI k-means (k-means++),0.2821740097622613,15
 high,light,seed_0007,Resource-cost k-means,0.2904573471206131,15
 high,light,seed_0007,Multi-feature k-means,0.2889710986257612,15
+high,light,seed_0007,CQI+resource-cost hybrid (paper method),0.2971425814356917,15
 high,light,seed_0007,Offline teacher,0.3265045112160309,15
 high,light,seed_0008,No grouping,0.16701954594285265,15
 high,light,seed_0008,CQI k-means,0.2695825227713176,15
+high,light,seed_0008,CQI k-means (k-means++),0.2685938105721718,15
 high,light,seed_0008,Resource-cost k-means,0.27165273416004376,15
 high,light,seed_0008,Multi-feature k-means,0.27083401570225774,15
+high,light,seed_0008,CQI+resource-cost hybrid (paper method),0.2806711229805009,15
 high,light,seed_0008,Offline teacher,0.3116147071396876,15
 high,light,seed_0009,No grouping,0.17911306645419187,15
 high,light,seed_0009,CQI k-means,0.3003999894114484,15
+high,light,seed_0009,CQI k-means (k-means++),0.3003999894114484,15
 high,light,seed_0009,Resource-cost k-means,0.3016957831868977,15
 high,light,seed_0009,Multi-feature k-means,0.29530326762499887,15
+high,light,seed_0009,CQI+resource-cost hybrid (paper method),0.30777925842130516,15
 high,light,seed_0009,Offline teacher,0.33017772000537604,15
 high,light,seed_0010,No grouping,0.1552313242602996,15
 high,light,seed_0010,CQI k-means,0.2682612062343738,15
+high,light,seed_0010,CQI k-means (k-means++),0.2646010213233458,15
 high,light,seed_0010,Resource-cost k-means,0.2787995094509611,15
 high,light,seed_0010,Multi-feature k-means,0.27713337360632084,15
+high,light,seed_0010,CQI+resource-cost hybrid (paper method),0.28290223535345765,15
 high,light,seed_0010,Offline teacher,0.31129048951896043,15
 high,medium,seed_0001,No grouping,0.09552696877556896,15
 high,medium,seed_0001,CQI k-means,0.18814153548968882,15
+high,medium,seed_0001,CQI k-means (k-means++),0.19027796969463986,15
 high,medium,seed_0001,Resource-cost k-means,0.1767046474707382,15
 high,medium,seed_0001,Multi-feature k-means,0.180557701194385,15
+high,medium,seed_0001,CQI+resource-cost hybrid (paper method),0.1996357534290599,15
 high,medium,seed_0001,Offline teacher,0.22025244938566932,15
 high,medium,seed_0002,No grouping,0.01194087109694612,15
 high,medium,seed_0002,CQI k-means,0.13628184797653217,15
+high,medium,seed_0002,CQI k-means (k-means++),0.13820838923669276,15
 high,medium,seed_0002,Resource-cost k-means,0.12272609484047801,15
 high,medium,seed_0002,Multi-feature k-means,0.13181041050411813,15
+high,medium,seed_0002,CQI+resource-cost hybrid (paper method),0.14368128848945977,15
 high,medium,seed_0002,Offline teacher,0.19515156637543873,15
 high,medium,seed_0003,No grouping,0.059704355484730603,15
 high,medium,seed_0003,CQI k-means,0.16771568009774507,15
+high,medium,seed_0003,CQI k-means (k-means++),0.16672060750633289,15
 high,medium,seed_0003,Resource-cost k-means,0.16161809429729307,15
 high,medium,seed_0003,Multi-feature k-means,0.1607375087666757,15
+high,medium,seed_0003,CQI+resource-cost hybrid (paper method),0.17702258069403404,15
 high,medium,seed_0003,Offline teacher,0.20744368474596422,15
 high,medium,seed_0004,No grouping,0.035822613290838363,15
 high,medium,seed_0004,CQI k-means,0.15828796084506924,15
+high,medium,seed_0004,CQI k-means (k-means++),0.15583844172013706,15
 high,medium,seed_0004,Resource-cost k-means,0.1500969802932536,15
 high,medium,seed_0004,Multi-feature k-means,0.1414163071302755,15
+high,medium,seed_0004,CQI+resource-cost hybrid (paper method),0.16139402607236694,15
 high,medium,seed_0004,Offline teacher,0.20032558478503462,15
 high,medium,seed_0005,No grouping,0.07164522658167673,15
 high,medium,seed_0005,CQI k-means,0.1286329264662873,15
+high,medium,seed_0005,CQI k-means (k-means++),0.1286329264662873,15
 high,medium,seed_0005,Resource-cost k-means,0.13781755391058648,15
 high,medium,seed_0005,Multi-feature k-means,0.1378048331260537,15
+high,medium,seed_0005,CQI+resource-cost hybrid (paper method),0.14654423311170647,15
 high,medium,seed_0005,Offline teacher,0.19389429200217642,15
 high,medium,seed_0006,No grouping,0.059704355484730603,15
 high,medium,seed_0006,CQI k-means,0.16594321395090617,15
+high,medium,seed_0006,CQI k-means (k-means++),0.16146538728955137,15
 high,medium,seed_0006,Resource-cost k-means,0.13924801337064394,15
 high,medium,seed_0006,Multi-feature k-means,0.14956906773514422,15
+high,medium,seed_0006,CQI+resource-cost hybrid (paper method),0.16873764875382571,15
 high,medium,seed_0006,Offline teacher,0.20434400870760724,15
 high,medium,seed_0007,No grouping,0.09552696877556896,15
 high,medium,seed_0007,CQI k-means,0.17818450677664935,15
+high,medium,seed_0007,CQI k-means (k-means++),0.1787138450336873,15
 high,medium,seed_0007,Resource-cost k-means,0.15233027487780326,15
 high,medium,seed_0007,Multi-feature k-means,0.16125409744250663,15
+high,medium,seed_0007,CQI+resource-cost hybrid (paper method),0.18268141461480328,15
 high,medium,seed_0007,Offline teacher,0.218605736588555,15
 high,medium,seed_0008,No grouping,0.07164522658167673,15
 high,medium,seed_0008,CQI k-means,0.15868370206783897,15
+high,medium,seed_0008,CQI k-means (k-means++),0.15868370206783897,15
 high,medium,seed_0008,Resource-cost k-means,0.13840561899029913,15
 high,medium,seed_0008,Multi-feature k-means,0.14977411237661992,15
+high,medium,seed_0008,CQI+resource-cost hybrid (paper method),0.16532488779548757,15
 high,medium,seed_0008,Offline teacher,0.19339675570647033,15
 high,medium,seed_0009,No grouping,0.13134958206640732,15
 high,medium,seed_0009,CQI k-means,0.1787250825259428,15
+high,medium,seed_0009,CQI k-means (k-means++),0.1787250825259428,15
 high,medium,seed_0009,Resource-cost k-means,0.1884468631151493,15
 high,medium,seed_0009,Multi-feature k-means,0.1806770653551689,15
+high,medium,seed_0009,CQI+resource-cost hybrid (paper method),0.19102992168100108,15
 high,medium,seed_0009,Offline teacher,0.23156854754490747,15
 high,medium,seed_0010,No grouping,0.059704355484730603,15
 high,medium,seed_0010,CQI k-means,0.14910330460409568,15
+high,medium,seed_0010,CQI k-means (k-means++),0.1481082320126835,15
 high,medium,seed_0010,Resource-cost k-means,0.1375249758663331,15
 high,medium,seed_0010,Multi-feature k-means,0.15336345222946504,15
+high,medium,seed_0010,CQI+resource-cost hybrid (paper method),0.160055463501896,15
 high,medium,seed_0010,Offline teacher,0.2023793050938484,15
 low,heavy,seed_0001,No grouping,0.35593639169248775,15
 low,heavy,seed_0001,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0001,CQI k-means (k-means++),0.35593639169248775,15
 low,heavy,seed_0001,Resource-cost k-means,0.35593639169248775,15
 low,heavy,seed_0001,Multi-feature k-means,0.35593639169248775,15
+low,heavy,seed_0001,CQI+resource-cost hybrid (paper method),0.35593639169248775,15
 low,heavy,seed_0001,Offline teacher,0.35593639169248775,15
 low,heavy,seed_0002,No grouping,0.35593639169248775,15
 low,heavy,seed_0002,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0002,CQI k-means (k-means++),0.35593639169248775,15
 low,heavy,seed_0002,Resource-cost k-means,0.35593639169248775,15
 low,heavy,seed_0002,Multi-feature k-means,0.35593639169248775,15
+low,heavy,seed_0002,CQI+resource-cost hybrid (paper method),0.35593639169248775,15
 low,heavy,seed_0002,Offline teacher,0.35593639169248775,15
 low,heavy,seed_0003,No grouping,0.35593639169248775,15
 low,heavy,seed_0003,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0003,CQI k-means (k-means++),0.35593639169248775,15
 low,heavy,seed_0003,Resource-cost k-means,0.35593639169248775,15
 low,heavy,seed_0003,Multi-feature k-means,0.35593639169248775,15
+low,heavy,seed_0003,CQI+resource-cost hybrid (paper method),0.35593639169248775,15
 low,heavy,seed_0003,Offline teacher,0.35593639169248775,15
 low,heavy,seed_0004,No grouping,0.35593639169248775,15
 low,heavy,seed_0004,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0004,CQI k-means (k-means++),0.35593639169248775,15
 low,heavy,seed_0004,Resource-cost k-means,0.35593639169248775,15
 low,heavy,seed_0004,Multi-feature k-means,0.35593639169248775,15
+low,heavy,seed_0004,CQI+resource-cost hybrid (paper method),0.35593639169248775,15
 low,heavy,seed_0004,Offline teacher,0.35593639169248775,15
 low,heavy,seed_0005,No grouping,0.35593639169248775,15
 low,heavy,seed_0005,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0005,CQI k-means (k-means++),0.35593639169248775,15
 low,heavy,seed_0005,Resource-cost k-means,0.35593639169248775,15
 low,heavy,seed_0005,Multi-feature k-means,0.35593639169248775,15
+low,heavy,seed_0005,CQI+resource-cost hybrid (paper method),0.35593639169248775,15
 low,heavy,seed_0005,Offline teacher,0.35593639169248775,15
 low,heavy,seed_0006,No grouping,0.35593639169248775,15
 low,heavy,seed_0006,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0006,CQI k-means (k-means++),0.35593639169248775,15
 low,heavy,seed_0006,Resource-cost k-means,0.35593639169248775,15
 low,heavy,seed_0006,Multi-feature k-means,0.35593639169248775,15
+low,heavy,seed_0006,CQI+resource-cost hybrid (paper method),0.35593639169248775,15
 low,heavy,seed_0006,Offline teacher,0.35593639169248775,15
 low,heavy,seed_0007,No grouping,0.35593639169248775,15
 low,heavy,seed_0007,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0007,CQI k-means (k-means++),0.35593639169248775,15
 low,heavy,seed_0007,Resource-cost k-means,0.35593639169248775,15
 low,heavy,seed_0007,Multi-feature k-means,0.35593639169248775,15
+low,heavy,seed_0007,CQI+resource-cost hybrid (paper method),0.35593639169248775,15
 low,heavy,seed_0007,Offline teacher,0.35593639169248775,15
 low,heavy,seed_0008,No grouping,0.34414817000993464,15
 low,heavy,seed_0008,CQI k-means,0.34939212393778635,15
+low,heavy,seed_0008,CQI k-means (k-means++),0.34939212393778635,15
 low,heavy,seed_0008,Resource-cost k-means,0.34414817000993464,15
 low,heavy,seed_0008,Multi-feature k-means,0.34414817000993464,15
+low,heavy,seed_0008,CQI+resource-cost hybrid (paper method),0.34939212393778635,15
 low,heavy,seed_0008,Offline teacher,0.34939212393778635,15
 low,heavy,seed_0009,No grouping,0.35593639169248775,15
 low,heavy,seed_0009,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0009,CQI k-means (k-means++),0.35593639169248775,15
 low,heavy,seed_0009,Resource-cost k-means,0.35593639169248775,15
 low,heavy,seed_0009,Multi-feature k-means,0.35593639169248775,15
+low,heavy,seed_0009,CQI+resource-cost hybrid (paper method),0.35593639169248775,15
 low,heavy,seed_0009,Offline teacher,0.35593639169248775,15
 low,heavy,seed_0010,No grouping,0.35593639169248775,15
 low,heavy,seed_0010,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0010,CQI k-means (k-means++),0.35593639169248775,15
 low,heavy,seed_0010,Resource-cost k-means,0.35593639169248775,15
 low,heavy,seed_0010,Multi-feature k-means,0.35593639169248775,15
+low,heavy,seed_0010,CQI+resource-cost hybrid (paper method),0.35593639169248775,15
 low,heavy,seed_0010,Offline teacher,0.35593639169248775,15
 low,light,seed_0001,No grouping,0.529078111650274,15
 low,light,seed_0001,CQI k-means,0.529078111650274,15
+low,light,seed_0001,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0001,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0001,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0001,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0001,Offline teacher,0.529078111650274,15
 low,light,seed_0002,No grouping,0.529078111650274,15
 low,light,seed_0002,CQI k-means,0.529078111650274,15
+low,light,seed_0002,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0002,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0002,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0002,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0002,Offline teacher,0.529078111650274,15
 low,light,seed_0003,No grouping,0.529078111650274,15
 low,light,seed_0003,CQI k-means,0.529078111650274,15
+low,light,seed_0003,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0003,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0003,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0003,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0003,Offline teacher,0.529078111650274,15
 low,light,seed_0004,No grouping,0.529078111650274,15
 low,light,seed_0004,CQI k-means,0.529078111650274,15
+low,light,seed_0004,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0004,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0004,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0004,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0004,Offline teacher,0.529078111650274,15
 low,light,seed_0005,No grouping,0.529078111650274,15
 low,light,seed_0005,CQI k-means,0.529078111650274,15
+low,light,seed_0005,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0005,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0005,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0005,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0005,Offline teacher,0.529078111650274,15
 low,light,seed_0006,No grouping,0.529078111650274,15
 low,light,seed_0006,CQI k-means,0.529078111650274,15
+low,light,seed_0006,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0006,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0006,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0006,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0006,Offline teacher,0.529078111650274,15
 low,light,seed_0007,No grouping,0.529078111650274,15
 low,light,seed_0007,CQI k-means,0.529078111650274,15
+low,light,seed_0007,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0007,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0007,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0007,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0007,Offline teacher,0.529078111650274,15
 low,light,seed_0008,No grouping,0.529078111650274,15
 low,light,seed_0008,CQI k-means,0.529078111650274,15
+low,light,seed_0008,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0008,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0008,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0008,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0008,Offline teacher,0.529078111650274,15
 low,light,seed_0009,No grouping,0.529078111650274,15
 low,light,seed_0009,CQI k-means,0.529078111650274,15
+low,light,seed_0009,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0009,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0009,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0009,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0009,Offline teacher,0.529078111650274,15
 low,light,seed_0010,No grouping,0.529078111650274,15
 low,light,seed_0010,CQI k-means,0.529078111650274,15
+low,light,seed_0010,CQI k-means (k-means++),0.529078111650274,15
 low,light,seed_0010,Resource-cost k-means,0.529078111650274,15
 low,light,seed_0010,Multi-feature k-means,0.529078111650274,15
+low,light,seed_0010,CQI+resource-cost hybrid (paper method),0.529078111650274,15
 low,light,seed_0010,Offline teacher,0.529078111650274,15
 low,medium,seed_0001,No grouping,0.44718417808401845,15
 low,medium,seed_0001,CQI k-means,0.44718417808401845,15
+low,medium,seed_0001,CQI k-means (k-means++),0.44718417808401845,15
 low,medium,seed_0001,Resource-cost k-means,0.44718417808401845,15
 low,medium,seed_0001,Multi-feature k-means,0.44718417808401845,15
+low,medium,seed_0001,CQI+resource-cost hybrid (paper method),0.44718417808401845,15
 low,medium,seed_0001,Offline teacher,0.44718417808401845,15
 low,medium,seed_0002,No grouping,0.44718417808401845,15
 low,medium,seed_0002,CQI k-means,0.44718417808401845,15
+low,medium,seed_0002,CQI k-means (k-means++),0.44718417808401845,15
 low,medium,seed_0002,Resource-cost k-means,0.44718417808401845,15
 low,medium,seed_0002,Multi-feature k-means,0.44718417808401845,15
+low,medium,seed_0002,CQI+resource-cost hybrid (paper method),0.44718417808401845,15
 low,medium,seed_0002,Offline teacher,0.44718417808401845,15
 low,medium,seed_0003,No grouping,0.44718417808401845,15
 low,medium,seed_0003,CQI k-means,0.44718417808401845,15
+low,medium,seed_0003,CQI k-means (k-means++),0.44718417808401845,15
 low,medium,seed_0003,Resource-cost k-means,0.44718417808401845,15
 low,medium,seed_0003,Multi-feature k-means,0.44718417808401845,15
+low,medium,seed_0003,CQI+resource-cost hybrid (paper method),0.44718417808401845,15
 low,medium,seed_0003,Offline teacher,0.44718417808401845,15
 low,medium,seed_0004,No grouping,0.44718417808401845,15
 low,medium,seed_0004,CQI k-means,0.44718417808401845,15
+low,medium,seed_0004,CQI k-means (k-means++),0.44718417808401845,15
 low,medium,seed_0004,Resource-cost k-means,0.44718417808401845,15
 low,medium,seed_0004,Multi-feature k-means,0.44718417808401845,15
+low,medium,seed_0004,CQI+resource-cost hybrid (paper method),0.44718417808401845,15
 low,medium,seed_0004,Offline teacher,0.44718417808401845,15
 low,medium,seed_0005,No grouping,0.44718417808401845,15
 low,medium,seed_0005,CQI k-means,0.44718417808401845,15
+low,medium,seed_0005,CQI k-means (k-means++),0.44718417808401845,15
 low,medium,seed_0005,Resource-cost k-means,0.44718417808401845,15
 low,medium,seed_0005,Multi-feature k-means,0.44718417808401845,15
+low,medium,seed_0005,CQI+resource-cost hybrid (paper method),0.44718417808401845,15
 low,medium,seed_0005,Offline teacher,0.44718417808401845,15
 low,medium,seed_0006,No grouping,0.44718417808401845,15
 low,medium,seed_0006,CQI k-means,0.44718417808401845,15
+low,medium,seed_0006,CQI k-means (k-means++),0.44718417808401845,15
 low,medium,seed_0006,Resource-cost k-means,0.44718417808401845,15
 low,medium,seed_0006,Multi-feature k-means,0.44718417808401845,15
+low,medium,seed_0006,CQI+resource-cost hybrid (paper method),0.44718417808401845,15
 low,medium,seed_0006,Offline teacher,0.44718417808401845,15
 low,medium,seed_0007,No grouping,0.45264377365510217,15
 low,medium,seed_0007,CQI k-means,0.45264377365510217,15
+low,medium,seed_0007,CQI k-means (k-means++),0.45264377365510217,15
 low,medium,seed_0007,Resource-cost k-means,0.45264377365510217,15
 low,medium,seed_0007,Multi-feature k-means,0.45264377365510217,15
+low,medium,seed_0007,CQI+resource-cost hybrid (paper method),0.45264377365510217,15
 low,medium,seed_0007,Offline teacher,0.45264377365510217,15
 low,medium,seed_0008,No grouping,0.44718417808401845,15
 low,medium,seed_0008,CQI k-means,0.44718417808401845,15
+low,medium,seed_0008,CQI k-means (k-means++),0.44718417808401845,15
 low,medium,seed_0008,Resource-cost k-means,0.44718417808401845,15
 low,medium,seed_0008,Multi-feature k-means,0.44718417808401845,15
+low,medium,seed_0008,CQI+resource-cost hybrid (paper method),0.44718417808401845,15
 low,medium,seed_0008,Offline teacher,0.44718417808401845,15
 low,medium,seed_0009,No grouping,0.44718417808401845,15
 low,medium,seed_0009,CQI k-means,0.44718417808401845,15
+low,medium,seed_0009,CQI k-means (k-means++),0.44718417808401845,15
 low,medium,seed_0009,Resource-cost k-means,0.44718417808401845,15
 low,medium,seed_0009,Multi-feature k-means,0.44718417808401845,15
+low,medium,seed_0009,CQI+resource-cost hybrid (paper method),0.44718417808401845,15
 low,medium,seed_0009,Offline teacher,0.44718417808401845,15
 low,medium,seed_0010,No grouping,0.4526437736551021,15
 low,medium,seed_0010,CQI k-means,0.4526437736551021,15
+low,medium,seed_0010,CQI k-means (k-means++),0.4526437736551021,15
 low,medium,seed_0010,Resource-cost k-means,0.4526437736551021,15
 low,medium,seed_0010,Multi-feature k-means,0.4526437736551021,15
+low,medium,seed_0010,CQI+resource-cost hybrid (paper method),0.4526437736551021,15
 low,medium,seed_0010,Offline teacher,0.4526437736551021,15
 mid,heavy,seed_0001,No grouping,0.13134958206640732,15
 mid,heavy,seed_0001,CQI k-means,0.1661771227658335,15
+mid,heavy,seed_0001,CQI k-means (k-means++),0.1651820501744213,15
 mid,heavy,seed_0001,Resource-cost k-means,0.1431251405577763,15
 mid,heavy,seed_0001,Multi-feature k-means,0.14569547833909532,15
+mid,heavy,seed_0001,CQI+resource-cost hybrid (paper method),0.16518205017442134,15
 mid,heavy,seed_0001,Offline teacher,0.1716500220186005,15
 mid,heavy,seed_0002,No grouping,0.14329045316335345,15
 mid,heavy,seed_0002,CQI k-means,0.1676697316529518,15
+mid,heavy,seed_0002,CQI k-means (k-means++),0.168664804244364,15
 mid,heavy,seed_0002,Resource-cost k-means,0.15373871537318132,15
 mid,heavy,seed_0002,Multi-feature k-means,0.16319190499159703,15
+mid,heavy,seed_0002,CQI+resource-cost hybrid (paper method),0.16965987683577619,15
 mid,heavy,seed_0002,Offline teacher,0.1736401672014249,15
 mid,heavy,seed_0003,No grouping,0.1552313242602996,15
 mid,heavy,seed_0003,CQI k-means,0.16659200275875105,15
+mid,heavy,seed_0003,CQI k-means (k-means++),0.16659200275875105,15
 mid,heavy,seed_0003,Resource-cost k-means,0.16567958647012745,15
 mid,heavy,seed_0003,Multi-feature k-means,0.17156736571581194,15
+mid,heavy,seed_0003,CQI+resource-cost hybrid (paper method),0.16808461164586933,15
 mid,heavy,seed_0003,Offline teacher,0.17156736571581196,15
 mid,heavy,seed_0004,No grouping,0.14329045316335345,15
 mid,heavy,seed_0004,CQI k-means,0.16916234054007007,15
+mid,heavy,seed_0004,CQI k-means (k-means++),0.1646845138787153,15
 mid,heavy,seed_0004,Resource-cost k-means,0.1547337879645935,15
 mid,heavy,seed_0004,Multi-feature k-means,0.16120175980877266,15
+mid,heavy,seed_0004,CQI+resource-cost hybrid (paper method),0.1646845138787153,15
 mid,heavy,seed_0004,Offline teacher,0.17513277608854316,15
 mid,heavy,seed_0005,No grouping,0.13134958206640732,15
 mid,heavy,seed_0005,CQI k-means,0.16916234054007007,15
+mid,heavy,seed_0005,CQI k-means (k-means++),0.16965987683577619,15
 mid,heavy,seed_0005,Resource-cost k-means,0.17057229312439978,15
 mid,heavy,seed_0005,Multi-feature k-means,0.17057229312439978,15
+mid,heavy,seed_0005,CQI+resource-cost hybrid (paper method),0.17264509461001273,15
 mid,heavy,seed_0005,Offline teacher,0.18037673001639487,15
 mid,heavy,seed_0006,No grouping,0.1552313242602996,15
 mid,heavy,seed_0006,CQI k-means,0.17413770349713095,15
+mid,heavy,seed_0006,CQI k-means (k-means++),0.17413770349713095,15
 mid,heavy,seed_0006,Resource-cost k-means,0.15912895832315974,15
 mid,heavy,seed_0006,Multi-feature k-means,0.1646845138787153,15
+mid,heavy,seed_0006,CQI+resource-cost hybrid (paper method),0.17413770349713095,15
 mid,heavy,seed_0006,Offline teacher,0.17513277608854316,15
 mid,heavy,seed_0007,No grouping,0.16717219535724573,15
 mid,heavy,seed_0007,CQI k-means,0.1771229212713675,15
+mid,heavy,seed_0007,CQI k-means (k-means++),0.1771229212713675,15
 mid,heavy,seed_0007,Resource-cost k-means,0.16717219535724573,15
 mid,heavy,seed_0007,Multi-feature k-means,0.16907968423728148,15
+mid,heavy,seed_0007,CQI+resource-cost hybrid (paper method),0.1771229212713675,15
 mid,heavy,seed_0007,Offline teacher,0.1771229212713675,15
 mid,heavy,seed_0008,No grouping,0.16717219535724573,15
 mid,heavy,seed_0008,CQI k-means,0.17563031238424923,15
+mid,heavy,seed_0008,CQI k-means (k-means++),0.17563031238424923,15
 mid,heavy,seed_0008,Resource-cost k-means,0.16717219535724573,15
 mid,heavy,seed_0008,Multi-feature k-means,0.16717219535724573,15
+mid,heavy,seed_0008,CQI+resource-cost hybrid (paper method),0.17563031238424923,15
 mid,heavy,seed_0008,Offline teacher,0.1771229212713675,15
 mid,heavy,seed_0009,No grouping,0.16717219535724573,15
 mid,heavy,seed_0009,CQI k-means,0.17513277608854314,15
+mid,heavy,seed_0009,CQI k-means (k-means++),0.17513277608854314,15
 mid,heavy,seed_0009,Resource-cost k-means,0.16717219535724573,15
 mid,heavy,seed_0009,Multi-feature k-means,0.16717219535724573,15
+mid,heavy,seed_0009,CQI+resource-cost hybrid (paper method),0.17513277608854314,15
 mid,heavy,seed_0009,Offline teacher,0.17612784867995532,15
 mid,heavy,seed_0010,No grouping,0.16717219535724573,15
 mid,heavy,seed_0010,CQI k-means,0.1766253849756614,15
+mid,heavy,seed_0010,CQI k-means (k-means++),0.1766253849756614,15
 mid,heavy,seed_0010,Resource-cost k-means,0.1771229212713675,15
 mid,heavy,seed_0010,Multi-feature k-means,0.1771229212713675,15
+mid,heavy,seed_0010,CQI+resource-cost hybrid (paper method),0.1771229212713675,15
 mid,heavy,seed_0010,Offline teacher,0.1776204575670736,15
 mid,light,seed_0001,No grouping,0.3684809130476762,15
 mid,light,seed_0001,CQI k-means,0.42386774167132796,15
+mid,light,seed_0001,CQI k-means (k-means++),0.4273170321190962,15
 mid,light,seed_0001,Resource-cost k-means,0.4359388026755232,15
 mid,light,seed_0001,Multi-feature k-means,0.43297818730121995,15
+mid,light,seed_0001,CQI+resource-cost hybrid (paper method),0.4389682026726039,15
 mid,light,seed_0001,Offline teacher,0.4456514227969414,15
 mid,light,seed_0002,No grouping,0.40460187776797074,15
 mid,light,seed_0002,CQI k-means,0.43740815794437987,15
+mid,light,seed_0002,CQI k-means (k-means++),0.43789933384781954,15
 mid,light,seed_0002,Resource-cost k-means,0.4387457128450471,15
 mid,light,seed_0002,Multi-feature k-means,0.4361096200762292,15
+mid,light,seed_0002,CQI+resource-cost hybrid (paper method),0.44251755530549375,15
 mid,light,seed_0002,Offline teacher,0.4490988075978029,15
 mid,light,seed_0003,No grouping,0.3928136560854177,15
 mid,light,seed_0003,CQI k-means,0.43148473924496944,15
+mid,light,seed_0003,CQI k-means (k-means++),0.43200992290560297,15
 mid,light,seed_0003,Resource-cost k-means,0.43757375354756906,15
 mid,light,seed_0003,Multi-feature k-means,0.43498076379360495,15
+mid,light,seed_0003,CQI+resource-cost hybrid (paper method),0.4380931086650383,15
 mid,light,seed_0003,Offline teacher,0.44701828349950995,15
 mid,light,seed_0004,No grouping,0.40460187776797074,15
 mid,light,seed_0004,CQI k-means,0.44668627947302736,15
+mid,light,seed_0004,CQI k-means (k-means++),0.44648478202831726,15
 mid,light,seed_0004,Resource-cost k-means,0.4429269177582555,15
 mid,light,seed_0004,Multi-feature k-means,0.44234923361992023,15
+mid,light,seed_0004,CQI+resource-cost hybrid (paper method),0.4480976162649168,15
 mid,light,seed_0004,Offline teacher,0.4625020563035624,15
 mid,light,seed_0005,No grouping,0.4106850635274062,15
 mid,light,seed_0005,CQI k-means,0.4524007604041333,15
+mid,light,seed_0005,CQI k-means (k-means++),0.4525226474144571,15
 mid,light,seed_0005,Resource-cost k-means,0.44687897786182623,15
 mid,light,seed_0005,Multi-feature k-means,0.4481159255537558,15
+mid,light,seed_0005,CQI+resource-cost hybrid (paper method),0.45664886169397195,15
 mid,light,seed_0005,Offline teacher,0.46539684850578666,15
 mid,light,seed_0006,No grouping,0.41676824928684153,15
 mid,light,seed_0006,CQI k-means,0.4565236335169052,15
+mid,light,seed_0006,CQI k-means (k-means++),0.45260612135834144,15
 mid,light,seed_0006,Resource-cost k-means,0.4474663524408895,15
 mid,light,seed_0006,Multi-feature k-means,0.44586844244941254,15
+mid,light,seed_0006,CQI+resource-cost hybrid (paper method),0.4590093622476868,15
 mid,light,seed_0006,Offline teacher,0.4716666062971734,15
 mid,light,seed_0007,No grouping,0.41676824928684153,15
 mid,light,seed_0007,CQI k-means,0.4453368912254376,15
+mid,light,seed_0007,CQI k-means (k-means++),0.447777009384614,15
 mid,light,seed_0007,Resource-cost k-means,0.44497290180595417,15
 mid,light,seed_0007,Multi-feature k-means,0.4463416642082231,15
+mid,light,seed_0007,CQI+resource-cost hybrid (paper method),0.4524173486453705,15
 mid,light,seed_0007,Offline teacher,0.4596484104212369,15
 mid,light,seed_0008,No grouping,0.4106850635274062,15
 mid,light,seed_0008,CQI k-means,0.4419144205360442,15
+mid,light,seed_0008,CQI k-means (k-means++),0.44485981429584004,15
 mid,light,seed_0008,Resource-cost k-means,0.44712721335461,15
 mid,light,seed_0008,Multi-feature k-means,0.4451216030155122,15
+mid,light,seed_0008,CQI+resource-cost hybrid (paper method),0.45008282706896385,15
 mid,light,seed_0008,Offline teacher,0.457258051147592,15
 mid,light,seed_0009,No grouping,0.4046018777679708,15
 mid,light,seed_0009,CQI k-means,0.43799523515405825,15
+mid,light,seed_0009,CQI k-means (k-means++),0.4404179405240546,15
 mid,light,seed_0009,Resource-cost k-means,0.44077480967018956,15
 mid,light,seed_0009,Multi-feature k-means,0.43822219201289203,15
+mid,light,seed_0009,CQI+resource-cost hybrid (paper method),0.44532750210130073,15
 mid,light,seed_0009,Offline teacher,0.45661234593572847,15
 mid,light,seed_0010,No grouping,0.4289346208057123,15
 mid,light,seed_0010,CQI k-means,0.4512185716457502,15
+mid,light,seed_0010,CQI k-means (k-means++),0.45011819911761536,15
 mid,light,seed_0010,Resource-cost k-means,0.44611667955413076,15
 mid,light,seed_0010,Multi-feature k-means,0.4497837594860975,15
+mid,light,seed_0010,CQI+resource-cost hybrid (paper method),0.4526158178025084,15
 mid,light,seed_0010,Offline teacher,0.4662155713550773,15
 mid,medium,seed_0001,No grouping,0.2969952832797224,15
 mid,medium,seed_0001,CQI k-means,0.3533937285285322,15
+mid,medium,seed_0001,CQI k-means (k-means++),0.35448304910405165,15
 mid,medium,seed_0001,Resource-cost k-means,0.3501680413216783,15
 mid,medium,seed_0001,Multi-feature k-means,0.34894299909364634,15
+mid,medium,seed_0001,CQI+resource-cost hybrid (paper method),0.3590598148655644,15
 mid,medium,seed_0001,Offline teacher,0.36463940703081177,15
 mid,medium,seed_0002,No grouping,0.2852070615971693,15
 mid,medium,seed_0002,CQI k-means,0.34174643099086965,15
+mid,medium,seed_0002,CQI k-means (k-means++),0.3435055162108026,15
 mid,medium,seed_0002,Resource-cost k-means,0.3491796185975046,15
 mid,medium,seed_0002,Multi-feature k-means,0.3484507328639351,15
+mid,medium,seed_0002,CQI+resource-cost hybrid (paper method),0.3531134410849132,15
 mid,medium,seed_0002,Offline teacher,0.3671478253435448,15
 mid,medium,seed_0003,No grouping,0.3323599483273816,15
 mid,medium,seed_0003,CQI k-means,0.3505558764838816,15
+mid,medium,seed_0003,CQI k-means (k-means++),0.3505558764838816,15
 mid,medium,seed_0003,Resource-cost k-means,0.35385366780177185,15
 mid,medium,seed_0003,Multi-feature k-means,0.3543448437052115,15
+mid,medium,seed_0003,CQI+resource-cost hybrid (paper method),0.35572110159158854,15
 mid,medium,seed_0003,Offline teacher,0.35969504518378326,15
 mid,medium,seed_0004,No grouping,0.31486669072171086,15
 mid,medium,seed_0004,CQI k-means,0.3613048059229423,15
+mid,medium,seed_0004,CQI k-means (k-means++),0.3647651538824666,15
 mid,medium,seed_0004,Resource-cost k-means,0.3552310023956081,15
 mid,medium,seed_0004,Multi-feature k-means,0.3595410159681465,15
+mid,medium,seed_0004,CQI+resource-cost hybrid (paper method),0.36514603608364704,15
 mid,medium,seed_0004,Offline teacher,0.3784133858739231,15
 mid,medium,seed_0005,No grouping,0.30307846903915775,15
 mid,medium,seed_0005,CQI k-means,0.3574602508286184,15
+mid,medium,seed_0005,CQI k-means (k-means++),0.3591966404631609,15
 mid,medium,seed_0005,Resource-cost k-means,0.3566102821218199,15
 mid,medium,seed_0005,Multi-feature k-means,0.36055516973635776,15
+mid,medium,seed_0005,CQI+resource-cost hybrid (paper method),0.36529781707312375,15
 mid,medium,seed_0005,Offline teacher,0.37928044976870806,15
 mid,medium,seed_0006,No grouping,0.3205717266448286,15
 mid,medium,seed_0006,CQI k-means,0.3604678747132733,15
+mid,medium,seed_0006,CQI k-means (k-means++),0.35960050772470376,15
 mid,medium,seed_0006,Resource-cost k-means,0.3567349658848278,15
 mid,medium,seed_0006,Multi-feature k-means,0.3538757844372181,15
+mid,medium,seed_0006,CQI+resource-cost hybrid (paper method),0.36454377924546066,15
 mid,medium,seed_0006,Offline teacher,0.3902082574237146,15
 mid,medium,seed_0007,No grouping,0.3205717266448285,15
 mid,medium,seed_0007,CQI k-means,0.3452009975080717,15
+mid,medium,seed_0007,CQI k-means (k-means++),0.34618942023224547,15
 mid,medium,seed_0007,Resource-cost k-means,0.3524917999761434,15
 mid,medium,seed_0007,Multi-feature k-means,0.3516291377224368,15
+mid,medium,seed_0007,CQI+resource-cost hybrid (paper method),0.35471467439807497,15
 mid,medium,seed_0007,Offline teacher,0.367001038563903,15
 mid,medium,seed_0008,No grouping,0.3205717266448286,15
 mid,medium,seed_0008,CQI k-means,0.3586245163100908,15
+mid,medium,seed_0008,CQI k-means (k-means++),0.3592273520982212,15
 mid,medium,seed_0008,Resource-cost k-means,0.36119478807684274,15
 mid,medium,seed_0008,Multi-feature k-means,0.3615743040955917,15
+mid,medium,seed_0008,CQI+resource-cost hybrid (paper method),0.3639171575456683,15
 mid,medium,seed_0008,Offline teacher,0.367391606090969,15
 mid,medium,seed_0009,No grouping,0.3205717266448284,15
 mid,medium,seed_0009,CQI k-means,0.3553111634127513,15
+mid,medium,seed_0009,CQI k-means (k-means++),0.3560591303231201,15
 mid,medium,seed_0009,Resource-cost k-means,0.3543749900091399,15
 mid,medium,seed_0009,Multi-feature k-means,0.35151580856153025,15
+mid,medium,seed_0009,CQI+resource-cost hybrid (paper method),0.35944265581793267,15
 mid,medium,seed_0009,Offline teacher,0.3682352007866888,15
 mid,medium,seed_0010,No grouping,0.3323599483273815,15
 mid,medium,seed_0010,CQI k-means,0.3620785038773487,15
+mid,medium,seed_0010,CQI k-means (k-means++),0.3619524539319094,15
 mid,medium,seed_0010,Resource-cost k-means,0.357709288023225,15
 mid,medium,seed_0010,Multi-feature k-means,0.3583359097230175,15
+mid,medium,seed_0010,CQI+resource-cost hybrid (paper method),0.36876452542491445,15
 mid,medium,seed_0010,Offline teacher,0.3804051867141508,15

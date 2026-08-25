@@ -648,13 +648,22 @@ def allocate_and_evaluate(
     groups: list[list[int]],
     scenario: Scenario,
     switch_beta: float,
+    value_fn: Callable[[list[int], int, "Scenario", float], float] | None = None,
 ) -> EvalResult:
     """Allocate video levels for a given grouping and return metrics.
 
     Important: this function does NOT decide the groups. It assumes groups are
     already given, then solves the per-group video-quality assignment exactly
     under the RB budget using dynamic programming.
+
+    `value_fn` defaults to `group_quality_value` (the project's fairness-
+    weighted log-utility) -- pass `group_adr_value` to make the DP instead
+    maximize raw ADR (see project memory `adr-objective-experiment`). All
+    other reported fields (adr_kbps, served_ratio, etc.) are computed the
+    same way regardless of which objective picked the winning allocation.
     """
+
+    value_fn = value_fn or group_quality_value
 
     group_options = []
     for group in groups:
@@ -705,7 +714,7 @@ def allocate_and_evaluate(
                 used_after = used_before + need
                 if used_after > scenario.rb_available:
                     continue
-                value_after = value_before + group_quality_value(group, quality, scenario, switch_beta)
+                value_after = value_before + value_fn(group, quality, scenario, switch_beta)
                 old = next_dp.get(used_after)
                 if old is None or value_after > old[0]:
                     next_dp[used_after] = (value_after, choices_before + [quality])
@@ -777,6 +786,31 @@ def group_quality_value(
     bitrate_score = normalized_bitrate_score(quality)
     switching = np.abs(quality - scenario.previous_quality[group]) / (len(VIDEO_BITRATES_KBPS) - 1)
     return float(np.sum(bitrate_score - switch_beta * switching))
+
+
+def group_adr_value(
+    group: list[int],
+    quality: int,
+    scenario: Scenario,
+    switch_beta: float | None = None,
+) -> float:
+    """Alternate group value: raw ADR (kbps) instead of log-bitrate utility,
+    no fairness/switching term. Same signature as `group_quality_value` (the
+    unused `switch_beta` is kept only so this is a drop-in swap wherever a
+    value_fn is accepted) so it can be passed to `allocate_and_evaluate` /
+    `best_kmeans_groups` to make the whole candidate-selection pipeline chase
+    raw throughput instead of the project's default fairness-weighted
+    log-utility. Unserved contributes exactly 0 (no separate penalty needed,
+    since 0 kbps is already the natural "worse than any served option" value
+    under a pure-throughput objective, unlike the log-score's 0..1 range).
+    Added 2026-08-25 to test whether multi-feature/resource-cost k-means's
+    edge over CQI k-means (if any) is specifically an ADR-objective effect
+    that the default log-utility masks -- see project memory
+    `adr-objective-experiment`."""
+
+    if quality < 0:
+        return 0.0
+    return float(VIDEO_BITRATES_KBPS[quality] * len(group))
 
 
 def normalized_bitrate_score(quality_idx: int) -> float:
@@ -1872,16 +1906,43 @@ def membership_candidate_groups(
     return candidates
 
 
+def _kmeans_plusplus_centers(x: np.ndarray, k: int, rng: np.random.Generator) -> np.ndarray:
+    """k-means++ seeding: first center uniform-random, each subsequent center
+    drawn with probability proportional to its squared distance to the
+    nearest already-chosen center (Arthur & Vassilvitskii 2007). Spreads
+    initial centers apart, unlike `kmeans()`'s default plain-random restart
+    (see project memory `paper-hybrid-candidate-method`)."""
+
+    n = len(x)
+    centers = np.empty((k, x.shape[1]), dtype=float)
+    centers[0] = x[rng.integers(n)]
+    closest_sq_dist = ((x - centers[0]) ** 2).sum(axis=1)
+    for i in range(1, k):
+        total = closest_sq_dist.sum()
+        probs = closest_sq_dist / total if total > 0 else np.full(n, 1.0 / n)
+        next_idx = rng.choice(n, p=probs)
+        centers[i] = x[next_idx]
+        new_sq_dist = ((x - centers[i]) ** 2).sum(axis=1)
+        closest_sq_dist = np.minimum(closest_sq_dist, new_sq_dist)
+    return centers
+
+
 def _kmeans_once(
     x: np.ndarray,
     k: int,
     rng: np.random.Generator,
     max_iter: int,
+    init: str = "random",
 ) -> tuple[list[list[int]], float]:
     """Run one deterministic-from-RNG k-means initialization."""
 
     n = len(x)
-    centers = x[rng.choice(n, size=k, replace=False)].copy()
+    if init == "kmeans++":
+        centers = _kmeans_plusplus_centers(x, k, rng)
+    elif init == "random":
+        centers = x[rng.choice(n, size=k, replace=False)].copy()
+    else:
+        raise ValueError(f"Unknown init: {init}")
     labels = np.zeros(n, dtype=int)
     for _ in range(max_iter):
         distances = ((x[:, None, :] - centers[None, :, :]) ** 2).sum(axis=2)
@@ -1911,12 +1972,18 @@ def kmeans(
     max_iter: int = 40,
     n_init: int = 10,
     seed: int = 0,
+    init: str = "random",
 ) -> list[list[int]]:
     """Deterministic multi-start k-means used as the clustering head.
 
     Every call with the same representation and arguments returns the same
     partition. Multiple initializations reduce sensitivity to a single random
     center choice; the partition with the lowest inertia is retained.
+
+    `init="kmeans++"` uses D^2-weighted seeding (see `_kmeans_plusplus_centers`)
+    instead of the default plain-random restart -- pass it to match the
+    user's published paper's clustering method (project memory
+    `paper-hybrid-candidate-method`).
     """
 
     n = len(x)
@@ -1931,7 +1998,7 @@ def kmeans(
     best_groups: list[list[int]] | None = None
     best_inertia = float("inf")
     for _ in range(n_init):
-        groups, inertia = _kmeans_once(x, k, rng, max_iter)
+        groups, inertia = _kmeans_once(x, k, rng, max_iter, init=init)
         if inertia < best_inertia:
             best_inertia = inertia
             best_groups = groups
@@ -1946,8 +2013,15 @@ def best_kmeans_groups(
     switch_beta: float,
     kmeans_n_init: int = 10,
     kmeans_seed: int = 0,
+    value_fn: Callable[[list[int], int, "Scenario", float], float] | None = None,
+    init: str = "random",
 ) -> list[list[int]]:
-    """Try k=1..Kmax and choose the grouping with best DP-evaluated utility."""
+    """Try k=1..Kmax and choose the grouping with best DP-evaluated utility.
+
+    `value_fn` is forwarded to `allocate_and_evaluate` -- pass
+    `group_adr_value` to select candidates by raw ADR instead of the default
+    log-utility (see project memory `adr-objective-experiment`). `init`
+    is forwarded to `kmeans` -- pass `"kmeans++"` for D^2-weighted seeding."""
 
     best_groups = [list(range(len(scenario.cqi_now)))]
     best_utility = -1e9
@@ -1957,8 +2031,9 @@ def best_kmeans_groups(
             k,
             n_init=kmeans_n_init,
             seed=kmeans_seed + k,
+            init=init,
         )
-        result = allocate_and_evaluate(groups, scenario, switch_beta)
+        result = allocate_and_evaluate(groups, scenario, switch_beta, value_fn=value_fn)
         if result.utility > best_utility:
             best_utility = result.utility
             best_groups = groups
@@ -1971,6 +2046,7 @@ def kmeans_candidate_groups(
     *,
     kmeans_n_init: int = 10,
     kmeans_seed: int = 0,
+    init: str = "random",
 ) -> list[list[list[int]]]:
     """Enumerate one k-means partition for each k in 1..Kmax."""
 
@@ -1980,6 +2056,7 @@ def kmeans_candidate_groups(
             k,
             n_init=kmeans_n_init,
             seed=kmeans_seed + k,
+            init=init,
         )
         for k in range(1, max_groups + 1)
     ]
@@ -2107,6 +2184,7 @@ def best_candidate_groups(
     scenario: Scenario,
     candidate_groupings: list[list[list[int]]],
     switch_beta: float,
+    value_fn: Callable[[list[int], int, "Scenario", float], float] | None = None,
 ) -> list[list[int]]:
     """Choose the highest-utility grouping from a candidate set."""
 
@@ -2118,7 +2196,7 @@ def best_candidate_groups(
         if normalized in seen:
             continue
         seen.add(normalized)
-        result = allocate_and_evaluate(groups, scenario, switch_beta)
+        result = allocate_and_evaluate(groups, scenario, switch_beta, value_fn=value_fn)
         if result.utility > best_utility:
             best_utility = result.utility
             best_groups = groups
@@ -2280,6 +2358,82 @@ def resource_cost_kmeans_grouping_normalized(
         scenario, normalized, max_groups, switch_beta,
         kmeans_n_init=kmeans_n_init,
     )
+
+
+def cqi_resource_hybrid_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Reproduces the user's published paper's method: k-means++ clustering
+    (not the plain-random-restart `kmeans()` default), with candidates drawn
+    from BOTH a CQI clustering and a resource-cost clustering (not just CQI
+    alone) -- the union is scored by actually solving the exact-DP resource
+    allocation for each candidate and keeping the one with the highest
+    realized utility, same selection mechanism as every other k-means
+    baseline here (`best_candidate_groups`), just over a richer candidate
+    pool and with k-means++ seeding.
+
+    Added 2026-08-25 after the user clarified their paper's method is
+    "CQI k-means + resource-cost concept," not resource-cost-only clustering
+    -- see project memory `paper-hybrid-candidate-method`. This differs from
+    `resource_cost_kmeans_grouping` (which replaces the CQI representation
+    entirely) in two ways: it keeps CQI-based candidates in the pool instead
+    of dropping them, and it uses k-means++ instead of plain random-restart
+    seeding for every candidate (CQI and resource-cost alike).
+    """
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    candidates = kmeans_candidate_groups(
+        cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++"
+    ) + kmeans_candidate_groups(
+        cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++"
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
+def cqi_resource_rbprofile_hybrid_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """`cqi_resource_hybrid_kmeans_grouping` plus a THIRD candidate family
+    clustered on each user's per-RB rate PROFILE SHAPE (z-scored
+    mean/min/max/std of rb_rates -- the same `rb_stats` columns
+    `build_feature_matrix("full")` uses), not just the single resource-cost
+    scalar-per-tier vector.
+
+    Rationale: in `scenario_mode="aligned"` (used throughout the dispersion-
+    stratified slides), rb_rates is literally `cqi_now + noise`, so there is
+    no genuine frequency-selective structure for an RB-profile candidate to
+    exploit beyond what CQI/resource-cost already see -- this candidate
+    family is expected to add little there. It should matter more in
+    `"ambiguous"` mode (deliberately gives users with the same wideband CQI
+    different per-RB profile shapes, see `generate_cqi_ambiguous_rb_cqi`) and
+    in `"anti_cqi_hard"`/`"corridor_general"`, the modes already established
+    as LE-GRA's genuine edge over CQI. Added 2026-08-25, see project memory
+    `paper-hybrid-candidate-method`."""
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    rb_stats = np.column_stack([
+        scenario.rb_rates.mean(axis=1),
+        scenario.rb_rates.min(axis=1),
+        scenario.rb_rates.max(axis=1),
+        scenario.rb_rates.std(axis=1),
+    ])
+    rb_stats_rep = ((rb_stats - rb_stats.mean(axis=0)) / (rb_stats.std(axis=0) + 1e-6)).astype(np.float32)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        + kmeans_candidate_groups(rb_stats_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
 
 
 def multi_feature_kmeans_grouping(
