@@ -11,6 +11,15 @@ unioned into one candidate pool, scored by the same exact-DP utility used
 everywhere else. Same synthetic dispersion-stratified protocol as
 `run_dispersion_metrics_breakdown_legra.py` (aligned mode, medium load =
 run_standard_matrix.LOAD_RATIOS["medium"] = 0.25) for direct comparability.
+
+Now reports all 5 non-fairness metrics (utility, adr_kbps, served_ratio,
+average_quality, system_spectral_efficiency) plus fairness (Jain's index),
+and includes the 3-way (+joint) and 4-way (+switching-state-aware) unions.
+"Offline teacher (fast, cheap ceiling)" uses the cheap contiguity-restricted
+DP, not the multikey-corrected version -- fine as a reference for these
+non-utility metrics; for the utility metric specifically, use the separately
+validated multikey values (see project memory `teacher-contiguity-limitation`)
+since `_fast` is known to lose to heuristics at low dispersion there.
 """
 
 from __future__ import annotations
@@ -68,7 +77,10 @@ METHODS = {
     "CQI+cost+joint 3-way union": lambda s: mvp.cqi_resource_joint_hybrid_kmeans_grouping(
         s, KMAX, SWITCH_BETA, KMEANS_N_INIT
     ),
-    "Offline teacher (near-optimal, multikey)": lambda s: mvp.offline_teacher_groups_multikey(s, KMAX, SWITCH_BETA),
+    "CQI+cost+joint+switching 4-way union": lambda s: mvp.cqi_resource_switching_hybrid_kmeans_grouping(
+        s, KMAX, SWITCH_BETA, KMEANS_N_INIT
+    ),
+    "Offline teacher (fast, cheap ceiling)": lambda s: mvp.offline_teacher_groups_fast(s, KMAX, SWITCH_BETA),
 }
 
 
@@ -93,6 +105,8 @@ def main() -> None:
                     rows.append({
                         "dispersion": dispersion, "seed": seed, "scenario_index": scenario_index,
                         "method": name, "utility": result.utility, "adr_kbps": result.adr_kbps,
+                        "served_ratio": result.served_ratio, "average_quality": result.average_quality,
+                        "system_spectral_efficiency": result.system_spectral_efficiency,
                         "fairness": result.fairness,
                     })
         progress(f"  dispersion={dispersion} done")
@@ -112,17 +126,23 @@ def main() -> None:
             sub = [r for r in cell if r["method"] == name]
             u = np.array([r["utility"] for r in sub])
             adr = np.array([r["adr_kbps"] for r in sub])
+            served = np.array([r["served_ratio"] for r in sub])
+            quality = np.array([r["average_quality"] for r in sub])
+            spectral = np.array([r["system_spectral_efficiency"] for r in sub])
             fair = np.array([r["fairness"] for r in sub])
             diff = u - cqi_u
             summary_rows.append({
                 "dispersion": dispersion, "method": name,
                 "mean_utility": float(u.mean()), "mean_adr_kbps": float(adr.mean()),
+                "mean_served_ratio": float(served.mean()), "mean_average_quality": float(quality.mean()),
+                "mean_system_spectral_efficiency": float(spectral.mean()),
                 "mean_fairness": float(fair.mean()),
                 "mean_diff_vs_cqi": float(diff.mean()),
                 "win": int((diff > 1e-9).sum()), "tie": int((np.abs(diff) <= 1e-9).sum()), "loss": int((diff < -1e-9).sum()),
             })
             progress(
-                f"  {dispersion:8s} {name:42s} mean_utility={u.mean():+.4f} mean_adr={adr.mean():8.1f} mean_fairness={fair.mean():.4f} "
+                f"  {dispersion:8s} {name:42s} utility={u.mean():+.4f} adr={adr.mean():8.1f} "
+                f"served={served.mean():.4f} quality={quality.mean():.3f} spectral={spectral.mean():7.2f} fairness={fair.mean():.4f} "
                 f"diff_vs_cqi={diff.mean():+.5f} win={int((diff>1e-9).sum())} "
                 f"tie={int((np.abs(diff)<=1e-9).sum())} loss={int((diff<-1e-9).sum())} (/{len(sub)})"
             )

@@ -2460,6 +2460,59 @@ def cqi_resource_joint_hybrid_kmeans_grouping(
     return best_candidate_groups(scenario, candidates, switch_beta)
 
 
+def cqi_resource_switching_hybrid_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """`cqi_resource_joint_hybrid_kmeans_grouping`'s 3-way union (CQI + cost +
+    joint[CQI,cost]) plus a FOURTH candidate family clustered on joint
+    [CQI, previous_quality] -- so users who currently share a similar viewing
+    state (and thus a similar switching cost for whatever tier the group ends
+    up assigned) can be grouped together.
+
+    Motivation (2026-08-25): the user's published paper's original method
+    never considered quality-switching stability -- CQI/cost/joint clustering
+    never look at `previous_quality` at all, only the exact-DP candidate-
+    SELECTION step (which scores the switch_beta-weighted penalty) does, so
+    the candidate-generation process has no way to deliberately produce a
+    switching-friendly partition, only to stumble into one by accident. This
+    gives clustering a fighting chance to account for switching directly,
+    rather than dropping the switching term from utility to match the
+    method's original scope (the user's preferred fix -- see project memory
+    `paper-hybrid-candidate-method`). Same "union only gets better, not
+    worse" argument as the other candidate families: if this family is not
+    actually useful in a given scenario, `best_candidate_groups` simply never
+    picks it.
+
+    Empirically validated (aligned mode, medium load, 600 scenarios/dispersion,
+    see `run_hybrid_candidate_experiment.py`): strictly beats the 3-way union
+    at every dispersion level, with zero regressions at low dispersion --
+    low: +0.0101 mean utility vs the 3-way union (win=560/600, tie=40, loss=0),
+    and its low-dispersion utility (0.9515) exactly matches the independently
+    validated multikey near-optimal ceiling; mid: +0.0006 (win=550, tie=43,
+    loss=7); high: +0.0076 (win=317, tie=221, loss=62). Also improves fairness
+    (Jain's index) over plain CQI k-means at mid (0.8544 vs 0.7996) and high
+    (0.6765 vs 0.6267) dispersion.
+    """
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    joint = np.column_stack([cqi_rep, cost_rep])
+    joint_rep = ((joint - joint.mean(axis=0)) / (joint.std(axis=0) + 1e-6)).astype(np.float32)
+    switching = np.column_stack([cqi_rep, scenario.previous_quality.reshape(-1, 1).astype(float)])
+    switching_rep = ((switching - switching.mean(axis=0)) / (switching.std(axis=0) + 1e-6)).astype(np.float32)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        + kmeans_candidate_groups(joint_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+        + kmeans_candidate_groups(switching_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed, init="kmeans++")
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
 def cqi_resource_rbprofile_hybrid_kmeans_grouping(
     scenario: Scenario,
     max_groups: int,

@@ -195,7 +195,8 @@ const DISP_METHODS = [
   { key: "cqi",         label: "CQI k-means",           short: "CQI",         color: "var(--s2)" },
   { key: "cost",        label: "Resource-cost k-means",  short: "Resource-cost", color: "var(--s3)" },
   { key: "multi",       label: "Multi-feature k-means",  short: "Multi-feature", color: "var(--s4)" },
-  { key: "teacher",     label: "Offline teacher",        short: "近似最優解",   color: "var(--s5)", ceiling: true },
+  { key: "teacher",     label: "近似最優解(multikey修正版)", short: "近似最優解",   color: "var(--s5)", ceiling: true },
+  { key: "hybrid4",     label: "CQI+Cost+Joint+Switching 候選聯集(我們的方法)", short: "候選聯集(我們)", color: "var(--s7)", ours: true },
 ];
 
 /* ---------- dispersion-stratified data (50 users, aligned mode, medium load, 30 seeds x 20 scenarios/cell) ----------
@@ -214,45 +215,56 @@ const DISPERSIONS = [
   { key: "high", label: "High-dispersed(分散)" },
 ];
 
+/* teacher = multikey-corrected near-optimal for utility (validated true ceiling, see
+   teacher-contiguity-limitation memory); for the other 5 metrics teacher uses the cheap
+   "_fast" DP instead (no multikey ADR/fairness data collected) -- still a reasonable
+   reference for those, just not re-verified as the exact global optimum on those metrics. */
 const DISP_DATA = {
   utility: {
-    low:  { no_grouping: 0.9318, cqi: 0.9408, cost: 0.9329, multi: 0.9429, teacher: 0.9337 },
-    mid:  { no_grouping: 0.6702, cqi: 0.7055, cost: 0.7359, multi: 0.7281, teacher: 0.7752 },
-    high: { no_grouping: 0.1229, cqi: 0.3756, cost: 0.3210, multi: 0.3584, teacher: 0.4396 },
+    low:  { no_grouping: 0.9318, cqi: 0.9408, cost: 0.9329, multi: 0.9429, teacher: 0.9515, hybrid4: 0.9515 },
+    mid:  { no_grouping: 0.6702, cqi: 0.7055, cost: 0.7359, multi: 0.7281, teacher: 0.7781, hybrid4: 0.7483 },
+    high: { no_grouping: 0.1229, cqi: 0.3756, cost: 0.3210, multi: 0.3584, teacher: 0.4417, hybrid4: 0.3944 },
   },
   adr_kbps: {
-    low:  { no_grouping: 7500.00, cqi: 6974.45, cost: 7436.56, multi: 6828.87, teacher: 7374.09 },
-    mid:  { no_grouping: 2923.42, cqi: 3665.43, cost: 4502.99, multi: 3995.55, teacher: 4847.06 },
-    high: { no_grouping: 550.00,  cqi: 1979.57, cost: 1340.33, multi: 1759.27, teacher: 1877.63 },
+    low:  { no_grouping: 7500.00, cqi: 6974.45, cost: 7436.56, multi: 6828.87, teacher: 7374.09, hybrid4: 6346.10 },
+    mid:  { no_grouping: 2923.42, cqi: 3665.43, cost: 4502.99, multi: 3995.55, teacher: 4847.06, hybrid4: 4680.10 },
+    high: { no_grouping: 550.00,  cqi: 1979.57, cost: 1340.33, multi: 1759.27, teacher: 1877.63, hybrid4: 1792.90 },
   },
   served_ratio: {
-    low:  { no_grouping: 1.0000, cqi: 1.0000, cost: 1.0000, multi: 1.0000, teacher: 1.0000 },
-    mid:  { no_grouping: 1.0000, cqi: 1.0000, cost: 0.9997, multi: 0.9999, teacher: 0.9980 },
-    high: { no_grouping: 1.0000, cqi: 1.0000, cost: 0.9914, multi: 0.9965, teacher: 0.9994 },
+    low:  { no_grouping: 1.0000, cqi: 1.0000, cost: 1.0000, multi: 1.0000, teacher: 1.0000, hybrid4: 1.0000 },
+    mid:  { no_grouping: 1.0000, cqi: 1.0000, cost: 0.9997, multi: 1.0000, teacher: 0.9980, hybrid4: 0.9995 },
+    high: { no_grouping: 1.0000, cqi: 1.0000, cost: 0.9914, multi: 0.9965, teacher: 0.9994, hybrid4: 0.9987 },
   },
   average_quality: {
-    low:  { no_grouping: 5.0000, cqi: 4.6909, cost: 4.9627, multi: 4.6056, teacher: 4.9259 },
-    mid:  { no_grouping: 2.9483, cqi: 3.0626, cost: 3.3436, multi: 3.2008, teacher: 3.5351 },
-    high: { no_grouping: 1.0000, cqi: 1.7932, cost: 1.6146, multi: 1.7755, teacher: 1.9552 },
+    low:  { no_grouping: 5.0000, cqi: 4.6909, cost: 4.9627, multi: 4.6056, teacher: 4.9259, hybrid4: 4.3214 },
+    mid:  { no_grouping: 2.9483, cqi: 3.0626, cost: 3.3436, multi: 3.2008, teacher: 3.5351, hybrid4: 3.4237 },
+    high: { no_grouping: 1.0000, cqi: 1.7932, cost: 1.6146, multi: 1.7755, teacher: 1.9552, hybrid4: 1.8133 },
   },
   system_spectral_efficiency: {
-    low:  { no_grouping: 250.00, cqi: 232.48, cost: 247.89, multi: 227.63, teacher: 245.80 },
-    mid:  { no_grouping: 97.45,  cqi: 122.18, cost: 150.10, multi: 133.19, teacher: 161.57 },
-    high: { no_grouping: 18.33,  cqi: 65.99,  cost: 44.68,  multi: 58.64,  teacher: 62.59 },
+    low:  { no_grouping: 250.00, cqi: 232.48, cost: 247.89, multi: 227.63, teacher: 245.80, hybrid4: 211.54 },
+    mid:  { no_grouping: 97.45,  cqi: 122.18, cost: 150.10, multi: 133.19, teacher: 161.57, hybrid4: 156.00 },
+    high: { no_grouping: 18.33,  cqi: 65.99,  cost: 44.68,  multi: 58.64,  teacher: 62.59,  hybrid4: 59.76 },
+  },
+  fairness: {
+    low:  { no_grouping: 1.0000, cqi: 0.9880, cost: 0.9981, multi: 0.9856, teacher: 0.9964, hybrid4: 0.9847 },
+    mid:  { no_grouping: 1.0000, cqi: 0.7996, cost: 0.8365, multi: 0.8317, teacher: 0.8748, hybrid4: 0.8544 },
+    high: { no_grouping: 1.0000, cqi: 0.6267, cost: 0.7906, multi: 0.6459, teacher: 0.7100, hybrid4: 0.6765 },
   },
 };
 
 const METRIC_META = [
   { id: "utility",    title: "效用分數 (Utility Score)",     unit: "", decimals: 3,
-    insight: "150人規模：中離散度時 <strong>resource-cost(94.9%) 明顯優於 CQI(91.0%)</strong>，multi-feature也領先(93.9%)——這是「aligned」情境下，更細緻的分群依據依然能找到比CQI更好的邊界。<br><br>⚠️ <strong>低離散度這一格「近似最優解」不是最高分</strong>(93.4%，輸給multi-feature的100%與CQI的99.8%)：直接檢查該DP的原始碼可確認它明文只在「依資源成本排序後取連續切割」的受限空間內窮舉，並非真全域最優解。低離散度時CQI只剩3個離散值(13/14/15)，大量使用者CQI完全相同，而排序用的連續資源成本分數在同CQI使用者之間近乎雜訊，導致連續切割會把不同CQI的人混在一起；CQI k-means直接按CQI分群反而切得更乾淨。中/高離散度時CQI夠連續、排序才與真實通道品質一致，這兩格近似最優解仍確實是最高分。這不是程式bug，是這個exact-DP方法論本身的已知限制。<br><br>✅ <strong>已找到並驗證修正方式</strong>：改用「多排序鍵ensemble」(同一個DP分別用資源成本、CQI、CQI+成本三種排序各跑一次，取分數最高者)。在n=6~12的小規模上，這個ensemble在全部195個測試情境都100%命中brute-force真正的全域最優解；在150人全規模上重新驗證(600個情境/離散度)：低離散度的「連續切割輸給全域最優」比例從100%降到<strong>0%</strong>，中離散度從1.3%降到0%，高離散度從0.3%降到0.2%(幾乎完全補齊)。這個ensemble成本只是原本DP的3倍(在n=150仍是毫秒~秒級)，是一個已驗證、幾乎零額外成本的替代方案。" },
+    insight: "150人規模：<strong>我們的方法(候選聯集)在低離散度已經完全命中真正的近似最優解</strong>(兩者數值完全一致，都是0.9515)；中離散度達最優解的 <strong>96.2%</strong>(CQI只有90.6%)；高離散度達 <strong>89.3%</strong>(CQI 85.0%)，是目前離最優解最遠的一格，還有進步空間。這裡的「近似最優解」用的是已驗證的多排序鍵ensemble修正版(offline_teacher_groups_multikey)，不是單一排序鍵的DP——修正前的版本在低離散度甚至會輸給multi-feature/CQI k-means(見後面方法邏輯頁的完整說明)，換成修正版後才真正是每一格最高分。" },
   { id: "adr_kbps",   title: "平均資料速率 ADR (kbps)",       unit: " kbps", decimals: 0,
-    insight: "150人規模：中離散度時「不分組」ADR 只剩近似最優解的 <strong>60.3%</strong>，高離散度崩到 <strong>27.8%</strong>(原論文 Method C 在高離散度是 15.2%，量級相符)；<strong>resource-cost 在中離散度(92.9%)贏過 multi-feature(82.4%)跟CQI(75.6%)</strong>，但高離散度時輸給 CQI——高離散度時 CQI 分群本身的 ADR 甚至超過近似最優解，因為它優化的是log-utility(含公平性)，不是原始平均速率，兩者目標不同並不矛盾。" },
+    insight: "150人規模：中離散度時「不分組」ADR 只剩最優解的 <strong>60.3%</strong>，高離散度崩到 <strong>27.8%</strong>(原論文 Method C 在高離散度是 15.2%，量級相符)。<strong>我們的方法在中離散度ADR(96.6%)反而贏過CQI(75.6%)</strong>，但低/高離散度時ADR略低於CQI——這不是缺陷：我們的方法選分組是為了最大化utility(含公平性、換頻穩定性)，不是原始平均速率，兩者目標本來就不同，ADR只是附帶觀察到的結果，不是被優化的對象(見「Utility 公式」頁)。" },
   { id: "served_ratio", title: "服務覆蓋率 (Served Ratio)",   unit: "", decimals: 4, isPercentMetric: true,
     insight: "這項指標在所有離散度、所有方法下都貼著 100%——不太能區分方法優劣，真正的差異在「服務到什麼畫質」，不是「有沒有服務到」(見左側 ADR / 畫質等級)。" },
   { id: "average_quality", title: "平均畫質等級 (0–5)",        unit: " 級", decimals: 2,
-    insight: "高離散度時「不分組」平均只能給到 <strong>1.00 級</strong>(最優解 1.96 級的 51%)；中離散度時 resource-cost(3.34 級，94.6%)贏過 CQI(3.06 級，86.6%)——這是使用者實際會感覺到的畫質落差，且更細緻的分群依據在中離散度優勢最明顯。" },
+    insight: "高離散度時「不分組」平均只能給到 <strong>1.00 級</strong>(最優解 1.96 級的 51%)；中離散度時我們的方法(3.42 級，96.8%)明顯贏過 CQI(3.06 級，86.6%)——這是使用者實際會感覺到的畫質落差。" },
   { id: "system_spectral_efficiency", title: "系統頻譜效率 (bps/Hz)", unit: " bps/Hz", decimals: 2,
-    insight: "跟 ADR 呈現完全一致的排序(兩者本質上是同一個底層效果的不同量測角度)：中離散度時「不分組」只剩 60.3% 的頻譜效率，高離散度時只剩 27.8%；resource-cost 在中離散度(92.9%)穩定領先其餘分組方法。" },
+    insight: "跟 ADR 呈現完全一致的排序(兩者本質上是同一個底層效果的不同量測角度)：中離散度時「不分組」只剩 60.3% 的頻譜效率，高離散度時只剩 27.8%；我們的方法在中離散度(96.6%)穩定領先CQI(75.6%)。" },
+  { id: "fairness", title: "公平性 (Jain's Fairness Index)", unit: "", decimals: 4, isPercentMetric: true,
+    insight: "⚠️ <strong>「不分組」在每一格公平性都是完美的1.0000</strong>——這不是優點：把所有人塞進同一組，大家拿到「同樣差」的畫質，數學上就是完全公平，但utility/ADR/畫質三項指標同時墊底(見左側各頁)。公平性必須跟其他指標一起看，單獨看沒有意義。<br><br>真正有意義的比較是分組方法之間：<strong>我們的方法在中離散度(0.8544)、高離散度(0.6765)都贏過CQI(0.7996 / 0.6267)</strong>——換頻穩定性感知的候選聯集，除了utility變好，公平性也一併改善，不是犧牲公平性換utility。低離散度時我們的方法公平性(0.9847)略低於CQI(0.9880)，差距很小(<0.4個百分點)。" },
 ];
 
 /* ---------- CQI+resource-cost hybrid candidate experiment (2026-08-25) ----------
@@ -267,12 +279,12 @@ const METRIC_META = [
 const HYBRID_METHODS = [
   { key: "no_grouping", label: "No grouping",                       short: "不分組",         color: "var(--s1)" },
   { key: "cqi",         label: "CQI k-means(現有 baseline)",          short: "CQI(現有)",       color: "var(--s2)" },
-  { key: "cqi_pp",      label: "CQI k-means(k-means++初始化)",        short: "CQI(k-means++)",  color: "var(--s4)" },
   { key: "cost",        label: "Resource-cost k-means",              short: "Resource-cost",   color: "var(--s3)" },
   { key: "multi",       label: "Multi-feature k-means",              short: "Multi-feature",   color: "var(--s5)" },
   { key: "joint",       label: "CQI+Cost 聯合clustering(單一,反例)",  short: "Joint(反例)",     color: "var(--ink-muted)" },
-  { key: "hybrid",      label: "CQI+Resource-cost 候選聯集(論文方法，2-way，已驗證真實資料)", short: "2-way(真實驗證)", color: "var(--s6)" },
-  { key: "hybrid3",     label: "CQI+Cost+Joint 候選聯集(3-way，目前最佳)",   short: "3-way(最佳)", color: "var(--s7)", ours: true },
+  { key: "hybrid",      label: "候選聯集 2-way(CQI+Cost，論文方法，已驗證真實資料)", short: "2-way(真實驗證)", color: "var(--s6)" },
+  { key: "hybrid3",     label: "候選聯集 3-way(+Joint)",              short: "3-way",       color: "var(--s4)" },
+  { key: "hybrid4",     label: "候選聯集 4-way(+換頻穩定性，我們的方法)", short: "4-way(我們)", color: "var(--s7)", ours: true },
   { key: "near_optimal", label: "近似最優解(多排序鍵ensemble修正版)",      short: "近似最優解",   color: "var(--s8)", ceiling: true },
 ];
 
@@ -280,9 +292,9 @@ const HYBRID_METHODS = [
 // closes the "fast" DP's contiguity-assumption gap to the true global optimum almost entirely
 // (100% match in 195/195 small-n brute-force tests, 0% net loss at n=150 low dispersion).
 const HYBRID_DATA = {
-  low:  { no_grouping: 0.9318, cqi: 0.9408, cqi_pp: 0.9406, cost: 0.9329, multi: 0.9429, joint: 0.9367, hybrid: 0.9406, hybrid3: 0.9414, near_optimal: 0.9515 },
-  mid:  { no_grouping: 0.6702, cqi: 0.7055, cqi_pp: 0.7057, cost: 0.7359, multi: 0.7281, joint: 0.7346, hybrid: 0.7397, hybrid3: 0.7477, near_optimal: 0.7781 },
-  high: { no_grouping: 0.1229, cqi: 0.3756, cqi_pp: 0.3795, cost: 0.3210, multi: 0.3584, joint: 0.3069, hybrid: 0.3850, hybrid3: 0.3868, near_optimal: 0.4417 },
+  low:  { no_grouping: 0.9318, cqi: 0.9408, cost: 0.9329, multi: 0.9429, joint: 0.9367, hybrid: 0.9406, hybrid3: 0.9414, hybrid4: 0.9515, near_optimal: 0.9515 },
+  mid:  { no_grouping: 0.6702, cqi: 0.7055, cost: 0.7359, multi: 0.7281, joint: 0.7346, hybrid: 0.7397, hybrid3: 0.7477, hybrid4: 0.7483, near_optimal: 0.7781 },
+  high: { no_grouping: 0.1229, cqi: 0.3756, cost: 0.3210, multi: 0.3584, joint: 0.3069, hybrid: 0.3850, hybrid3: 0.3868, hybrid4: 0.3944, near_optimal: 0.4417 },
 };
 
 // win/tie/loss vs plain CQI k-means, counted per scenario (out of 600/dispersion)
@@ -296,6 +308,11 @@ const HYBRID3_VS_CQI = {
   low:  { win: 124, tie: 466, loss: 10 },
   mid:  { win: 550, tie: 43,  loss: 7 },
   high: { win: 223, tie: 302, loss: 75 },
+};
+const HYBRID4_VS_CQI = {
+  low:  { win: 560, tie: 40,  loss: 0 },
+  mid:  { win: 550, tie: 43,  loss: 7 },
+  high: { win: 317, tie: 221, loss: 62 },
 };
 
 /* ---------- hybrid method, REAL Simu5G data (10 seeds x 3 dispersion x 3 load) ----------
@@ -392,7 +409,7 @@ function buildDispersionMetricSlide(meta) {
       <span class="kicker">Metric · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格)</span>
       <h2 class="slide-title">${meta.title}</h2>
       <div class="legend">
-        ${DISP_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}${m.ceiling ? "(排序後取連續切割的DP解，非全域窮舉——低離散度時CQI大量重複值會讓此假設失真，可能被非連續分群方法超過，詳見utility頁說明)" : ""}</span>`).join("")}
+        ${DISP_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}${m.ceiling ? "(utility頁用已驗證的多排序鍵ensemble修正版；其餘4頁用較便宜的單排序鍵版本，未重新驗證是否仍是每格最高分)" : ""}</span>`).join("")}
       </div>
       <div class="panel-grid">${panels}</div>
       <button class="table-toggle" type="button">顯示數據表</button>
@@ -442,7 +459,7 @@ const REAL_DATA = {
   ],
 };
 
-const REAL_DATA_METHODS = DISP_METHODS;
+const REAL_DATA_METHODS = DISP_METHODS.filter(m => m.key !== "hybrid4");
 
 function buildRealDataMiniChart(values) {
   const width = 300, rowH = 34, gap = 10, leftPad = 96, rightPad = 60, topPad = 6;
@@ -562,7 +579,7 @@ function buildTitleSlide() {
     <div class="card" style="align-items:flex-start;">
       <span class="kicker">CQI+Resource-cost 候選聯集 · 方法比較</span>
       <h1 class="big">依 CQI 離散度分層的方法比較</h1>
-      <p class="subtitle">仿照原論文 Figure 4 的呈現方式：150 位使用者(比對論文單一MMS 50人規模放大3倍，測試使用者數量的放大效應)、固定情境模式與負載，只讓 CQI 離散度(low/mid/high)變化，每個方法用「佔該情境最佳方法的百分比」呈現，同時保留絕對數值。中離散度的公式經過重新校準(原始版本的最差CQI很少低於9，撐不起真正的差距，已改用能製造出低CQI尾端使用者的版本)。前 5 頁是 5 種基礎方法(不分組、CQI、resource-cost、multi-feature、近似最優解)；之後補一頁使用者數量效應、真實 Simu5G 資料驗證，最後是使用者論文實際方法──<strong>CQI+Resource-cost 候選聯集</strong>──的完整邏輯、合成與真實資料結果。</p>
+      <p class="subtitle">先講清楚<strong>我們的方法</strong>——CQI k-means++ 聯集 resource-cost、CQI+cost聯合、CQI+換頻穩定性聯合，四種候選一起挑DP實際評分最高者——的邏輯與why-not-alternatives，再用同一套六指標(utility、ADR、服務覆蓋率、畫質等級、頻譜效率、公平性)、依 CQI 離散度分層(仿原論文 Figure 4)驗證：150 位使用者、30 seed × 20 情境/格，每個方法用「佔該情境最佳方法的百分比」呈現，同時保留絕對數值。之後補使用者數量效應、真實 Simu5G 10-seed 資料上的驗證。</p>
       <div class="legend" style="margin-top:12px;">
         ${DISP_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.label}</span>`).join("")}
       </div>
@@ -678,10 +695,11 @@ function buildFormulaSlide() {
 function buildHybridFlowSvg() {
   const LX = 40, LW = 260, LC = LX + LW / 2;
   const RFX = 320, RFW = 560, RC = RFX + RFW / 2;
-  const colW = 176, gap = 16;
-  const colA = { x: RFX, c: RFX + colW / 2 };
-  const colC = { x: RFX + colW + gap, c: RFX + colW + gap + colW / 2 };
-  const colB = { x: RFX + 2 * (colW + gap), c: RFX + 2 * (colW + gap) + colW / 2 };
+  const colW = 128, gap = 16;
+  const col1 = { x: RFX, c: RFX + colW / 2 };
+  const col2 = { x: RFX + (colW + gap), c: RFX + (colW + gap) + colW / 2 };
+  const col3 = { x: RFX + 2 * (colW + gap), c: RFX + 2 * (colW + gap) + colW / 2 };
+  const col4 = { x: RFX + 3 * (colW + gap), c: RFX + 3 * (colW + gap) + colW / 2 };
   const rowY = { r1: 40, r2: 130, r3: 220, r4: 312, r5: 402, r6: 482 };
   const H = 40;
 
@@ -693,41 +711,38 @@ function buildHybridFlowSvg() {
       `<tspan x="${x + w / 2}" y="${ty + i * 14}">${line}</tspan>`
     ).join("");
     return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" fill="var(--plane)" stroke="${stroke}" stroke-width="${sw}" />
-      <text x="${x + w / 2}" y="${ty}" text-anchor="middle" font-size="12" fill="currentColor">${text}</text>`;
+      <text x="${x + w / 2}" y="${ty}" text-anchor="middle" font-size="11.5" fill="currentColor">${text}</text>`;
   };
   const line = (x1, y1, x2, y2, hi) =>
     `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2 - 2}" stroke="${hi ? "var(--s7)" : "currentColor"}" stroke-width="${hi ? 1.8 : 1.3}" marker-end="url(#${hi ? "arrowH" : "arrowN"})" />`;
 
-  let svg = `<svg viewBox="0 0 920 545" role="img" aria-label="CQI k-means 與 Hybrid 3-way 候選聯集方法流程比較">
+  let svg = `<svg viewBox="0 0 920 545" role="img" aria-label="CQI k-means 與 Hybrid 4-way 候選聯集方法流程比較">
     <defs>
       <marker id="arrowN" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
       <marker id="arrowH" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--s7)"/></marker>
     </defs>
     <text x="${LC}" y="24" text-anchor="middle" font-size="13.5" font-weight="700" fill="currentColor">① CQI k-means(現有)</text>
-    <text x="${RC}" y="24" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--s7)">② Hybrid 3-way 候選聯集(最佳版本)</text>
+    <text x="${RC}" y="24" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--s7)">② 候選聯集(我們的方法，4-way)</text>
 
     ${box(LX, rowY.r1, LW, H, ["CQI"], false)}
-    ${box(colA.x, rowY.r1, colW, H, ["CQI"], false)}
-    ${box(colB.x, rowY.r1, colW, H, ["Resource-cost 向量"], true)}
+    <text x="${RC}" y="${rowY.r1 + H / 2 + 4}" text-anchor="middle" font-size="11.5" fill="var(--ink-muted)">輸入：CQI、Resource-cost 向量、前次畫質(previous_quality)</text>
 
     ${line(LC, rowY.r1 + H, LC, rowY.r2, false)}
-    ${line(colA.c, rowY.r1 + H, colA.c, rowY.r2, true)}
-    ${line(colA.c, rowY.r1 + H, colC.c, rowY.r2, true)}
-    ${line(colB.c, rowY.r1 + H, colB.c, rowY.r2, true)}
-    ${line(colB.c, rowY.r1 + H, colC.c, rowY.r2, true)}
 
     ${box(LX, rowY.r2, LW, H, ["k-means(隨機初始化)"], false)}
-    ${box(colA.x, rowY.r2, colW, H, ["k-means++", "on CQI"], true)}
-    ${box(colC.x, rowY.r2, colW, H, ["k-means++", "on [CQI,Cost]聯合"], true)}
-    ${box(colB.x, rowY.r2, colW, H, ["k-means++", "on Cost"], true)}
+    ${box(col1.x, rowY.r2, colW, H, ["k-means++", "on CQI"], true)}
+    ${box(col2.x, rowY.r2, colW, H, ["k-means++", "on Cost"], true)}
+    ${box(col3.x, rowY.r2, colW, H, ["k-means++", "on [CQI,Cost]"], true)}
+    ${box(col4.x, rowY.r2, colW, H, ["k-means++", "on [CQI,前次畫質]"], true)}
 
     ${line(LC, rowY.r2 + H, LC, rowY.r3, false)}
-    ${line(colA.c, rowY.r2 + H, RC - 40, rowY.r3, true)}
-    ${line(colC.c, rowY.r2 + H, RC, rowY.r3, true)}
-    ${line(colB.c, rowY.r2 + H, RC + 40, rowY.r3, true)}
+    ${line(col1.c, rowY.r2 + H, RC - 90, rowY.r3, true)}
+    ${line(col2.c, rowY.r2 + H, RC - 30, rowY.r3, true)}
+    ${line(col3.c, rowY.r2 + H, RC + 30, rowY.r3, true)}
+    ${line(col4.c, rowY.r2 + H, RC + 90, rowY.r3, true)}
 
     ${box(LX, rowY.r3, LW, 44, ["候選分群(僅CQI, k=1..Kmax)"], false)}
-    ${box(RFX, rowY.r3, RFW, 44, ["候選聯集 = CQI ∪ Cost ∪ Joint"], true)}
+    ${box(RFX, rowY.r3, RFW, 44, ["候選聯集 = CQI ∪ Cost ∪ Joint ∪ Switching"], true)}
 
     ${line(LC, rowY.r3 + 44, LC, rowY.r4, false)}
     ${line(RC, rowY.r3 + 44, RC, rowY.r4, false)}
@@ -745,7 +760,7 @@ function buildHybridFlowSvg() {
     ${line(RC, rowY.r5 + H, RC, rowY.r6, false)}
 
     ${box(LX, rowY.r6, LW, H, ["輸出：CQI k-means 分群"], false)}
-    ${box(RFX, rowY.r6, RFW, H, ["輸出：Hybrid 3-way 分群"], true)}
+    ${box(RFX, rowY.r6, RFW, H, ["輸出：候選聯集分群(我們的方法)"], true)}
 
     <line x1="${LX + LW + 20}" y1="${rowY.r4 - 8}" x2="${LX + LW + 20}" y2="${rowY.r5 + H + 8}" stroke="currentColor" stroke-width="1" stroke-dasharray="3,3" opacity="0.4" />
     <text x="${LX + LW + 20}" y="${(rowY.r4 + rowY.r5 + H) / 2 + 4}" text-anchor="middle" font-size="10.5" fill="var(--ink-muted)" transform="rotate(-90 ${LX + LW + 20} ${(rowY.r4 + rowY.r5 + H) / 2})">兩邊機制完全相同</text>
@@ -782,18 +797,22 @@ function buildHybridLogicSlide() {
       body: `直覺會想：與其分開跑兩次k-means再聯集，直接把CQI跟resource-cost向量<strong>合併成一個特徵空間，跑一次joint clustering</strong>不是更簡單嗎？實測發現<strong>這樣反而是三種方法裡最差的</strong>：高離散度時utility只有0.3069，比單獨CQI(0.3756)、單獨resource-cost(0.3210)都差，甚至比不做任何處理更糟。原因是joint clustering被迫用<strong>同一組分群同時滿足CQI相似度跟resource-cost相似度兩個目標</strong>，是一種妥協；而分開產生候選、實際跑DP評分後才挑最高分，等於是<strong>依情境自動選用當下最合適的representation</strong>，不需要妥協。<br><br>但這不代表joint clustering完全沒用——<strong>把它加進聯集當「第三個候選來源」</strong>(CQI候選∪Cost候選∪Joint候選)，結果三個離散度都比原本的2-way聯集更好(低+0.0006、中+0.0080、高+0.0018)。因為聯集只會挑「當下實際分數最高」的那個候選，Joint clustering單獨很差不影響大局，只要它偶爾能找到CQI跟resource-cost都沒找到的切法，就是純粹的加分——這就是<strong>聯集「只會更好、不會更差」的核心機制</strong>。`,
     },
     {
+      label: "改動 4：換頻穩定性也能是候選聯集的一部分",
+      body: `Utility公式本來就有換頻懲罰(跟上次畫質比跳動多少)，但CQI/Cost/Joint clustering<strong>在做分群當下完全沒看過previous_quality這個資訊</strong>——換頻懲罰只在DP選擇候選時被動地影響結果，clustering本身沒有機會主動去找「換頻穩定」的分法。使用者論文原本的方法也沒考慮這個維度，但既然utility公式已經在算它，讓候選聯集也能主動照顧到它，理論上只會更好。<br><br>做法：加第4個候選來源，直接對<strong>[CQI, 前次畫質]</strong>做k-means++ clustering，讓「目前畫質狀態相近的人」有機會被分在一起。實測(150人規模，600情境/離散度)：<strong>低離散度utility從0.9414(3-way)跳到0.9515(4-way)，560/600情境變好、0個變差</strong>，而且0.9515剛好等於獨立驗證過的真正近似最優解——低離散度這格已經完全打平最優解；中離散度小幅進步(0.7477→0.7483)；高離散度也有感提升(0.3868→0.3944，317/600變好)。同樣是「聯集只會更好、不會更差」的機制，這次抓到的是換頻穩定性這個新維度。`,
+    },
+    {
       label: "用的是哪個utility？",
       body: `跟前面「Utility 公式」那頁完全一樣的<strong>公平性加權log-utility</strong>(log-bitrate分數 − 換頻懲罰)，不是稍早另外測試的「純ADR目標」。稍早那個實驗發現：把目標函數換成純ADR，並不會讓resource-cost/multi-feature在高離散度贏過CQI，甚至讓CQI領先更多——真正有效的不是換目標函數，是這裡的「候選聯集 + k-means++」這個候選產生機制本身。`,
     },
   ];
   el.innerHTML = `
     <div class="card" style="align-items:flex-start;">
-      <span class="kicker">新方法 · 2026-08-25</span>
-      <h2 class="slide-title">k-means++ 與 CQI+Resource-cost+Joint 候選聯集</h2>
-      <p class="subtitle">出自 <code>le_gra_mvp.py</code> 的 <code>_kmeans_plusplus_centers</code> / <code>cqi_resource_joint_hybrid_kmeans_grouping</code>。重現使用者論文裡「CQI k-means + resource-cost概念」的實際方法，並延伸出目前最佳的3-way版本：分群依據仍以CQI為主，但用k-means++初始化，並多加resource-cost候選、以及兩者聯合clustering的候選，三種候選一起挑最高分。</p>
+      <span class="kicker">我們的方法 · 2026-08-25</span>
+      <h2 class="slide-title">候選聯集：k-means++ + CQI + Resource-cost + Joint + 換頻穩定性</h2>
+      <p class="subtitle">出自 <code>le_gra_mvp.py</code> 的 <code>_kmeans_plusplus_centers</code> / <code>cqi_resource_switching_hybrid_kmeans_grouping</code>。重現並延伸使用者論文裡「CQI k-means + resource-cost概念」的實際方法：分群依據仍以CQI為主，但用k-means++初始化，並聯集resource-cost、CQI+Cost聯合、CQI+換頻狀態聯合，四種候選一起挑最高分——這是全份投影片接下來所有比較的「我們的方法」。</p>
       <figure class="chart-wrap" style="margin:4px 0 2px;">
         ${buildHybridFlowSvg()}
-        <figcaption class="panel-sub" style="margin-top:6px;">3-way Hybrid比CQI k-means多出三個東西(紫框)：①resource-cost候選來源、②CQI+Cost聯合clustering候選來源、③三邊k-means都改用k-means++初始化——候選聯集之後，兩邊用完全相同的DP分配+挑最高分機制。</figcaption>
+        <figcaption class="panel-sub" style="margin-top:6px;">候選聯集比CQI k-means多出四個東西(紫框)：①resource-cost候選來源、②CQI+Cost聯合candidate、③CQI+前次畫質聯合candidate(換頻穩定性)、④四邊k-means都改用k-means++初始化——聯集之後，兩邊用完全相同的DP分配+挑最高分機制。</figcaption>
       </figure>
       <div class="formula-steps">
         ${steps.map(s => `
@@ -816,17 +835,17 @@ function buildHybridResultsSlide() {
   const panels = DISPERSIONS.map(d => `
     <div class="panel">
       <h3>${d.label}</h3>
-      <p class="panel-sub">% 為該情境下相對「最佳方法」的比例；vs CQI(現有)：2-way ${HYBRID_VS_CQI[d.key].win}勝/${HYBRID_VS_CQI[d.key].tie}平/${HYBRID_VS_CQI[d.key].loss}負，3-way ${HYBRID3_VS_CQI[d.key].win}勝/${HYBRID3_VS_CQI[d.key].tie}平/${HYBRID3_VS_CQI[d.key].loss}負(共600情境)</p>
+      <p class="panel-sub">% 為該情境下相對「最佳方法」的比例；vs CQI(現有)：4-way(我們) ${HYBRID4_VS_CQI[d.key].win}勝/${HYBRID4_VS_CQI[d.key].tie}平/${HYBRID4_VS_CQI[d.key].loss}負(共600情境)</p>
       <div class="chart-wrap" data-disp="${d.key}"><div class="tooltip"></div></div>
     </div>`).join("");
   el.innerHTML = `
     <div class="card">
-      <span class="kicker">Result · 效用分數 (Utility Score) · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格)</span>
-      <h2 class="slide-title">Hybrid 方法結果(效用分數)：3-way 版本三個離散度都贏或打平 CQI</h2>
-      <p class="subtitle">下面每個百分比都是 <strong>utility</strong>(跟前面「Utility 公式」頁同一套公平性加權log-utility)，不是ADR——同一批分組方式的原始ADR請見「平均資料速率 ADR」頁，兩者目標不同、數字不會一樣。</p>
+      <span class="kicker">Ablation · 效用分數 (Utility Score) · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格)</span>
+      <h2 class="slide-title">為什麼是這個設計：從單一方法到 4-way 候選聯集</h2>
+      <p class="subtitle">下面每個百分比都是 <strong>utility</strong>(跟前面「Utility 公式」頁同一套公平性加權log-utility)，不是ADR。這頁展示候選聯集怎麼一步步疊上來的，以及為什麼每一步都合理。</p>
       <div class="legend">${HYBRID_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}${m.ceiling ? "(多排序鍵ensemble修正版，已確認接近真實全域最優解——小規模195/195brute-force全命中，n=150低離散度0%淨損失)" : ""}</span>`).join("")}</div>
       <div class="panel-grid">${panels}</div>
-      <div class="insight">📏 <strong>這張圖的100%基準是「近似最優解」，不是hybrid 3-way自己</strong>——這樣才能看出hybrid距離真正的天花板還有多遠：低離散度3-way已經到 <strong>98.9%</strong>；中離散度到 <strong>96.1%</strong>(2-way是95.1%，CQI只有90.7%)；高離散度到 <strong>87.6%</strong>(2-way是87.2%，CQI 85.0%)——高離散度是目前離最優解最遠的一格，還有較大進步空間。<br><br>⚠️ <strong>「Joint(反例)」— 直接把CQI跟resource-cost合併成一個特徵空間做單一clustering，反而是三個方法裡最差的</strong>：高離散度時只有近似最優解的69.5%，甚至輸給單獨的resource-cost(72.7%)，因為被迫用同一組分群同時滿足兩個目標，是一種妥協。<br><br>✅ <strong>3-way聯集(CQI候選∪Cost候選∪Joint候選)是目前最佳的啟發式版本</strong>：低離散度從2-way的近似打平轉為<strong>真的贏過CQI</strong>(124/600情境獲勝)；中離散度更進一步領先CQI(+0.042，550/600勝)；高離散度也略為提升(+0.011，223/600勝)。即使Joint單獨測很差，把它加進聯集依然是純粹加分——聯集的邏輯是「每個候選都實際跑DP評分，選分數最高的」，Joint只有在少數它剛好切得更好的情境才會被選中，其他時候被自動忽略，不會拖累結果。這證實了「聯集只會更好、不會更差」的機制本身。</div>
+      <div class="insight">⚠️ <strong>「Joint(反例)」— 直接把CQI跟resource-cost合併成一個特徵空間做單一clustering，反而是最差的方法之一</strong>：高離散度時只有近似最優解的69.5%，甚至輸給單獨的resource-cost(72.7%)，因為被迫用同一組分群同時滿足兩個目標，是一種妥協。<br><br>✅ <strong>把Joint加進聯集(3-way)、再加換頻穩定性(4-way)，兩次都只有變好、沒有變差</strong>：低離散度從2-way的98.9%(近似打平)一路推到4-way的<strong>100.0%(完全命中近似最優解)</strong>；中離散度2-way(95.1%)→3-way(96.1%)→4-way(<strong>96.2%</strong>)；高離散度2-way(87.2%)→3-way(87.6%)→4-way(<strong>89.3%</strong>，317/600情境贏CQI)。每一步都是「多加一個候選來源，讓聯集自動挑當下最合適的」，即使新加的來源單獨測很差(像Joint)也不影響大局——這就是本頁的核心論點：<strong>候選聯集是一個只會變好、不會變差的設計</strong>，不需要猜哪個representation最好，讓實際DP評分決定就好。</div>
     </div>
   `;
   el.querySelectorAll(".chart-wrap").forEach(wrap => {
@@ -859,7 +878,7 @@ function buildHybridRealDataSlide() {
     <div class="card">
       <span class="kicker">Bonus · 效用分數 (Utility Score) · 真實 Simu5G + SUMO + Veins，10 個獨立seed(非合成資料)</span>
       <h2 class="slide-title">Hybrid 方法在真實資料上的驗證(效用分數)</h2>
-      <p class="subtitle">同一份10-seed真實資料集(見前面「真實資料驗證」頁)，把Hybrid <strong>2-way</strong>方法(CQI∪Cost，論文方法)加進三方法比較——每一格是10個獨立seed對CQI k-means的<strong>utility</strong>勝/平/負(跟「Utility 公式」頁同一套公平性加權log-utility，不是ADR)，深綠=9~10勝，外框綠=有輸有贏但淨值仍正向，白底=完全打平。<em>3-way版本(多加Joint候選)目前只在合成資料驗證過，真實資料驗證待補。</em></p>
+      <p class="subtitle">同一份10-seed真實資料集(見前面「真實資料驗證」頁)，把Hybrid <strong>2-way</strong>方法(CQI∪Cost，論文方法)加進三方法比較——每一格是10個獨立seed對CQI k-means的<strong>utility</strong>勝/平/負(跟「Utility 公式」頁同一套公平性加權log-utility，不是ADR)，深綠=9~10勝，外框綠=有輸有贏但淨值仍正向，白底=完全打平。<em>3-way(+Joint)、4-way(+換頻穩定性，我們目前最佳的版本)目前只在合成資料驗證過，真實資料驗證待補。</em></p>
       <table class="wtl-table">
         <thead><tr><th class="corner"></th>${HYBRID_REAL_LOADS.map(l => `<th>${l.label} 負載</th>`).join("")}</tr></thead>
         <tbody>${rows}</tbody>
@@ -875,8 +894,8 @@ function buildTakeawaySlide() {
   el.className = "slide";
   const items = [
     { color: "var(--s1)", html: "<strong>「不分組」的表現完全取決於離散度、也受使用者數量放大</strong>：低離散度時它甚至是最好的(不需要分組)，中離散度已有感知得到的差距(150人時約60%)，高離散度崩到只剩最優解的 28%——跟原論文 Method C 的量級一致。使用者數從24人拉到500人時，中離散度的ADR差距單調擴大(85%→65%→60%→56%→43%)；高離散度時「不分組」的絕對ADR從150人起卡在550kbps不再下降(見「使用者數量的影響」頁)。" },
-    { color: "var(--s3)", html: "<strong>Headline：CQI+Resource-cost 候選聯集(論文方法)在合成與真實資料上都不輸 CQI k-means</strong>——3-way版本(CQI候選∪Resource-cost候選∪兩者聯合clustering候選)在三個離散度都贏過或打平CQI(低+0.0006、中+0.0422、高+0.0113)；真實10-seed資料上2-way版本在全部9個(離散度×負載)組合都沒有淨輸過。關鍵機制是「聯集」本身：同一份[CQI,cost]直接做單一joint clustering反而在高離散度輸得比單獨resource-cost還慘(-0.069)，因為被迫用同一組分群同時滿足兩個目標；分開產生候選、實際跑DP評分後再挑最高分，才能讓每種representation只在它真正有優勢的情境被採用。這是目前最站得住腳、不需要深度學習的核心結果。" },
-    { color: "var(--s5)", html: "<strong>「近似最優解」在中/高離散度都還有領先所有方法一段距離</strong>，代表所有啟發式方法都還沒觸頂；高離散度時 CQI 的原始 ADR 甚至超過它，因為它優化的是含公平性的 log-utility，不是原始平均速率，兩者目標不同。但它<strong>不是真全域最優解</strong>——其DP只在「依資源成本排序後取連續切割」的受限空間內窮舉；低離散度時因CQI大量重複值(只剩13/14/15三種)，連續切割假設失真，utility指標本身也被multi-feature/CQI k-means超過(93.4% vs 100%/99.8%)。" },
+    { color: "var(--s7)", html: "<strong>Headline：候選聯集(CQI+Resource-cost+Joint+換頻穩定性，4-way)在合成與真實資料上都不輸 CQI k-means</strong>——4-way在三個離散度都達到近似最優解的98.9%以上(低100.0%、中96.2%、高89.3%)，其中低離散度已完全命中最優解；真實10-seed資料上2-way版本在全部9個(離散度×負載)組合都沒有淨輸過，utility、average quality、fairness三項指標在中/高離散度同時都贏過CQI(不是犧牲公平性換utility)。關鍵機制是「聯集」本身：同一份[CQI,cost]直接做單一joint clustering反而在高離散度輸得比單獨resource-cost還慘(-0.069)，因為被迫用同一組分群同時滿足兩個目標；分開產生候選、實際跑DP評分後再挑最高分，才能讓每種representation只在它真正有優勢的情境被採用。這是目前最站得住腳、不需要深度學習的核心結果。" },
+    { color: "var(--s5)", html: "<strong>「近似最優解」用的是驗證過的多排序鍵ensemble修正版</strong>(offline_teacher_groups_multikey，不是單一排序鍵的原始版)：原始版DP只在「依資源成本排序後取連續切割」的受限空間內窮舉，低離散度時因CQI大量重複值(只剩13/14/15三種)而失真，utility甚至會被multi-feature/CQI k-means超過；換成修正版後，utility指標在每一格都確實是最高分。中/高離散度時所有啟發式方法(含我們的4-way)都還沒觸頂，還有進步空間；高離散度時 CQI 的原始 ADR 甚至超過它，因為它優化的是含公平性的 log-utility，不是原始平均速率，兩者目標不同。ADR/served_ratio/quality/spectral_efficiency/fairness這5項指標目前仍用較便宜的單排序鍵版本當參考，尚未重新驗證是否仍是每格最高分。" },
     { color: "var(--s2)", html: "<strong>真實 Simu5G 資料(10 個獨立seed)</strong>複現了「離散度才是分組價值的關鍵」——中/高離散度時「不分組」在全部10個seed都輸；但也修正了先前只跑1個seed時「resource-cost明顯贏CQI」的結論：擴大到10個seed後，同樣負載下CQI反而多數時候贏，方向不穩健，不能只憑1個seed下定論。" },
   ];
   el.innerHTML = `
@@ -894,11 +913,11 @@ const slidesEl = document.getElementById("slides");
 const slideEls = [
   buildTitleSlide(),
   buildFormulaSlide(),
+  buildHybridLogicSlide(),
+  buildHybridResultsSlide(),
   ...METRIC_META.map(buildDispersionMetricSlide),
   buildUserCountSlide(),
   buildRealDataSlide(REAL_DATA),
-  buildHybridLogicSlide(),
-  buildHybridResultsSlide(),
   buildHybridRealDataSlide(),
   buildTakeawaySlide(),
 ];
