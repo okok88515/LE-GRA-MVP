@@ -19,6 +19,7 @@
     --s5: #e87ba4; /* Offline teacher */
     --s6: #008300; /* LE-GRA MVP */
     --s7: #7c5cd6; /* 3-way hybrid (new best) */
+    --s8: #c23b3b; /* near-optimal ceiling (multikey-corrected) */
   }
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
@@ -32,7 +33,7 @@
       --baseline:     #383835;
       --border:       rgba(255,255,255,0.10);
       --card-shadow:  0 1px 2px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.45);
-      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #a58ee8;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #a58ee8; --s8: #d9584f;
     }
   }
   :root[data-theme="dark"] {
@@ -46,7 +47,7 @@
     --baseline:     #383835;
     --border:       rgba(255,255,255,0.10);
     --card-shadow:  0 1px 2px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.45);
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #a58ee8;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #a58ee8; --s8: #d9584f;
   }
 
   * { box-sizing: border-box; }
@@ -282,12 +283,16 @@ const HYBRID_METHODS = [
   { key: "joint",       label: "CQI+Cost 聯合clustering(單一,反例)",  short: "Joint(反例)",     color: "var(--ink-muted)" },
   { key: "hybrid",      label: "CQI+Resource-cost 候選聯集(論文方法，2-way，已驗證真實資料)", short: "2-way(真實驗證)", color: "var(--s6)" },
   { key: "hybrid3",     label: "CQI+Cost+Joint 候選聯集(3-way，目前最佳)",   short: "3-way(最佳)", color: "var(--s7)", ours: true },
+  { key: "near_optimal", label: "近似最優解(多排序鍵ensemble修正版)",      short: "近似最優解",   color: "var(--s8)", ceiling: true },
 ];
 
+// near_optimal = offline_teacher_groups_multikey (see teacher-contiguity-limitation memory) --
+// closes the "fast" DP's contiguity-assumption gap to the true global optimum almost entirely
+// (100% match in 195/195 small-n brute-force tests, 0% net loss at n=150 low dispersion).
 const HYBRID_DATA = {
-  low:  { no_grouping: 0.9318, cqi: 0.9408, cqi_pp: 0.9406, cost: 0.9329, multi: 0.9429, joint: 0.9367, hybrid: 0.9406, hybrid3: 0.9414 },
-  mid:  { no_grouping: 0.6702, cqi: 0.7055, cqi_pp: 0.7057, cost: 0.7359, multi: 0.7281, joint: 0.7346, hybrid: 0.7397, hybrid3: 0.7477 },
-  high: { no_grouping: 0.1229, cqi: 0.3756, cqi_pp: 0.3795, cost: 0.3210, multi: 0.3584, joint: 0.3069, hybrid: 0.3850, hybrid3: 0.3868 },
+  low:  { no_grouping: 0.9318, cqi: 0.9408, cqi_pp: 0.9406, cost: 0.9329, multi: 0.9429, joint: 0.9367, hybrid: 0.9406, hybrid3: 0.9414, near_optimal: 0.9515 },
+  mid:  { no_grouping: 0.6702, cqi: 0.7055, cqi_pp: 0.7057, cost: 0.7359, multi: 0.7281, joint: 0.7346, hybrid: 0.7397, hybrid3: 0.7477, near_optimal: 0.7781 },
+  high: { no_grouping: 0.1229, cqi: 0.3756, cqi_pp: 0.3795, cost: 0.3210, multi: 0.3584, joint: 0.3069, hybrid: 0.3850, hybrid3: 0.3868, near_optimal: 0.4417 },
 };
 
 // win/tie/loss vs plain CQI k-means, counted per scenario (out of 600/dispersion)
@@ -873,9 +878,9 @@ function buildHybridResultsSlide() {
     <div class="card">
       <span class="kicker">Result · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格)</span>
       <h2 class="slide-title">Hybrid 方法結果：3-way 版本三個離散度都贏或打平 CQI</h2>
-      <div class="legend">${HYBRID_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}</span>`).join("")}</div>
+      <div class="legend">${HYBRID_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}${m.ceiling ? "(多排序鍵ensemble修正版，已確認接近真實全域最優解——小規模195/195brute-force全命中，n=150低離散度0%淨損失)" : ""}</span>`).join("")}</div>
       <div class="panel-grid">${panels}</div>
-      <div class="insight">⚠️ <strong>「Joint(反例)」— 直接把CQI跟resource-cost合併成一個特徵空間做單一clustering，反而是三個方法裡最差的</strong>：高離散度時(30.7%)甚至輸給單獨的resource-cost(83.4%)，因為被迫用同一組分群同時滿足兩個目標，是一種妥協。<br><br>✅ <strong>3-way聯集(CQI候選∪Cost候選∪Joint候選)是目前最佳版本</strong>：低離散度從2-way的近似打平(99.8%)轉為<strong>真的贏</strong>(100.0%，124/600情境獲勝)；中離散度更進一步領先(+0.042，550/600勝)；高離散度也略為提升(+0.011，223/600勝)。即使Joint單獨測很差，把它加進聯集依然是純粹加分——聯集的邏輯是「每個候選都實際跑DP評分，選分數最高的」，Joint只有在少數它剛好切得更好的情境才會被選中，其他時候被自動忽略，不會拖累結果。這證實了「聯集只會更好、不會更差」的機制本身。</div>
+      <div class="insight">📏 <strong>這張圖的100%基準是「近似最優解」，不是hybrid 3-way自己</strong>——這樣才能看出hybrid距離真正的天花板還有多遠：低離散度3-way已經到 <strong>98.9%</strong>；中離散度到 <strong>96.1%</strong>(2-way是95.1%，CQI只有90.7%)；高離散度到 <strong>87.6%</strong>(2-way是87.2%，CQI 85.0%)——高離散度是目前離最優解最遠的一格，還有較大進步空間。<br><br>⚠️ <strong>「Joint(反例)」— 直接把CQI跟resource-cost合併成一個特徵空間做單一clustering，反而是三個方法裡最差的</strong>：高離散度時只有近似最優解的69.5%，甚至輸給單獨的resource-cost(72.7%)，因為被迫用同一組分群同時滿足兩個目標，是一種妥協。<br><br>✅ <strong>3-way聯集(CQI候選∪Cost候選∪Joint候選)是目前最佳的啟發式版本</strong>：低離散度從2-way的近似打平轉為<strong>真的贏過CQI</strong>(124/600情境獲勝)；中離散度更進一步領先CQI(+0.042，550/600勝)；高離散度也略為提升(+0.011，223/600勝)。即使Joint單獨測很差，把它加進聯集依然是純粹加分——聯集的邏輯是「每個候選都實際跑DP評分，選分數最高的」，Joint只有在少數它剛好切得更好的情境才會被選中，其他時候被自動忽略，不會拖累結果。這證實了「聯集只會更好、不會更差」的機制本身。</div>
     </div>
   `;
   el.querySelectorAll(".chart-wrap").forEach(wrap => {
