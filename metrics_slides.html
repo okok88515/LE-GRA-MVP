@@ -400,14 +400,19 @@ function buildPooledReferenceSlide() {
   return el;
 }
 
-/* ---------- real Simu5G data slide (unchanged structure, absolute utility) ---------- */
+/* ---------- real Simu5G data slide (10-seed multiseed dataset, medium load) ----------
+   Source: real_multiseed_baseline_results/summary_across_seeds.csv (load=medium), from
+   run_real_multiseed_baseline.py over real_simu5g_multiseed_data/ (10 independently-seeded
+   OMNeT++/INET/Simu5G/Veins/SUMO runs per dispersion, validated 2026-08-25). Supersedes the
+   original single-seed (n=15, one run) pilot -- the seed is the independent unit here (10 per
+   dispersion), NOT the 15 snapshots within one run, which come from one mobility trajectory. */
 const REAL_DATA = {
-  title: "真實資料驗證：Simu5G + SUMO",
-  subtitle: "在真實5G網路模擬(非合成模擬器)上，依 CQI 離散度分層檢視 resource-cost 分群法 vs. CQI 分群法(效用分數，每格 n=15，單次模擬)。",
+  title: "真實資料驗證：Simu5G + SUMO(10-seed)",
+  subtitle: "在真實5G網路模擬(非合成模擬器)上，依離散度分層檢視5種方法(效用分數，medium負載，每格 10 個獨立seed × 15 情境/seed；seed才是獨立樣本，不是150個情境)。",
   dispersions: [
-    { key: "low",  label: "Low(集中)", values: { no_grouping: 0.44771, cqi: 0.44771, cost: 0.44771, multi: 0.44771, teacher: 0.44771 } },
-    { key: "mid",  label: "Mid",       values: { no_grouping: 0.29752, cqi: 0.32662, cost: 0.32059, multi: 0.32395, teacher: 0.33562 } },
-    { key: "high", label: "High(分散)", values: { no_grouping: -0.08623, cqi: 0.11892, cost: 0.14839, multi: 0.12966, teacher: 0.18501 } },
+    { key: "low",  label: "Low(集中)", values: { no_grouping: 0.44828, cqi: 0.44828, cost: 0.44828, multi: 0.44828, teacher: 0.44828 } },
+    { key: "mid",  label: "Mid",       values: { no_grouping: 0.31472, cqi: 0.35461, cost: 0.35475, multi: 0.35488, teacher: 0.37224 } },
+    { key: "high", label: "High(分散)", values: { no_grouping: 0.06926, cqi: 0.16097, cost: 0.15049, multi: 0.15470, teacher: 0.20674 } },
   ],
 };
 
@@ -445,12 +450,12 @@ function buildRealDataSlide(data) {
   const panels = data.dispersions.map(d => `<div class="mini-panel"><h3>${d.label}</h3>${buildRealDataMiniChart(d.values)}</div>`).join("");
   el.innerHTML = `
     <div class="card">
-      <span class="kicker">Bonus · 真實 Simu5G + SUMO + Veins 模擬(非合成資料)</span>
+      <span class="kicker">Bonus · 真實 Simu5G + SUMO + Veins 模擬，10 個獨立seed(非合成資料)</span>
       <h2 class="slide-title">${data.title}</h2>
       <p class="subtitle">${data.subtitle}</p>
       <div class="legend">${REAL_DATA_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}</span>`).join("")}</div>
       <div class="mini-grid">${panels}</div>
-      <div class="insight">LE-GRA 未在真實資料上測試(15 個情境不足以訓練模型，見上方一頁的說明)。Resource-cost 分群在 <strong>high(高離散)</strong>情境下明顯贏過 CQI 分群(0.148 vs 0.119)，在 <strong>low(低離散)</strong>情境下所有方法完全打平——跟左邊合成模擬器分層後的發現(高離散度才是分組價值所在)方向一致。每格 n=15、單次模擬，是方向性佐證，不是嚴謹統計確認。</div>
+      <div class="insight">LE-GRA 未在真實資料上測試(每格150個情境仍遠不足以訓練模型)。<strong>「不分組」在中/高離散度的全部10個seed都輸給任何一種分組法</strong>，且差距隨離散度擴大(high: 0.069 vs CQI的0.161)——這是目前最扎實的真實資料證據，因為是10個獨立seed一致同方向，不是1次模擬。<strong>低離散度時5種方法完全打平</strong>(真實CQI緊貼上限的天花板效應)。「近似最優解」在中/高離散度仍穩定領先所有方法(10/10 seeds)，顯示還有進步空間。<br><br>⚠️ <strong>比舊版單一seed的發現更誠實的修正</strong>：先前只跑1個seed時，resource-cost在高離散度看起來明顯贏CQI(0.148 vs 0.119)；但擴大到10個獨立seed、同樣medium負載後，CQI反而在多數seed贏過resource-cost/multi-feature(8/10、7/10)——單一seed的方向性結論並不穩健，這正是「10-seed exploratory、20-seed才是confirmatory」這個分寸的意義所在。目前每格10個獨立seed，是方向性佐證，不是嚴謹統計確認。</div>
     </div>
   `;
   return el;
@@ -651,7 +656,7 @@ function buildTakeawaySlide() {
     { color: "var(--s1)", html: "<strong>「不分組」的表現完全取決於離散度、也受使用者數量放大</strong>：低離散度時它甚至是最好的(不需要分組)，中離散度已有感知得到的差距(150人時約60%)，高離散度崩到只剩最優解的 28%——跟原論文 Method C 的量級一致。使用者數從24人拉到500人時，中離散度的ADR差距單調擴大(85%→65%→60%→56%→43%)；高離散度時「不分組」的絕對ADR從150人起卡在550kbps不再下降(見「使用者數量的影響」頁)。" },
     { color: "var(--s6)", html: "<strong>LE-GRA 的優勢在「aligned」情境裡是有條件的</strong>：中離散度時明顯領先 CQI(94~96% vs 91%)，但<strong>高離散度時反而輸給 CQI</strong>(84% vs 85%)——因為 aligned 情境本身沒有 CQI 看不到的結構性盲點，高離散度時單純排序 CQI 就幾乎夠用，LE-GRA 額外學到的特徵沒有多餘資訊可以發揮。這跟之前發現「LE-GRA 贏在 CQI 有結構性盲點的情境(如 anti_cqi_hard)」完全一致，不是矛盾。" },
     { color: "var(--s5)", html: "<strong>「近似最優解」在中/高離散度都還有領先所有方法一段距離</strong>，代表包括 LE-GRA 在內的所有啟發式方法都還沒觸頂；高離散度時 CQI 的原始 ADR 甚至超過它，因為它優化的是含公平性的 log-utility，不是原始平均速率，兩者目標不同。但它<strong>不是真全域最優解</strong>——其DP只在「依資源成本排序後取連續切割」的受限空間內窮舉；低離散度時因CQI大量重複值(只剩13/14/15三種)，連續切割假設失真，utility指標本身也被multi-feature/CQI k-means超過(93.4% vs 100%/99.8%)。" },
-    { color: "var(--s2)", html: "<strong>真實 Simu5G 資料</strong>複現了「離散度才是分組價值的關鍵」這個發現，不是只在自己寫的模擬器裡才成立。" },
+    { color: "var(--s2)", html: "<strong>真實 Simu5G 資料(10 個獨立seed)</strong>複現了「離散度才是分組價值的關鍵」——中/高離散度時「不分組」在全部10個seed都輸；但也修正了先前只跑1個seed時「resource-cost明顯贏CQI」的結論：擴大到10個seed後，同樣負載下CQI反而多數時候贏，方向不穩健，不能只憑1個seed下定論。" },
   ];
   el.innerHTML = `
     <div class="card" style="align-items:flex-start;">
