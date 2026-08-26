@@ -1,8 +1,74 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-26 (research direction 1 update)
+Last updated: 2026-08-26 (research direction 2 update)
 
-## CURRENT HANDOFF — 2026-08-26 UPDATE 3 (AUTHORITATIVE; READ THIS FIRST)
+## CURRENT HANDOFF — 2026-08-26 UPDATE 4 (AUTHORITATIVE; READ THIS FIRST)
+
+This section supersedes "UPDATE 3" immediately below it (kept for
+provenance) and every older handoff.
+
+### Research direction 2 (QoE pairwise switching regret) has a first exploratory result
+
+Full writeup: `REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md`. Summary:
+
+- Question: does direction 1's exact-utility-regret graph (validated as a
+  candidate family under snapshot-level, non-temporal evaluation) also
+  capture switching-state value once run under the real temporal closed
+  loop, where `previous_quality` genuinely diverges across users? No new
+  metric needed to be built -- `pairwise_exact_regret_matrix`'s regret
+  formula already includes `group_quality_value`'s switching penalty
+  against `scenario.previous_quality`; direction 1 just never exercised
+  that term (its scenarios reset `previous_quality` to 0 for everyone).
+- Ran `run_real_multiseed_regret_temporal_direction.py` (real Simu5G seeds
+  1..10, method-owned `previous_quality` state, reusing
+  `run_real_multiseed_temporal_closed_loop.py`'s validated closed-loop
+  machinery unmodified) comparing 5 methods, most importantly
+  `CQI+cost+regret-graph 3-way union` (no switching family at all) against
+  the existing shipped headline `CQI+cost+switching 3-way union`.
+- Result: at every dispersion/load cell tested, the regret-graph 3-way
+  matches or exceeds the switching headline's own margin over CQI k-means
+  (never worse anywhere). At all three high-dispersion cells the head-to-
+  head improvement over the switching headline is clearly significant (95%
+  CI entirely positive: light `+0.0105 [+0.0047,+0.0164]`, medium `+0.0218
+  [+0.0145,+0.0291]`, heavy `+0.0432 [+0.0236,+0.0668]`; seed win rate
+  9-10/10). Mid-dispersion cells trend the same direction but are not
+  individually significant (CIs include zero).
+- Adding switching on top of the regret graph (a new 4-way union,
+  `cqi_cost_switching_regret_graph_hybrid_grouping`, added to
+  `le_gra_mvp.py`) gives negligible additional benefit and is occasionally
+  slightly negative at the trajectory level -- explained by the same
+  candidate-superset-doesn't-guarantee-trajectory-dominance caveat already
+  documented in `REAL_SIMU5G_TEMPORAL_CLOSED_LOOP.md` (per-step containment
+  holds only from an identical prior state; independent trajectories
+  diverge in `previous_quality` history).
+- Bottom line / decision: evidence supports the regret graph as a
+  *replacement* for the switching-aware candidate family, not just an
+  addition -- but this is still a 10-seed exploratory result. The switching
+  gate itself only became trusted after a dedicated 20-seed confirmatory
+  pass (`REAL_SIMU5G_CONDITIONAL_GATING.md`); this finding has not had that
+  scrutiny yet, and seeds 11..30 are already "used" for that other
+  confirmatory purpose. **Do not swap the shipped headline method yet** --
+  keep `CQI+cost+switching 3-way union` shipped, record the regret-graph
+  3-way as the leading candidate to replace it pending confirmatory
+  validation on a fresh seed range.
+
+### What is next
+
+Per the user's standing instruction, the interview slide deck
+(`hybrid_metrics_slides.html`) still does NOT need updating for this
+finding. Options for continuing, not yet decided:
+
+1. Confirmatory validation of both direction 1 and direction 2's findings
+   on a fresh, untouched seed range (needs new Simu5G generation).
+2. Move on to direction 3 (short-term CQI trend) per
+   `POST_CQI_RESEARCH_ROADMAP_ZH.md` -- user was told this is lower
+   priority than direction 2 and has not been started.
+3. "Direction 4" (24-vehicle -> larger-scale real Simu5G validation),
+   recorded in the roadmap per explicit user instruction, not yet
+   implemented -- separate from the numbered research directions, a scale
+   validation the user wants addressed eventually.
+
+## CURRENT HANDOFF — 2026-08-26 UPDATE 3 (SUPERSEDED BY THE UPDATE ABOVE)
 
 This section supersedes "UPDATE 2" immediately below it (kept for
 provenance) and every older handoff.

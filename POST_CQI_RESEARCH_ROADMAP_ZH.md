@@ -80,7 +80,21 @@ cost vector 則只回答單一使用者需要多少 RB，沒有直接回答兩�
 - 增益應集中於 mid/high dispersion，並能由 bottleneck RB 或 served
   ratio 的改變解釋
 
-## 方向二：同 CQI、不同 QoE switching state
+## 方向二：同 CQI、不同 QoE switching state — 2026-08-26 初步驗證完成，詳見 REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md
+
+方向一驗證出的 exact-utility-regret graph，其 regret 公式本來就包含
+`group_quality_value` 對 `previous_quality` 的 switching penalty；方向一
+自己的評估用的是 snapshot-level scenario(`previous_quality`全部歸零)，
+從未真正測過這一項。把同一個 regret graph 拿去跑 real temporal closed
+loop(`previous_quality`真的會因為使用者而分化)，結果是：不需要另外建
+switching-only 的 regret 公式，`CQI+cost+regret-graph 3-way union`(完全
+不含 switching family)在每一格都至少追平、通常略贏現有的
+`CQI+cost+switching 3-way union` headline，且在三個 high dispersion 格
+子(light/medium/heavy)有明確顯著的勝出(95% CI 全正，9-10/10 seed win)。
+把 switching 疊加在 regret-graph 之上(4-way)幾乎沒有額外增益。證據支持
+regret-graph 可以取代 switching family，但仍是10-seed exploratory，尚未
+比照 switching gate 走過 confirmatory 驗證，正式拿掉 switching 前建議先
+補這一步。
 
 ### 遺失的資訊
 
@@ -260,11 +274,13 @@ go/no-go標準。exact-regret graph 修好一個RB可行性檢查的bug後，在
 (`cqi_cost_regret_graph_hybrid_grouping`)。下一步是confirmatory驗證(需要新
 seed range)，或直接推進方向二/三。
 
-### Step 2：QoE pairwise regret
+### Step 2：QoE pairwise regret —— 已完成初步(exploratory)驗證，見 `REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md`
 
-沿用已確認的 previous-quality heterogeneity signal，把現有 candidate
-gate 升級為真正以 pairwise utility regret 為 edge 的 grouping method。
-先用 exact regret 建 diagnostic ceiling，再決定是否值得學習近似。
+不需另建 switching-only regret：方向一的 exact-regret graph 拿去跑真實
+temporal closed loop，在所有格子至少追平、high dispersion 三格明確顯著
+勝過現有 switching headline，switching 疊加其上幾乎無額外增益。證據支持
+regret-graph 取代 switching family，但尚未走過 confirmatory 驗證，暫不
+正式拿掉 switching。
 
 ### Step 3：短期 horizon
 

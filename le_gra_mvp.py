@@ -3056,6 +3056,47 @@ def cqi_cost_regret_graph_hybrid_grouping(
     return best_candidate_groups(scenario, candidates, switch_beta)
 
 
+def cqi_cost_switching_regret_graph_hybrid_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """`cqi_cost_switching_hybrid_kmeans_grouping`'s 3-way union (CQI + cost +
+    switching-aware joint[CQI,previous_quality]) plus a FOURTH candidate
+    family from `exact_regret_graph_grouping`'s spectral clustering on the
+    pairwise exact-utility-regret graph.
+
+    Added 2026-08-26 for research direction 2 (`POST_CQI_RESEARCH_ROADMAP_ZH.md`):
+    `pairwise_exact_regret_matrix`'s regret formula already includes the
+    switching penalty (`group_quality_value` uses `scenario.previous_quality`
+    like everything else in this file) -- direction 1's evaluation just never
+    exercised that term, since it used snapshot-level scenarios with
+    `previous_quality` reset to 0 for everyone. Under the real temporal
+    closed loop, where `previous_quality` genuinely diverges across users,
+    the SAME regret graph should also be able to isolate a user whose
+    playback state (not just channel) makes them a bad multicast partner --
+    directly testing direction 2's hypothesis with already-validated
+    machinery instead of building a separate switching-only regret metric
+    first. Same "union only gets better" argument as every other family
+    here.
+    """
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    switching = np.column_stack([cqi_rep, scenario.previous_quality.reshape(-1, 1).astype(float)])
+    switching_rep = ((switching - switching.mean(axis=0)) / (switching.std(axis=0) + 1e-6)).astype(np.float32)
+    affinity = pairwise_exact_regret_matrix(scenario, switch_beta)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(switching_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + graph_candidate_groups(affinity, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
 def main() -> None:
     """CLI entry point.
 
