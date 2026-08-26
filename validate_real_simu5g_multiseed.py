@@ -15,8 +15,26 @@ from parse_real_simu5g_data import build_scenarios
 
 
 DISPERSIONS = ("low", "mid", "high")
-EXPECTED_SEEDS = tuple(range(1, 11))
 RB_RATIO = {"low": 0.5, "mid": 0.5, "high": 0.5}
+
+
+def parse_seed_spec(spec: str) -> tuple[int, ...]:
+    seeds: set[int] = set()
+    for part in spec.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "-" in part:
+            start_text, end_text = part.split("-", maxsplit=1)
+            start, end = int(start_text), int(end_text)
+            if end < start:
+                raise ValueError(f"descending seed range is invalid: {part}")
+            seeds.update(range(start, end + 1))
+        else:
+            seeds.add(int(part))
+    if not seeds or min(seeds) < 0:
+        raise ValueError("at least one non-negative seed is required")
+    return tuple(sorted(seeds))
 
 
 def sha256_file(path: Path) -> str:
@@ -27,12 +45,12 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def validate(root: Path) -> list[dict[str, object]]:
+def validate(root: Path, expected_seeds: tuple[int, ...]) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     mobility_by_seed: dict[int, set[str]] = defaultdict(set)
     route_metadata_by_seed: dict[int, set[str]] = defaultdict(set)
 
-    for seed in EXPECTED_SEEDS:
+    for seed in expected_seeds:
         for dispersion in DISPERSIONS:
             run_dir = root / dispersion / f"seed_{seed:04d}"
             manifest_path = run_dir / "run_manifest.json"
@@ -110,7 +128,7 @@ def validate(root: Path) -> list[dict[str, object]]:
                 flush=True,
             )
 
-    for seed in EXPECTED_SEEDS:
+    for seed in expected_seeds:
         if len(mobility_by_seed[seed]) != 1:
             raise AssertionError(
                 f"seed {seed}: low/mid/high do not share one mobility trajectory"
@@ -119,15 +137,19 @@ def validate(root: Path) -> list[dict[str, object]]:
             raise AssertionError(
                 f"seed {seed}: low/mid/high route metadata differs"
             )
-    if len({next(iter(mobility_by_seed[seed])) for seed in EXPECTED_SEEDS}) != 10:
-        raise AssertionError("expected 10 unique mobility trajectories across seeds")
-    if len({next(iter(route_metadata_by_seed[seed])) for seed in EXPECTED_SEEDS}) != 10:
-        raise AssertionError("expected 10 unique generated route profiles across seeds")
+    n_seeds = len(expected_seeds)
+    if len({next(iter(mobility_by_seed[seed])) for seed in expected_seeds}) != n_seeds:
+        raise AssertionError(f"expected {n_seeds} unique mobility trajectories across seeds")
+    if len({next(iter(route_metadata_by_seed[seed])) for seed in expected_seeds}) != n_seeds:
+        raise AssertionError(f"expected {n_seeds} unique generated route profiles across seeds")
     return rows
 
 
-def write_outputs(root: Path, rows: list[dict[str, object]]) -> None:
-    csv_path = root / "multiseed_qa.csv"
+def write_outputs(
+    root: Path, rows: list[dict[str, object]], expected_seeds: tuple[int, ...], label: str = ""
+) -> None:
+    suffix = f"_{label}" if label else ""
+    csv_path = root / f"multiseed_qa{suffix}.csv"
     with csv_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
@@ -150,15 +172,15 @@ def write_outputs(root: Path, rows: list[dict[str, object]]) -> None:
         "protocol_version": "3.0",
         "status": "validated",
         "dispersions": list(DISPERSIONS),
-        "seeds": list(EXPECTED_SEEDS),
+        "seeds": list(expected_seeds),
         "runs": len(rows),
         "usable_scenarios": sum(int(row["usable_scenarios"]) for row in rows),
-        "unique_mobility_trajectories": 10,
+        "unique_mobility_trajectories": len(expected_seeds),
         "same_mobility_across_dispersions_for_each_seed": True,
         "by_dispersion": by_dispersion,
         "qa_csv": csv_path.name,
     }
-    (root / "aggregate_manifest.json").write_text(
+    (root / f"aggregate_manifest{suffix}.json").write_text(
         json.dumps(aggregate, indent=2) + "\n", encoding="utf-8"
     )
 
@@ -168,9 +190,22 @@ def main() -> None:
     parser.add_argument(
         "root", type=Path, nargs="?", default=Path("real_simu5g_multiseed_data")
     )
+    parser.add_argument(
+        "--seeds", default="1-10",
+        help="Seed spec to validate, e.g. 1-10 or 11-30 or 1,3,8 (default: 1-10)",
+    )
+    parser.add_argument(
+        "--label", default="",
+        help="Suffix for output files (multiseed_qa_<label>.csv, "
+        "aggregate_manifest_<label>.json) so a non-default --seeds run never "
+        "overwrites the original seeds=1-10 QA artifacts.",
+    )
     args = parser.parse_args()
-    rows = validate(args.root)
-    write_outputs(args.root, rows)
+    expected_seeds = parse_seed_spec(args.seeds)
+    if args.seeds != "1-10" and not args.label:
+        raise SystemExit("pass --label when validating a non-default --seeds range")
+    rows = validate(args.root, expected_seeds)
+    write_outputs(args.root, rows, expected_seeds, args.label)
     print(
         f"MULTISEED_QA_PASS runs={len(rows)} scenarios="
         f"{sum(int(row['usable_scenarios']) for row in rows)}"

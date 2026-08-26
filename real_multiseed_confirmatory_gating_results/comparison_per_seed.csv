@@ -1,0 +1,721 @@
+dispersion,load,seed,method,mean_utility
+low,light,seed_0011,CQI k-means,0.9290781116502738
+low,light,seed_0011,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0011,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0011,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0012,CQI k-means,0.9290781116502738
+low,light,seed_0012,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0012,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0012,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0013,CQI k-means,0.9290781116502738
+low,light,seed_0013,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0013,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0013,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0014,CQI k-means,0.9290781116502738
+low,light,seed_0014,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0014,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0014,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0015,CQI k-means,0.9290781116502738
+low,light,seed_0015,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0015,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0015,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0016,CQI k-means,0.9290781116502738
+low,light,seed_0016,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0016,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0016,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0017,CQI k-means,0.9290781116502738
+low,light,seed_0017,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0017,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0017,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0018,CQI k-means,0.9290781116502738
+low,light,seed_0018,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0018,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0018,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0019,CQI k-means,0.9290781116502738
+low,light,seed_0019,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0019,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0019,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0020,CQI k-means,0.9290781116502738
+low,light,seed_0020,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0020,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0020,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0021,CQI k-means,0.9290781116502738
+low,light,seed_0021,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0021,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0021,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0022,CQI k-means,0.9290781116502738
+low,light,seed_0022,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0022,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0022,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0023,CQI k-means,0.9290781116502738
+low,light,seed_0023,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0023,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0023,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0024,CQI k-means,0.9290781116502738
+low,light,seed_0024,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0024,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0024,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0025,CQI k-means,0.9290781116502738
+low,light,seed_0025,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0025,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0025,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0026,CQI k-means,0.9290781116502738
+low,light,seed_0026,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0026,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0026,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0027,CQI k-means,0.9290781116502738
+low,light,seed_0027,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0027,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0027,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0028,CQI k-means,0.9290781116502738
+low,light,seed_0028,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0028,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0028,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0029,CQI k-means,0.9290781116502738
+low,light,seed_0029,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0029,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0029,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,light,seed_0030,CQI k-means,0.9290781116502738
+low,light,seed_0030,CQI+cost 2-way union,0.9290781116502738
+low,light,seed_0030,CQI+cost+switching 3-way union,0.9290781116502738
+low,light,seed_0030,"Conditional switching gate (fixed eta=.020, confirmatory)",0.9290781116502738
+low,medium,seed_0011,CQI k-means,0.7433043067053587
+low,medium,seed_0011,CQI+cost 2-way union,0.7475792361516083
+low,medium,seed_0011,CQI+cost+switching 3-way union,0.7475792361516083
+low,medium,seed_0011,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7475792361516083
+low,medium,seed_0012,CQI k-means,0.7471841780840182
+low,medium,seed_0012,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0012,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0012,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0013,CQI k-means,0.7471841780840182
+low,medium,seed_0013,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0013,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0013,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0014,CQI k-means,0.7471841780840182
+low,medium,seed_0014,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0014,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0014,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0015,CQI k-means,0.7471841780840182
+low,medium,seed_0015,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0015,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0015,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0016,CQI k-means,0.7471841780840182
+low,medium,seed_0016,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0016,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0016,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0017,CQI k-means,0.747297889374107
+low,medium,seed_0017,CQI+cost 2-way union,0.747297889374107
+low,medium,seed_0017,CQI+cost+switching 3-way union,0.747297889374107
+low,medium,seed_0017,"Conditional switching gate (fixed eta=.020, confirmatory)",0.747297889374107
+low,medium,seed_0018,CQI k-means,0.7471841780840182
+low,medium,seed_0018,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0018,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0018,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0019,CQI k-means,0.7471841780840182
+low,medium,seed_0019,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0019,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0019,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0020,CQI k-means,0.7471841780840182
+low,medium,seed_0020,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0020,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0020,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0021,CQI k-means,0.7471841780840182
+low,medium,seed_0021,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0021,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0021,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0022,CQI k-means,0.7471841780840182
+low,medium,seed_0022,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0022,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0022,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0023,CQI k-means,0.7471841780840182
+low,medium,seed_0023,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0023,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0023,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0024,CQI k-means,0.745890887624465
+low,medium,seed_0024,CQI+cost 2-way union,0.745890887624465
+low,medium,seed_0024,CQI+cost+switching 3-way union,0.745890887624465
+low,medium,seed_0024,"Conditional switching gate (fixed eta=.020, confirmatory)",0.745890887624465
+low,medium,seed_0025,CQI k-means,0.745890887624465
+low,medium,seed_0025,CQI+cost 2-way union,0.745890887624465
+low,medium,seed_0025,CQI+cost+switching 3-way union,0.745890887624465
+low,medium,seed_0025,"Conditional switching gate (fixed eta=.020, confirmatory)",0.745890887624465
+low,medium,seed_0026,CQI k-means,0.7471841780840182
+low,medium,seed_0026,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0026,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0026,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0027,CQI k-means,0.7471841780840182
+low,medium,seed_0027,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0027,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0027,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0028,CQI k-means,0.7471841780840182
+low,medium,seed_0028,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0028,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0028,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,medium,seed_0029,CQI k-means,0.741448322690803
+low,medium,seed_0029,CQI+cost 2-way union,0.741448322690803
+low,medium,seed_0029,CQI+cost+switching 3-way union,0.741448322690803
+low,medium,seed_0029,"Conditional switching gate (fixed eta=.020, confirmatory)",0.741448322690803
+low,medium,seed_0030,CQI k-means,0.7471841780840182
+low,medium,seed_0030,CQI+cost 2-way union,0.7471841780840182
+low,medium,seed_0030,CQI+cost+switching 3-way union,0.7471841780840182
+low,medium,seed_0030,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7471841780840182
+low,heavy,seed_0011,CQI k-means,0.5559363916924875
+low,heavy,seed_0011,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0011,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0011,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0012,CQI k-means,0.5559363916924875
+low,heavy,seed_0012,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0012,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0012,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0013,CQI k-means,0.5559363916924875
+low,heavy,seed_0013,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0013,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0013,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0014,CQI k-means,0.5212823446516569
+low,heavy,seed_0014,CQI+cost 2-way union,0.5212823446516569
+low,heavy,seed_0014,CQI+cost+switching 3-way union,0.5212823446516569
+low,heavy,seed_0014,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5212823446516569
+low,heavy,seed_0015,CQI k-means,0.521877582746895
+low,heavy,seed_0015,CQI+cost 2-way union,0.5483294381457836
+low,heavy,seed_0015,CQI+cost+switching 3-way union,0.5483294381457836
+low,heavy,seed_0015,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5483294381457836
+low,heavy,seed_0016,CQI k-means,0.5559363916924875
+low,heavy,seed_0016,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0016,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0016,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0017,CQI k-means,0.5559363916924875
+low,heavy,seed_0017,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0017,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0017,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0018,CQI k-means,0.5559363916924875
+low,heavy,seed_0018,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0018,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0018,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0019,CQI k-means,0.5559363916924875
+low,heavy,seed_0019,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0019,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0019,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0020,CQI k-means,0.5559363916924875
+low,heavy,seed_0020,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0020,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0020,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0021,CQI k-means,0.521877582746895
+low,heavy,seed_0021,CQI+cost 2-way union,0.5407224845990798
+low,heavy,seed_0021,CQI+cost+switching 3-way union,0.5407224845990798
+low,heavy,seed_0021,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5407224845990798
+low,heavy,seed_0022,CQI k-means,0.5559363916924875
+low,heavy,seed_0022,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0022,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0022,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0023,CQI k-means,0.5559363916924875
+low,heavy,seed_0023,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0023,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0023,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0024,CQI k-means,0.5559363916924875
+low,heavy,seed_0024,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0024,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0024,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0025,CQI k-means,0.5559363916924875
+low,heavy,seed_0025,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0025,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0025,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0026,CQI k-means,0.5559363916924875
+low,heavy,seed_0026,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0026,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0026,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0027,CQI k-means,0.5559363916924875
+low,heavy,seed_0027,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0027,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0027,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0028,CQI k-means,0.5559363916924875
+low,heavy,seed_0028,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0028,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0028,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0029,CQI k-means,0.5559363916924875
+low,heavy,seed_0029,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0029,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0029,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+low,heavy,seed_0030,CQI k-means,0.5559363916924875
+low,heavy,seed_0030,CQI+cost 2-way union,0.5559363916924875
+low,heavy,seed_0030,CQI+cost+switching 3-way union,0.5559363916924875
+low,heavy,seed_0030,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5559363916924875
+mid,light,seed_0011,CQI k-means,0.639796766407794
+mid,light,seed_0011,CQI+cost 2-way union,0.6937182892111597
+mid,light,seed_0011,CQI+cost+switching 3-way union,0.6956496750177207
+mid,light,seed_0011,"Conditional switching gate (fixed eta=.020, confirmatory)",0.6956236267629337
+mid,light,seed_0012,CQI k-means,0.7046401129276808
+mid,light,seed_0012,CQI+cost 2-way union,0.7241126209494448
+mid,light,seed_0012,CQI+cost+switching 3-way union,0.725303097139921
+mid,light,seed_0012,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7241126209494448
+mid,light,seed_0013,CQI k-means,0.6485927466756028
+mid,light,seed_0013,CQI+cost 2-way union,0.6855660249277727
+mid,light,seed_0013,CQI+cost+switching 3-way union,0.6874269606094189
+mid,light,seed_0013,"Conditional switching gate (fixed eta=.020, confirmatory)",0.6855660249277727
+mid,light,seed_0014,CQI k-means,0.7136789517492735
+mid,light,seed_0014,CQI+cost 2-way union,0.7293202889838647
+mid,light,seed_0014,CQI+cost+switching 3-way union,0.7293202889838647
+mid,light,seed_0014,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7293202889838647
+mid,light,seed_0015,CQI k-means,0.6707402325924091
+mid,light,seed_0015,CQI+cost 2-way union,0.6792239217098485
+mid,light,seed_0015,CQI+cost+switching 3-way union,0.6938443450380907
+mid,light,seed_0015,"Conditional switching gate (fixed eta=.020, confirmatory)",0.6862048749451903
+mid,light,seed_0016,CQI k-means,0.6722540434430895
+mid,light,seed_0016,CQI+cost 2-way union,0.7121374978667665
+mid,light,seed_0016,CQI+cost+switching 3-way union,0.712987425065715
+mid,light,seed_0016,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7121374978667665
+mid,light,seed_0017,CQI k-means,0.6905650033708658
+mid,light,seed_0017,CQI+cost 2-way union,0.7102155071741895
+mid,light,seed_0017,CQI+cost+switching 3-way union,0.7102155071741895
+mid,light,seed_0017,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7102155071741895
+mid,light,seed_0018,CQI k-means,0.6791455738857026
+mid,light,seed_0018,CQI+cost 2-way union,0.704620328354139
+mid,light,seed_0018,CQI+cost+switching 3-way union,0.7083084896318871
+mid,light,seed_0018,"Conditional switching gate (fixed eta=.020, confirmatory)",0.704620328354139
+mid,light,seed_0019,CQI k-means,0.6652826868741171
+mid,light,seed_0019,CQI+cost 2-way union,0.7059410458185508
+mid,light,seed_0019,CQI+cost+switching 3-way union,0.7070977586307843
+mid,light,seed_0019,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7059410458185508
+mid,light,seed_0020,CQI k-means,0.6977689076518552
+mid,light,seed_0020,CQI+cost 2-way union,0.6992124121884842
+mid,light,seed_0020,CQI+cost+switching 3-way union,0.6999236923639673
+mid,light,seed_0020,"Conditional switching gate (fixed eta=.020, confirmatory)",0.6992124121884842
+mid,light,seed_0021,CQI k-means,0.7164712670874895
+mid,light,seed_0021,CQI+cost 2-way union,0.720473929101978
+mid,light,seed_0021,CQI+cost+switching 3-way union,0.720473929101978
+mid,light,seed_0021,"Conditional switching gate (fixed eta=.020, confirmatory)",0.720473929101978
+mid,light,seed_0022,CQI k-means,0.6780299778577853
+mid,light,seed_0022,CQI+cost 2-way union,0.6770900844076463
+mid,light,seed_0022,CQI+cost+switching 3-way union,0.6730886329623696
+mid,light,seed_0022,"Conditional switching gate (fixed eta=.020, confirmatory)",0.6770900844076463
+mid,light,seed_0023,CQI k-means,0.6902731778236698
+mid,light,seed_0023,CQI+cost 2-way union,0.7237654591138679
+mid,light,seed_0023,CQI+cost+switching 3-way union,0.7237654591138679
+mid,light,seed_0023,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7237654591138679
+mid,light,seed_0024,CQI k-means,0.7212073088619639
+mid,light,seed_0024,CQI+cost 2-way union,0.7155221469911267
+mid,light,seed_0024,CQI+cost+switching 3-way union,0.7079670423090082
+mid,light,seed_0024,"Conditional switching gate (fixed eta=.020, confirmatory)",0.718988698705192
+mid,light,seed_0025,CQI k-means,0.6800336589028714
+mid,light,seed_0025,CQI+cost 2-way union,0.7175659023192817
+mid,light,seed_0025,CQI+cost+switching 3-way union,0.7082586163444641
+mid,light,seed_0025,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7184158295182304
+mid,light,seed_0026,CQI k-means,0.7132380527344193
+mid,light,seed_0026,CQI+cost 2-way union,0.7064958367830634
+mid,light,seed_0026,CQI+cost+switching 3-way union,0.7123177408422297
+mid,light,seed_0026,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7148001267689784
+mid,light,seed_0027,CQI k-means,0.710866624407365
+mid,light,seed_0027,CQI+cost 2-way union,0.7175962083908372
+mid,light,seed_0027,CQI+cost+switching 3-way union,0.7241097004987571
+mid,light,seed_0027,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7251403059746965
+mid,light,seed_0028,CQI k-means,0.6949370304304491
+mid,light,seed_0028,CQI+cost 2-way union,0.7081021149186494
+mid,light,seed_0028,CQI+cost+switching 3-way union,0.71134305296674
+mid,light,seed_0028,"Conditional switching gate (fixed eta=.020, confirmatory)",0.71134305296674
+mid,light,seed_0029,CQI k-means,0.6948582411786555
+mid,light,seed_0029,CQI+cost 2-way union,0.7161970809545445
+mid,light,seed_0029,CQI+cost+switching 3-way union,0.7191472231759478
+mid,light,seed_0029,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7185519850807097
+mid,light,seed_0030,CQI k-means,0.6684075270702213
+mid,light,seed_0030,CQI+cost 2-way union,0.7000391890891505
+mid,light,seed_0030,CQI+cost+switching 3-way union,0.7009412127976734
+mid,light,seed_0030,"Conditional switching gate (fixed eta=.020, confirmatory)",0.7000391890891505
+mid,medium,seed_0011,CQI k-means,0.517795713159482
+mid,medium,seed_0011,CQI+cost 2-way union,0.5233759442943865
+mid,medium,seed_0011,CQI+cost+switching 3-way union,0.5233759442943865
+mid,medium,seed_0011,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5233759442943865
+mid,medium,seed_0012,CQI k-means,0.5308528581603337
+mid,medium,seed_0012,CQI+cost 2-way union,0.5294191428284897
+mid,medium,seed_0012,CQI+cost+switching 3-way union,0.5311462168094401
+mid,medium,seed_0012,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5294191428284897
+mid,medium,seed_0013,CQI k-means,0.5187200233676397
+mid,medium,seed_0013,CQI+cost 2-way union,0.5412606807766448
+mid,medium,seed_0013,CQI+cost+switching 3-way union,0.5412606807766448
+mid,medium,seed_0013,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5412606807766448
+mid,medium,seed_0014,CQI k-means,0.52516438987028
+mid,medium,seed_0014,CQI+cost 2-way union,0.5367391523284013
+mid,medium,seed_0014,CQI+cost+switching 3-way union,0.5446469525504852
+mid,medium,seed_0014,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5446469525504852
+mid,medium,seed_0015,CQI k-means,0.5035017988827687
+mid,medium,seed_0015,CQI+cost 2-way union,0.5328253716247552
+mid,medium,seed_0015,CQI+cost+switching 3-way union,0.5328253716247552
+mid,medium,seed_0015,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5328253716247552
+mid,medium,seed_0016,CQI k-means,0.47327507573338956
+mid,medium,seed_0016,CQI+cost 2-way union,0.5152885398458762
+mid,medium,seed_0016,CQI+cost+switching 3-way union,0.5178269107213253
+mid,medium,seed_0016,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5178269107213253
+mid,medium,seed_0017,CQI k-means,0.5254013083763257
+mid,medium,seed_0017,CQI+cost 2-way union,0.5349753451118086
+mid,medium,seed_0017,CQI+cost+switching 3-way union,0.5349753451118086
+mid,medium,seed_0017,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5349753451118086
+mid,medium,seed_0018,CQI k-means,0.5099786119805153
+mid,medium,seed_0018,CQI+cost 2-way union,0.5245494310918067
+mid,medium,seed_0018,CQI+cost+switching 3-way union,0.5245494310918067
+mid,medium,seed_0018,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5245494310918067
+mid,medium,seed_0019,CQI k-means,0.5014839652284692
+mid,medium,seed_0019,CQI+cost 2-way union,0.5227948473949565
+mid,medium,seed_0019,CQI+cost+switching 3-way union,0.515934370627084
+mid,medium,seed_0019,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5227948473949565
+mid,medium,seed_0020,CQI k-means,0.5502599235348888
+mid,medium,seed_0020,CQI+cost 2-way union,0.5516790405742885
+mid,medium,seed_0020,CQI+cost+switching 3-way union,0.5516790405742885
+mid,medium,seed_0020,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5516790405742885
+mid,medium,seed_0021,CQI k-means,0.5048716707313885
+mid,medium,seed_0021,CQI+cost 2-way union,0.5062907877707882
+mid,medium,seed_0021,CQI+cost+switching 3-way union,0.5061713168380597
+mid,medium,seed_0021,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5061713168380597
+mid,medium,seed_0022,CQI k-means,0.522114300436656
+mid,medium,seed_0022,CQI+cost 2-way union,0.5350162333478068
+mid,medium,seed_0022,CQI+cost+switching 3-way union,0.5350162333478068
+mid,medium,seed_0022,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5350162333478068
+mid,medium,seed_0023,CQI k-means,0.5270442671271885
+mid,medium,seed_0023,CQI+cost 2-way union,0.5400259717764667
+mid,medium,seed_0023,CQI+cost+switching 3-way union,0.5400259717764667
+mid,medium,seed_0023,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5400259717764667
+mid,medium,seed_0024,CQI k-means,0.5385398666806556
+mid,medium,seed_0024,CQI+cost 2-way union,0.5599137296638468
+mid,medium,seed_0024,CQI+cost+switching 3-way union,0.5556269964103009
+mid,medium,seed_0024,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5556269964103009
+mid,medium,seed_0025,CQI k-means,0.5276783778898855
+mid,medium,seed_0025,CQI+cost 2-way union,0.5409077129423296
+mid,medium,seed_0025,CQI+cost+switching 3-way union,0.5409077129423296
+mid,medium,seed_0025,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5409077129423296
+mid,medium,seed_0026,CQI k-means,0.5321929047331873
+mid,medium,seed_0026,CQI+cost 2-way union,0.5451781440404359
+mid,medium,seed_0026,CQI+cost+switching 3-way union,0.5459634350426393
+mid,medium,seed_0026,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5459634350426393
+mid,medium,seed_0027,CQI k-means,0.5293101252844996
+mid,medium,seed_0027,CQI+cost 2-way union,0.5350138522660972
+mid,medium,seed_0027,CQI+cost+switching 3-way union,0.5350138522660972
+mid,medium,seed_0027,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5350138522660972
+mid,medium,seed_0028,CQI k-means,0.5251480984468586
+mid,medium,seed_0028,CQI+cost 2-way union,0.5276253379261213
+mid,medium,seed_0028,CQI+cost+switching 3-way union,0.531034820450645
+mid,medium,seed_0028,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5327602236442013
+mid,medium,seed_0029,CQI k-means,0.4943748167766821
+mid,medium,seed_0029,CQI+cost 2-way union,0.5324780102330063
+mid,medium,seed_0029,CQI+cost+switching 3-way union,0.5324780102330063
+mid,medium,seed_0029,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5324780102330063
+mid,medium,seed_0030,CQI k-means,0.512787884901205
+mid,medium,seed_0030,CQI+cost 2-way union,0.5239960501130116
+mid,medium,seed_0030,CQI+cost+switching 3-way union,0.5057086965257842
+mid,medium,seed_0030,"Conditional switching gate (fixed eta=.020, confirmatory)",0.5239960501130116
+mid,heavy,seed_0011,CQI k-means,0.25142512519636545
+mid,heavy,seed_0011,CQI+cost 2-way union,0.25712885217796294
+mid,heavy,seed_0011,CQI+cost+switching 3-way union,0.25712885217796294
+mid,heavy,seed_0011,"Conditional switching gate (fixed eta=.020, confirmatory)",0.25712885217796294
+mid,heavy,seed_0012,CQI k-means,0.27198340772719487
+mid,heavy,seed_0012,CQI+cost 2-way union,0.27198340772719487
+mid,heavy,seed_0012,CQI+cost+switching 3-way union,0.27198340772719487
+mid,heavy,seed_0012,"Conditional switching gate (fixed eta=.020, confirmatory)",0.27198340772719487
+mid,heavy,seed_0013,CQI k-means,0.2416922569493532
+mid,heavy,seed_0013,CQI+cost 2-way union,0.248448934720175
+mid,heavy,seed_0013,CQI+cost+switching 3-way union,0.248448934720175
+mid,heavy,seed_0013,"Conditional switching gate (fixed eta=.020, confirmatory)",0.248448934720175
+mid,heavy,seed_0014,CQI k-means,0.25915002201860043
+mid,heavy,seed_0014,CQI+cost 2-way union,0.25915002201860043
+mid,heavy,seed_0014,CQI+cost+switching 3-way union,0.25915002201860043
+mid,heavy,seed_0014,"Conditional switching gate (fixed eta=.020, confirmatory)",0.25915002201860043
+mid,heavy,seed_0015,CQI k-means,0.247631439485874
+mid,heavy,seed_0015,CQI+cost 2-way union,0.2558272474179554
+mid,heavy,seed_0015,CQI+cost+switching 3-way union,0.2558272474179554
+mid,heavy,seed_0015,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2558272474179554
+mid,heavy,seed_0016,CQI k-means,0.2539304045627096
+mid,heavy,seed_0016,CQI+cost 2-way union,0.2618285934471719
+mid,heavy,seed_0016,CQI+cost+switching 3-way union,0.26670162677860815
+mid,heavy,seed_0016,"Conditional switching gate (fixed eta=.020, confirmatory)",0.26670162677860815
+mid,heavy,seed_0017,CQI k-means,0.2365837680629938
+mid,heavy,seed_0017,CQI+cost 2-way union,0.2371790061582319
+mid,heavy,seed_0017,CQI+cost+switching 3-way union,0.2371790061582319
+mid,heavy,seed_0017,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2371790061582319
+mid,heavy,seed_0018,CQI k-means,0.26057595376399983
+mid,heavy,seed_0018,CQI+cost 2-way union,0.2677056124909967
+mid,heavy,seed_0018,CQI+cost+switching 3-way union,0.2677056124909967
+mid,heavy,seed_0018,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2677056124909967
+mid,heavy,seed_0019,CQI k-means,0.2548722267824023
+mid,heavy,seed_0019,CQI+cost 2-way union,0.25949660614305514
+mid,heavy,seed_0019,CQI+cost+switching 3-way union,0.25949660614305514
+mid,heavy,seed_0019,"Conditional switching gate (fixed eta=.020, confirmatory)",0.25949660614305514
+mid,heavy,seed_0020,CQI k-means,0.2734093394725942
+mid,heavy,seed_0020,CQI+cost 2-way union,0.27483527121799367
+mid,heavy,seed_0020,CQI+cost+switching 3-way union,0.27483527121799367
+mid,heavy,seed_0020,"Conditional switching gate (fixed eta=.020, confirmatory)",0.27483527121799367
+mid,heavy,seed_0021,CQI k-means,0.27911306645419176
+mid,heavy,seed_0021,CQI+cost 2-way union,0.2791130664541918
+mid,heavy,seed_0021,CQI+cost+switching 3-way union,0.2791130664541918
+mid,heavy,seed_0021,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2791130664541918
+mid,heavy,seed_0022,CQI k-means,0.2501235204363578
+mid,heavy,seed_0022,CQI+cost 2-way union,0.2533219680516112
+mid,heavy,seed_0022,CQI+cost+switching 3-way union,0.2533219680516112
+mid,heavy,seed_0022,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2533219680516112
+mid,heavy,seed_0023,CQI k-means,0.23953356170746382
+mid,heavy,seed_0023,CQI+cost 2-way union,0.2566447426522564
+mid,heavy,seed_0023,CQI+cost+switching 3-way union,0.2566447426522564
+mid,heavy,seed_0023,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2566447426522564
+mid,heavy,seed_0024,CQI k-means,0.2642095458281243
+mid,heavy,seed_0024,CQI+cost 2-way union,0.2642095458281243
+mid,heavy,seed_0024,CQI+cost+switching 3-way union,0.26540002201860047
+mid,heavy,seed_0024,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2642095458281243
+mid,heavy,seed_0025,CQI k-means,0.2620018855093992
+mid,heavy,seed_0025,CQI+cost 2-way union,0.2677056124909968
+mid,heavy,seed_0025,CQI+cost+switching 3-way union,0.2677056124909968
+mid,heavy,seed_0025,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2677056124909968
+mid,heavy,seed_0026,CQI k-means,0.2703220204268723
+mid,heavy,seed_0026,CQI+cost 2-way union,0.27032202042687237
+mid,heavy,seed_0026,CQI+cost+switching 3-way union,0.27008656487194915
+mid,heavy,seed_0026,"Conditional switching gate (fixed eta=.020, confirmatory)",0.27032202042687237
+mid,heavy,seed_0027,CQI k-means,0.25665794106811657
+mid,heavy,seed_0027,CQI+cost 2-way union,0.2566579410681166
+mid,heavy,seed_0027,CQI+cost+switching 3-way union,0.2566579410681166
+mid,heavy,seed_0027,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2566579410681166
+mid,heavy,seed_0028,CQI k-means,0.25338413154430706
+mid,heavy,seed_0028,CQI+cost 2-way union,0.2603272997932164
+mid,heavy,seed_0028,CQI+cost+switching 3-way union,0.2603272997932164
+mid,heavy,seed_0028,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2603272997932164
+mid,heavy,seed_0029,CQI k-means,0.2596209331284468
+mid,heavy,seed_0029,CQI+cost 2-way union,0.2653868236027402
+mid,heavy,seed_0029,CQI+cost+switching 3-way union,0.2653868236027402
+mid,heavy,seed_0029,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2653868236027402
+mid,heavy,seed_0030,CQI k-means,0.252269017262387
+mid,heavy,seed_0030,CQI+cost 2-way union,0.25535633630810894
+mid,heavy,seed_0030,CQI+cost+switching 3-way union,0.2551208807531858
+mid,heavy,seed_0030,"Conditional switching gate (fixed eta=.020, confirmatory)",0.25535633630810894
+high,light,seed_0011,CQI k-means,0.3855487672001698
+high,light,seed_0011,CQI+cost 2-way union,0.4109569892576951
+high,light,seed_0011,CQI+cost+switching 3-way union,0.4155877523282085
+high,light,seed_0011,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4149925142329703
+high,light,seed_0012,CQI k-means,0.3847353739105886
+high,light,seed_0012,CQI+cost 2-way union,0.4122200461324583
+high,light,seed_0012,CQI+cost+switching 3-way union,0.42116575783628063
+high,light,seed_0012,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4174801208282082
+high,light,seed_0013,CQI k-means,0.37178327074184114
+high,light,seed_0013,CQI+cost 2-way union,0.3999889317545176
+high,light,seed_0013,CQI+cost+switching 3-way union,0.3949084128022403
+high,light,seed_0013,"Conditional switching gate (fixed eta=.020, confirmatory)",0.3999889317545176
+high,light,seed_0014,CQI k-means,0.3691061376150313
+high,light,seed_0014,CQI+cost 2-way union,0.4106683651815004
+high,light,seed_0014,CQI+cost+switching 3-way union,0.4106683651815004
+high,light,seed_0014,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4106683651815004
+high,light,seed_0015,CQI k-means,0.4382800925573945
+high,light,seed_0015,CQI+cost 2-way union,0.45487726779042076
+high,light,seed_0015,CQI+cost+switching 3-way union,0.4589338271493952
+high,light,seed_0015,"Conditional switching gate (fixed eta=.020, confirmatory)",0.45487726779042076
+high,light,seed_0016,CQI k-means,0.4080140680890696
+high,light,seed_0016,CQI+cost 2-way union,0.43418381629068803
+high,light,seed_0016,CQI+cost+switching 3-way union,0.440435577884654
+high,light,seed_0016,"Conditional switching gate (fixed eta=.020, confirmatory)",0.43984033978941595
+high,light,seed_0017,CQI k-means,0.44536659360793296
+high,light,seed_0017,CQI+cost 2-way union,0.4687242359574406
+high,light,seed_0017,CQI+cost+switching 3-way union,0.47192906728255457
+high,light,seed_0017,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4707385910920784
+high,light,seed_0018,CQI k-means,0.37405108669784676
+high,light,seed_0018,CQI+cost 2-way union,0.4129715614317386
+high,light,seed_0018,CQI+cost+switching 3-way union,0.41379544037590016
+high,light,seed_0018,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4129715614317386
+high,light,seed_0019,CQI k-means,0.3925472334859173
+high,light,seed_0019,CQI+cost 2-way union,0.41114202910934033
+high,light,seed_0019,CQI+cost+switching 3-way union,0.41464447948207345
+high,light,seed_0019,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4133850250929017
+high,light,seed_0020,CQI k-means,0.37750776731678937
+high,light,seed_0020,CQI+cost 2-way union,0.41908930228348557
+high,light,seed_0020,CQI+cost+switching 3-way union,0.4225227744575231
+high,light,seed_0020,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4225227744575231
+high,light,seed_0021,CQI k-means,0.40439961646138245
+high,light,seed_0021,CQI+cost 2-way union,0.4218314602406877
+high,light,seed_0021,CQI+cost+switching 3-way union,0.42566560319103824
+high,light,seed_0021,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4218314602406877
+high,light,seed_0022,CQI k-means,0.3688865779714215
+high,light,seed_0022,CQI+cost 2-way union,0.42843386703134634
+high,light,seed_0022,CQI+cost+switching 3-way union,0.4355562800562044
+high,light,seed_0022,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4332864562447835
+high,light,seed_0023,CQI k-means,0.3738997033362774
+high,light,seed_0023,CQI+cost 2-way union,0.40739869063913764
+high,light,seed_0023,CQI+cost+switching 3-way union,0.4108779317511974
+high,light,seed_0023,"Conditional switching gate (fixed eta=.020, confirmatory)",0.41434185807227886
+high,light,seed_0024,CQI k-means,0.3886197409510661
+high,light,seed_0024,CQI+cost 2-way union,0.42287743542281525
+high,light,seed_0024,CQI+cost+switching 3-way union,0.4230085771142066
+high,light,seed_0024,"Conditional switching gate (fixed eta=.020, confirmatory)",0.42287743542281525
+high,light,seed_0025,CQI k-means,0.42764431332485203
+high,light,seed_0025,CQI+cost 2-way union,0.4564802132964861
+high,light,seed_0025,CQI+cost+switching 3-way union,0.45667830380334334
+high,light,seed_0025,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4564802132964861
+high,light,seed_0026,CQI k-means,0.3812008701879527
+high,light,seed_0026,CQI+cost 2-way union,0.4290163068532837
+high,light,seed_0026,CQI+cost+switching 3-way union,0.4308075737101599
+high,light,seed_0026,"Conditional switching gate (fixed eta=.020, confirmatory)",0.43073304294030246
+high,light,seed_0027,CQI k-means,0.34738923291735385
+high,light,seed_0027,CQI+cost 2-way union,0.3968390182199606
+high,light,seed_0027,CQI+cost+switching 3-way union,0.4001818059424656
+high,light,seed_0027,"Conditional switching gate (fixed eta=.020, confirmatory)",0.39921997060091297
+high,light,seed_0028,CQI k-means,0.4296765975109475
+high,light,seed_0028,CQI+cost 2-way union,0.44107050054403446
+high,light,seed_0028,CQI+cost+switching 3-way union,0.44677912055233665
+high,light,seed_0028,"Conditional switching gate (fixed eta=.020, confirmatory)",0.445178566146883
+high,light,seed_0029,CQI k-means,0.3867392442064142
+high,light,seed_0029,CQI+cost 2-way union,0.41882575676586503
+high,light,seed_0029,CQI+cost+switching 3-way union,0.4153331717442007
+high,light,seed_0029,"Conditional switching gate (fixed eta=.020, confirmatory)",0.41854694108666235
+high,light,seed_0030,CQI k-means,0.40983398676806776
+high,light,seed_0030,CQI+cost 2-way union,0.4283856808533411
+high,light,seed_0030,CQI+cost+switching 3-way union,0.4337357804561662
+high,light,seed_0030,"Conditional switching gate (fixed eta=.020, confirmatory)",0.4337357804561662
+high,medium,seed_0011,CQI k-means,0.19415871049965602
+high,medium,seed_0011,CQI+cost 2-way union,0.19920196540974125
+high,medium,seed_0011,CQI+cost+switching 3-way union,0.20376248814672127
+high,medium,seed_0011,"Conditional switching gate (fixed eta=.020, confirmatory)",0.20541024603504446
+high,medium,seed_0012,CQI k-means,0.22547342911560705
+high,medium,seed_0012,CQI+cost 2-way union,0.23356870958867
+high,medium,seed_0012,CQI+cost+switching 3-way union,0.24177980921014802
+high,medium,seed_0012,"Conditional switching gate (fixed eta=.020, confirmatory)",0.239161308000736
+high,medium,seed_0013,CQI k-means,0.1857785362166031
+high,medium,seed_0013,CQI+cost 2-way union,0.2014314780526464
+high,medium,seed_0013,CQI+cost+switching 3-way union,0.2014314780526464
+high,medium,seed_0013,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2014314780526464
+high,medium,seed_0014,CQI k-means,0.17834055344222285
+high,medium,seed_0014,CQI+cost 2-way union,0.1848140727161236
+high,medium,seed_0014,CQI+cost+switching 3-way union,0.19137449003704338
+high,medium,seed_0014,"Conditional switching gate (fixed eta=.020, confirmatory)",0.19347397705205166
+high,medium,seed_0015,CQI k-means,0.2720042982804672
+high,medium,seed_0015,CQI+cost 2-way union,0.290799834913257
+high,medium,seed_0015,CQI+cost+switching 3-way union,0.29471741661300116
+high,medium,seed_0015,"Conditional switching gate (fixed eta=.020, confirmatory)",0.29518151301684775
+high,medium,seed_0016,CQI k-means,0.24366481967362258
+high,medium,seed_0016,CQI+cost 2-way union,0.26417835452826893
+high,medium,seed_0016,CQI+cost+switching 3-way union,0.2576459232807953
+high,medium,seed_0016,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2576459232807953
+high,medium,seed_0017,CQI k-means,0.28883349438837086
+high,medium,seed_0017,CQI+cost 2-way union,0.28458580935273486
+high,medium,seed_0017,CQI+cost+switching 3-way union,0.28458580935273486
+high,medium,seed_0017,"Conditional switching gate (fixed eta=.020, confirmatory)",0.28458580935273486
+high,medium,seed_0018,CQI k-means,0.15404685839983312
+high,medium,seed_0018,CQI+cost 2-way union,0.19613963498955875
+high,medium,seed_0018,CQI+cost+switching 3-way union,0.20421749964610897
+high,medium,seed_0018,"Conditional switching gate (fixed eta=.020, confirmatory)",0.20421749964610897
+high,medium,seed_0019,CQI k-means,0.21419278422538726
+high,medium,seed_0019,CQI+cost 2-way union,0.24537852745915503
+high,medium,seed_0019,CQI+cost+switching 3-way union,0.2467094843166979
+high,medium,seed_0019,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2467094843166979
+high,medium,seed_0020,CQI k-means,0.18075208920196859
+high,medium,seed_0020,CQI+cost 2-way union,0.21077414189102778
+high,medium,seed_0020,CQI+cost+switching 3-way union,0.21077414189102778
+high,medium,seed_0020,"Conditional switching gate (fixed eta=.020, confirmatory)",0.21077414189102778
+high,medium,seed_0021,CQI k-means,0.22592425406792185
+high,medium,seed_0021,CQI+cost 2-way union,0.22677518405757965
+high,medium,seed_0021,CQI+cost+switching 3-way union,0.23319930725850566
+high,medium,seed_0021,"Conditional switching gate (fixed eta=.020, confirmatory)",0.23319930725850566
+high,medium,seed_0022,CQI k-means,0.22234850420658953
+high,medium,seed_0022,CQI+cost 2-way union,0.23965334829593687
+high,medium,seed_0022,CQI+cost+switching 3-way union,0.25645368092367055
+high,medium,seed_0022,"Conditional switching gate (fixed eta=.020, confirmatory)",0.25645368092367055
+high,medium,seed_0023,CQI k-means,0.19332574665103536
+high,medium,seed_0023,CQI+cost 2-way union,0.20708609388606508
+high,medium,seed_0023,CQI+cost+switching 3-way union,0.21807409523234525
+high,medium,seed_0023,"Conditional switching gate (fixed eta=.020, confirmatory)",0.21592178370031637
+high,medium,seed_0024,CQI k-means,0.21279498462477733
+high,medium,seed_0024,CQI+cost 2-way union,0.21987484713623992
+high,medium,seed_0024,CQI+cost+switching 3-way union,0.22517390915850855
+high,medium,seed_0024,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2243504612104861
+high,medium,seed_0025,CQI k-means,0.22599730359592668
+high,medium,seed_0025,CQI+cost 2-way union,0.2557766550279238
+high,medium,seed_0025,CQI+cost+switching 3-way union,0.2586906820114184
+high,medium,seed_0025,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2586906820114184
+high,medium,seed_0026,CQI k-means,0.1972758856747239
+high,medium,seed_0026,CQI+cost 2-way union,0.21970804267312444
+high,medium,seed_0026,CQI+cost+switching 3-way union,0.22006782521343934
+high,medium,seed_0026,"Conditional switching gate (fixed eta=.020, confirmatory)",0.21970804267312444
+high,medium,seed_0027,CQI k-means,0.14557178226459536
+high,medium,seed_0027,CQI+cost 2-way union,0.17331462998446634
+high,medium,seed_0027,CQI+cost+switching 3-way union,0.18150957592426947
+high,medium,seed_0027,"Conditional switching gate (fixed eta=.020, confirmatory)",0.18150957592426947
+high,medium,seed_0028,CQI k-means,0.2713895819487596
+high,medium,seed_0028,CQI+cost 2-way union,0.2852102956562569
+high,medium,seed_0028,CQI+cost+switching 3-way union,0.2951798507394505
+high,medium,seed_0028,"Conditional switching gate (fixed eta=.020, confirmatory)",0.2951798507394505
+high,medium,seed_0029,CQI k-means,0.208022270973857
+high,medium,seed_0029,CQI+cost 2-way union,0.21334400513049195
+high,medium,seed_0029,CQI+cost+switching 3-way union,0.23477430054362
+high,medium,seed_0029,"Conditional switching gate (fixed eta=.020, confirmatory)",0.23523839694746665
+high,medium,seed_0030,CQI k-means,0.2304050205707704
+high,medium,seed_0030,CQI+cost 2-way union,0.25253862349360207
+high,medium,seed_0030,CQI+cost+switching 3-way union,0.25408888222439313
+high,medium,seed_0030,"Conditional switching gate (fixed eta=.020, confirmatory)",0.25253862349360207
+high,heavy,seed_0011,CQI k-means,-0.06422737937962378
+high,heavy,seed_0011,CQI+cost 2-way union,-0.060060712712957105
+high,heavy,seed_0011,CQI+cost+switching 3-way union,-0.060060712712957105
+high,heavy,seed_0011,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.060060712712957105
+high,heavy,seed_0012,CQI k-means,-0.11068234763991569
+high,heavy,seed_0012,CQI+cost 2-way union,-0.0312406301707451
+high,heavy,seed_0012,CQI+cost+switching 3-way union,-0.0312406301707451
+high,heavy,seed_0012,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.0312406301707451
+high,heavy,seed_0013,CQI k-means,-0.10874973812369455
+high,heavy,seed_0013,CQI+cost 2-way union,-0.08743229526465458
+high,heavy,seed_0013,CQI+cost+switching 3-way union,-0.08743229526465458
+high,heavy,seed_0013,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.08743229526465458
+high,heavy,seed_0014,CQI k-means,-0.15284249366154387
+high,heavy,seed_0014,CQI+cost 2-way union,-0.10884766827736576
+high,heavy,seed_0014,CQI+cost+switching 3-way union,-0.10884766827736576
+high,heavy,seed_0014,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.10884766827736576
+high,heavy,seed_0015,CQI k-means,-0.04052344289698189
+high,heavy,seed_0015,CQI+cost 2-way union,-0.022240525420222926
+high,heavy,seed_0015,CQI+cost+switching 3-way union,-0.020219355579585454
+high,heavy,seed_0015,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.020219355579585454
+high,heavy,seed_0016,CQI k-means,-0.06679865082526908
+high,heavy,seed_0016,CQI+cost 2-way union,-0.013396685729462492
+high,heavy,seed_0016,CQI+cost+switching 3-way union,-0.013396685729462492
+high,heavy,seed_0016,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.013396685729462492
+high,heavy,seed_0017,CQI k-means,0.00943696185543739
+high,heavy,seed_0017,CQI+cost 2-way union,0.01538934280781834
+high,heavy,seed_0017,CQI+cost+switching 3-way union,0.01538934280781834
+high,heavy,seed_0017,"Conditional switching gate (fixed eta=.020, confirmatory)",0.01538934280781834
+high,heavy,seed_0018,CQI k-means,-0.14951417781824916
+high,heavy,seed_0018,CQI+cost 2-way union,-0.08047210001327967
+high,heavy,seed_0018,CQI+cost+switching 3-way union,-0.08047210001327967
+high,heavy,seed_0018,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.08047210001327967
+high,heavy,seed_0019,CQI k-means,-0.08498917939100635
+high,heavy,seed_0019,CQI+cost 2-way union,-0.03406609682982338
+high,heavy,seed_0019,CQI+cost+switching 3-way union,-0.028251241278694387
+high,heavy,seed_0019,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.028251241278694387
+high,heavy,seed_0020,CQI k-means,-0.16043752225573757
+high,heavy,seed_0020,CQI+cost 2-way union,-0.10939394129576827
+high,heavy,seed_0020,CQI+cost+switching 3-way union,-0.10939394129576827
+high,heavy,seed_0020,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.10939394129576827
+high,heavy,seed_0021,CQI k-means,-0.07711738733826452
+high,heavy,seed_0021,CQI+cost 2-way union,-0.07116500638588355
+high,heavy,seed_0021,CQI+cost+switching 3-way union,-0.07116500638588355
+high,heavy,seed_0021,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.07116500638588355
+high,heavy,seed_0022,CQI k-means,-0.1576214254259142
+high,heavy,seed_0022,CQI+cost 2-way union,-0.07008183017833348
+high,heavy,seed_0022,CQI+cost+switching 3-way union,-0.07008183017833348
+high,heavy,seed_0022,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.07008183017833348
+high,heavy,seed_0023,CQI k-means,-0.0874906301707451
+high,heavy,seed_0023,CQI+cost 2-way union,-0.07151713175298777
+high,heavy,seed_0023,CQI+cost+switching 3-way union,-0.07151713175298777
+high,heavy,seed_0023,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.07151713175298777
+high,heavy,seed_0024,CQI k-means,-0.15434207465945513
+high,heavy,seed_0024,CQI+cost 2-way union,-0.07549559528552266
+high,heavy,seed_0024,CQI+cost+switching 3-way union,-0.07549559528552266
+high,heavy,seed_0024,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.07549559528552266
+high,heavy,seed_0025,CQI k-means,-0.07069792386264252
+high,heavy,seed_0025,CQI+cost 2-way union,-0.030856566729270857
+high,heavy,seed_0025,CQI+cost+switching 3-way union,-0.030856566729270857
+high,heavy,seed_0025,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.030856566729270857
+high,heavy,seed_0026,CQI k-means,-0.06719420002655936
+high,heavy,seed_0026,CQI+cost 2-way union,-0.0633609190684871
+high,heavy,seed_0026,CQI+cost+switching 3-way union,-0.0633609190684871
+high,heavy,seed_0026,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.0633609190684871
+high,heavy,seed_0027,CQI k-means,-0.2194997904989556
+high,heavy,seed_0027,CQI+cost 2-way union,-0.115280330168848
+high,heavy,seed_0027,CQI+cost+switching 3-way union,-0.115280330168848
+high,heavy,seed_0027,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.115280330168848
+high,heavy,seed_0028,CQI k-means,-0.05538182703281914
+high,heavy,seed_0028,CQI+cost 2-way union,-0.040003566710299886
+high,heavy,seed_0028,CQI+cost+switching 3-way union,-0.040003566710299886
+high,heavy,seed_0028,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.040003566710299886
+high,heavy,seed_0029,CQI k-means,-0.0857577095484718
+high,heavy,seed_0029,CQI+cost 2-way union,-0.05521024762663601
+high,heavy,seed_0029,CQI+cost+switching 3-way union,-0.05521024762663601
+high,heavy,seed_0029,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.05521024762663601
+high,heavy,seed_0030,CQI k-means,-0.05377494605198173
+high,heavy,seed_0030,CQI+cost 2-way union,-0.033704601633464275
+high,heavy,seed_0030,CQI+cost+switching 3-way union,-0.033704601633464275
+high,heavy,seed_0030,"Conditional switching gate (fixed eta=.020, confirmatory)",-0.033704601633464275

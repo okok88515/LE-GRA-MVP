@@ -109,6 +109,52 @@ running additional independent seeds.  Those new seeds, rather than the
 current ten, should decide whether conditional switching becomes the final
 algorithm or remains an ablation.
 
+## Confirmatory result (seeds 11..30, 2026-08-26)
+
+`eta=.020` was frozen before generating or looking at any of these 20 seeds.
+They were never used for threshold selection. Reproduction:
+
+```powershell
+python .\run_real_multiseed_confirmatory_gate.py --seeds 11-30
+```
+
+Pooled mid/high (six cells, seed-level paired bootstrap CI), confirmatory
+vs. the original exploratory LOSO estimate:
+
+| Comparison | Exploratory (LOSO, seeds 1..10) | Confirmatory (frozen eta=.020, seeds 11..30) |
+|---|---:|---:|
+| gated vs CQI k-means | `+0.024411` CI `[+0.020382, +0.028432]` | `+0.022815` CI `[+0.019373, +0.026127]` |
+| gated vs 2-way | `+0.001301` CI `[+0.000542, +0.002176]` | `+0.001785` CI `[+0.001279, +0.002298]` |
+| gated vs always-on 3-way | `+0.000060` CI `[-0.000110, +0.000241]` | `+0.000185` CI `[-0.000255, +0.000628]` |
+
+All five pre-registered judging criteria from the confirmatory protocol pass:
+
+1. Pooled mid/high gated-vs-2way CI is entirely positive: confirmed above.
+2. high/light and high/medium gains reproduce: `+0.002386` CI
+   `[+0.001379, +0.003431]` and `+0.005361` CI `[+0.002770, +0.008176]`
+   respectively (high/medium is even stronger than the exploratory
+   fixed-`.020` estimate of `+0.002418`).
+3. mid/light is no longer systematically negative: `+0.001732` CI
+   `[+0.000658, +0.003005]`, cleanly positive. This is the cell that carried
+   the unresolved seed-0006 path trap in the LOSO estimate; it does not
+   reappear across 20 fresh independent seeds.
+4. The fixed gate clearly beats CQI k-means: confirmed above, matching the
+   exploratory magnitude closely.
+5. This confirmatory result is reported on its own 20 seeds, kept separate
+   from the original 10 exploratory seeds (`real_multiseed_confirmatory_gating_results/`
+   vs `real_multiseed_conditional_gating_results/`). A combined 30-seed
+   sensitivity analysis may be reported in addition, but does not replace
+   either estimate on its own.
+
+One caveat carried forward honestly: mid/medium's own cell-level interval
+still crosses zero (`+0.000598` CI `[-0.000350, +0.001697]`, 2/20 seed
+losses) — the pooled mid/high statistic is robust, but this individual cell
+is not yet independently conclusive. The gate's advantage over always-on
+3-way also remains statistically inconclusive on the confirmatory seeds too
+(CI crosses zero, same as the exploratory result) — conditional gating's
+demonstrated value is specifically "beats the 2-way core, matches or
+slightly exceeds always-on 3-way," not "clearly beats always-on 3-way."
+
 ## Reproduction
 
 ```powershell

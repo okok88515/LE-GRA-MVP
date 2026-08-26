@@ -1,8 +1,77 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-26
+Last updated: 2026-08-26 (confirmatory update)
 
-## CURRENT HANDOFF — 2026-08-26 (AUTHORITATIVE; READ THIS FIRST)
+## CURRENT HANDOFF — 2026-08-26 UPDATE 2 (AUTHORITATIVE; READ THIS FIRST)
+
+This section supersedes the "2026-08-26 (AUTHORITATIVE)" section immediately
+below it (kept for provenance) and every older handoff.
+
+### The confirmatory experiment planned in the section below is DONE
+
+Seeds `seed_0011`..`seed_0030` (20 new independent Simu5G runs x 3
+dispersions = 60 new simulator runs) were generated, QA-validated, and
+evaluated against the frozen `eta=.020` gate on a different machine than
+the one that produced seeds 1..10 (this machine's WSL environment was
+missing the `p3_7_recovery/scenarios/{low,mid,high}` templates -- they were
+WSL-local state on the original machine, never tracked by git -- so they
+were reconstructed byte-exact from the committed seed_0001 scenario files
+and verified by re-deriving seed 1's own patched files from the
+reconstruction and diffing against the committed originals: zero content
+differences). A CRLF line-ending bug in `run_p3_7_seed.sh`/
+`run_p3_7_multiseed_batch.sh` (Windows `core.autocrlf=true` corrupting the
+bash scripts on checkout) was also found and fixed via `.gitattributes`
+(`*.sh text eol=lf`).
+
+All five pre-registered judging criteria pass. Full results and tables are
+in `REAL_SIMU5G_CONDITIONAL_GATING.md`'s "Confirmatory result" section.
+Headline pooled mid/high numbers (seed-level paired bootstrap CI):
+
+- gated vs CQI k-means: `+0.022815` CI `[+0.019373, +0.026127]` (exploratory
+  LOSO was `+0.024411` CI `[+0.020382, +0.028432]` -- closely reproduced)
+- gated vs 2-way: `+0.001785` CI `[+0.001279, +0.002298]` (exploratory LOSO
+  was `+0.001301` CI `[+0.000542, +0.002176]` -- closely reproduced, and the
+  confirmatory CI is entirely positive with more margin)
+- gated vs always-on 3-way: `+0.000185` CI `[-0.000255, +0.000628]` (still
+  crosses zero, same as exploratory -- gating is not yet shown to clearly
+  beat always-on 3-way, only to clearly beat the 2-way core)
+- mid/light, the cell carrying the unresolved seed-0006 path trap in the
+  LOSO estimate, is now cleanly positive on 20 fresh seeds: `+0.001732` CI
+  `[+0.000658, +0.003005]`
+- one honest caveat: mid/medium's own cell-level CI still crosses zero
+  (`+0.000598` CI `[-0.000350, +0.001697]`, 2/20 seed losses) even though
+  the pooled mid/high statistic is robust
+
+New/changed files this update:
+
+- `validate_real_simu5g_multiseed.py`: `EXPECTED_SEEDS` constant replaced
+  with a `--seeds`/`--label` CLI (so a non-`1-10` run never overwrites the
+  original QA artifacts)
+- `run_real_multiseed_confirmatory_gate.py`: new, evaluates the frozen
+  `eta=.020` gate on an explicit `--seeds` argument without any LOSO
+  retuning (reuses `run_real_multiseed_conditional_gating.select_gated_candidate`
+  and `run_real_multiseed_temporal_closed_loop` baselines directly, so the
+  gating logic itself is not duplicated)
+- `.gitattributes`: added `*.sh text eol=lf`
+- `real_simu5g_multiseed_data/{low,mid,high}/seed_0011`..`seed_0030/`: the
+  new confirmatory data (git-lfs), plus `*_confirmatory` QA manifest/CSV
+- `real_multiseed_confirmatory_gating_results/`: the confirmatory analysis
+  outputs, kept separate from `real_multiseed_conditional_gating_results/`
+  (the original 10-seed exploratory results, untouched)
+
+### What is next
+
+Per the roadmap in `POST_CQI_RESEARCH_ROADMAP_ZH.md`, now that the fixed
+gate is confirmed: pursue the three CQI-information-gap directions (RB
+profile graph partitioning, pairwise switching-regret modeling, short-term
+CQI trend/forecast) as separate ablations before combining them. Seeds
+11..30 have now been inspected for this confirmatory purpose; per the
+already-stated rule, they cannot also be described as an untouched
+confirmatory set for whichever of those three methods is tried next -- that
+would need its own fresh seed range or must be reported as exploratory/
+nested-CV if reusing 11..30.
+
+## CURRENT HANDOFF — 2026-08-26 (SUPERSEDED BY THE UPDATE ABOVE)
 
 This section supersedes the 2026-08-25 handoff and every older next-step
 recommendation below. Older sections remain only as research provenance.
