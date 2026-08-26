@@ -1,11 +1,69 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-26 (confirmatory update)
+Last updated: 2026-08-26 (research direction 1 update)
 
-## CURRENT HANDOFF — 2026-08-26 UPDATE 2 (AUTHORITATIVE; READ THIS FIRST)
+## CURRENT HANDOFF — 2026-08-26 UPDATE 3 (AUTHORITATIVE; READ THIS FIRST)
 
-This section supersedes the "2026-08-26 (AUTHORITATIVE)" section immediately
-below it (kept for provenance) and every older handoff.
+This section supersedes "UPDATE 2" immediately below it (kept for
+provenance) and every older handoff.
+
+### Research direction 1 (frequency-selectivity) has a first exploratory result
+
+Full writeup: `REAL_SIMU5G_RB_PROFILE_DIRECTION.md`. Summary:
+
+- Tested 4 methods on real Simu5G seeds 1..10, snapshot-level (non-temporal):
+  full-profile k-means, block-profile k-means, an overlap-correlation graph,
+  and an exact-utility-regret graph (all new, in `le_gra_mvp.py`; spectral
+  clustering hand-rolled with `np.linalg.eigh`, no scipy/sklearn in this
+  project).
+- Found and fixed a real bug: `pairwise_exact_regret_matrix`'s first version
+  never checked RB feasibility, making every user's "solo value" identical
+  regardless of channel -- the regret graph degenerated to spectral
+  clustering on numerical noise. Fixed by adding the same `rb_needed`
+  feasibility filter `group_options` already uses. High/heavy went from
+  `-0.2439` (buggy) to `+0.0586` (fixed) vs CQI k-means.
+- Full-profile/block-profile k-means and the overlap graph do not pass the
+  roadmap's go/no-go bar; abandoned. The regret graph, once fixed, has a
+  narrow but mechanistically well-understood win specifically at high
+  dispersion + heavy load (verified on 4 independent seed/snapshot cases:
+  CQI k-means groups a low-CQI outlier with a not-obviously-extreme
+  mid/low-CQI cluster, dragging the whole group below RB feasibility; the
+  regret graph correctly isolates the outlier because its edge weights are
+  feasibility-aware where CQI's linear-scale distance is not).
+- Integrated as a third candidate family, `cqi_cost_regret_graph_hybrid_grouping`
+  (CQI ∪ cost ∪ regret-graph union). Never scores below the existing 2-way
+  union in any of 9 (dispersion, load) cells (the expected union guarantee);
+  high/heavy's margin over CQI nearly doubles (`+0.0416` → `+0.0846`, seed
+  win rate `9/10` → `10/10`); every other non-saturated cell gets a small
+  additional gain too.
+- Per-scenario attribution (which family the union actually picks): CQI is
+  the general anchor, resource-cost peaks at high dispersion + light load
+  (40.7% pick rate, matching `resource-cost-mechanism-finding`), the regret
+  graph peaks at high dispersion + heavy load (28.0% pick rate, more than
+  CQI and cost combined there).
+- Still exploratory (seeds 1..10 only) -- not yet confirmatory. Seeds 11..30
+  are already "used" for the switching-gate confirmatory result and per the
+  roadmap's own rule cannot double as an untouched confirmatory set here.
+
+### What is next
+
+Per the user's explicit instruction, the interview slide deck
+(`hybrid_metrics_slides.html`) does NOT need updating for this finding yet.
+Options for continuing, not yet decided:
+
+1. Confirmatory validation of `cqi_cost_regret_graph_hybrid_grouping` on a
+   fresh seed range (would need new Simu5G generation, same discipline as
+   the switching-gate confirmatory pass).
+2. Move on to direction 2 (QoE pairwise switching regret) or direction 3
+   (short-term CQI trend), per `POST_CQI_RESEARCH_ROADMAP_ZH.md`.
+3. Test whether the regret-graph family's advantage survives under the full
+   temporal closed-loop protocol (this investigation used snapshot-level,
+   non-temporal evaluation specifically to isolate the frequency axis from
+   the switching axis).
+
+## CURRENT HANDOFF — 2026-08-26 UPDATE 2 (SUPERSEDED BY THE UPDATE ABOVE)
+
+This section is kept for provenance.
 
 ### The confirmatory experiment planned in the section below is DONE
 

@@ -22,7 +22,17 @@
 - 所有 threshold、horizon、graph hyperparameter 只可由 training seeds
   選擇，test seeds 不得回頭調參
 
-## 方向一：同 CQI、不同頻率選擇性
+## 方向一：同 CQI、不同頻率選擇性 —— 2026-08-26 初步驗證完成，詳見 `REAL_SIMU5G_RB_PROFILE_DIRECTION.md`
+
+**結論摘要(完整結果、機制診斷、歸因分析見獨立文件)**：full-profile/block-profile
+k-means、overlap graph 三個方法都沒有通過go/no-go標準，予以放棄。exact-regret
+graph 一開始因為漏掉RB可行性檢查而慘敗(尤其high×heavy)，修好bug後在
+**high離散度+heavy負載**這個資源最稀缺的極端情境下有真正、機制清楚的增益
+(10 seed exploratory：8~10/10 seed贏)，且已整合成`cqi_cost_regret_graph_hybrid_grouping`
+(CQI∪cost∪regret-graph 3-way聯集)，在9格裡沒有任何一格輸給既有的2-way聯集，
+high×heavy的增益幅度更幾乎翻倍(+0.0416→+0.0846)。**目前仍是10-seed exploratory
+規模，尚未做confirmatory驗證**——seeds 11-30已經被switching gate用掉，若要confirm
+這個3rd候選家族，需要另外的新seed range。
 
 ### 遺失的資訊
 
@@ -242,11 +252,13 @@ gating)都固定在 **24 台車**，這是沿用更早期 P3.6 場景設計的�
 seed-level nested CV 探索，最終主張仍需另外保留新 seeds 或預先宣告的
 holdout。
 
-### Step 1：頻域相容性
+### Step 1：頻域相容性 —— 已完成初步(exploratory)驗證，見 `REAL_SIMU5G_RB_PROFILE_DIRECTION.md`
 
-這是尚未充分利用、而且現有 25-band raw profile 已可直接支援的資訊。
-先比較 full-profile k-means 與 pairwise overlap/regret graph，可最快判斷
-「RB 位置重疊」是否真的是 CQI 遺失的有效 insight。
+full-profile k-means、block-profile k-means、overlap graph 三個方法都沒通過
+go/no-go標準。exact-regret graph 修好一個RB可行性檢查的bug後，在high×heavy
+(資源最稀缺的極端情境)有真正、機制清楚的增益，已整合成3-way聯集
+(`cqi_cost_regret_graph_hybrid_grouping`)。下一步是confirmatory驗證(需要新
+seed range)，或直接推進方向二/三。
 
 ### Step 2：QoE pairwise regret
 

@@ -2794,6 +2794,268 @@ def default_methods(
     return methods
 
 
+def full_rb_profile_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Cluster on the complete per-band rate profile (all N_BANDS values,
+    z-scored), not a mean/min/max/std summary.
+
+    Research direction 1 (`POST_CQI_RESEARCH_ROADMAP_ZH.md`): wideband CQI
+    is a single scalar per user, and even `multi_feature_kmeans_grouping`
+    only keeps 4 summary statistics of the per-band profile -- both discard
+    *where* a user's good/bad bands are. Two users with identical wideband
+    CQI can have very different per-band shapes (one flat, one spiky), and
+    if their good bands don't overlap, grouping them multicasts at the
+    worse-of-both-shapes rate on every band. This function keeps the full
+    shape as the clustering key, to test whether that positional information
+    is itself useful before trying any pairwise-compatibility graph method.
+    """
+
+    rep = scenario.rb_rates.astype(np.float64)
+    mean, std = rep.mean(axis=0), rep.std(axis=0) + 1e-6
+    normalized = ((rep - mean) / std).astype(np.float32)
+    return best_kmeans_groups(
+        scenario, normalized, max_groups, switch_beta,
+        kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed,
+    )
+
+
+def block_rb_profile_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    n_blocks: int = 5,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Cluster on the per-band profile averaged into `n_blocks` contiguous
+    frequency blocks, instead of every individual band.
+
+    Ablation for research direction 1: if this performs about as well as
+    `full_rb_profile_kmeans_grouping`, the exact per-band position doesn't
+    matter, only the coarse frequency-domain shape does; if it performs
+    much worse, the fine positional detail is itself the useful signal.
+    """
+
+    n_bands = scenario.rb_rates.shape[1]
+    boundaries = np.linspace(0, n_bands, n_blocks + 1).astype(int)
+    blocks = [
+        scenario.rb_rates[:, boundaries[i]:boundaries[i + 1]].mean(axis=1)
+        for i in range(n_blocks)
+        if boundaries[i + 1] > boundaries[i]
+    ]
+    rep = np.column_stack(blocks).astype(np.float64)
+    mean, std = rep.mean(axis=0), rep.std(axis=0) + 1e-6
+    normalized = ((rep - mean) / std).astype(np.float32)
+    return best_kmeans_groups(
+        scenario, normalized, max_groups, switch_beta,
+        kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed,
+    )
+
+
+def rb_overlap_affinity_matrix(rb_rates: np.ndarray) -> np.ndarray:
+    """Pairwise "how compatible are these two users' per-band profiles"
+    affinity, in [0, 1], symmetric with zero diagonal.
+
+    Defined as the Pearson correlation of each pair's per-band rate vectors,
+    rescaled from [-1, 1] to [0, 1]. Two users whose good/bad bands line up
+    (positive correlation) multicast efficiently together; two users whose
+    good bands are complementary (negative correlation) create the
+    worst-case bottleneck described in research direction 1's hypothesis.
+    This is a cheap, distance-free diagnostic -- it does not know the actual
+    RB budget or video tiers, unlike `pairwise_exact_regret_matrix` below.
+    """
+
+    n = rb_rates.shape[0]
+    centered = rb_rates - rb_rates.mean(axis=1, keepdims=True)
+    norm = np.sqrt((centered ** 2).sum(axis=1)) + 1e-9
+    normalized = centered / norm[:, None]
+    corr = normalized @ normalized.T
+    affinity = np.clip((corr + 1.0) / 2.0, 0.0, 1.0)
+    np.fill_diagonal(affinity, 0.0)
+    return affinity
+
+
+def pairwise_exact_regret_matrix(
+    scenario: Scenario,
+    switch_beta: float,
+) -> np.ndarray:
+    """Pairwise "how much utility is lost by forcing these two users into
+    the same multicast group" regret, converted to an affinity in [0, 1].
+
+    For each user i alone, and for each pair (i, j) together, this computes
+    the best achievable `group_quality_value` under an EXCLUSIVE-budget
+    approximation -- i.e. as if that user/pair had the scenario's full
+    `rb_available` to themselves, the same approximation
+    `user_resource_cost_vector` already makes for the single-user case. This
+    sidesteps the combinatorial cost of jointly solving the true shared-budget
+    DP for every one of the ~n^2/2 pairs; the real, budget-aware scoring
+    still happens once, downstream, in `allocate_and_evaluate` on whichever
+    grouping this regret graph proposes.
+
+    regret(i, j) = value_solo(i) + value_solo(j) - value_pair(i, j)
+
+    Higher regret means i and j are a worse pair to multicast together.
+    Converted to an affinity via `exp(-regret / scale)` so it can be used
+    the same way as `rb_overlap_affinity_matrix`.
+    """
+
+    n_users = len(scenario.cqi_now)
+
+    def best_solo_value(indices: list[int]) -> float:
+        # `group_quality_value` alone does NOT check RB feasibility -- it is
+        # meant to be called only on already-feasibility-filtered options
+        # inside `allocate_and_evaluate`'s real DP. Called standalone (as
+        # here), it must be paired with the same `rb_needed` feasibility
+        # check `group_options` uses downstream, or "best" degenerates to
+        # whichever quality tier maximizes the raw formula in the abstract
+        # (always the same tier, for every user, regardless of channel --
+        # found 2026-08-26 while diagnosing this graph method's failures:
+        # every user's "solo value" was silently identical because this
+        # check was missing, making the whole regret matrix ~0 everywhere).
+        worst_rate = scenario.rb_rates[indices].min(axis=0)
+        sorted_rates = np.sort(worst_rate)[::-1]
+        best = -2.0 * len(indices)
+        for quality, bitrate in enumerate(VIDEO_BITRATES_KBPS):
+            need = rb_needed(sorted_rates, bitrate)
+            if need is None or need > scenario.rb_available:
+                continue
+            value = group_quality_value(indices, quality, scenario, switch_beta)
+            if value > best:
+                best = value
+        return best
+
+    solo = np.array([best_solo_value([i]) for i in range(n_users)])
+
+    regret = np.zeros((n_users, n_users), dtype=np.float64)
+    for i in range(n_users):
+        for j in range(i + 1, n_users):
+            pair_value = best_solo_value([i, j])
+            r = float(solo[i] + solo[j] - pair_value)
+            regret[i, j] = regret[j, i] = max(r, 0.0)
+
+    scale = float(np.median(regret[regret > 0])) if np.any(regret > 0) else 1.0
+    affinity = np.exp(-regret / max(scale, 1e-6))
+    np.fill_diagonal(affinity, 0.0)
+    return affinity
+
+
+def spectral_groups(
+    affinity: np.ndarray,
+    k: int,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Unnormalized spectral clustering: embed via the graph Laplacian's k
+    smallest eigenvectors, then k-means the embedding.
+
+    Hand-rolled with `np.linalg.eigh` (no scipy/sklearn dependency in this
+    project). Matches the standard Ng-Jordan-Weiss recipe up to using the
+    unnormalized Laplacian `L = D - W` rather than the symmetric-normalized
+    one -- adequate here since every affinity matrix this project builds is
+    already scaled to [0, 1] with a meaningful zero point.
+    """
+
+    n = affinity.shape[0]
+    if k <= 1 or n <= 1:
+        return [list(range(n))]
+    k = min(k, n)
+    degree = affinity.sum(axis=1)
+    laplacian = np.diag(degree) - affinity
+    eigenvalues, eigenvectors = np.linalg.eigh(laplacian)
+    embedding = eigenvectors[:, :k].astype(np.float32)
+    return kmeans(embedding, k, n_init=kmeans_n_init, seed=kmeans_seed)
+
+
+def graph_candidate_groups(
+    affinity: np.ndarray,
+    max_groups: int,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[list[int]]]:
+    """Enumerate one spectral-clustering partition for each k in 1..Kmax,
+    matching `kmeans_candidate_groups`'s convention for the k-means family."""
+
+    return [
+        spectral_groups(affinity, k, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed + k)
+        for k in range(1, max_groups + 1)
+    ]
+
+
+def overlap_graph_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Spectral clustering on the RB-profile-overlap affinity graph, then
+    exact-DP picks the best k in 1..Kmax -- the "simple pairwise similarity"
+    ablation in research direction 1 (no utility-regret awareness)."""
+
+    affinity = rb_overlap_affinity_matrix(scenario.rb_rates)
+    candidates = graph_candidate_groups(affinity, max_groups, kmeans_n_init, kmeans_seed)
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
+def exact_regret_graph_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Spectral clustering on the exact-utility-regret affinity graph, then
+    exact-DP picks the best k in 1..Kmax -- the "utility-aware edge" ablation
+    in research direction 1."""
+
+    affinity = pairwise_exact_regret_matrix(scenario, switch_beta)
+    candidates = graph_candidate_groups(affinity, max_groups, kmeans_n_init, kmeans_seed)
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
+def cqi_cost_regret_graph_hybrid_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """`cqi_resource_hybrid_kmeans_grouping`'s 2-way union (CQI + cost) plus
+    a THIRD candidate family from `exact_regret_graph_grouping`'s spectral
+    clustering on the pairwise exact-utility-regret graph.
+
+    Added 2026-08-26 after diagnosing exactly when/why the regret graph beats
+    CQI+cost alone (see project memory `real-simu5g-rb-profile-direction`):
+    it correctly isolates users whose channel is so bad that grouping them
+    with anyone destroys the whole group's RB-budget feasibility, which
+    CQI k-means's linear-distance clustering misses because the CQI gap to
+    such a user often looks small even though the CQI-to-achievable-rate
+    mapping is highly nonlinear at the low end. This showed up specifically
+    at high dispersion + heavy load (scarce RB budget) in a 10-seed real
+    Simu5G exploratory comparison; elsewhere the regret-graph family alone
+    underperformed CQI. Same "union only gets better, not worse" argument as
+    every other candidate family in this file: if regret-graph's candidates
+    are not actually useful in a given scenario, `best_candidate_groups`
+    simply never picks them, so adding this family here is pure upside on
+    top of the already real-data-validated 2-way union.
+    """
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    affinity = pairwise_exact_regret_matrix(scenario, switch_beta)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + graph_candidate_groups(affinity, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
 def main() -> None:
     """CLI entry point.
 

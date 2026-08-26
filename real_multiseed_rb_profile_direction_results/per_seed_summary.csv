@@ -1,0 +1,721 @@
+dispersion,load,seed,method,mean_utility,n_scenarios
+high,heavy,seed_0001,CQI k-means,-0.07106023854625827,15
+high,heavy,seed_0001,Resource-cost k-means,-0.052652994084107604,15
+high,heavy,seed_0001,Full RB-profile k-means,-0.08631695262859526,15
+high,heavy,seed_0001,Block RB-profile k-means (5 blocks),-0.0973454074369178,15
+high,heavy,seed_0001,Overlap graph (simple similarity),-0.19659990223284599,15
+high,heavy,seed_0001,Exact-regret graph (utility-aware),-0.03507391112881735,15
+high,heavy,seed_0001,CQI+cost 2-way union (paper method),-0.03250357334749832,15
+high,heavy,seed_0001,CQI+cost+regret-graph 3-way union,-0.020894925940681118,15
+high,heavy,seed_0002,CQI k-means,-0.2754538104258499,15
+high,heavy,seed_0002,Resource-cost k-means,-0.24228738817706835,15
+high,heavy,seed_0002,Full RB-profile k-means,-0.39518835116954165,15
+high,heavy,seed_0002,Block RB-profile k-means (5 blocks),-0.3780241482071689,15
+high,heavy,seed_0002,Overlap graph (simple similarity),-0.4429518355573262,15
+high,heavy,seed_0002,Exact-regret graph (utility-aware),-0.22089492594068108,15
+high,heavy,seed_0002,CQI+cost 2-way union (paper method),-0.2218884000531187,15
+high,heavy,seed_0002,CQI+cost+regret-graph 3-way union,-0.15431091557680301,15
+high,heavy,seed_0003,CQI k-means,-0.10008265630278858,15
+high,heavy,seed_0003,Resource-cost k-means,-0.053150530379813696,15
+high,heavy,seed_0003,Full RB-profile k-means,-0.11392941780079587,15
+high,heavy,seed_0003,Block RB-profile k-means (5 blocks),-0.11392941780079587,15
+high,heavy,seed_0003,Overlap graph (simple similarity),-0.15406294666843728,15
+high,heavy,seed_0003,Exact-regret graph (utility-aware),-0.01616913037096058,15
+high,heavy,seed_0003,CQI+cost 2-way union (paper method),-0.053150530379813696,15
+high,heavy,seed_0003,CQI+cost+regret-graph 3-way union,-0.01616913037096058,15
+high,heavy,seed_0004,CQI k-means,-0.13515656743160592,15
+high,heavy,seed_0004,Resource-cost k-means,-0.09709743852855204,15
+high,heavy,seed_0004,Full RB-profile k-means,-0.2680750207720218,15
+high,heavy,seed_0004,Block RB-profile k-means (5 blocks),-0.21459226670207915,15
+high,heavy,seed_0004,Overlap graph (simple similarity),-0.31218884000531183,15
+high,heavy,seed_0004,Exact-regret graph (utility-aware),-0.05514067556263805,15
+high,heavy,seed_0004,CQI+cost 2-way union (paper method),-0.07288507112350547,15
+high,heavy,seed_0004,CQI+cost+regret-graph 3-way union,-0.05514067556263805,15
+high,heavy,seed_0005,CQI k-means,-0.22719598670030852,15
+high,heavy,seed_0005,Resource-cost k-means,-0.19311714816290335,15
+high,heavy,seed_0005,Full RB-profile k-means,-0.3054713007737924,15
+high,heavy,seed_0005,Block RB-profile k-means (5 blocks),-0.25489110817529775,15
+high,heavy,seed_0005,Overlap graph (simple similarity),-0.33847400889597146,15
+high,heavy,seed_0005,Exact-regret graph (utility-aware),-0.09950246370429391,15
+high,heavy,seed_0005,CQI+cost 2-way union (paper method),-0.1705627022505522,15
+high,heavy,seed_0005,CQI+cost+regret-graph 3-way union,-0.09950246370429391,15
+high,heavy,seed_0006,CQI k-means,-0.092867580775563,15
+high,heavy,seed_0006,Resource-cost k-means,-0.07777777777777777,15
+high,heavy,seed_0006,Full RB-profile k-means,-0.16110951263213652,15
+high,heavy,seed_0006,Block RB-profile k-means (5 blocks),-0.1616070489278426,15
+high,heavy,seed_0006,Overlap graph (simple similarity),-0.3374789363045592,15
+high,heavy,seed_0006,Exact-regret graph (utility-aware),-0.16061357481540503,15
+high,heavy,seed_0006,CQI+cost 2-way union (paper method),-0.0683245881593621,15
+high,heavy,seed_0006,CQI+cost+regret-graph 3-way union,-0.05116038519698935,15
+high,heavy,seed_0007,CQI k-means,-0.05945159113944109,15
+high,heavy,seed_0007,Resource-cost k-means,-0.03888888888888888,15
+high,heavy,seed_0007,Full RB-profile k-means,-0.11500714669499666,15
+high,heavy,seed_0007,Block RB-profile k-means (5 blocks),-0.11450961039929056,15
+high,heavy,seed_0007,Overlap graph (simple similarity),-0.1465172459300574,15
+high,heavy,seed_0007,Exact-regret graph (utility-aware),-0.07130980593359863,15
+high,heavy,seed_0007,CQI+cost 2-way union (paper method),-0.022967727426294056,15
+high,heavy,seed_0007,CQI+cost+regret-graph 3-way union,-0.011856616315182948,15
+high,heavy,seed_0008,CQI k-means,-0.04170719557857366,15
+high,heavy,seed_0008,Resource-cost k-means,-0.05920362223107534,15
+high,heavy,seed_0008,Full RB-profile k-means,-0.07247019113058799,15
+high,heavy,seed_0008,Block RB-profile k-means (5 blocks),-0.0714751185391758,15
+high,heavy,seed_0008,Overlap graph (simple similarity),-0.1040629466684373,15
+high,heavy,seed_0008,Exact-regret graph (utility-aware),-0.02222222222222222,15
+high,heavy,seed_0008,CQI+cost 2-way union (paper method),-0.04170719557857366,15
+high,heavy,seed_0008,CQI+cost+regret-graph 3-way union,-0.011773960012394365,15
+high,heavy,seed_0009,CQI k-means,-0.1407121229871615,15
+high,heavy,seed_0009,Resource-cost k-means,-0.09353202815582083,15
+high,heavy,seed_0009,Full RB-profile k-means,-0.19975043261265968,15
+high,heavy,seed_0009,Block RB-profile k-means (5 blocks),-0.17752821039043745,15
+high,heavy,seed_0009,Overlap graph (simple similarity),-0.08888888888888889,15
+high,heavy,seed_0009,Exact-regret graph (utility-aware),-0.05000000000000001,15
+high,heavy,seed_0009,CQI+cost 2-way union (paper method),-0.09353202815582083,15
+high,heavy,seed_0009,CQI+cost+regret-graph 3-way union,-0.05000000000000001,15
+high,heavy,seed_0010,CQI k-means,-0.2388872904099143,15
+high,heavy,seed_0010,Resource-cost k-means,-0.20182323409827257,15
+high,heavy,seed_0010,Full RB-profile k-means,-0.2592020237521007,15
+high,heavy,seed_0010,Block RB-profile k-means (5 blocks),-0.2592020237521007,15
+high,heavy,seed_0010,Overlap graph (simple similarity),-0.5242950237078352,15
+high,heavy,seed_0010,Exact-regret graph (utility-aware),-0.06575425037804307,15
+high,heavy,seed_0010,CQI+cost 2-way union (paper method),-0.18921951410004326,15
+high,heavy,seed_0010,CQI+cost+regret-graph 3-way union,-0.06575425037804307,15
+high,light,seed_0001,CQI k-means,0.2904803594186004,15
+high,light,seed_0001,Resource-cost k-means,0.2974485187309192,15
+high,light,seed_0001,Full RB-profile k-means,0.28544558589741115,15
+high,light,seed_0001,Block RB-profile k-means (5 blocks),0.2821112878833262,15
+high,light,seed_0001,Overlap graph (simple similarity),0.23127216848545148,15
+high,light,seed_0001,Exact-regret graph (utility-aware),0.25058459433589314,15
+high,light,seed_0001,CQI+cost 2-way union (paper method),0.29952547479812525,15
+high,light,seed_0001,CQI+cost+regret-graph 3-way union,0.3037285059832112,15
+high,light,seed_0002,CQI k-means,0.2567178420067041,15
+high,light,seed_0002,Resource-cost k-means,0.26801408693451795,15
+high,light,seed_0002,Full RB-profile k-means,0.2554012977782399,15
+high,light,seed_0002,Block RB-profile k-means (5 blocks),0.25700058595902614,15
+high,light,seed_0002,Overlap graph (simple similarity),0.19071047636875355,15
+high,light,seed_0002,Exact-regret graph (utility-aware),0.2031543233330012,15
+high,light,seed_0002,CQI+cost 2-way union (paper method),0.26927231092512555,15
+high,light,seed_0002,CQI+cost+regret-graph 3-way union,0.27319535776037684,15
+high,light,seed_0003,CQI k-means,0.28591679858032315,15
+high,light,seed_0003,Resource-cost k-means,0.2874276066005119,15
+high,light,seed_0003,Full RB-profile k-means,0.27348454329739424,15
+high,light,seed_0003,Block RB-profile k-means (5 blocks),0.27514547664965644,15
+high,light,seed_0003,Overlap graph (simple similarity),0.21822875827093802,15
+high,light,seed_0003,Exact-regret graph (utility-aware),0.2792063361763161,15
+high,light,seed_0003,CQI+cost 2-way union (paper method),0.29642887299535775,15
+high,light,seed_0003,CQI+cost+regret-graph 3-way union,0.30787901355062464,15
+high,light,seed_0004,CQI k-means,0.2761601281753829,15
+high,light,seed_0004,Resource-cost k-means,0.2860740579183378,15
+high,light,seed_0004,Full RB-profile k-means,0.2603556208073138,15
+high,light,seed_0004,Block RB-profile k-means (5 blocks),0.26527128372527425,15
+high,light,seed_0004,Overlap graph (simple similarity),0.2033886794328375,15
+high,light,seed_0004,Exact-regret graph (utility-aware),0.2110385793571021,15
+high,light,seed_0004,CQI+cost 2-way union (paper method),0.28945425847953116,15
+high,light,seed_0004,CQI+cost+regret-graph 3-way union,0.2903293520427984,15
+high,light,seed_0005,CQI k-means,0.2678071023582607,15
+high,light,seed_0005,Resource-cost k-means,0.2698613492212639,15
+high,light,seed_0005,Full RB-profile k-means,0.25782985816761406,15
+high,light,seed_0005,Block RB-profile k-means (5 blocks),0.25659100482877767,15
+high,light,seed_0005,Overlap graph (simple similarity),0.19190119255313398,15
+high,light,seed_0005,Exact-regret graph (utility-aware),0.2246452444279616,15
+high,light,seed_0005,CQI+cost 2-way union (paper method),0.28070734020172367,15
+high,light,seed_0005,CQI+cost+regret-graph 3-way union,0.283125057365324,15
+high,light,seed_0006,CQI k-means,0.28126319673528644,15
+high,light,seed_0006,Resource-cost k-means,0.29055708707207056,15
+high,light,seed_0006,Full RB-profile k-means,0.2759133119693115,15
+high,light,seed_0006,Block RB-profile k-means (5 blocks),0.27803058380503437,15
+high,light,seed_0006,Overlap graph (simple similarity),0.21875173613570958,15
+high,light,seed_0006,Exact-regret graph (utility-aware),0.243662096852921,15
+high,light,seed_0006,CQI+cost 2-way union (paper method),0.2948223559973889,15
+high,light,seed_0006,CQI+cost+regret-graph 3-way union,0.29727187512232106,15
+high,light,seed_0007,CQI k-means,0.2821740097622613,15
+high,light,seed_0007,Resource-cost k-means,0.2904573471206131,15
+high,light,seed_0007,Full RB-profile k-means,0.2786799147090297,15
+high,light,seed_0007,Block RB-profile k-means (5 blocks),0.2784264486357199,15
+high,light,seed_0007,Overlap graph (simple similarity),0.234580527172956,15
+high,light,seed_0007,Exact-regret graph (utility-aware),0.28137454354592467,15
+high,light,seed_0007,CQI+cost 2-way union (paper method),0.2970698711370865,15
+high,light,seed_0007,CQI+cost+regret-graph 3-way union,0.31192287904226285,15
+high,light,seed_0008,CQI k-means,0.2695825227713176,15
+high,light,seed_0008,Resource-cost k-means,0.27165273416004376,15
+high,light,seed_0008,Full RB-profile k-means,0.2680738681660474,15
+high,light,seed_0008,Block RB-profile k-means (5 blocks),0.2711635170077919,15
+high,light,seed_0008,Overlap graph (simple similarity),0.21383390618401824,15
+high,light,seed_0008,Exact-regret graph (utility-aware),0.23013811688152436,15
+high,light,seed_0008,CQI+cost 2-way union (paper method),0.2812004612375389,15
+high,light,seed_0008,CQI+cost+regret-graph 3-way union,0.28899017980256037,15
+high,light,seed_0009,CQI k-means,0.3003999894114484,15
+high,light,seed_0009,Resource-cost k-means,0.3016957831868977,15
+high,light,seed_0009,Full RB-profile k-means,0.2894382263801915,15
+high,light,seed_0009,Block RB-profile k-means (5 blocks),0.29490086135712873,15
+high,light,seed_0009,Overlap graph (simple similarity),0.23979692489376594,15
+high,light,seed_0009,Exact-regret graph (utility-aware),0.2893878561774376,15
+high,light,seed_0009,CQI+cost 2-way union (paper method),0.30777925842130516,15
+high,light,seed_0009,CQI+cost+regret-graph 3-way union,0.3143419760071068,15
+high,light,seed_0010,CQI k-means,0.2682612062343738,15
+high,light,seed_0010,Resource-cost k-means,0.2787995094509611,15
+high,light,seed_0010,Full RB-profile k-means,0.2613217186134981,15
+high,light,seed_0010,Block RB-profile k-means (5 blocks),0.2607591985938845,15
+high,light,seed_0010,Overlap graph (simple similarity),0.1902977922062413,15
+high,light,seed_0010,Exact-regret graph (utility-aware),0.23674021943490378,15
+high,light,seed_0010,CQI+cost 2-way union (paper method),0.283127803348999,15
+high,light,seed_0010,CQI+cost+regret-graph 3-way union,0.28507978617822516,15
+high,medium,seed_0001,CQI k-means,0.18814153548968882,15
+high,medium,seed_0001,Resource-cost k-means,0.1767046474707382,15
+high,medium,seed_0001,Full RB-profile k-means,0.18081205929169145,15
+high,medium,seed_0001,Block RB-profile k-means (5 blocks),0.17633423263033662,15
+high,medium,seed_0001,Overlap graph (simple similarity),0.1353107912552569,15
+high,medium,seed_0001,Exact-regret graph (utility-aware),0.16103644720319552,15
+high,medium,seed_0001,CQI+cost 2-way union (paper method),0.1984880314232546,15
+high,medium,seed_0001,CQI+cost+regret-graph 3-way union,0.20046548461822056,15
+high,medium,seed_0002,CQI k-means,0.13628184797653217,15
+high,medium,seed_0002,Resource-cost k-means,0.12272609484047801,15
+high,medium,seed_0002,Full RB-profile k-means,0.1293099794443806,15
+high,medium,seed_0002,Block RB-profile k-means (5 blocks),0.12783009134179507,15
+high,medium,seed_0002,Overlap graph (simple similarity),0.08357337689409008,15
+high,medium,seed_0002,Exact-regret graph (utility-aware),0.12297571982116703,15
+high,medium,seed_0002,CQI+cost 2-way union (paper method),0.14076603503015336,15
+high,medium,seed_0002,CQI+cost+regret-graph 3-way union,0.15275781806190483,15
+high,medium,seed_0003,CQI k-means,0.16771568009774507,15
+high,medium,seed_0003,Resource-cost k-means,0.16161809429729307,15
+high,medium,seed_0003,Full RB-profile k-means,0.16504990763575605,15
+high,medium,seed_0003,Block RB-profile k-means (5 blocks),0.16459053369364826,15
+high,medium,seed_0003,Overlap graph (simple similarity),0.12237484756689862,15
+high,medium,seed_0003,Exact-regret graph (utility-aware),0.15954383831607724,15
+high,medium,seed_0003,CQI+cost 2-way union (paper method),0.17652504439832795,15
+high,medium,seed_0003,CQI+cost+regret-graph 3-way union,0.18241282364401246,15
+high,medium,seed_0004,CQI k-means,0.15828796084506924,15
+high,medium,seed_0004,Resource-cost k-means,0.1500969802932536,15
+high,medium,seed_0004,Full RB-profile k-means,0.1572992198492491,15
+high,medium,seed_0004,Block RB-profile k-means (5 blocks),0.1523938212071184,15
+high,medium,seed_0004,Overlap graph (simple similarity),0.09053888503397532,15
+high,medium,seed_0004,Exact-regret graph (utility-aware),0.14833732132097047,15
+high,medium,seed_0004,CQI+cost 2-way union (paper method),0.16633122667582959,15
+high,medium,seed_0004,CQI+cost+regret-graph 3-way union,0.17071364745318868,15
+high,medium,seed_0005,CQI k-means,0.1286329264662873,15
+high,medium,seed_0005,Resource-cost k-means,0.13781755391058648,15
+high,medium,seed_0005,Full RB-profile k-means,0.1385454900268108,15
+high,medium,seed_0005,Block RB-profile k-means (5 blocks),0.13510089831046643,15
+high,medium,seed_0005,Overlap graph (simple similarity),0.11532668312422478,15
+high,medium,seed_0005,Exact-regret graph (utility-aware),0.13275953465073703,15
+high,medium,seed_0005,CQI+cost 2-way union (paper method),0.14753930570311866,15
+high,medium,seed_0005,CQI+cost+regret-graph 3-way union,0.1515959207759639,15
+high,medium,seed_0006,CQI k-means,0.16594321395090617,15
+high,medium,seed_0006,Resource-cost k-means,0.13924801337064394,15
+high,medium,seed_0006,Full RB-profile k-means,0.16493542057496124,15
+high,medium,seed_0006,Block RB-profile k-means (5 blocks),0.1659304931663734,15
+high,medium,seed_0006,Overlap graph (simple similarity),0.12230488325196844,15
+high,medium,seed_0006,Exact-regret graph (utility-aware),0.14850263392654764,15
+high,medium,seed_0006,CQI+cost 2-way union (paper method),0.16973272134523787,15
+high,medium,seed_0006,CQI+cost+regret-graph 3-way union,0.17785867227546112,15
+high,medium,seed_0007,CQI k-means,0.17818450677664935,15
+high,medium,seed_0007,Resource-cost k-means,0.15233027487780326,15
+high,medium,seed_0007,Full RB-profile k-means,0.17781412073292213,15
+high,medium,seed_0007,Block RB-profile k-means (5 blocks),0.1774183507134781,15
+high,medium,seed_0007,Overlap graph (simple similarity),0.14229538057194127,15
+high,medium,seed_0007,Exact-regret graph (utility-aware),0.16401530458516564,15
+high,medium,seed_0007,CQI+cost 2-way union (paper method),0.1821520763577653,15
+high,medium,seed_0007,CQI+cost+regret-graph 3-way union,0.19437274712108338,15
+high,medium,seed_0008,CQI k-means,0.15868370206783897,15
+high,medium,seed_0008,Resource-cost k-means,0.13840561899029913,15
+high,medium,seed_0008,Full RB-profile k-means,0.16315516833692734,15
+high,medium,seed_0008,Block RB-profile k-means (5 blocks),0.1641311597515404,15
+high,medium,seed_0008,Overlap graph (simple similarity),0.13329520450336704,15
+high,medium,seed_0008,Exact-regret graph (utility-aware),0.14568275755456256,15
+high,medium,seed_0008,CQI+cost 2-way union (paper method),0.1648273514997815,15
+high,medium,seed_0008,CQI+cost+regret-graph 3-way union,0.17621983195956484,15
+high,medium,seed_0009,CQI k-means,0.1787250825259428,15
+high,medium,seed_0009,Resource-cost k-means,0.1884468631151493,15
+high,medium,seed_0009,Full RB-profile k-means,0.18409621550244776,15
+high,medium,seed_0009,Block RB-profile k-means (5 blocks),0.18407077393338225,15
+high,medium,seed_0009,Overlap graph (simple similarity),0.1546511028651306,15
+high,medium,seed_0009,Exact-regret graph (utility-aware),0.15763634943604146,15
+high,medium,seed_0009,CQI+cost 2-way union (paper method),0.19102992168100108,15
+high,medium,seed_0009,CQI+cost+regret-graph 3-way union,0.19302006686382545,15
+high,medium,seed_0010,CQI k-means,0.14910330460409568,15
+high,medium,seed_0010,Resource-cost k-means,0.1375249758663331,15
+high,medium,seed_0010,Full RB-profile k-means,0.14378941515798818,15
+high,medium,seed_0010,Block RB-profile k-means (5 blocks),0.14574775837948062,15
+high,medium,seed_0010,Overlap graph (simple similarity),0.09399619753485243,15
+high,medium,seed_0010,Exact-regret graph (utility-aware),0.154282315300378,15
+high,medium,seed_0010,CQI+cost 2-way union (paper method),0.160055463501896,15
+high,medium,seed_0010,CQI+cost+regret-graph 3-way union,0.1726083867520174,15
+low,heavy,seed_0001,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0001,Resource-cost k-means,0.35593639169248775,15
+low,heavy,seed_0001,Full RB-profile k-means,0.35593639169248775,15
+low,heavy,seed_0001,Block RB-profile k-means (5 blocks),0.35593639169248775,15
+low,heavy,seed_0001,Overlap graph (simple similarity),0.35593639169248775,15
+low,heavy,seed_0001,Exact-regret graph (utility-aware),0.35593639169248775,15
+low,heavy,seed_0001,CQI+cost 2-way union (paper method),0.35593639169248775,15
+low,heavy,seed_0001,CQI+cost+regret-graph 3-way union,0.35593639169248775,15
+low,heavy,seed_0002,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0002,Resource-cost k-means,0.35593639169248775,15
+low,heavy,seed_0002,Full RB-profile k-means,0.35593639169248775,15
+low,heavy,seed_0002,Block RB-profile k-means (5 blocks),0.35593639169248775,15
+low,heavy,seed_0002,Overlap graph (simple similarity),0.35593639169248775,15
+low,heavy,seed_0002,Exact-regret graph (utility-aware),0.35593639169248775,15
+low,heavy,seed_0002,CQI+cost 2-way union (paper method),0.35593639169248775,15
+low,heavy,seed_0002,CQI+cost+regret-graph 3-way union,0.35593639169248775,15
+low,heavy,seed_0003,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0003,Resource-cost k-means,0.35593639169248775,15
+low,heavy,seed_0003,Full RB-profile k-means,0.35593639169248775,15
+low,heavy,seed_0003,Block RB-profile k-means (5 blocks),0.35593639169248775,15
+low,heavy,seed_0003,Overlap graph (simple similarity),0.35593639169248775,15
+low,heavy,seed_0003,Exact-regret graph (utility-aware),0.35593639169248775,15
+low,heavy,seed_0003,CQI+cost 2-way union (paper method),0.35593639169248775,15
+low,heavy,seed_0003,CQI+cost+regret-graph 3-way union,0.35593639169248775,15
+low,heavy,seed_0004,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0004,Resource-cost k-means,0.35593639169248775,15
+low,heavy,seed_0004,Full RB-profile k-means,0.35593639169248775,15
+low,heavy,seed_0004,Block RB-profile k-means (5 blocks),0.35593639169248775,15
+low,heavy,seed_0004,Overlap graph (simple similarity),0.35593639169248775,15
+low,heavy,seed_0004,Exact-regret graph (utility-aware),0.35593639169248775,15
+low,heavy,seed_0004,CQI+cost 2-way union (paper method),0.35593639169248775,15
+low,heavy,seed_0004,CQI+cost+regret-graph 3-way union,0.35593639169248775,15
+low,heavy,seed_0005,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0005,Resource-cost k-means,0.35593639169248775,15
+low,heavy,seed_0005,Full RB-profile k-means,0.35593639169248775,15
+low,heavy,seed_0005,Block RB-profile k-means (5 blocks),0.35593639169248775,15
+low,heavy,seed_0005,Overlap graph (simple similarity),0.35593639169248775,15
+low,heavy,seed_0005,Exact-regret graph (utility-aware),0.35593639169248775,15
+low,heavy,seed_0005,CQI+cost 2-way union (paper method),0.35593639169248775,15
+low,heavy,seed_0005,CQI+cost+regret-graph 3-way union,0.35593639169248775,15
+low,heavy,seed_0006,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0006,Resource-cost k-means,0.35593639169248775,15
+low,heavy,seed_0006,Full RB-profile k-means,0.35593639169248775,15
+low,heavy,seed_0006,Block RB-profile k-means (5 blocks),0.35593639169248775,15
+low,heavy,seed_0006,Overlap graph (simple similarity),0.35593639169248775,15
+low,heavy,seed_0006,Exact-regret graph (utility-aware),0.35593639169248775,15
+low,heavy,seed_0006,CQI+cost 2-way union (paper method),0.35593639169248775,15
+low,heavy,seed_0006,CQI+cost+regret-graph 3-way union,0.35593639169248775,15
+low,heavy,seed_0007,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0007,Resource-cost k-means,0.35593639169248775,15
+low,heavy,seed_0007,Full RB-profile k-means,0.35593639169248775,15
+low,heavy,seed_0007,Block RB-profile k-means (5 blocks),0.35593639169248775,15
+low,heavy,seed_0007,Overlap graph (simple similarity),0.35593639169248775,15
+low,heavy,seed_0007,Exact-regret graph (utility-aware),0.35593639169248775,15
+low,heavy,seed_0007,CQI+cost 2-way union (paper method),0.35593639169248775,15
+low,heavy,seed_0007,CQI+cost+regret-graph 3-way union,0.35593639169248775,15
+low,heavy,seed_0008,CQI k-means,0.34939212393778635,15
+low,heavy,seed_0008,Resource-cost k-means,0.34414817000993464,15
+low,heavy,seed_0008,Full RB-profile k-means,0.34414817000993464,15
+low,heavy,seed_0008,Block RB-profile k-means (5 blocks),0.34414817000993464,15
+low,heavy,seed_0008,Overlap graph (simple similarity),0.34414817000993464,15
+low,heavy,seed_0008,Exact-regret graph (utility-aware),0.34414817000993464,15
+low,heavy,seed_0008,CQI+cost 2-way union (paper method),0.34939212393778635,15
+low,heavy,seed_0008,CQI+cost+regret-graph 3-way union,0.34939212393778635,15
+low,heavy,seed_0009,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0009,Resource-cost k-means,0.35593639169248775,15
+low,heavy,seed_0009,Full RB-profile k-means,0.35593639169248775,15
+low,heavy,seed_0009,Block RB-profile k-means (5 blocks),0.35593639169248775,15
+low,heavy,seed_0009,Overlap graph (simple similarity),0.35593639169248775,15
+low,heavy,seed_0009,Exact-regret graph (utility-aware),0.35593639169248775,15
+low,heavy,seed_0009,CQI+cost 2-way union (paper method),0.35593639169248775,15
+low,heavy,seed_0009,CQI+cost+regret-graph 3-way union,0.35593639169248775,15
+low,heavy,seed_0010,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0010,Resource-cost k-means,0.35593639169248775,15
+low,heavy,seed_0010,Full RB-profile k-means,0.35593639169248775,15
+low,heavy,seed_0010,Block RB-profile k-means (5 blocks),0.35593639169248775,15
+low,heavy,seed_0010,Overlap graph (simple similarity),0.35593639169248775,15
+low,heavy,seed_0010,Exact-regret graph (utility-aware),0.35593639169248775,15
+low,heavy,seed_0010,CQI+cost 2-way union (paper method),0.35593639169248775,15
+low,heavy,seed_0010,CQI+cost+regret-graph 3-way union,0.35593639169248775,15
+low,light,seed_0001,CQI k-means,0.529078111650274,15
+low,light,seed_0001,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0001,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0001,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0001,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0001,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0001,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0001,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,light,seed_0002,CQI k-means,0.529078111650274,15
+low,light,seed_0002,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0002,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0002,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0002,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0002,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0002,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0002,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,light,seed_0003,CQI k-means,0.529078111650274,15
+low,light,seed_0003,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0003,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0003,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0003,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0003,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0003,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0003,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,light,seed_0004,CQI k-means,0.529078111650274,15
+low,light,seed_0004,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0004,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0004,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0004,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0004,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0004,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0004,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,light,seed_0005,CQI k-means,0.529078111650274,15
+low,light,seed_0005,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0005,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0005,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0005,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0005,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0005,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0005,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,light,seed_0006,CQI k-means,0.529078111650274,15
+low,light,seed_0006,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0006,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0006,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0006,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0006,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0006,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0006,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,light,seed_0007,CQI k-means,0.529078111650274,15
+low,light,seed_0007,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0007,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0007,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0007,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0007,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0007,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0007,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,light,seed_0008,CQI k-means,0.529078111650274,15
+low,light,seed_0008,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0008,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0008,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0008,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0008,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0008,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0008,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,light,seed_0009,CQI k-means,0.529078111650274,15
+low,light,seed_0009,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0009,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0009,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0009,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0009,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0009,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0009,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,light,seed_0010,CQI k-means,0.529078111650274,15
+low,light,seed_0010,Resource-cost k-means,0.529078111650274,15
+low,light,seed_0010,Full RB-profile k-means,0.529078111650274,15
+low,light,seed_0010,Block RB-profile k-means (5 blocks),0.529078111650274,15
+low,light,seed_0010,Overlap graph (simple similarity),0.529078111650274,15
+low,light,seed_0010,Exact-regret graph (utility-aware),0.529078111650274,15
+low,light,seed_0010,CQI+cost 2-way union (paper method),0.529078111650274,15
+low,light,seed_0010,CQI+cost+regret-graph 3-way union,0.529078111650274,15
+low,medium,seed_0001,CQI k-means,0.44718417808401845,15
+low,medium,seed_0001,Resource-cost k-means,0.44718417808401845,15
+low,medium,seed_0001,Full RB-profile k-means,0.44718417808401845,15
+low,medium,seed_0001,Block RB-profile k-means (5 blocks),0.44718417808401845,15
+low,medium,seed_0001,Overlap graph (simple similarity),0.44718417808401845,15
+low,medium,seed_0001,Exact-regret graph (utility-aware),0.44718417808401845,15
+low,medium,seed_0001,CQI+cost 2-way union (paper method),0.44718417808401845,15
+low,medium,seed_0001,CQI+cost+regret-graph 3-way union,0.44718417808401845,15
+low,medium,seed_0002,CQI k-means,0.44718417808401845,15
+low,medium,seed_0002,Resource-cost k-means,0.44718417808401845,15
+low,medium,seed_0002,Full RB-profile k-means,0.44718417808401845,15
+low,medium,seed_0002,Block RB-profile k-means (5 blocks),0.44718417808401845,15
+low,medium,seed_0002,Overlap graph (simple similarity),0.44718417808401845,15
+low,medium,seed_0002,Exact-regret graph (utility-aware),0.44718417808401845,15
+low,medium,seed_0002,CQI+cost 2-way union (paper method),0.44718417808401845,15
+low,medium,seed_0002,CQI+cost+regret-graph 3-way union,0.44718417808401845,15
+low,medium,seed_0003,CQI k-means,0.44718417808401845,15
+low,medium,seed_0003,Resource-cost k-means,0.44718417808401845,15
+low,medium,seed_0003,Full RB-profile k-means,0.44718417808401845,15
+low,medium,seed_0003,Block RB-profile k-means (5 blocks),0.44718417808401845,15
+low,medium,seed_0003,Overlap graph (simple similarity),0.44718417808401845,15
+low,medium,seed_0003,Exact-regret graph (utility-aware),0.44718417808401845,15
+low,medium,seed_0003,CQI+cost 2-way union (paper method),0.44718417808401845,15
+low,medium,seed_0003,CQI+cost+regret-graph 3-way union,0.44718417808401845,15
+low,medium,seed_0004,CQI k-means,0.44718417808401845,15
+low,medium,seed_0004,Resource-cost k-means,0.44718417808401845,15
+low,medium,seed_0004,Full RB-profile k-means,0.44718417808401845,15
+low,medium,seed_0004,Block RB-profile k-means (5 blocks),0.44718417808401845,15
+low,medium,seed_0004,Overlap graph (simple similarity),0.44718417808401845,15
+low,medium,seed_0004,Exact-regret graph (utility-aware),0.44718417808401845,15
+low,medium,seed_0004,CQI+cost 2-way union (paper method),0.44718417808401845,15
+low,medium,seed_0004,CQI+cost+regret-graph 3-way union,0.44718417808401845,15
+low,medium,seed_0005,CQI k-means,0.44718417808401845,15
+low,medium,seed_0005,Resource-cost k-means,0.44718417808401845,15
+low,medium,seed_0005,Full RB-profile k-means,0.44718417808401845,15
+low,medium,seed_0005,Block RB-profile k-means (5 blocks),0.44718417808401845,15
+low,medium,seed_0005,Overlap graph (simple similarity),0.44718417808401845,15
+low,medium,seed_0005,Exact-regret graph (utility-aware),0.44718417808401845,15
+low,medium,seed_0005,CQI+cost 2-way union (paper method),0.44718417808401845,15
+low,medium,seed_0005,CQI+cost+regret-graph 3-way union,0.44718417808401845,15
+low,medium,seed_0006,CQI k-means,0.44718417808401845,15
+low,medium,seed_0006,Resource-cost k-means,0.44718417808401845,15
+low,medium,seed_0006,Full RB-profile k-means,0.44718417808401845,15
+low,medium,seed_0006,Block RB-profile k-means (5 blocks),0.44718417808401845,15
+low,medium,seed_0006,Overlap graph (simple similarity),0.44718417808401845,15
+low,medium,seed_0006,Exact-regret graph (utility-aware),0.44718417808401845,15
+low,medium,seed_0006,CQI+cost 2-way union (paper method),0.44718417808401845,15
+low,medium,seed_0006,CQI+cost+regret-graph 3-way union,0.44718417808401845,15
+low,medium,seed_0007,CQI k-means,0.45264377365510217,15
+low,medium,seed_0007,Resource-cost k-means,0.45264377365510217,15
+low,medium,seed_0007,Full RB-profile k-means,0.45264377365510217,15
+low,medium,seed_0007,Block RB-profile k-means (5 blocks),0.45264377365510217,15
+low,medium,seed_0007,Overlap graph (simple similarity),0.45264377365510217,15
+low,medium,seed_0007,Exact-regret graph (utility-aware),0.45264377365510217,15
+low,medium,seed_0007,CQI+cost 2-way union (paper method),0.45264377365510217,15
+low,medium,seed_0007,CQI+cost+regret-graph 3-way union,0.45264377365510217,15
+low,medium,seed_0008,CQI k-means,0.44718417808401845,15
+low,medium,seed_0008,Resource-cost k-means,0.44718417808401845,15
+low,medium,seed_0008,Full RB-profile k-means,0.44718417808401845,15
+low,medium,seed_0008,Block RB-profile k-means (5 blocks),0.44718417808401845,15
+low,medium,seed_0008,Overlap graph (simple similarity),0.44718417808401845,15
+low,medium,seed_0008,Exact-regret graph (utility-aware),0.44718417808401845,15
+low,medium,seed_0008,CQI+cost 2-way union (paper method),0.44718417808401845,15
+low,medium,seed_0008,CQI+cost+regret-graph 3-way union,0.44718417808401845,15
+low,medium,seed_0009,CQI k-means,0.44718417808401845,15
+low,medium,seed_0009,Resource-cost k-means,0.44718417808401845,15
+low,medium,seed_0009,Full RB-profile k-means,0.44718417808401845,15
+low,medium,seed_0009,Block RB-profile k-means (5 blocks),0.44718417808401845,15
+low,medium,seed_0009,Overlap graph (simple similarity),0.44718417808401845,15
+low,medium,seed_0009,Exact-regret graph (utility-aware),0.44718417808401845,15
+low,medium,seed_0009,CQI+cost 2-way union (paper method),0.44718417808401845,15
+low,medium,seed_0009,CQI+cost+regret-graph 3-way union,0.44718417808401845,15
+low,medium,seed_0010,CQI k-means,0.4526437736551021,15
+low,medium,seed_0010,Resource-cost k-means,0.4526437736551021,15
+low,medium,seed_0010,Full RB-profile k-means,0.4526437736551021,15
+low,medium,seed_0010,Block RB-profile k-means (5 blocks),0.4526437736551021,15
+low,medium,seed_0010,Overlap graph (simple similarity),0.4526437736551021,15
+low,medium,seed_0010,Exact-regret graph (utility-aware),0.4526437736551021,15
+low,medium,seed_0010,CQI+cost 2-way union (paper method),0.4526437736551021,15
+low,medium,seed_0010,CQI+cost+regret-graph 3-way union,0.4526437736551021,15
+mid,heavy,seed_0001,CQI k-means,0.1661771227658335,15
+mid,heavy,seed_0001,Resource-cost k-means,0.1431251405577763,15
+mid,heavy,seed_0001,Full RB-profile k-means,0.163191904991597,15
+mid,heavy,seed_0001,Block RB-profile k-means (5 blocks),0.16219683240018481,15
+mid,heavy,seed_0001,Overlap graph (simple similarity),0.13582740872776214,15
+mid,heavy,seed_0001,Exact-regret graph (utility-aware),0.1372373613120918,15
+mid,heavy,seed_0001,CQI+cost 2-way union (paper method),0.1661771227658335,15
+mid,heavy,seed_0001,CQI+cost+regret-graph 3-way union,0.1661771227658335,15
+mid,heavy,seed_0002,CQI k-means,0.1676697316529518,15
+mid,heavy,seed_0002,Resource-cost k-means,0.15373871537318132,15
+mid,heavy,seed_0002,Full RB-profile k-means,0.16717219535724573,15
+mid,heavy,seed_0002,Block RB-profile k-means (5 blocks),0.16717219535724573,15
+mid,heavy,seed_0002,Overlap graph (simple similarity),0.14677320723329607,15
+mid,heavy,seed_0002,Exact-regret graph (utility-aware),0.15373871537318132,15
+mid,heavy,seed_0002,CQI+cost 2-way union (paper method),0.168664804244364,15
+mid,heavy,seed_0002,CQI+cost+regret-graph 3-way union,0.168664804244364,15
+mid,heavy,seed_0003,CQI k-means,0.16659200275875105,15
+mid,heavy,seed_0003,Resource-cost k-means,0.16567958647012745,15
+mid,heavy,seed_0003,Full RB-profile k-means,0.16418697758300918,15
+mid,heavy,seed_0003,Block RB-profile k-means (5 blocks),0.16418697758300918,15
+mid,heavy,seed_0003,Overlap graph (simple similarity),0.15622639685171175,15
+mid,heavy,seed_0003,Exact-regret graph (utility-aware),0.17106982942010587,15
+mid,heavy,seed_0003,CQI+cost 2-way union (paper method),0.16808461164586933,15
+mid,heavy,seed_0003,CQI+cost+regret-graph 3-way union,0.17156736571581196,15
+mid,heavy,seed_0004,CQI k-means,0.16916234054007007,15
+mid,heavy,seed_0004,Resource-cost k-means,0.1547337879645935,15
+mid,heavy,seed_0004,Full RB-profile k-means,0.16965987683577616,15
+mid,heavy,seed_0004,Block RB-profile k-means (5 blocks),0.16866480424436398,15
+mid,heavy,seed_0004,Overlap graph (simple similarity),0.14768562352191966,15
+mid,heavy,seed_0004,Exact-regret graph (utility-aware),0.15506601165472242,15
+mid,heavy,seed_0004,CQI+cost 2-way union (paper method),0.17413770349713095,15
+mid,heavy,seed_0004,CQI+cost+regret-graph 3-way union,0.17413770349713095,15
+mid,heavy,seed_0005,CQI k-means,0.16916234054007007,15
+mid,heavy,seed_0005,Resource-cost k-means,0.17057229312439978,15
+mid,heavy,seed_0005,Full RB-profile k-means,0.16667465906153964,15
+mid,heavy,seed_0005,Block RB-profile k-means (5 blocks),0.16667465906153964,15
+mid,heavy,seed_0005,Overlap graph (simple similarity),0.14528059834617776,15
+mid,heavy,seed_0005,Exact-regret graph (utility-aware),0.1537593374356064,15
+mid,heavy,seed_0005,CQI+cost 2-way union (paper method),0.1731426309057188,15
+mid,heavy,seed_0005,CQI+cost+regret-graph 3-way union,0.1783865848335705,15
+mid,heavy,seed_0006,CQI k-means,0.17413770349713095,15
+mid,heavy,seed_0006,Resource-cost k-means,0.15912895832315974,15
+mid,heavy,seed_0006,Full RB-profile k-means,0.1736401672014249,15
+mid,heavy,seed_0006,Block RB-profile k-means (5 blocks),0.1736401672014249,15
+mid,heavy,seed_0006,Overlap graph (simple similarity),0.16418697758300918,15
+mid,heavy,seed_0006,Exact-regret graph (utility-aware),0.1646845138787153,15
+mid,heavy,seed_0006,CQI+cost 2-way union (paper method),0.17413770349713095,15
+mid,heavy,seed_0006,CQI+cost+regret-graph 3-way union,0.17413770349713095,15
+mid,heavy,seed_0007,CQI k-means,0.1771229212713675,15
+mid,heavy,seed_0007,Resource-cost k-means,0.16717219535724573,15
+mid,heavy,seed_0007,Full RB-profile k-means,0.1771229212713675,15
+mid,heavy,seed_0007,Block RB-profile k-means (5 blocks),0.1771229212713675,15
+mid,heavy,seed_0007,Overlap graph (simple similarity),0.1685821479415754,15
+mid,heavy,seed_0007,Exact-regret graph (utility-aware),0.17305997460293024,15
+mid,heavy,seed_0007,CQI+cost 2-way union (paper method),0.1771229212713675,15
+mid,heavy,seed_0007,CQI+cost+regret-graph 3-way union,0.1771229212713675,15
+mid,heavy,seed_0008,CQI k-means,0.17563031238424923,15
+mid,heavy,seed_0008,Resource-cost k-means,0.16717219535724573,15
+mid,heavy,seed_0008,Full RB-profile k-means,0.1736401672014249,15
+mid,heavy,seed_0008,Block RB-profile k-means (5 blocks),0.1736401672014249,15
+mid,heavy,seed_0008,Overlap graph (simple similarity),0.16816726794865788,15
+mid,heavy,seed_0008,Exact-regret graph (utility-aware),0.16717219535724573,15
+mid,heavy,seed_0008,CQI+cost 2-way union (paper method),0.17563031238424923,15
+mid,heavy,seed_0008,CQI+cost+regret-graph 3-way union,0.17563031238424923,15
+mid,heavy,seed_0009,CQI k-means,0.17513277608854314,15
+mid,heavy,seed_0009,Resource-cost k-means,0.16717219535724573,15
+mid,heavy,seed_0009,Full RB-profile k-means,0.17513277608854314,15
+mid,heavy,seed_0009,Block RB-profile k-means (5 blocks),0.17513277608854314,15
+mid,heavy,seed_0009,Overlap graph (simple similarity),0.16717219535724573,15
+mid,heavy,seed_0009,Exact-regret graph (utility-aware),0.16717219535724573,15
+mid,heavy,seed_0009,CQI+cost 2-way union (paper method),0.17513277608854314,15
+mid,heavy,seed_0009,CQI+cost+regret-graph 3-way union,0.17513277608854314,15
+mid,heavy,seed_0010,CQI k-means,0.1766253849756614,15
+mid,heavy,seed_0010,Resource-cost k-means,0.1771229212713675,15
+mid,heavy,seed_0010,Full RB-profile k-means,0.1766253849756614,15
+mid,heavy,seed_0010,Block RB-profile k-means (5 blocks),0.1766253849756614,15
+mid,heavy,seed_0010,Overlap graph (simple similarity),0.16717219535724573,15
+mid,heavy,seed_0010,Exact-regret graph (utility-aware),0.1771229212713675,15
+mid,heavy,seed_0010,CQI+cost 2-way union (paper method),0.1771229212713675,15
+mid,heavy,seed_0010,CQI+cost+regret-graph 3-way union,0.1771229212713675,15
+mid,light,seed_0001,CQI k-means,0.42386774167132796,15
+mid,light,seed_0001,Resource-cost k-means,0.4359388026755232,15
+mid,light,seed_0001,Full RB-profile k-means,0.4259869722582387,15
+mid,light,seed_0001,Block RB-profile k-means (5 blocks),0.42927899136111436,15
+mid,light,seed_0001,Overlap graph (simple similarity),0.38325822802084186,15
+mid,light,seed_0001,Exact-regret graph (utility-aware),0.43199031427120643,15
+mid,light,seed_0001,CQI+cost 2-way union (paper method),0.4379501826153242,15
+mid,light,seed_0001,CQI+cost+regret-graph 3-way union,0.4379659388585041,15
+mid,light,seed_0002,CQI k-means,0.43740815794437987,15
+mid,light,seed_0002,Resource-cost k-means,0.4387457128450471,15
+mid,light,seed_0002,Full RB-profile k-means,0.43658141026240993,15
+mid,light,seed_0002,Block RB-profile k-means (5 blocks),0.43732605223915944,15
+mid,light,seed_0002,Overlap graph (simple similarity),0.4122373724536248,15
+mid,light,seed_0002,Exact-regret graph (utility-aware),0.4354697434075298,15
+mid,light,seed_0002,CQI+cost 2-way union (paper method),0.44251755530549375,15
+mid,light,seed_0002,CQI+cost+regret-graph 3-way union,0.4430670602297995,15
+mid,light,seed_0003,CQI k-means,0.43148473924496944,15
+mid,light,seed_0003,Resource-cost k-means,0.43757375354756906,15
+mid,light,seed_0003,Full RB-profile k-means,0.4319903003733547,15
+mid,light,seed_0003,Block RB-profile k-means (5 blocks),0.4299907565600464,15
+mid,light,seed_0003,Overlap graph (simple similarity),0.4119339052859125,15
+mid,light,seed_0003,Exact-regret graph (utility-aware),0.4351941606987737,15
+mid,light,seed_0003,CQI+cost 2-way union (paper method),0.4380931086650383,15
+mid,light,seed_0003,CQI+cost+regret-graph 3-way union,0.43887865897906114,15
+mid,light,seed_0004,CQI k-means,0.44668627947302736,15
+mid,light,seed_0004,Resource-cost k-means,0.4429269177582555,15
+mid,light,seed_0004,Full RB-profile k-means,0.44989564873566307,15
+mid,light,seed_0004,Block RB-profile k-means (5 blocks),0.45039123389555463,15
+mid,light,seed_0004,Overlap graph (simple similarity),0.4137896813798435,15
+mid,light,seed_0004,Exact-regret graph (utility-aware),0.4364363389712294,15
+mid,light,seed_0004,CQI+cost 2-way union (paper method),0.4491156363221965,15
+mid,light,seed_0004,CQI+cost+regret-graph 3-way union,0.4491156363221965,15
+mid,light,seed_0005,CQI k-means,0.4524007604041333,15
+mid,light,seed_0005,Resource-cost k-means,0.44687897786182623,15
+mid,light,seed_0005,Full RB-profile k-means,0.451127898140467,15
+mid,light,seed_0005,Block RB-profile k-means (5 blocks),0.45145598410649523,15
+mid,light,seed_0005,Overlap graph (simple similarity),0.4210708093612715,15
+mid,light,seed_0005,Exact-regret graph (utility-aware),0.4351217398751406,15
+mid,light,seed_0005,CQI+cost 2-way union (paper method),0.4557955897320382,15
+mid,light,seed_0005,CQI+cost+regret-graph 3-way union,0.4557955897320382,15
+mid,light,seed_0006,CQI k-means,0.4565236335169052,15
+mid,light,seed_0006,Resource-cost k-means,0.4474663524408895,15
+mid,light,seed_0006,Full RB-profile k-means,0.456633095944445,15
+mid,light,seed_0006,Block RB-profile k-means (5 blocks),0.4541269189658363,15
+mid,light,seed_0006,Overlap graph (simple similarity),0.42746109309539315,15
+mid,light,seed_0006,Exact-regret graph (utility-aware),0.44402206526500504,15
+mid,light,seed_0006,CQI+cost 2-way union (paper method),0.4594864451807234,15
+mid,light,seed_0006,CQI+cost+regret-graph 3-way union,0.4594864451807234,15
+mid,light,seed_0007,CQI k-means,0.4453368912254376,15
+mid,light,seed_0007,Resource-cost k-means,0.44497290180595417,15
+mid,light,seed_0007,Full RB-profile k-means,0.4456439864205536,15
+mid,light,seed_0007,Block RB-profile k-means (5 blocks),0.44609258954630715,15
+mid,light,seed_0007,Overlap graph (simple similarity),0.42497370109183474,15
+mid,light,seed_0007,Exact-regret graph (utility-aware),0.4432011417346946,15
+mid,light,seed_0007,CQI+cost 2-way union (paper method),0.45095018644216,15
+mid,light,seed_0007,CQI+cost+regret-graph 3-way union,0.4512130483663833,15
+mid,light,seed_0008,CQI k-means,0.4419144205360442,15
+mid,light,seed_0008,Resource-cost k-means,0.44712721335461,15
+mid,light,seed_0008,Full RB-profile k-means,0.4453581786423971,15
+mid,light,seed_0008,Block RB-profile k-means (5 blocks),0.4439169981960653,15
+mid,light,seed_0008,Overlap graph (simple similarity),0.426963556799687,15
+mid,light,seed_0008,Exact-regret graph (utility-aware),0.4387332898741975,15
+mid,light,seed_0008,CQI+cost 2-way union (paper method),0.4486864156898331,15
+mid,light,seed_0008,CQI+cost+regret-graph 3-way union,0.44925250768774,15
+mid,light,seed_0009,CQI k-means,0.43799523515405825,15
+mid,light,seed_0009,Resource-cost k-means,0.44077480967018956,15
+mid,light,seed_0009,Full RB-profile k-means,0.44018272479712267,15
+mid,light,seed_0009,Block RB-profile k-means (5 blocks),0.4364633807581451,15
+mid,light,seed_0009,Overlap graph (simple similarity),0.4259560528987142,15
+mid,light,seed_0009,Exact-regret graph (utility-aware),0.43945277975685365,15
+mid,light,seed_0009,CQI+cost 2-way union (paper method),0.4439557042403847,15
+mid,light,seed_0009,CQI+cost+regret-graph 3-way union,0.44485238025472407,15
+mid,light,seed_0010,CQI k-means,0.4512185716457502,15
+mid,light,seed_0010,Resource-cost k-means,0.44611667955413076,15
+mid,light,seed_0010,Full RB-profile k-means,0.4529754118633918,15
+mid,light,seed_0010,Block RB-profile k-means (5 blocks),0.451434996838491,15
+mid,light,seed_0010,Overlap graph (simple similarity),0.4357782047850771,15
+mid,light,seed_0010,Exact-regret graph (utility-aware),0.44245649975794515,15
+mid,light,seed_0010,CQI+cost 2-way union (paper method),0.4537161903306433,15
+mid,light,seed_0010,CQI+cost+regret-graph 3-way union,0.4537161903306433,15
+mid,medium,seed_0001,CQI k-means,0.3533937285285322,15
+mid,medium,seed_0001,Resource-cost k-means,0.3501680413216783,15
+mid,medium,seed_0001,Full RB-profile k-means,0.35029049047733857,15
+mid,medium,seed_0001,Block RB-profile k-means (5 blocks),0.3494197985551498,15
+mid,medium,seed_0001,Overlap graph (simple similarity),0.30711953615136617,15
+mid,medium,seed_0001,Exact-regret graph (utility-aware),0.3444612837265901,15
+mid,medium,seed_0001,CQI+cost 2-way union (paper method),0.35781431165948957,15
+mid,medium,seed_0001,CQI+cost+regret-graph 3-way union,0.35781431165948957,15
+mid,medium,seed_0002,CQI k-means,0.34174643099086965,15
+mid,medium,seed_0002,Resource-cost k-means,0.3491796185975046,15
+mid,medium,seed_0002,Full RB-profile k-means,0.3466916612628145,15
+mid,medium,seed_0002,Block RB-profile k-means (5 blocks),0.34547159962580515,15
+mid,medium,seed_0002,Overlap graph (simple similarity),0.30927468086571513,15
+mid,medium,seed_0002,Exact-regret graph (utility-aware),0.35002956006667846,15
+mid,medium,seed_0002,CQI+cost 2-way union (paper method),0.3531134410849132,15
+mid,medium,seed_0002,CQI+cost+regret-graph 3-way union,0.3536046169883529,15
+mid,medium,seed_0003,CQI k-means,0.3505558764838816,15
+mid,medium,seed_0003,Resource-cost k-means,0.35385366780177185,15
+mid,medium,seed_0003,Full RB-profile k-means,0.3490759883812961,15
+mid,medium,seed_0003,Block RB-profile k-means (5 blocks),0.34771412055566764,15
+mid,medium,seed_0003,Overlap graph (simple similarity),0.3387452350720978,15
+mid,medium,seed_0003,Exact-regret graph (utility-aware),0.35297025509505026,15
+mid,medium,seed_0003,CQI+cost 2-way union (paper method),0.35572110159158854,15
+mid,medium,seed_0003,CQI+cost+regret-graph 3-way union,0.3562122774950282,15
+mid,medium,seed_0004,CQI k-means,0.3613048059229423,15
+mid,medium,seed_0004,Resource-cost k-means,0.3552310023956081,15
+mid,medium,seed_0004,Full RB-profile k-means,0.36737086925676643,15
+mid,medium,seed_0004,Block RB-profile k-means (5 blocks),0.36364266516318383,15
+mid,medium,seed_0004,Overlap graph (simple similarity),0.32708884477730626,15
+mid,medium,seed_0004,Exact-regret graph (utility-aware),0.3570823768484605,15
+mid,medium,seed_0004,CQI+cost 2-way union (paper method),0.3639165785957241,15
+mid,medium,seed_0004,CQI+cost+regret-graph 3-way union,0.36440775449916385,15
+mid,medium,seed_0005,CQI k-means,0.3574602508286184,15
+mid,medium,seed_0005,Resource-cost k-means,0.3566102821218199,15
+mid,medium,seed_0005,Full RB-profile k-means,0.36105271965087626,15
+mid,medium,seed_0005,Block RB-profile k-means (5 blocks),0.35978509980935514,15
+mid,medium,seed_0005,Overlap graph (simple similarity),0.32370785698362564,15
+mid,medium,seed_0005,Exact-regret graph (utility-aware),0.3487451072745182,15
+mid,medium,seed_0005,CQI+cost 2-way union (paper method),0.3629442015897023,15
+mid,medium,seed_0005,CQI+cost+regret-graph 3-way union,0.3629442015897023,15
+mid,medium,seed_0006,CQI k-means,0.3604678747132733,15
+mid,medium,seed_0006,Resource-cost k-means,0.3567349658848278,15
+mid,medium,seed_0006,Full RB-profile k-means,0.35844925250273635,15
+mid,medium,seed_0006,Block RB-profile k-means (5 blocks),0.35993853645623536,15
+mid,medium,seed_0006,Overlap graph (simple similarity),0.33776288326521847,15
+mid,medium,seed_0006,Exact-regret graph (utility-aware),0.347679520214906,15
+mid,medium,seed_0006,CQI+cost 2-way union (paper method),0.3654111462340303,15
+mid,medium,seed_0006,CQI+cost+regret-graph 3-way union,0.3654111462340303,15
+mid,medium,seed_0007,CQI k-means,0.3452009975080717,15
+mid,medium,seed_0007,Resource-cost k-means,0.3524917999761434,15
+mid,medium,seed_0007,Full RB-profile k-means,0.3501241111445702,15
+mid,medium,seed_0007,Block RB-profile k-means (5 blocks),0.3498736805299076,15
+mid,medium,seed_0007,Overlap graph (simple similarity),0.33651709058417156,15
+mid,medium,seed_0007,Exact-regret graph (utility-aware),0.3539653276864625,15
+mid,medium,seed_0007,CQI+cost 2-way union (paper method),0.35274389986702187,15
+mid,medium,seed_0007,CQI+cost+regret-graph 3-way union,0.354217427577341,15
+mid,medium,seed_0008,CQI k-means,0.3586245163100908,15
+mid,medium,seed_0008,Resource-cost k-means,0.36119478807684274,15
+mid,medium,seed_0008,Full RB-profile k-means,0.3579660926489664,15
+mid,medium,seed_0008,Block RB-profile k-means (5 blocks),0.3551390162564731,15
+mid,medium,seed_0008,Overlap graph (simple similarity),0.34414817000993464,15
+mid,medium,seed_0008,Exact-regret graph (utility-aware),0.3524790791916106,15
+mid,medium,seed_0008,CQI+cost 2-way union (paper method),0.36478784946785703,15
+mid,medium,seed_0008,CQI+cost+regret-graph 3-way union,0.3654000811069009,15
+mid,medium,seed_0009,CQI k-means,0.3553111634127513,15
+mid,medium,seed_0009,Resource-cost k-means,0.3543749900091399,15
+mid,medium,seed_0009,Full RB-profile k-means,0.3574273585410149,15
+mid,medium,seed_0009,Block RB-profile k-means (5 blocks),0.3540756350075342,15
+mid,medium,seed_0009,Overlap graph (simple similarity),0.34562169772025375,15
+mid,medium,seed_0009,Exact-regret graph (utility-aware),0.3534741517830227,15
+mid,medium,seed_0009,CQI+cost 2-way union (paper method),0.35944265581793267,15
+mid,medium,seed_0009,CQI+cost+regret-graph 3-way union,0.3609161835282518,15
+mid,medium,seed_0010,CQI k-means,0.3620785038773487,15
+mid,medium,seed_0010,Resource-cost k-means,0.357709288023225,15
+mid,medium,seed_0010,Full RB-profile k-means,0.3670201197407021,15
+mid,medium,seed_0010,Block RB-profile k-means (5 blocks),0.3647861938104535,15
+mid,medium,seed_0010,Overlap graph (simple similarity),0.3431149350649242,15
+mid,medium,seed_0010,Exact-regret graph (utility-aware),0.3534805121752892,15
+mid,medium,seed_0010,CQI+cost 2-way union (paper method),0.36516736548660605,15
+mid,medium,seed_0010,CQI+cost+regret-graph 3-way union,0.3656585413900458,15
