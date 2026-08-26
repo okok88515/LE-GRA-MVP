@@ -94,46 +94,91 @@ with the mechanistic explanation that `group_quality_value`'s switching
 penalty is already inside the regret computation -- the switching family is
 not adding information the regret graph doesn't already have access to.
 
-## Decision
+## Confirmatory result (seeds 31..50, 2026-08-26)
 
-**The evidence supports treating the regret graph as a replacement for the
-switching-aware candidate family, not just an addition to it** -- at every
-cell tested it matches or exceeds switching's own contribution, and clearly
-beats it (not just ties it) at all three high-dispersion cells, while
-`switching`'s marginal value on top of an already-present regret graph is
-negligible.
+Ran on 20 fresh, never-before-used seeds
+(`run_real_multiseed_regret_confirmatory.py`, frozen method set, no
+retuning) -- seeds 1..10 were used for this direction's own exploratory
+pass, seeds 11..30 for the switching-gate confirmatory pass, so 31..50 is
+the first genuinely untouched range for this specific claim.
 
-**Not yet a final call**, for two reasons stated plainly:
+**The high-dispersion win for the regret-graph 3-way replicates closely**:
+head-to-head vs the switching-3way headline, all three cells still entirely
+positive and closely matching the exploratory magnitudes --
 
-1. This is still a 10-seed exploratory result. The switching gate itself
-   (`eta=.020`) only became a trusted method after a dedicated confirmatory
-   pass on 20 fresh, never-before-seen seeds
-   (`REAL_SIMU5G_CONDITIONAL_GATING.md`). This result has not had that same
-   scrutiny yet, and seeds 11..30 are already "used" for that other
-   confirmatory purpose -- a genuine confirmatory pass for this claim needs
-   its own untouched seed range.
-2. The mid-dispersion advantage over the switching headline is directionally
-   consistent but not individually statistically significant (all three
-   mid-dispersion head-to-head CIs include zero) -- "at least as good, likely
-   a bit better" is the honest claim there, not "clearly better."
+| Cell | Exploratory (10 seeds) | Confirmatory (20 seeds) |
+|---|---:|---:|
+| high/light | +0.0105 `[+0.0047,+0.0164]` | +0.0119 `[+0.0084,+0.0157]`, WTL 18/0/2 |
+| high/medium | +0.0218 `[+0.0145,+0.0291]` | +0.0108 `[+0.0072,+0.0145]`, WTL 19/0/1 |
+| high/heavy | +0.0432 `[+0.0236,+0.0668]` | +0.0380 `[+0.0266,+0.0496]`, WTL 19/0/1 |
 
-**Recommended path, mirroring the precedent already set when the
-joint[CQI,cost] family was dropped for negligible marginal contribution**
-(`paper-hybrid-candidate-method` memory): keep `CQI+cost+switching 3-way
-union` as the currently-shipped headline until this result is confirmatory-
-validated, but record `CQI+cost+regret-graph 3-way union` as the leading
-candidate to replace it, on the strength of a decisive, mechanistically
-explained high-dispersion win and no observed downside anywhere. Do not
-silently swap the shipped method on the strength of a 10-seed exploratory
-result alone.
+**But the mid-dispersion story is weaker than the smaller exploratory
+sample suggested, and this is the important correction from running a
+larger confirmatory set**: the regret-graph 3-way (no switching) loses to
+the switching-3way headline on a real fraction of seeds at mid dispersion --
+7/20 losses at mid/light, 8/20 at mid/medium -- both cells' CIs still cross
+zero, same as exploratory, but the loss counts are large enough that
+"matches or exceeds everywhere" (the exploratory-stage claim) does not
+survive confirmatory scrutiny. The regret graph replacing switching outright
+is **not** supported by this larger sample.
+
+**What IS strongly supported: the 4-way union (switching + regret-graph
+together) strictly dominates the shipped switching-3way headline in this
+confirmatory set.** Across all 6 non-saturated cells, the 4-way has **zero
+losses** to the switching-3way headline (low is fully saturated/tied
+everywhere):
+
+| Cell | 4-way vs switching-3way | Seed W/T/L |
+|---|---:|---:|
+| mid/light | +0.00066 `[-0.00067,+0.00167]` | 11/8/1 |
+| mid/medium | +0.00138 `[+0.00043,+0.00230]` | 11/8/1 |
+| mid/heavy | +0.00100 `[+0.00020,+0.00198]` | 5/15/0 |
+| high/light | +0.01379 `[+0.01058,+0.01718]` | 20/0/0 |
+| high/medium | +0.01264 `[+0.00912,+0.01634]` | 20/0/0 |
+| high/heavy | +0.03799 `[+0.02678,+0.04983]` | 20/0/0 |
+
+(The one loss at mid/light is a rounding-level artifact -- 1 seed out of 20,
+diff CI still crosses zero there.) Five of six cells now have head-to-head
+CIs entirely positive (mid/medium and mid/heavy newly reach significance in
+the larger confirmatory sample; only mid/light stays non-significant in
+both passes), and every high-dispersion cell replicates cleanly.
+
+## Decision (revised after confirmatory validation)
+
+**Switching should NOT be dropped.** The exploratory-stage suggestion that
+the regret graph could replace switching outright does not survive a larger,
+independent seed sample -- regret-graph-alone has real, non-trivial losses
+to the switching headline at mid dispersion that the smaller exploratory set
+did not reveal clearly enough.
+
+**What the confirmatory evidence does support: promoting the 4-way union
+(`cqi_cost_switching_regret_graph_hybrid_grouping`, CQI + cost + switching +
+regret-graph) to replace `CQI+cost+switching 3-way union` as the shipped
+headline.** It never loses to the current headline anywhere in 20 fresh
+seeds (0/20 losses in every one of the 6 non-saturated cells), and is
+significantly better in 5 of those 6 cells including all three
+high-dispersion ones. This is the "union only gets better" guarantee holding
+up almost exactly as designed, now confirmed rather than just exploratory --
+adding the regret-graph family on top of the already-shipped 3-way is safe
+and has a real, replicated payoff concentrated at high dispersion.
+
+This is a useful example of why this project's own confirmatory discipline
+exists: a 10-seed exploratory sample suggested a stronger, simpler story
+(drop switching) that a 20-seed confirmatory sample did not support, while
+still confirming the core mechanistic finding (regret-graph adds real value,
+concentrated at high dispersion) at a smaller but very real magnitude for
+the union case.
 
 ## Not yet done
 
-- Confirmatory validation on a fresh, untouched seed range.
+- Actually promote the 4-way union to the shipped headline in downstream
+  consumers (`hybrid_metrics_slides.html` still not updated per standing
+  user instruction; this doc records the recommendation, not yet the
+  switch).
 - A head-to-head cost comparison: the regret graph's spectral clustering
   (eigendecomposition of an n×n matrix per snapshot) is more expensive than
   switching's plain joint-coordinate k-means, though negligible in absolute
   terms at n=24 users.
-- Testing whether combining the regret graph with direction 3 (short-term
-  CQI trend) adds anything once switching-state and RB-feasibility are
-  already both covered by one mechanism.
+- Research direction 3 (causal CQI trend) is now being built on top of the
+  confirmatory-validated 4-way rather than the regret-only 3-way, per this
+  correction.

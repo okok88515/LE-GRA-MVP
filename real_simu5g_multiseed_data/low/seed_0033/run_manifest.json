@@ -1,0 +1,39 @@
+{
+  "status": "complete",
+  "dispersion": "low",
+  "seed": 33,
+  "omnetpp_seed_set": 33,
+  "sumo_seed": 33,
+  "protocol_version": "3.0",
+  "mobility_randomization": {
+    "parameter": "explicit per-vehicle desired-speed factor",
+    "distribution": "seeded clipped normal(mean=1.0,std=0.08,min=0.85,max=1.15)",
+    "metadata_file": "scenario/mobility_seed.json",
+    "shared_across_dispersions_for_same_seed": true
+  },
+  "started_utc": "2026-08-26T09:16:26Z",
+  "ended_utc": "2026-08-26T09:16:53Z",
+  "duration_s": 27,
+  "simulation_time_limit_s": 90,
+  "radio": {
+    "file": "raw_radio.csv.gz",
+    "rows_including_header": 4618776,
+    "uncompressed_bytes": 220822685,
+    "uncompressed_sha256": "8bd7c79cba121a6c60480b241a7774cfeb8aa868360927967b2c19d3849bf555",
+    "gzip_sha256": "77bfc2454325fd569865bacdf17646d53052012d72caa49390a514227078aa2a"
+  },
+  "mobility": {
+    "file": "raw_mobility.csv.gz",
+    "rows_including_header": 11062,
+    "uncompressed_bytes": 705059,
+    "uncompressed_sha256": "ed3fe614ae4f22b2e4f57006f7f7cf544ae6552b0dbcfa605137df3443c10193",
+    "gzip_sha256": "ddf8158eb4edac3b3985e939e602aa18db5b0fb6e1b44007f25d2c56cf5d1c87"
+  },
+  "environment": {
+    "wsl_distribution": "LE-GRA-opp-env",
+    "omnetpp": "6.3.0",
+    "inet": "4.6.0",
+    "simu5g": "1.4.3",
+    "veins": "5.3.1"
+  }
+}

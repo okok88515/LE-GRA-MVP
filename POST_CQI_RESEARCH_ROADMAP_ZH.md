@@ -80,21 +80,26 @@ cost vector 則只回答單一使用者需要多少 RB，沒有直接回答兩�
 - 增益應集中於 mid/high dispersion，並能由 bottleneck RB 或 served
   ratio 的改變解釋
 
-## 方向二：同 CQI、不同 QoE switching state — 2026-08-26 初步驗證完成，詳見 REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md
+## 方向二：同 CQI、不同 QoE switching state — 2026-08-26 confirmatory驗證完成，詳見 REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md
 
 方向一驗證出的 exact-utility-regret graph，其 regret 公式本來就包含
 `group_quality_value` 對 `previous_quality` 的 switching penalty；方向一
 自己的評估用的是 snapshot-level scenario(`previous_quality`全部歸零)，
 從未真正測過這一項。把同一個 regret graph 拿去跑 real temporal closed
-loop(`previous_quality`真的會因為使用者而分化)，結果是：不需要另外建
-switching-only 的 regret 公式，`CQI+cost+regret-graph 3-way union`(完全
-不含 switching family)在每一格都至少追平、通常略贏現有的
-`CQI+cost+switching 3-way union` headline，且在三個 high dispersion 格
-子(light/medium/heavy)有明確顯著的勝出(95% CI 全正，9-10/10 seed win)。
-把 switching 疊加在 regret-graph 之上(4-way)幾乎沒有額外增益。證據支持
-regret-graph 可以取代 switching family，但仍是10-seed exploratory，尚未
-比照 switching gate 走過 confirmatory 驗證，正式拿掉 switching 前建議先
-補這一步。
+loop(`previous_quality`真的會因為使用者而分化)，10-seed exploratory結果
+一度顯示`CQI+cost+regret-graph 3-way union`(不含switching)在每一格都至少
+追平、high dispersion三格明確贏過`CQI+cost+switching 3-way union`
+headline，一度以為switching可以拿掉。
+
+**用20個全新seed(31-50)confirmatory驗證後，結論修正了**：regret-graph
+單獨拿掉switching，在mid dispersion其實有不小比例會輸給switching
+headline(mid/light 7/20、mid/medium 8/20敗)，小樣本的exploratory沒完整
+呈現這件事——**switching不該拿掉**。但confirmatory證據強烈支持另一件事：
+把switching跟regret-graph**一起**疊加成4-way union，在20個新seed的6個
+非飽和格子裡對現有switching headline**零敗場**，且5/6格達到統計顯著
+(含全部3個high dispersion格)。這正是候選聯集"只會更好、不會更差"的
+guarantee在confirmatory規模下確實成立——4-way union已成為新的建議
+headline，取代原本的switching-only 3-way。
 
 ### 遺失的資訊
 
@@ -157,7 +162,17 @@ R_{ij}=U_i^{\mathrm{separate}}+U_j^{\mathrm{separate}}
 只有 learned/graph method 勝過使用相同輸入的 joint k-means，才可把
 增益歸因於 pairwise objective，而不只是加入 `previous_quality`。
 
-## 方向三：短期趨勢與多時槽 utility
+## 方向三：短期趨勢與多時槽 utility — 2026-08-26 Step 1初步驗證完成，詳見 REAL_SIMU5G_TREND_DIRECTION.md
+
+Step 1(causal hand-crafted trend baseline)結果：單獨用slope/volatility/
+downside-deviation分組，比CQI k-means明顯更差(high/heavy dCQI=-0.094)——
+trend資訊完全丟掉當下通道品質，不能單獨用。跟CQI union後拉回持平，
+high/heavy有真實增益(+0.027)。疊加在方向二confirmatory驗證過的4-way base
+上，每一格零敗場(snapshot-level，union guarantee精確成立)，但增益很小
+(最大+0.0046)，且集中在regret-graph、resource-cost本身就很強的high/heavy
+情境——推測trend抓到的是類似訊號的提早預警，不是全新的正交資訊。暫不
+建議納入headline；Step 2(predictor)、Step 3(多時槽objective)才更可能
+榨出trend的真正價值。
 
 ### 遺失的資訊
 
@@ -274,15 +289,20 @@ go/no-go標準。exact-regret graph 修好一個RB可行性檢查的bug後，在
 (`cqi_cost_regret_graph_hybrid_grouping`)。下一步是confirmatory驗證(需要新
 seed range)，或直接推進方向二/三。
 
-### Step 2：QoE pairwise regret —— 已完成初步(exploratory)驗證，見 `REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md`
+### Step 2：QoE pairwise regret —— 已完成confirmatory驗證，見 `REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md`
 
 不需另建 switching-only regret：方向一的 exact-regret graph 拿去跑真實
-temporal closed loop，在所有格子至少追平、high dispersion 三格明確顯著
-勝過現有 switching headline，switching 疊加其上幾乎無額外增益。證據支持
-regret-graph 取代 switching family，但尚未走過 confirmatory 驗證，暫不
-正式拿掉 switching。
+temporal closed loop。20-seed confirmatory驗證(seed 31-50)修正了exploratory
+的初步結論——regret-graph單獨拿掉switching在mid dispersion有實質敗場，
+switching不該拿掉；但switching+regret-graph的4-way union對現有switching
+headline零敗場、5/6格顯著更好，已成為新建議headline。方向三現在建立在
+這個4-way之上，不再用regret-only 3-way當base。
 
-### Step 3：短期 horizon
+### Step 3：短期 horizon —— Step 1(causal hand-crafted baseline)已完成，見 `REAL_SIMU5G_TREND_DIRECTION.md`
+
+Step 1結果：trend feature疊加在方向二4-way base上有小但真實的增益(最大
++0.0046，high/heavy)，零敗場，但幅度不大，且訊號可能跟regret-graph/cost
+高度重疊。暫不納入headline。
 
 先做 one-step causal predictor 與 oracle ceiling，確認未來資訊有足夠
 上限；若 ceiling 本身沒有增益，就不要先投入複雜 sequence model。

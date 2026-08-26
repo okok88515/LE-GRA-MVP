@@ -1,0 +1,811 @@
+dispersion,load,seed,method,mean_utility,n_scenarios
+high,heavy,seed_0001,CQI k-means,-0.07106023854625827,15
+high,heavy,seed_0001,Trend-slope k-means,-0.09444444444444443,15
+high,heavy,seed_0001,Trend-volatility k-means,-0.1111111111111111,15
+high,heavy,seed_0001,Trend-downside-deviation k-means,-0.11111111111111112,15
+high,heavy,seed_0001,Trend-only union (CQI+slope+volatility+downside),-0.05820854963966316,15
+high,heavy,seed_0001,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.020894925940681118,15
+high,heavy,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.020894925940681118,15
+high,heavy,seed_0001,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.01575425037804307,15
+high,heavy,seed_0001,CQI+cost+switching+regret-graph+trend union,-0.01575425037804307,15
+high,heavy,seed_0002,CQI k-means,-0.2754538104258499,15
+high,heavy,seed_0002,Trend-slope k-means,-0.4537307229783084,15
+high,heavy,seed_0002,Trend-volatility k-means,-0.42280241482071684,15
+high,heavy,seed_0002,Trend-downside-deviation k-means,-0.43333333333333335,15
+high,heavy,seed_0002,Trend-only union (CQI+slope+volatility+downside),-0.22321569633465982,15
+high,heavy,seed_0002,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.15431091557680301,15
+high,heavy,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.15431091557680301,15
+high,heavy,seed_0002,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.1486727037184589,15
+high,heavy,seed_0002,CQI+cost+switching+regret-graph+trend union,-0.1486727037184589,15
+high,heavy,seed_0003,CQI k-means,-0.10008265630278858,15
+high,heavy,seed_0003,Trend-slope k-means,-0.1825035733474983,15
+high,heavy,seed_0003,Trend-volatility k-means,-0.1722222222222222,15
+high,heavy,seed_0003,Trend-downside-deviation k-means,-0.13333333333333333,15
+high,heavy,seed_0003,Trend-only union (CQI+slope+volatility+downside),-0.09402956445152695,15
+high,heavy,seed_0003,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.01616913037096058,15
+high,heavy,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.01616913037096058,15
+high,heavy,seed_0003,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.01616913037096058,15
+high,heavy,seed_0003,CQI+cost+switching+regret-graph+trend union,-0.01616913037096058,15
+high,heavy,seed_0004,CQI k-means,-0.13515656743160592,15
+high,heavy,seed_0004,Trend-slope k-means,-0.25928627853386393,15
+high,heavy,seed_0004,Trend-volatility k-means,-0.2743776800106238,15
+high,heavy,seed_0004,Trend-downside-deviation k-means,-0.31666666666666665,15
+high,heavy,seed_0004,Trend-only union (CQI+slope+volatility+downside),-0.09510729334572769,15
+high,heavy,seed_0004,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.05514067556263805,15
+high,heavy,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.05514067556263805,15
+high,heavy,seed_0004,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.05514067556263805,15
+high,heavy,seed_0004,CQI+cost+switching+regret-graph+trend union,-0.05514067556263805,15
+high,heavy,seed_0005,CQI k-means,-0.22719598670030852,15
+high,heavy,seed_0005,Trend-slope k-means,-0.34452710074723303,15
+high,heavy,seed_0005,Trend-volatility k-means,-0.3257876325949534,15
+high,heavy,seed_0005,Trend-downside-deviation k-means,-0.29651724593005735,15
+high,heavy,seed_0005,Trend-only union (CQI+slope+volatility+downside),-0.16641709927932632,15
+high,heavy,seed_0005,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.09950246370429391,15
+high,heavy,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.09950246370429391,15
+high,heavy,seed_0005,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.0883913525931828,15
+high,heavy,seed_0005,CQI+cost+switching+regret-graph+trend union,-0.0883913525931828,15
+high,heavy,seed_0006,CQI k-means,-0.092867580775563,15
+high,heavy,seed_0006,Trend-slope k-means,-0.2148418340894195,15
+high,heavy,seed_0006,Trend-volatility k-means,-0.21111111111111108,15
+high,heavy,seed_0006,Trend-downside-deviation k-means,-0.26575425037804307,15
+high,heavy,seed_0006,Trend-only union (CQI+slope+volatility+downside),-0.09278492447277441,15
+high,heavy,seed_0006,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.05116038519698935,15
+high,heavy,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.05116038519698935,15
+high,heavy,seed_0006,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.05116038519698935,15
+high,heavy,seed_0006,CQI+cost+switching+regret-graph+trend union,-0.05116038519698935,15
+high,heavy,seed_0007,CQI k-means,-0.05945159113944109,15
+high,heavy,seed_0007,Trend-slope k-means,-0.15820854963966316,15
+high,heavy,seed_0007,Trend-volatility k-means,-0.16666666666666666,15
+high,heavy,seed_0007,Trend-downside-deviation k-means,-0.1611111111111111,15
+high,heavy,seed_0007,Trend-only union (CQI+slope+volatility+downside),-0.05945159113944109,15
+high,heavy,seed_0007,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.011856616315182948,15
+high,heavy,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.011856616315182948,15
+high,heavy,seed_0007,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.011856616315182948,15
+high,heavy,seed_0007,CQI+cost+switching+regret-graph+trend union,-0.011856616315182948,15
+high,heavy,seed_0008,CQI k-means,-0.04170719557857366,15
+high,heavy,seed_0008,Trend-slope k-means,-0.08888888888888889,15
+high,heavy,seed_0008,Trend-volatility k-means,-0.131343188150509,15
+high,heavy,seed_0008,Trend-downside-deviation k-means,-0.08888888888888889,15
+high,heavy,seed_0008,Trend-only union (CQI+slope+volatility+downside),-0.03863932150154856,15
+high,heavy,seed_0008,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.011773960012394365,15
+high,heavy,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.011773960012394365,15
+high,heavy,seed_0008,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.00978381482957001,15
+high,heavy,seed_0008,CQI+cost+switching+regret-graph+trend union,-0.00978381482957001,15
+high,heavy,seed_0009,CQI k-means,-0.1407121229871615,15
+high,heavy,seed_0009,Trend-slope k-means,-0.1763678251934481,15
+high,heavy,seed_0009,Trend-volatility k-means,-0.16666666666666666,15
+high,heavy,seed_0009,Trend-downside-deviation k-means,-0.16368144889243014,15
+high,heavy,seed_0009,Trend-only union (CQI+slope+volatility+downside),-0.1255380652076131,15
+high,heavy,seed_0009,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.05000000000000001,15
+high,heavy,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.05000000000000001,15
+high,heavy,seed_0009,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.047014782225763475,15
+high,heavy,seed_0009,CQI+cost+switching+regret-graph+trend union,-0.047014782225763475,15
+high,heavy,seed_0010,CQI k-means,-0.2388872904099143,15
+high,heavy,seed_0010,Trend-slope k-means,-0.3467652148384231,15
+high,heavy,seed_0010,Trend-volatility k-means,-0.32072961333510397,15
+high,heavy,seed_0010,Trend-downside-deviation k-means,-0.2388888888888889,15
+high,heavy,seed_0010,Trend-only union (CQI+slope+volatility+downside),-0.15688125335812206,15
+high,heavy,seed_0010,"CQI+cost+regret-graph 3-way union (ablation, no switching)",-0.06575425037804307,15
+high,heavy,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),-0.06575425037804307,15
+high,heavy,seed_0010,"CQI+cost+regret-graph+trend union (ablation, no switching)",-0.046599902232845956,15
+high,heavy,seed_0010,CQI+cost+switching+regret-graph+trend union,-0.046599902232845956,15
+high,light,seed_0001,CQI k-means,0.2904803594186004,15
+high,light,seed_0001,Trend-slope k-means,0.24264134561322598,15
+high,light,seed_0001,Trend-volatility k-means,0.20870019356267114,15
+high,light,seed_0001,Trend-downside-deviation k-means,0.22897767409118633,15
+high,light,seed_0001,Trend-only union (CQI+slope+volatility+downside),0.29089275410614057,15
+high,light,seed_0001,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.3037285059832112,15
+high,light,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.3037285059832112,15
+high,light,seed_0001,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.3037285059832112,15
+high,light,seed_0001,CQI+cost+switching+regret-graph+trend union,0.3037285059832112,15
+high,light,seed_0002,CQI k-means,0.2567178420067041,15
+high,light,seed_0002,Trend-slope k-means,0.20275453944089034,15
+high,light,seed_0002,Trend-volatility k-means,0.18662205933457646,15
+high,light,seed_0002,Trend-downside-deviation k-means,0.18376404940566746,15
+high,light,seed_0002,Trend-only union (CQI+slope+volatility+downside),0.2567178420067041,15
+high,light,seed_0002,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.27319535776037684,15
+high,light,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.27319535776037684,15
+high,light,seed_0002,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.27319535776037684,15
+high,light,seed_0002,CQI+cost+switching+regret-graph+trend union,0.27319535776037684,15
+high,light,seed_0003,CQI k-means,0.28591679858032315,15
+high,light,seed_0003,Trend-slope k-means,0.21953084486503707,15
+high,light,seed_0003,Trend-volatility k-means,0.21230313494330166,15
+high,light,seed_0003,Trend-downside-deviation k-means,0.2155887168529866,15
+high,light,seed_0003,Trend-only union (CQI+slope+volatility+downside),0.28591679858032315,15
+high,light,seed_0003,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.30787901355062464,15
+high,light,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.30787901355062464,15
+high,light,seed_0003,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.30787901355062464,15
+high,light,seed_0003,CQI+cost+switching+regret-graph+trend union,0.30787901355062464,15
+high,light,seed_0004,CQI k-means,0.2761601281753829,15
+high,light,seed_0004,Trend-slope k-means,0.22589069004068776,15
+high,light,seed_0004,Trend-volatility k-means,0.2032557713376168,15
+high,light,seed_0004,Trend-downside-deviation k-means,0.19564131657994982,15
+high,light,seed_0004,Trend-only union (CQI+slope+volatility+downside),0.27739045408822194,15
+high,light,seed_0004,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.2903293520427984,15
+high,light,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.2903293520427984,15
+high,light,seed_0004,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.2908205279462381,15
+high,light,seed_0004,CQI+cost+switching+regret-graph+trend union,0.2908205279462381,15
+high,light,seed_0005,CQI k-means,0.2678071023582607,15
+high,light,seed_0005,Trend-slope k-means,0.20267251448380064,15
+high,light,seed_0005,Trend-volatility k-means,0.18577602174896599,15
+high,light,seed_0005,Trend-downside-deviation k-means,0.19409146416243409,15
+high,light,seed_0005,Trend-only union (CQI+slope+volatility+downside),0.26885305808780385,15
+high,light,seed_0005,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.283125057365324,15
+high,light,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.283125057365324,15
+high,light,seed_0005,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.283125057365324,15
+high,light,seed_0005,CQI+cost+switching+regret-graph+trend union,0.283125057365324,15
+high,light,seed_0006,CQI k-means,0.28126319673528644,15
+high,light,seed_0006,Trend-slope k-means,0.225928852394286,15
+high,light,seed_0006,Trend-volatility k-means,0.21801279440885324,15
+high,light,seed_0006,Trend-downside-deviation k-means,0.21614349667909005,15
+high,light,seed_0006,Trend-only union (CQI+slope+volatility+downside),0.28126319673528644,15
+high,light,seed_0006,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.29727187512232106,15
+high,light,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.29727187512232106,15
+high,light,seed_0006,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.29727187512232106,15
+high,light,seed_0006,CQI+cost+switching+regret-graph+trend union,0.29727187512232106,15
+high,light,seed_0007,CQI k-means,0.2821740097622613,15
+high,light,seed_0007,Trend-slope k-means,0.23284688352208854,15
+high,light,seed_0007,Trend-volatility k-means,0.2236319826837469,15
+high,light,seed_0007,Trend-downside-deviation k-means,0.23345550075254112,15
+high,light,seed_0007,Trend-only union (CQI+slope+volatility+downside),0.2831372803923416,15
+high,light,seed_0007,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.31192287904226285,15
+high,light,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.31192287904226285,15
+high,light,seed_0007,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.31192287904226285,15
+high,light,seed_0007,CQI+cost+switching+regret-graph+trend union,0.31192287904226285,15
+high,light,seed_0008,CQI k-means,0.2695825227713176,15
+high,light,seed_0008,Trend-slope k-means,0.21918546022620894,15
+high,light,seed_0008,Trend-volatility k-means,0.21273706731634398,15
+high,light,seed_0008,Trend-downside-deviation k-means,0.20732777198624083,15
+high,light,seed_0008,Trend-only union (CQI+slope+volatility+downside),0.2725295781919559,15
+high,light,seed_0008,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.28899017980256037,15
+high,light,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.28899017980256037,15
+high,light,seed_0008,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.28899017980256037,15
+high,light,seed_0008,CQI+cost+switching+regret-graph+trend union,0.28899017980256037,15
+high,light,seed_0009,CQI k-means,0.3003999894114484,15
+high,light,seed_0009,Trend-slope k-means,0.24449251178353526,15
+high,light,seed_0009,Trend-volatility k-means,0.23009359413565975,15
+high,light,seed_0009,Trend-downside-deviation k-means,0.23889023765170989,15
+high,light,seed_0009,Trend-only union (CQI+slope+volatility+downside),0.3004317913727803,15
+high,light,seed_0009,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.3143419760071068,15
+high,light,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.3143419760071068,15
+high,light,seed_0009,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.3143419760071068,15
+high,light,seed_0009,CQI+cost+switching+regret-graph+trend union,0.3143419760071068,15
+high,light,seed_0010,CQI k-means,0.2682612062343738,15
+high,light,seed_0010,Trend-slope k-means,0.22245881910887613,15
+high,light,seed_0010,Trend-volatility k-means,0.20247961687450747,15
+high,light,seed_0010,Trend-downside-deviation k-means,0.2052167793503553,15
+high,light,seed_0010,Trend-only union (CQI+slope+volatility+downside),0.2682612062343738,15
+high,light,seed_0010,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.28507978617822516,15
+high,light,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.28507978617822516,15
+high,light,seed_0010,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.28507978617822516,15
+high,light,seed_0010,CQI+cost+switching+regret-graph+trend union,0.28507978617822516,15
+high,medium,seed_0001,CQI k-means,0.18814153548968882,15
+high,medium,seed_0001,Trend-slope k-means,0.140222550289654,15
+high,medium,seed_0001,Trend-volatility k-means,0.1318471183621134,15
+high,medium,seed_0001,Trend-downside-deviation k-means,0.13677159818104329,15
+high,medium,seed_0001,Trend-only union (CQI+slope+volatility+downside),0.1886136302163294,15
+high,medium,seed_0001,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.20046548461822056,15
+high,medium,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.20046548461822056,15
+high,medium,seed_0001,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.20093757934486112,15
+high,medium,seed_0001,CQI+cost+switching+regret-graph+trend union,0.20093757934486112,15
+high,medium,seed_0002,CQI k-means,0.13628184797653217,15
+high,medium,seed_0002,Trend-slope k-means,0.10434908265735897,15
+high,medium,seed_0002,Trend-volatility k-means,0.08706885174856548,15
+high,medium,seed_0002,Trend-downside-deviation k-means,0.0716007038358121,15
+high,medium,seed_0002,Trend-only union (CQI+slope+volatility+downside),0.1397646020464748,15
+high,medium,seed_0002,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.15275781806190483,15
+high,medium,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.1541677418495602,15
+high,medium,seed_0002,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.15275781806190483,15
+high,medium,seed_0002,CQI+cost+switching+regret-graph+trend union,0.1541677418495602,15
+high,medium,seed_0003,CQI k-means,0.16771568009774507,15
+high,medium,seed_0003,Trend-slope k-means,0.12636149832481366,15
+high,medium,seed_0003,Trend-volatility k-means,0.11443334801240032,15
+high,medium,seed_0003,Trend-downside-deviation k-means,0.11636624966482725,15
+high,medium,seed_0003,Trend-only union (CQI+slope+volatility+downside),0.16920828898486334,15
+high,medium,seed_0003,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.18241282364401246,15
+high,medium,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.18241282364401246,15
+high,medium,seed_0003,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.18241282364401246,15
+high,medium,seed_0003,CQI+cost+switching+regret-graph+trend union,0.18241282364401246,15
+high,medium,seed_0004,CQI k-means,0.15828796084506924,15
+high,medium,seed_0004,Trend-slope k-means,0.10145924197044377,15
+high,medium,seed_0004,Trend-volatility k-means,0.09652204136698116,15
+high,medium,seed_0004,Trend-downside-deviation k-means,0.09950725914121766,15
+high,medium,seed_0004,Trend-only union (CQI+slope+volatility+downside),0.15828796084506924,15
+high,medium,seed_0004,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.17071364745318868,15
+high,medium,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.17071364745318868,15
+high,medium,seed_0004,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.17071364745318868,15
+high,medium,seed_0004,CQI+cost+switching+regret-graph+trend union,0.17071364745318868,15
+high,medium,seed_0005,CQI k-means,0.1286329264662873,15
+high,medium,seed_0005,Trend-slope k-means,0.11189478339573886,15
+high,medium,seed_0005,Trend-volatility k-means,0.106970303576809,15
+high,medium,seed_0005,Trend-downside-deviation k-means,0.11642349319522467,15
+high,medium,seed_0005,Trend-only union (CQI+slope+volatility+downside),0.1435144925916053,15
+high,medium,seed_0005,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.1515959207759639,15
+high,medium,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.1515959207759639,15
+high,medium,seed_0005,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.15259099336737608,15
+high,medium,seed_0005,CQI+cost+switching+regret-graph+trend union,0.15259099336737608,15
+high,medium,seed_0006,CQI k-means,0.16594321395090617,15
+high,medium,seed_0006,Trend-slope k-means,0.11237323851464583,15
+high,medium,seed_0006,Trend-volatility k-means,0.1104021745086206,15
+high,medium,seed_0006,Trend-downside-deviation k-means,0.11144813023816379,15
+high,medium,seed_0006,Trend-only union (CQI+slope+volatility+downside),0.16843089542943662,15
+high,medium,seed_0006,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.17785867227546112,15
+high,medium,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.17976613235882255,15
+high,medium,seed_0006,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.17785867227546112,15
+high,medium,seed_0006,CQI+cost+switching+regret-graph+trend union,0.17976613235882255,15
+high,medium,seed_0007,CQI k-means,0.17818450677664935,15
+high,medium,seed_0007,Trend-slope k-means,0.14075824893895836,15
+high,medium,seed_0007,Trend-volatility k-means,0.12985697317928907,15
+high,medium,seed_0007,Trend-downside-deviation k-means,0.14329045316335345,15
+high,medium,seed_0007,Trend-only union (CQI+slope+volatility+downside),0.1791795793680615,15
+high,medium,seed_0007,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.19437274712108338,15
+high,medium,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.19437274712108338,15
+high,medium,seed_0007,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.19437274712108338,15
+high,medium,seed_0007,CQI+cost+switching+regret-graph+trend union,0.19437274712108338,15
+high,medium,seed_0008,CQI k-means,0.15868370206783897,15
+high,medium,seed_0008,Trend-slope k-means,0.1288619005878769,15
+high,medium,seed_0008,Trend-volatility k-means,0.12587668281364034,15
+high,medium,seed_0008,Trend-downside-deviation k-means,0.11692102949093078,15
+high,medium,seed_0008,Trend-only union (CQI+slope+volatility+downside),0.15868370206783897,15
+high,medium,seed_0008,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.17621983195956484,15
+high,medium,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.17621983195956484,15
+high,medium,seed_0008,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.17621983195956484,15
+high,medium,seed_0008,CQI+cost+switching+regret-graph+trend union,0.17621983195956484,15
+high,medium,seed_0009,CQI k-means,0.1787250825259428,15
+high,medium,seed_0009,Trend-slope k-means,0.1561373513599825,15
+high,medium,seed_0009,Trend-volatility k-means,0.1492608887118265,15
+high,medium,seed_0009,Trend-downside-deviation k-means,0.16120175980877266,15
+high,medium,seed_0009,Trend-only union (CQI+slope+volatility+downside),0.18460647258268656,15
+high,medium,seed_0009,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.19302006686382545,15
+high,medium,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.19302006686382545,15
+high,medium,seed_0009,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.1959162391463327,15
+high,medium,seed_0009,CQI+cost+switching+regret-graph+trend union,0.1959162391463327,15
+high,medium,seed_0010,CQI k-means,0.14910330460409568,15
+high,medium,seed_0010,Trend-slope k-means,0.10892864679830146,15
+high,medium,seed_0010,Trend-volatility k-means,0.10299001321116029,15
+high,medium,seed_0010,Trend-downside-deviation k-means,0.11488000116997539,15
+high,medium,seed_0010,Trend-only union (CQI+slope+volatility+downside),0.15215848669326235,15
+high,medium,seed_0010,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.1726083867520174,15
+high,medium,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.1726083867520174,15
+high,medium,seed_0010,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.1726083867520174,15
+high,medium,seed_0010,CQI+cost+switching+regret-graph+trend union,0.1726083867520174,15
+low,heavy,seed_0001,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0001,Trend-slope k-means,0.35593639169248775,15
+low,heavy,seed_0001,Trend-volatility k-means,0.35593639169248775,15
+low,heavy,seed_0001,Trend-downside-deviation k-means,0.35593639169248775,15
+low,heavy,seed_0001,Trend-only union (CQI+slope+volatility+downside),0.35593639169248775,15
+low,heavy,seed_0001,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35593639169248775,15
+low,heavy,seed_0001,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0001,CQI+cost+switching+regret-graph+trend union,0.35593639169248775,15
+low,heavy,seed_0002,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0002,Trend-slope k-means,0.35593639169248775,15
+low,heavy,seed_0002,Trend-volatility k-means,0.35593639169248775,15
+low,heavy,seed_0002,Trend-downside-deviation k-means,0.35593639169248775,15
+low,heavy,seed_0002,Trend-only union (CQI+slope+volatility+downside),0.35593639169248775,15
+low,heavy,seed_0002,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35593639169248775,15
+low,heavy,seed_0002,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0002,CQI+cost+switching+regret-graph+trend union,0.35593639169248775,15
+low,heavy,seed_0003,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0003,Trend-slope k-means,0.35593639169248775,15
+low,heavy,seed_0003,Trend-volatility k-means,0.35593639169248775,15
+low,heavy,seed_0003,Trend-downside-deviation k-means,0.35593639169248775,15
+low,heavy,seed_0003,Trend-only union (CQI+slope+volatility+downside),0.35593639169248775,15
+low,heavy,seed_0003,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35593639169248775,15
+low,heavy,seed_0003,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0003,CQI+cost+switching+regret-graph+trend union,0.35593639169248775,15
+low,heavy,seed_0004,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0004,Trend-slope k-means,0.35593639169248775,15
+low,heavy,seed_0004,Trend-volatility k-means,0.35593639169248775,15
+low,heavy,seed_0004,Trend-downside-deviation k-means,0.35593639169248775,15
+low,heavy,seed_0004,Trend-only union (CQI+slope+volatility+downside),0.35593639169248775,15
+low,heavy,seed_0004,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35593639169248775,15
+low,heavy,seed_0004,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0004,CQI+cost+switching+regret-graph+trend union,0.35593639169248775,15
+low,heavy,seed_0005,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0005,Trend-slope k-means,0.35593639169248775,15
+low,heavy,seed_0005,Trend-volatility k-means,0.35593639169248775,15
+low,heavy,seed_0005,Trend-downside-deviation k-means,0.35593639169248775,15
+low,heavy,seed_0005,Trend-only union (CQI+slope+volatility+downside),0.35593639169248775,15
+low,heavy,seed_0005,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35593639169248775,15
+low,heavy,seed_0005,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0005,CQI+cost+switching+regret-graph+trend union,0.35593639169248775,15
+low,heavy,seed_0006,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0006,Trend-slope k-means,0.35593639169248775,15
+low,heavy,seed_0006,Trend-volatility k-means,0.35593639169248775,15
+low,heavy,seed_0006,Trend-downside-deviation k-means,0.35593639169248775,15
+low,heavy,seed_0006,Trend-only union (CQI+slope+volatility+downside),0.35593639169248775,15
+low,heavy,seed_0006,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35593639169248775,15
+low,heavy,seed_0006,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0006,CQI+cost+switching+regret-graph+trend union,0.35593639169248775,15
+low,heavy,seed_0007,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0007,Trend-slope k-means,0.35593639169248775,15
+low,heavy,seed_0007,Trend-volatility k-means,0.35593639169248775,15
+low,heavy,seed_0007,Trend-downside-deviation k-means,0.35593639169248775,15
+low,heavy,seed_0007,Trend-only union (CQI+slope+volatility+downside),0.35593639169248775,15
+low,heavy,seed_0007,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35593639169248775,15
+low,heavy,seed_0007,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0007,CQI+cost+switching+regret-graph+trend union,0.35593639169248775,15
+low,heavy,seed_0008,CQI k-means,0.34939212393778635,15
+low,heavy,seed_0008,Trend-slope k-means,0.34414817000993464,15
+low,heavy,seed_0008,Trend-volatility k-means,0.34414817000993464,15
+low,heavy,seed_0008,Trend-downside-deviation k-means,0.34414817000993464,15
+low,heavy,seed_0008,Trend-only union (CQI+slope+volatility+downside),0.34939212393778635,15
+low,heavy,seed_0008,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.34939212393778635,15
+low,heavy,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.34939212393778635,15
+low,heavy,seed_0008,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.34939212393778635,15
+low,heavy,seed_0008,CQI+cost+switching+regret-graph+trend union,0.34939212393778635,15
+low,heavy,seed_0009,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0009,Trend-slope k-means,0.35593639169248775,15
+low,heavy,seed_0009,Trend-volatility k-means,0.35593639169248775,15
+low,heavy,seed_0009,Trend-downside-deviation k-means,0.35593639169248775,15
+low,heavy,seed_0009,Trend-only union (CQI+slope+volatility+downside),0.35593639169248775,15
+low,heavy,seed_0009,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35593639169248775,15
+low,heavy,seed_0009,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0009,CQI+cost+switching+regret-graph+trend union,0.35593639169248775,15
+low,heavy,seed_0010,CQI k-means,0.35593639169248775,15
+low,heavy,seed_0010,Trend-slope k-means,0.35593639169248775,15
+low,heavy,seed_0010,Trend-volatility k-means,0.35593639169248775,15
+low,heavy,seed_0010,Trend-downside-deviation k-means,0.35593639169248775,15
+low,heavy,seed_0010,Trend-only union (CQI+slope+volatility+downside),0.35593639169248775,15
+low,heavy,seed_0010,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35593639169248775,15
+low,heavy,seed_0010,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35593639169248775,15
+low,heavy,seed_0010,CQI+cost+switching+regret-graph+trend union,0.35593639169248775,15
+low,light,seed_0001,CQI k-means,0.529078111650274,15
+low,light,seed_0001,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0001,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0001,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0001,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0001,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0001,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0001,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,light,seed_0002,CQI k-means,0.529078111650274,15
+low,light,seed_0002,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0002,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0002,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0002,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0002,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0002,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0002,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,light,seed_0003,CQI k-means,0.529078111650274,15
+low,light,seed_0003,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0003,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0003,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0003,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0003,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0003,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0003,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,light,seed_0004,CQI k-means,0.529078111650274,15
+low,light,seed_0004,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0004,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0004,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0004,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0004,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0004,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0004,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,light,seed_0005,CQI k-means,0.529078111650274,15
+low,light,seed_0005,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0005,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0005,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0005,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0005,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0005,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0005,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,light,seed_0006,CQI k-means,0.529078111650274,15
+low,light,seed_0006,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0006,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0006,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0006,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0006,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0006,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0006,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,light,seed_0007,CQI k-means,0.529078111650274,15
+low,light,seed_0007,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0007,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0007,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0007,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0007,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0007,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0007,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,light,seed_0008,CQI k-means,0.529078111650274,15
+low,light,seed_0008,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0008,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0008,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0008,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0008,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0008,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0008,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,light,seed_0009,CQI k-means,0.529078111650274,15
+low,light,seed_0009,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0009,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0009,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0009,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0009,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0009,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0009,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,light,seed_0010,CQI k-means,0.529078111650274,15
+low,light,seed_0010,Trend-slope k-means,0.529078111650274,15
+low,light,seed_0010,Trend-volatility k-means,0.529078111650274,15
+low,light,seed_0010,Trend-downside-deviation k-means,0.529078111650274,15
+low,light,seed_0010,Trend-only union (CQI+slope+volatility+downside),0.529078111650274,15
+low,light,seed_0010,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.529078111650274,15
+low,light,seed_0010,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.529078111650274,15
+low,light,seed_0010,CQI+cost+switching+regret-graph+trend union,0.529078111650274,15
+low,medium,seed_0001,CQI k-means,0.44718417808401845,15
+low,medium,seed_0001,Trend-slope k-means,0.44718417808401845,15
+low,medium,seed_0001,Trend-volatility k-means,0.44718417808401845,15
+low,medium,seed_0001,Trend-downside-deviation k-means,0.44718417808401845,15
+low,medium,seed_0001,Trend-only union (CQI+slope+volatility+downside),0.44718417808401845,15
+low,medium,seed_0001,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44718417808401845,15
+low,medium,seed_0001,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0001,CQI+cost+switching+regret-graph+trend union,0.44718417808401845,15
+low,medium,seed_0002,CQI k-means,0.44718417808401845,15
+low,medium,seed_0002,Trend-slope k-means,0.44718417808401845,15
+low,medium,seed_0002,Trend-volatility k-means,0.44718417808401845,15
+low,medium,seed_0002,Trend-downside-deviation k-means,0.44718417808401845,15
+low,medium,seed_0002,Trend-only union (CQI+slope+volatility+downside),0.44718417808401845,15
+low,medium,seed_0002,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44718417808401845,15
+low,medium,seed_0002,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0002,CQI+cost+switching+regret-graph+trend union,0.44718417808401845,15
+low,medium,seed_0003,CQI k-means,0.44718417808401845,15
+low,medium,seed_0003,Trend-slope k-means,0.44718417808401845,15
+low,medium,seed_0003,Trend-volatility k-means,0.44718417808401845,15
+low,medium,seed_0003,Trend-downside-deviation k-means,0.44718417808401845,15
+low,medium,seed_0003,Trend-only union (CQI+slope+volatility+downside),0.44718417808401845,15
+low,medium,seed_0003,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44718417808401845,15
+low,medium,seed_0003,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0003,CQI+cost+switching+regret-graph+trend union,0.44718417808401845,15
+low,medium,seed_0004,CQI k-means,0.44718417808401845,15
+low,medium,seed_0004,Trend-slope k-means,0.44718417808401845,15
+low,medium,seed_0004,Trend-volatility k-means,0.44718417808401845,15
+low,medium,seed_0004,Trend-downside-deviation k-means,0.44718417808401845,15
+low,medium,seed_0004,Trend-only union (CQI+slope+volatility+downside),0.44718417808401845,15
+low,medium,seed_0004,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44718417808401845,15
+low,medium,seed_0004,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0004,CQI+cost+switching+regret-graph+trend union,0.44718417808401845,15
+low,medium,seed_0005,CQI k-means,0.44718417808401845,15
+low,medium,seed_0005,Trend-slope k-means,0.44718417808401845,15
+low,medium,seed_0005,Trend-volatility k-means,0.44718417808401845,15
+low,medium,seed_0005,Trend-downside-deviation k-means,0.44718417808401845,15
+low,medium,seed_0005,Trend-only union (CQI+slope+volatility+downside),0.44718417808401845,15
+low,medium,seed_0005,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44718417808401845,15
+low,medium,seed_0005,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0005,CQI+cost+switching+regret-graph+trend union,0.44718417808401845,15
+low,medium,seed_0006,CQI k-means,0.44718417808401845,15
+low,medium,seed_0006,Trend-slope k-means,0.44718417808401845,15
+low,medium,seed_0006,Trend-volatility k-means,0.44718417808401845,15
+low,medium,seed_0006,Trend-downside-deviation k-means,0.44718417808401845,15
+low,medium,seed_0006,Trend-only union (CQI+slope+volatility+downside),0.44718417808401845,15
+low,medium,seed_0006,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44718417808401845,15
+low,medium,seed_0006,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0006,CQI+cost+switching+regret-graph+trend union,0.44718417808401845,15
+low,medium,seed_0007,CQI k-means,0.45264377365510217,15
+low,medium,seed_0007,Trend-slope k-means,0.45264377365510217,15
+low,medium,seed_0007,Trend-volatility k-means,0.45264377365510217,15
+low,medium,seed_0007,Trend-downside-deviation k-means,0.45264377365510217,15
+low,medium,seed_0007,Trend-only union (CQI+slope+volatility+downside),0.45264377365510217,15
+low,medium,seed_0007,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.45264377365510217,15
+low,medium,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.45264377365510217,15
+low,medium,seed_0007,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.45264377365510217,15
+low,medium,seed_0007,CQI+cost+switching+regret-graph+trend union,0.45264377365510217,15
+low,medium,seed_0008,CQI k-means,0.44718417808401845,15
+low,medium,seed_0008,Trend-slope k-means,0.44718417808401845,15
+low,medium,seed_0008,Trend-volatility k-means,0.44718417808401845,15
+low,medium,seed_0008,Trend-downside-deviation k-means,0.44718417808401845,15
+low,medium,seed_0008,Trend-only union (CQI+slope+volatility+downside),0.44718417808401845,15
+low,medium,seed_0008,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44718417808401845,15
+low,medium,seed_0008,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0008,CQI+cost+switching+regret-graph+trend union,0.44718417808401845,15
+low,medium,seed_0009,CQI k-means,0.44718417808401845,15
+low,medium,seed_0009,Trend-slope k-means,0.44718417808401845,15
+low,medium,seed_0009,Trend-volatility k-means,0.44718417808401845,15
+low,medium,seed_0009,Trend-downside-deviation k-means,0.44718417808401845,15
+low,medium,seed_0009,Trend-only union (CQI+slope+volatility+downside),0.44718417808401845,15
+low,medium,seed_0009,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44718417808401845,15
+low,medium,seed_0009,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44718417808401845,15
+low,medium,seed_0009,CQI+cost+switching+regret-graph+trend union,0.44718417808401845,15
+low,medium,seed_0010,CQI k-means,0.4526437736551021,15
+low,medium,seed_0010,Trend-slope k-means,0.4526437736551021,15
+low,medium,seed_0010,Trend-volatility k-means,0.4526437736551021,15
+low,medium,seed_0010,Trend-downside-deviation k-means,0.4526437736551021,15
+low,medium,seed_0010,Trend-only union (CQI+slope+volatility+downside),0.4526437736551021,15
+low,medium,seed_0010,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.4526437736551021,15
+low,medium,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.4526437736551021,15
+low,medium,seed_0010,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.4526437736551021,15
+low,medium,seed_0010,CQI+cost+switching+regret-graph+trend union,0.4526437736551021,15
+mid,heavy,seed_0001,CQI k-means,0.1661771227658335,15
+mid,heavy,seed_0001,Trend-slope k-means,0.14528059834617782,15
+mid,heavy,seed_0001,Trend-volatility k-means,0.14470040574768314,15
+mid,heavy,seed_0001,Trend-downside-deviation k-means,0.15224610648606304,15
+mid,heavy,seed_0001,Trend-only union (CQI+slope+volatility+downside),0.16667465906153958,15
+mid,heavy,seed_0001,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.1661771227658335,15
+mid,heavy,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.1661771227658335,15
+mid,heavy,seed_0001,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.1666746590615396,15
+mid,heavy,seed_0001,CQI+cost+switching+regret-graph+trend union,0.1666746590615396,15
+mid,heavy,seed_0002,CQI k-means,0.1676697316529518,15
+mid,heavy,seed_0002,Trend-slope k-means,0.15722146944312393,15
+mid,heavy,seed_0002,Trend-volatility k-means,0.14528059834617782,15
+mid,heavy,seed_0002,Trend-downside-deviation k-means,0.15921161462594832,15
+mid,heavy,seed_0002,Trend-only union (CQI+slope+volatility+downside),0.1676697316529518,15
+mid,heavy,seed_0002,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.168664804244364,15
+mid,heavy,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.168664804244364,15
+mid,heavy,seed_0002,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.168664804244364,15
+mid,heavy,seed_0002,CQI+cost+switching+regret-graph+trend union,0.168664804244364,15
+mid,heavy,seed_0003,CQI k-means,0.16659200275875105,15
+mid,heavy,seed_0003,Trend-slope k-means,0.16120175980877266,15
+mid,heavy,seed_0003,Trend-volatility k-means,0.16169929610447875,15
+mid,heavy,seed_0003,Trend-downside-deviation k-means,0.16418697758300918,15
+mid,heavy,seed_0003,Trend-only union (CQI+slope+volatility+downside),0.16659200275875105,15
+mid,heavy,seed_0003,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.17156736571581196,15
+mid,heavy,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.17156736571581196,15
+mid,heavy,seed_0003,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.17156736571581196,15
+mid,heavy,seed_0003,CQI+cost+switching+regret-graph+trend union,0.17156736571581196,15
+mid,heavy,seed_0004,CQI k-means,0.16916234054007007,15
+mid,heavy,seed_0004,Trend-slope k-means,0.16020668721736048,15
+mid,heavy,seed_0004,Trend-volatility k-means,0.16816726794865788,15
+mid,heavy,seed_0004,Trend-downside-deviation k-means,0.14967576870474403,15
+mid,heavy,seed_0004,Trend-only union (CQI+slope+volatility+downside),0.17165002201860052,15
+mid,heavy,seed_0004,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.17413770349713095,15
+mid,heavy,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.17413770349713095,15
+mid,heavy,seed_0004,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.17413770349713095,15
+mid,heavy,seed_0004,CQI+cost+switching+regret-graph+trend union,0.17413770349713095,15
+mid,heavy,seed_0005,CQI k-means,0.16916234054007007,15
+mid,heavy,seed_0005,Trend-slope k-means,0.15722146944312393,15
+mid,heavy,seed_0005,Trend-volatility k-means,0.15672393314741787,15
+mid,heavy,seed_0005,Trend-downside-deviation k-means,0.1582165420345361,15
+mid,heavy,seed_0005,Trend-only union (CQI+slope+volatility+downside),0.16965987683577619,15
+mid,heavy,seed_0005,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.1783865848335705,15
+mid,heavy,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.1783865848335705,15
+mid,heavy,seed_0005,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.1783865848335705,15
+mid,heavy,seed_0005,CQI+cost+switching+regret-graph+trend union,0.1783865848335705,15
+mid,heavy,seed_0006,CQI k-means,0.17413770349713095,15
+mid,heavy,seed_0006,Trend-slope k-means,0.1691623405400701,15
+mid,heavy,seed_0006,Trend-volatility k-means,0.17115248572289443,15
+mid,heavy,seed_0006,Trend-downside-deviation k-means,0.1731426309057188,15
+mid,heavy,seed_0006,Trend-only union (CQI+slope+volatility+downside),0.17463523979283707,15
+mid,heavy,seed_0006,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.17413770349713095,15
+mid,heavy,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.17413770349713095,15
+mid,heavy,seed_0006,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.17463523979283707,15
+mid,heavy,seed_0006,CQI+cost+switching+regret-graph+trend union,0.17463523979283707,15
+mid,heavy,seed_0007,CQI k-means,0.1771229212713675,15
+mid,heavy,seed_0007,Trend-slope k-means,0.17563031238424923,15
+mid,heavy,seed_0007,Trend-volatility k-means,0.17612784867995532,15
+mid,heavy,seed_0007,Trend-downside-deviation k-means,0.17463523979283704,15
+mid,heavy,seed_0007,Trend-only union (CQI+slope+volatility+downside),0.1771229212713675,15
+mid,heavy,seed_0007,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.1771229212713675,15
+mid,heavy,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.1771229212713675,15
+mid,heavy,seed_0007,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.1771229212713675,15
+mid,heavy,seed_0007,CQI+cost+switching+regret-graph+trend union,0.1771229212713675,15
+mid,heavy,seed_0008,CQI k-means,0.17563031238424923,15
+mid,heavy,seed_0008,Trend-slope k-means,0.17214755831430661,15
+mid,heavy,seed_0008,Trend-volatility k-means,0.16717219535724573,15
+mid,heavy,seed_0008,Trend-downside-deviation k-means,0.16717219535724573,15
+mid,heavy,seed_0008,Trend-only union (CQI+slope+volatility+downside),0.17563031238424923,15
+mid,heavy,seed_0008,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.17563031238424923,15
+mid,heavy,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.17563031238424923,15
+mid,heavy,seed_0008,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.17563031238424923,15
+mid,heavy,seed_0008,CQI+cost+switching+regret-graph+trend union,0.17563031238424923,15
+mid,heavy,seed_0009,CQI k-means,0.17513277608854314,15
+mid,heavy,seed_0009,Trend-slope k-means,0.16717219535724573,15
+mid,heavy,seed_0009,Trend-volatility k-means,0.1726450946100127,15
+mid,heavy,seed_0009,Trend-downside-deviation k-means,0.16717219535724573,15
+mid,heavy,seed_0009,Trend-only union (CQI+slope+volatility+downside),0.17513277608854314,15
+mid,heavy,seed_0009,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.17513277608854314,15
+mid,heavy,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.17513277608854314,15
+mid,heavy,seed_0009,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.17513277608854314,15
+mid,heavy,seed_0009,CQI+cost+switching+regret-graph+trend union,0.17513277608854314,15
+mid,heavy,seed_0010,CQI k-means,0.1766253849756614,15
+mid,heavy,seed_0010,Trend-slope k-means,0.17463523979283704,15
+mid,heavy,seed_0010,Trend-volatility k-means,0.17463523979283704,15
+mid,heavy,seed_0010,Trend-downside-deviation k-means,0.17413770349713095,15
+mid,heavy,seed_0010,Trend-only union (CQI+slope+volatility+downside),0.1766253849756614,15
+mid,heavy,seed_0010,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.1771229212713675,15
+mid,heavy,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.1771229212713675,15
+mid,heavy,seed_0010,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.1771229212713675,15
+mid,heavy,seed_0010,CQI+cost+switching+regret-graph+trend union,0.1771229212713675,15
+mid,light,seed_0001,CQI k-means,0.42386774167132796,15
+mid,light,seed_0001,Trend-slope k-means,0.40016553839383345,15
+mid,light,seed_0001,Trend-volatility k-means,0.40797239300327853,15
+mid,light,seed_0001,Trend-downside-deviation k-means,0.4076899133826099,15
+mid,light,seed_0001,Trend-only union (CQI+slope+volatility+downside),0.42752792658235594,15
+mid,light,seed_0001,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.4379659388585041,15
+mid,light,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.4379659388585041,15
+mid,light,seed_0001,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.4379659388585041,15
+mid,light,seed_0001,CQI+cost+switching+regret-graph+trend union,0.4379659388585041,15
+mid,light,seed_0002,CQI k-means,0.43740815794437987,15
+mid,light,seed_0002,Trend-slope k-means,0.4189723320069461,15
+mid,light,seed_0002,Trend-volatility k-means,0.42052160547451756,15
+mid,light,seed_0002,Trend-downside-deviation k-means,0.41660378994312997,15
+mid,light,seed_0002,Trend-only union (CQI+slope+volatility+downside),0.43740815794437987,15
+mid,light,seed_0002,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.4430670602297995,15
+mid,light,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.4430670602297995,15
+mid,light,seed_0002,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.4430670602297995,15
+mid,light,seed_0002,CQI+cost+switching+regret-graph+trend union,0.4430670602297995,15
+mid,light,seed_0003,CQI k-means,0.43148473924496944,15
+mid,light,seed_0003,Trend-slope k-means,0.4176060625402391,15
+mid,light,seed_0003,Trend-volatility k-means,0.4202468524285467,15
+mid,light,seed_0003,Trend-downside-deviation k-means,0.4270644546510328,15
+mid,light,seed_0003,Trend-only union (CQI+slope+volatility+downside),0.4331984720562525,15
+mid,light,seed_0003,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.43887865897906114,15
+mid,light,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.43887865897906114,15
+mid,light,seed_0003,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.43887865897906114,15
+mid,light,seed_0003,CQI+cost+switching+regret-graph+trend union,0.43887865897906114,15
+mid,light,seed_0004,CQI k-means,0.44668627947302736,15
+mid,light,seed_0004,Trend-slope k-means,0.41586467869586163,15
+mid,light,seed_0004,Trend-volatility k-means,0.4242409522930654,15
+mid,light,seed_0004,Trend-downside-deviation k-means,0.42587227558200597,15
+mid,light,seed_0004,Trend-only union (CQI+slope+volatility+downside),0.4477717293679737,15
+mid,light,seed_0004,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.4491156363221965,15
+mid,light,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.4491156363221965,15
+mid,light,seed_0004,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44960211627378255,15
+mid,light,seed_0004,CQI+cost+switching+regret-graph+trend union,0.44960211627378255,15
+mid,light,seed_0005,CQI k-means,0.4524007604041333,15
+mid,light,seed_0005,Trend-slope k-means,0.4291079394806912,15
+mid,light,seed_0005,Trend-volatility k-means,0.4323872421905388,15
+mid,light,seed_0005,Trend-downside-deviation k-means,0.432980681404418,15
+mid,light,seed_0005,Trend-only union (CQI+slope+volatility+downside),0.45386406026548165,15
+mid,light,seed_0005,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.4557955897320382,15
+mid,light,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.4557955897320382,15
+mid,light,seed_0005,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.4557955897320382,15
+mid,light,seed_0005,CQI+cost+switching+regret-graph+trend union,0.4557955897320382,15
+mid,light,seed_0006,CQI k-means,0.4565236335169052,15
+mid,light,seed_0006,Trend-slope k-means,0.42956980035492204,15
+mid,light,seed_0006,Trend-volatility k-means,0.43883775019748955,15
+mid,light,seed_0006,Trend-downside-deviation k-means,0.4382890765479034,15
+mid,light,seed_0006,Trend-only union (CQI+slope+volatility+downside),0.4592329791074136,15
+mid,light,seed_0006,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.4594864451807234,15
+mid,light,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.4594864451807234,15
+mid,light,seed_0006,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.4594864451807234,15
+mid,light,seed_0006,CQI+cost+switching+regret-graph+trend union,0.4594864451807234,15
+mid,light,seed_0007,CQI k-means,0.4453368912254376,15
+mid,light,seed_0007,Trend-slope k-means,0.4320865073876893,15
+mid,light,seed_0007,Trend-volatility k-means,0.43471790303701763,15
+mid,light,seed_0007,Trend-downside-deviation k-means,0.4324640563165394,15
+mid,light,seed_0007,Trend-only union (CQI+slope+volatility+downside),0.44581784044754263,15
+mid,light,seed_0007,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.4512130483663833,15
+mid,light,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.4512130483663833,15
+mid,light,seed_0007,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.45169399758848827,15
+mid,light,seed_0007,CQI+cost+switching+regret-graph+trend union,0.45169399758848827,15
+mid,light,seed_0008,CQI k-means,0.4419144205360442,15
+mid,light,seed_0008,Trend-slope k-means,0.4249737010918348,15
+mid,light,seed_0008,Trend-volatility k-means,0.42453586483522904,15
+mid,light,seed_0008,Trend-downside-deviation k-means,0.42918808687902205,15
+mid,light,seed_0008,Trend-only union (CQI+slope+volatility+downside),0.44283374737020403,15
+mid,light,seed_0008,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44925250768774,15
+mid,light,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44925250768774,15
+mid,light,seed_0008,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44925250768774,15
+mid,light,seed_0008,CQI+cost+switching+regret-graph+trend union,0.44925250768774,15
+mid,light,seed_0009,CQI k-means,0.43799523515405825,15
+mid,light,seed_0009,Trend-slope k-means,0.42595605289871413,15
+mid,light,seed_0009,Trend-volatility k-means,0.42318368233548614,15
+mid,light,seed_0009,Trend-downside-deviation k-means,0.42133063860641806,15
+mid,light,seed_0009,Trend-only union (CQI+slope+volatility+downside),0.4382487012273681,15
+mid,light,seed_0009,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.44485238025472407,15
+mid,light,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.44485238025472407,15
+mid,light,seed_0009,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.44485238025472407,15
+mid,light,seed_0009,CQI+cost+switching+regret-graph+trend union,0.44485238025472407,15
+mid,light,seed_0010,CQI k-means,0.4512185716457502,15
+mid,light,seed_0010,Trend-slope k-means,0.4404036190773732,15
+mid,light,seed_0010,Trend-volatility k-means,0.4405097482325827,15
+mid,light,seed_0010,Trend-downside-deviation k-means,0.43972336708813864,15
+mid,light,seed_0010,Trend-only union (CQI+slope+volatility+downside),0.45191594489296,15
+mid,light,seed_0010,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.4537161903306433,15
+mid,light,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.4552101714036319,15
+mid,light,seed_0010,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.45392238767441334,15
+mid,light,seed_0010,CQI+cost+switching+regret-graph+trend union,0.455416368747402,15
+mid,medium,seed_0001,CQI k-means,0.3533937285285322,15
+mid,medium,seed_0001,Trend-slope k-means,0.32233630383211154,15
+mid,medium,seed_0001,Trend-volatility k-means,0.33146577358731527,15
+mid,medium,seed_0001,Trend-downside-deviation k-means,0.3353760996380338,15
+mid,medium,seed_0001,Trend-only union (CQI+slope+volatility+downside),0.3533937285285322,15
+mid,medium,seed_0001,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.35781431165948957,15
+mid,medium,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35781431165948957,15
+mid,medium,seed_0001,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.35781431165948957,15
+mid,medium,seed_0001,CQI+cost+switching+regret-graph+trend union,0.35781431165948957,15
+mid,medium,seed_0002,CQI k-means,0.34174643099086965,15
+mid,medium,seed_0002,Trend-slope k-means,0.3225867344467742,15
+mid,medium,seed_0002,Trend-volatility k-means,0.3274794123043722,15
+mid,medium,seed_0002,Trend-downside-deviation k-means,0.3270037031691403,15
+mid,medium,seed_0002,Trend-only union (CQI+slope+volatility+downside),0.3443380457793931,15
+mid,medium,seed_0002,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.3536046169883529,15
+mid,medium,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.3536046169883529,15
+mid,medium,seed_0002,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.3536046169883529,15
+mid,medium,seed_0002,CQI+cost+switching+regret-graph+trend union,0.3536046169883529,15
+mid,medium,seed_0003,CQI k-means,0.3505558764838816,15
+mid,medium,seed_0003,Trend-slope k-means,0.34115023145116535,15
+mid,medium,seed_0003,Trend-volatility k-means,0.34067177633225837,15
+mid,medium,seed_0003,Trend-downside-deviation k-means,0.34804577527612046,15
+mid,medium,seed_0003,Trend-only union (CQI+slope+volatility+downside),0.3505558764838816,15
+mid,medium,seed_0003,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.3562122774950282,15
+mid,medium,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.3562122774950282,15
+mid,medium,seed_0003,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.3562122774950282,15
+mid,medium,seed_0003,CQI+cost+switching+regret-graph+trend union,0.3562122774950282,15
+mid,medium,seed_0004,CQI k-means,0.3613048059229423,15
+mid,medium,seed_0004,Trend-slope k-means,0.339488510866416,15
+mid,medium,seed_0004,Trend-volatility k-means,0.3479015261976108,15
+mid,medium,seed_0004,Trend-downside-deviation k-means,0.33757411144084404,15
+mid,medium,seed_0004,Trend-only union (CQI+slope+volatility+downside),0.3614308558683816,15
+mid,medium,seed_0004,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.36440775449916385,15
+mid,medium,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.36440775449916385,15
+mid,medium,seed_0004,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.36453380444460304,15
+mid,medium,seed_0004,CQI+cost+switching+regret-graph+trend union,0.36453380444460304,15
+mid,medium,seed_0005,CQI k-means,0.3574602508286184,15
+mid,medium,seed_0005,Trend-slope k-means,0.3496124742630877,15
+mid,medium,seed_0005,Trend-volatility k-means,0.34945022071523807,15
+mid,medium,seed_0005,Trend-downside-deviation k-means,0.3506699928772753,15
+mid,medium,seed_0005,Trend-only union (CQI+slope+volatility+downside),0.35999714616906414,15
+mid,medium,seed_0005,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.3629442015897023,15
+mid,medium,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.3629442015897023,15
+mid,medium,seed_0005,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.3629442015897023,15
+mid,medium,seed_0005,CQI+cost+switching+regret-graph+trend union,0.3629442015897023,15
+mid,medium,seed_0006,CQI k-means,0.3604678747132733,15
+mid,medium,seed_0006,Trend-slope k-means,0.3481378698453093,15
+mid,medium,seed_0006,Trend-volatility k-means,0.3479645511703303,15
+mid,medium,seed_0006,Trend-downside-deviation k-means,0.34693131622531986,15
+mid,medium,seed_0006,Trend-only union (CQI+slope+volatility+downside),0.36751628985397683,15
+mid,medium,seed_0006,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.3654111462340303,15
+mid,medium,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.3654111462340303,15
+mid,medium,seed_0006,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.3709860336644147,15
+mid,medium,seed_0006,CQI+cost+switching+regret-graph+trend union,0.3709860336644147,15
+mid,medium,seed_0007,CQI k-means,0.3452009975080717,15
+mid,medium,seed_0007,Trend-slope k-means,0.33870071232623317,15
+mid,medium,seed_0007,Trend-volatility k-means,0.3396894245253789,15
+mid,medium,seed_0007,Trend-downside-deviation k-means,0.34163368077990736,15
+mid,medium,seed_0007,Trend-only union (CQI+slope+volatility+downside),0.34532704745351095,15
+mid,medium,seed_0007,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.354217427577341,15
+mid,medium,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.35533190024695394,15
+mid,medium,seed_0007,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.3543434775227803,15
+mid,medium,seed_0007,CQI+cost+switching+regret-graph+trend union,0.35545795019239323,15
+mid,medium,seed_0008,CQI k-means,0.3586245163100908,15
+mid,medium,seed_0008,Trend-slope k-means,0.33874523507209786,15
+mid,medium,seed_0008,Trend-volatility k-means,0.34215166443484396,15
+mid,medium,seed_0008,Trend-downside-deviation k-means,0.33825405916865814,15
+mid,medium,seed_0008,Trend-only union (CQI+slope+volatility+downside),0.3586245163100908,15
+mid,medium,seed_0008,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.3654000811069009,15
+mid,medium,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.3654000811069009,15
+mid,medium,seed_0008,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.3654000811069009,15
+mid,medium,seed_0008,CQI+cost+switching+regret-graph+trend union,0.3654000811069009,15
+mid,medium,seed_0009,CQI k-means,0.3553111634127513,15
+mid,medium,seed_0009,Trend-slope k-means,0.34709522543057286,15
+mid,medium,seed_0009,Trend-volatility k-means,0.34070993868585664,15
+mid,medium,seed_0009,Trend-downside-deviation k-means,0.3382540591686581,15
+mid,medium,seed_0009,Trend-only union (CQI+slope+volatility+downside),0.35720070021920197,15
+mid,medium,seed_0009,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.3609161835282518,15
+mid,medium,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.3609161835282518,15
+mid,medium,seed_0009,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.3609161835282518,15
+mid,medium,seed_0009,CQI+cost+switching+regret-graph+trend union,0.3609161835282518,15
+mid,medium,seed_0010,CQI k-means,0.3620785038773487,15
+mid,medium,seed_0010,Trend-slope k-means,0.34916053742070546,15
+mid,medium,seed_0010,Trend-volatility k-means,0.34758640133401264,15
+mid,medium,seed_0010,Trend-downside-deviation k-means,0.3512609763057891,15
+mid,medium,seed_0010,Trend-only union (CQI+slope+volatility+downside),0.3632971993319266,15
+mid,medium,seed_0010,"CQI+cost+regret-graph 3-way union (ablation, no switching)",0.3656585413900458,15
+mid,medium,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated base),0.3656585413900458,15
+mid,medium,seed_0010,"CQI+cost+regret-graph+trend union (ablation, no switching)",0.36576883509230507,15
+mid,medium,seed_0010,CQI+cost+switching+regret-graph+trend union,0.36576883509230507,15

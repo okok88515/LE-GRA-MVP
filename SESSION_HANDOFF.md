@@ -1,8 +1,87 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-26 (research direction 2 update)
+Last updated: 2026-08-26 (direction 2 confirmatory validation + direction 3 step 1 result)
 
-## CURRENT HANDOFF — 2026-08-26 UPDATE 4 (AUTHORITATIVE; READ THIS FIRST)
+## CURRENT HANDOFF — 2026-08-26 UPDATE 5 (AUTHORITATIVE; READ THIS FIRST)
+
+This section supersedes "UPDATE 4" immediately below it (kept for
+provenance) and every older handoff.
+
+### Direction 2's confirmatory validation corrected the exploratory conclusion
+
+Full writeup: `REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md`'s
+"Confirmatory result" and "Decision (revised after confirmatory
+validation)" sections. Generated seeds 31..50 (20 fresh, never-before-used
+Simu5G seeds -- 1..10 used for direction 1/2 exploratory, 11..30 for the
+switching-gate confirmatory pass), QA-validated (60/60 pass), ran
+`run_real_multiseed_regret_confirmatory.py` (new script, frozen method set,
+no retuning). Summary:
+
+- The high-dispersion win for `CQI+cost+regret-graph 3-way union` (no
+  switching) vs the switching-3way headline replicates cleanly: all three
+  cells still entirely-positive 95% CIs, closely matching exploratory
+  magnitudes (high/light +0.0119 vs exploratory +0.0105; high/medium
+  +0.0108 vs +0.0218; high/heavy +0.0380 vs +0.0432).
+- **Correction**: at mid dispersion, the larger 20-seed sample reveals the
+  regret-graph-only 3-way has real losses to the switching headline (7/20 at
+  mid/light, 8/20 at mid/medium) that the smaller 10-seed exploratory
+  sample did not show clearly. The exploratory-stage suggestion that
+  switching could be dropped outright does not survive confirmatory
+  scrutiny -- **switching should NOT be removed**.
+- **What the confirmatory pass does support**: the 4-way union
+  (`cqi_cost_switching_regret_graph_hybrid_grouping`, switching AND
+  regret-graph together) strictly dominates the previous switching-3way
+  headline -- **zero seed-level losses** across all 6 non-saturated cells in
+  20 fresh seeds, and significantly better in 5 of those 6 (all three
+  high-dispersion cells, plus mid/medium and mid/heavy newly reaching
+  significance at this larger sample size). This is the "union only gets
+  better" guarantee holding up almost exactly as designed, now with
+  confirmatory backing.
+- **Recommendation**: promote the 4-way union to the shipped headline,
+  replacing the 3-way switching-only method. Not yet propagated to
+  `hybrid_metrics_slides.html` (still not updated per standing user
+  instruction).
+- This is a good illustration of why this project's confirmatory discipline
+  exists: a plausible, simpler exploratory-stage story (drop switching)
+  did not hold up against a larger independent sample, while the core
+  mechanistic finding (regret-graph adds real value at high dispersion)
+  still replicated.
+
+### Direction 3 (causal CQI trend) code written and running
+
+Per the user's request to prepare direction 3 while direction 2's
+confirmatory batch used the WSL/CPU budget: added causal trend-feature
+extraction (`cqi_trend_slope_vector`, `cqi_trend_volatility_vector`,
+`cqi_trend_downside_deviation_vector`, all computed only from the 5-step
+`cqi_history` already in every real scenario, never looking past
+`cqi_now`), standalone k-means grouping functions per feature, a trend-only
+union, and two combined-union functions to `le_gra_mvp.py`. Smoke-tested on
+real data before running the full experiment (`run_real_multiseed_trend_direction.py`,
+seeds 1..10, snapshot-level). Originally built the trend-plus-existing-work
+union on top of the regret-only 3-way (the exploratory-stage "leading
+candidate" at the time of writing); corrected to build on the
+confirmatory-validated 4-way instead
+(`cqi_cost_switching_regret_trend_hybrid_grouping`) once direction 2's
+confirmatory result landed, keeping the regret-only-plus-trend version
+(`cqi_cost_regret_trend_hybrid_grouping`) as a deliberate ablation.
+
+**Results (full writeup: `REAL_SIMU5G_TREND_DIRECTION.md`)**: standalone
+trend k-means is much worse than CQI k-means (throws away current channel
+quality entirely; high/heavy dCQI=-0.094). Unioned with CQI alone, it
+recovers to roughly matching CQI k-means, with one real standalone gain at
+high/heavy (dCQI=+0.027). Unioned on top of the confirmatory-validated
+4-way base, trend adds a small, real, zero-loss gain (exact union guarantee
+holds at snapshot level) concentrated in the same high/heavy cell
+(+0.0046, 6/10 seed wins, 0 losses) where the regret graph and resource-
+cost already do their best work -- suggesting trend is capturing a similar,
+largely redundant signal (early warning of the same infeasibility cost/
+regret-graph detect from the current snapshot) rather than orthogonal new
+information. Not promoted to the recommended method; step 2 (next-step
+predictor) and step 3 (multi-step teacher objective) in the roadmap are
+more likely to extract real value from temporal information than this
+causal hand-crafted baseline did.
+
+## CURRENT HANDOFF — 2026-08-26 UPDATE 4 (SUPERSEDED BY THE UPDATE ABOVE)
 
 This section supersedes "UPDATE 3" immediately below it (kept for
 provenance) and every older handoff.

@@ -3097,6 +3097,209 @@ def cqi_cost_switching_regret_graph_hybrid_grouping(
     return best_candidate_groups(scenario, candidates, switch_beta)
 
 
+def cqi_trend_slope_vector(cqi_history: np.ndarray) -> np.ndarray:
+    """Causal least-squares CQI slope over the fixed history window ending
+    at `cqi_now` (research direction 3, `POST_CQI_RESEARCH_ROADMAP_ZH.md`).
+
+    Uses only `cqi_history[:, :-1]` implicitly through the regression -- the
+    last column IS `cqi_now`, so this never looks past the current step.
+    Positive = improving trend, negative = degrading trend; two users at the
+    same current CQI can have opposite slopes.
+    """
+
+    n_users, history_len = cqi_history.shape
+    if history_len < 2:
+        return np.zeros((n_users, 1), dtype=float)
+    steps = np.arange(history_len, dtype=float)
+    steps_centered = steps - steps.mean()
+    denom = float(np.sum(steps_centered**2))
+    slopes = (cqi_history @ steps_centered) / denom
+    return slopes.reshape(-1, 1)
+
+
+def cqi_trend_volatility_vector(cqi_history: np.ndarray) -> np.ndarray:
+    """Causal recent-window CQI volatility (std over the history window,
+    research direction 3): a user bouncing between CQI 4 and 10 looks very
+    different from one steady at CQI 7, even at the same current CQI."""
+
+    return cqi_history.std(axis=1).reshape(-1, 1)
+
+
+def cqi_trend_downside_deviation_vector(cqi_history: np.ndarray) -> np.ndarray:
+    """Causal downside semi-deviation of step-to-step CQI changes (research
+    direction 3): volatility alone doesn't distinguish a user oscillating
+    symmetrically from one whose swings are mostly drops. Only negative
+    consecutive diffs contribute; a user with a single history step has no
+    diffs and gets 0."""
+
+    if cqi_history.shape[1] < 2:
+        return np.zeros((cqi_history.shape[0], 1), dtype=float)
+    diffs = np.diff(cqi_history, axis=1)
+    downside = np.minimum(diffs, 0.0)
+    return np.sqrt(np.mean(downside**2, axis=1)).reshape(-1, 1)
+
+
+def cqi_trend_slope_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+) -> list[list[int]]:
+    """Standalone baseline (research direction 3, not yet evaluated): k-means
+    directly on the causal CQI slope, in isolation from current CQI."""
+
+    return best_kmeans_groups(
+        scenario,
+        cqi_trend_slope_vector(scenario.cqi_history),
+        max_groups,
+        switch_beta,
+        kmeans_n_init=kmeans_n_init,
+    )
+
+
+def cqi_trend_volatility_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+) -> list[list[int]]:
+    """Standalone baseline (research direction 3, not yet evaluated): k-means
+    directly on the causal CQI volatility, in isolation from current CQI."""
+
+    return best_kmeans_groups(
+        scenario,
+        cqi_trend_volatility_vector(scenario.cqi_history),
+        max_groups,
+        switch_beta,
+        kmeans_n_init=kmeans_n_init,
+    )
+
+
+def cqi_trend_downside_deviation_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+) -> list[list[int]]:
+    """Standalone baseline (research direction 3, not yet evaluated): k-means
+    directly on the causal CQI downside deviation, in isolation from current
+    CQI."""
+
+    return best_kmeans_groups(
+        scenario,
+        cqi_trend_downside_deviation_vector(scenario.cqi_history),
+        max_groups,
+        switch_beta,
+        kmeans_n_init=kmeans_n_init,
+    )
+
+
+def cqi_trend_hybrid_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """Trend-only union (research direction 3, not yet evaluated): CQI plus
+    the three causal trend features (slope, volatility, downside deviation),
+    each its own k-means candidate family per the project's established
+    "union of per-feature k-means beats joint multi-dim k-means" finding
+    (see `REAL_SIMU5G_RB_PROFILE_DIRECTION.md`). Deliberately excludes cost
+    and regret-graph so the trend features' own standalone contribution can
+    be isolated before deciding whether to fuse with the existing best-known
+    method (`cqi_cost_regret_trend_hybrid_grouping` below)."""
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    slope_rep = cqi_trend_slope_vector(scenario.cqi_history)
+    volatility_rep = cqi_trend_volatility_vector(scenario.cqi_history)
+    downside_rep = cqi_trend_downside_deviation_vector(scenario.cqi_history)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(slope_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(volatility_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(downside_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
+def cqi_cost_regret_trend_hybrid_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """`cqi_cost_regret_graph_hybrid_grouping`'s 3-way union (CQI + cost +
+    regret-graph, WITHOUT switching) plus the three causal trend-feature
+    families from `cqi_trend_hybrid_kmeans_grouping` (research direction 3,
+    not yet evaluated).
+
+    NOTE (2026-08-26, after direction 2's confirmatory pass): this is kept
+    as a deliberate ablation for isolating trend's own contribution without
+    switching in the mix, NOT the recommended base anymore. Direction 2's
+    20-seed confirmatory result (`REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md`)
+    found the regret-graph-only 3-way has real, non-trivial losses to the
+    switching-aware headline at mid dispersion that the smaller exploratory
+    pass missed -- switching should NOT be dropped. The confirmatory-
+    validated base is the 4-way union; see
+    `cqi_cost_switching_regret_trend_hybrid_grouping` below."""
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    affinity = pairwise_exact_regret_matrix(scenario, switch_beta)
+    slope_rep = cqi_trend_slope_vector(scenario.cqi_history)
+    volatility_rep = cqi_trend_volatility_vector(scenario.cqi_history)
+    downside_rep = cqi_trend_downside_deviation_vector(scenario.cqi_history)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + graph_candidate_groups(affinity, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(slope_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(volatility_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(downside_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
+def cqi_cost_switching_regret_trend_hybrid_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """`cqi_cost_switching_regret_graph_hybrid_grouping`'s 4-way union (CQI +
+    cost + switching + regret-graph -- confirmatory-validated 2026-08-26 to
+    strictly dominate the previously-shipped 3-way switching headline, zero
+    seed-level losses across 20 fresh seeds in every non-saturated cell, see
+    `REAL_SIMU5G_REGRET_GRAPH_TEMPORAL_DIRECTION.md`) plus the three causal
+    trend-feature families from `cqi_trend_hybrid_kmeans_grouping` (research
+    direction 3, not yet evaluated). This -- not
+    `cqi_cost_regret_trend_hybrid_grouping` above, which deliberately omits
+    switching -- is the recommended base for testing whether trend features
+    add anything on top of the current best-evidenced method."""
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    cost_rep = user_resource_cost_vector(scenario.rb_rates)
+    switching = np.column_stack([cqi_rep, scenario.previous_quality.reshape(-1, 1).astype(float)])
+    switching_rep = ((switching - switching.mean(axis=0)) / (switching.std(axis=0) + 1e-6)).astype(np.float32)
+    affinity = pairwise_exact_regret_matrix(scenario, switch_beta)
+    slope_rep = cqi_trend_slope_vector(scenario.cqi_history)
+    volatility_rep = cqi_trend_volatility_vector(scenario.cqi_history)
+    downside_rep = cqi_trend_downside_deviation_vector(scenario.cqi_history)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(cost_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(switching_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + graph_candidate_groups(affinity, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(slope_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(volatility_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(downside_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
 def main() -> None:
     """CLI entry point.
 

@@ -1,0 +1,63 @@
+{
+  "dataset": "real_simu5g_multiseed_data",
+  "protocol_version": "3.0",
+  "status": "validated",
+  "dispersions": [
+    "low",
+    "mid",
+    "high"
+  ],
+  "seeds": [
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50
+  ],
+  "runs": 60,
+  "usable_scenarios": 900,
+  "unique_mobility_trajectories": 20,
+  "same_mobility_across_dispersions_for_each_seed": true,
+  "by_dispersion": {
+    "low": {
+      "runs": 20,
+      "usable_scenarios": 300,
+      "mean_of_run_cqi_means": 14.766388888888889,
+      "mean_of_run_cqi_stds": 0.582401436383201,
+      "min_run_cqi_mean": 14.669444444444444,
+      "max_run_cqi_mean": 14.85
+    },
+    "mid": {
+      "runs": 20,
+      "usable_scenarios": 300,
+      "mean_of_run_cqi_means": 12.624027777777778,
+      "mean_of_run_cqi_stds": 2.1589940463657213,
+      "min_run_cqi_mean": 12.480555555555556,
+      "max_run_cqi_mean": 12.769444444444444
+    },
+    "high": {
+      "runs": 20,
+      "usable_scenarios": 300,
+      "mean_of_run_cqi_means": 9.292361111111111,
+      "mean_of_run_cqi_stds": 3.026444925540545,
+      "min_run_cqi_mean": 8.91388888888889,
+      "max_run_cqi_mean": 9.597222222222221
+    }
+  },
+  "qa_csv": "multiseed_qa_confirmatory2.csv"
+}
