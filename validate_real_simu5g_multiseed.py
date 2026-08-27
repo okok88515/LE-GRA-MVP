@@ -45,7 +45,22 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def validate(root: Path, expected_seeds: tuple[int, ...]) -> list[dict[str, object]]:
+def validate(
+    root: Path,
+    expected_seeds: tuple[int, ...],
+    n_users: int = 24,
+    gnb_pos: dict[int, tuple[float, float]] | None = None,
+    expected_scenarios: int = 15,
+    min_radio_rows: int = 4_500_000,
+    min_mobility_rows: int = 10_000,
+) -> list[dict[str, object]]:
+    """`n_users`/`gnb_pos`/`expected_scenarios`/`min_*_rows` default to the
+    original 24-vehicle scenario's validated values for full backward
+    compatibility. Pass overrides for a differently-scaled scenario -- e.g.
+    the direction-4 scale pilot uses `n_users=40,
+    gnb_pos={1: (400.0, 160.0), 2: (400.0, 640.0)}, expected_scenarios=5,
+    min_radio_rows=..., min_mobility_rows=...` (`REAL_SIMU5G_SCALE_PILOT.md`)."""
+
     rows: list[dict[str, object]] = []
     mobility_by_seed: dict[int, set[str]] = defaultdict(set)
     route_metadata_by_seed: dict[int, set[str]] = defaultdict(set)
@@ -70,9 +85,9 @@ def validate(root: Path, expected_seeds: tuple[int, ...]) -> list[dict[str, obje
             # so total row counts are expected to vary. These lower bounds
             # catch truncation; the parser completeness gate below is the
             # authoritative learner-facing check.
-            if manifest["radio"]["rows_including_header"] < 4_500_000:
+            if manifest["radio"]["rows_including_header"] < min_radio_rows:
                 raise AssertionError(f"radio export appears truncated: {run_dir}")
-            if manifest["mobility"]["rows_including_header"] < 10_000:
+            if manifest["mobility"]["rows_including_header"] < min_mobility_rows:
                 raise AssertionError(f"mobility export appears truncated: {run_dir}")
 
             radio_path = run_dir / manifest["radio"]["file"]
@@ -94,10 +109,12 @@ def validate(root: Path, expected_seeds: tuple[int, ...]) -> list[dict[str, obje
                 RB_RATIO[dispersion],
                 radio_path=radio_path,
                 mobility_path=mobility_path,
+                n_users=n_users,
+                gnb_pos=gnb_pos,
             )
-            if len(scenarios) != 15:
+            if len(scenarios) != expected_scenarios:
                 raise AssertionError(
-                    f"expected 15 complete scenarios, got {len(scenarios)}: {run_dir}"
+                    f"expected {expected_scenarios} complete scenarios, got {len(scenarios)}: {run_dir}"
                 )
             cqi = np.concatenate([scenario.cqi_now for scenario in scenarios])
             rows.append(
@@ -123,7 +140,7 @@ def validate(root: Path, expected_seeds: tuple[int, ...]) -> list[dict[str, obje
                 }
             )
             print(
-                f"PASS {dispersion}/seed_{seed:04d}: scenarios=15 "
+                f"PASS {dispersion}/seed_{seed:04d}: scenarios={len(scenarios)} "
                 f"CQI={cqi.mean():.3f}+/-{cqi.std():.3f}",
                 flush=True,
             )
@@ -200,11 +217,30 @@ def main() -> None:
         "aggregate_manifest_<label>.json) so a non-default --seeds run never "
         "overwrites the original seeds=1-10 QA artifacts.",
     )
+    parser.add_argument("--n-users", type=int, default=24, help="Override for a differently-scaled scenario")
+    parser.add_argument(
+        "--gnb-pos", default="",
+        help='Override gNB positions as "id1:x1,y1;id2:x2,y2", e.g. "1:400,160;2:400,640"',
+    )
+    parser.add_argument("--expected-scenarios", type=int, default=15)
+    parser.add_argument("--min-radio-rows", type=int, default=4_500_000)
+    parser.add_argument("--min-mobility-rows", type=int, default=10_000)
     args = parser.parse_args()
     expected_seeds = parse_seed_spec(args.seeds)
     if args.seeds != "1-10" and not args.label:
         raise SystemExit("pass --label when validating a non-default --seeds range")
-    rows = validate(args.root, expected_seeds)
+    gnb_pos = None
+    if args.gnb_pos:
+        gnb_pos = {}
+        for entry in args.gnb_pos.split(";"):
+            gnb_id, coords = entry.split(":")
+            x, y = coords.split(",")
+            gnb_pos[int(gnb_id)] = (float(x), float(y))
+    rows = validate(
+        args.root, expected_seeds,
+        n_users=args.n_users, gnb_pos=gnb_pos, expected_scenarios=args.expected_scenarios,
+        min_radio_rows=args.min_radio_rows, min_mobility_rows=args.min_mobility_rows,
+    )
     write_outputs(args.root, rows, expected_seeds, args.label)
     print(
         f"MULTISEED_QA_PASS runs={len(rows)} scenarios="
