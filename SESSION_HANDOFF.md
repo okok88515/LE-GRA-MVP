@@ -1,8 +1,77 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-27 (direction 4 phase 1: SUMO scale-pilot network/routes)
+Last updated: 2026-08-27 (direction 4: scale pilot finalized at N=40)
 
-## CURRENT HANDOFF — 2026-08-27 UPDATE 6 (AUTHORITATIVE; READ THIS FIRST)
+## CURRENT HANDOFF — 2026-08-27 UPDATE 7 (AUTHORITATIVE; READ THIS FIRST)
+
+This section supersedes "UPDATE 6" immediately below it (kept for
+provenance) and every older handoff.
+
+### Direction 4 scale pilot finalized: N=40, well below the original 100+ target
+
+Full writeup: `REAL_SIMU5G_SCALE_PILOT.md` (substantially rewritten, not
+just appended -- read it fresh rather than relying on memory of the
+earlier "100 vehicles" version). Summary of what changed since UPDATE 6:
+
+- UPDATE 6's "100 vehicles, SUMO-validated" design was NOT sufficient --
+  running it through the real OMNeT++/Simu5G pipeline (not just headless
+  SUMO) revealed peak simultaneous coverage of only 54/100, far below
+  SUMO's own prediction of a 30+ second full-100 window.
+- Diagnosed via first-appearance-time analysis: a compounding attachment
+  delay in Veins/TraCI (not a mobility/route problem) -- the first ~30
+  vehicles attach almost on schedule, then delay grows sharply and
+  compounds. Confirmed by the counter-intuitive finding that *tightening*
+  the departure stagger made coverage worse (54->44) while *loosening* it
+  helped (->61/70 at N=70, 87%) -- consistent with request-backlog
+  congestion, not insertion-from-rest queueing (which would need the
+  opposite fix).
+- The project's existing fixed-population data model
+  (`parse_real_simu5g_data.py` requires contiguous ids `range(0,N_USERS)`
+  all covered for 5 consecutive seconds, matching what direction 2's
+  temporal closed-loop `previous_quality` tracking needs) further
+  constrains the achievable number below what an "any N of the covered
+  set" analysis would suggest (13 usable windows at N=50 that way, vs 0 for
+  the strict contiguous-ids check).
+- **Presented this architectural fork to the user directly rather than
+  deciding unilaterally**: redesign the data model for a rolling
+  population (bigger N achievable, but undermines direction 2's
+  methodology) vs. keep the fixed-population model and accept a smaller N.
+  **User chose to keep the existing model.**
+- Final validated design: 50 vehicles requested, 0.5s stagger (looser than
+  the original's 0.3s -- deliberately, to reduce attachment backlog),
+  **N_USERS=40** as the parser target -- validated with 5 usable
+  5-consecutive-second windows per seed, identically across low/mid/high
+  dispersion (confirming the bottleneck is mobility/attachment-driven, not
+  RF-driven).
+- CQI histograms at N=40 (tx power unchanged from the original) show a
+  consistent, physically-explicable small offset at all three dispersion
+  levels (slightly lower mean, slightly wider spread -- larger network area
+  means farther-from-gNB users are farther away in absolute terms).
+  **User reviewed this table and chose to accept it as-is** rather than
+  spend further pilot-run budget on tx-power tuning.
+- **N=40 falls well short of the original "at least 100" target** and
+  further short of the paper's 150-total-user scale (the paper's 50 VU is
+  per-service, not total, as the user clarified mid-investigation) -- this
+  is stated plainly in the writeup as a real, load-bearing limitation, not
+  glossed over. Still a 67% increase over the original 24.
+
+### What is next (not started)
+
+1. Update `parse_real_simu5g_data.py`'s hardcoded `N_USERS = 24` to 40 (or
+   parameterize it) -- required before any real seed generation/parsing at
+   this scale can happen.
+2. Generate an actual multi-seed batch at this scale (the 7 pilot runs
+   done so far reused seeds 1-7 iteratively across design changes; none of
+   them constitute a real dataset).
+3. QA validation pass, matching the discipline already used for the
+   24-vehicle multiseed data.
+4. Re-run the established method comparisons (CQI/cost/switching/
+   regret-graph/trend) at this scale once real data exists.
+5. The rolling-population architecture question is explicitly parked --
+   revisiting it is the only path back toward the original 100+ target,
+   and was deliberately not pursued this session per the user's choice.
+
+## CURRENT HANDOFF — 2026-08-27 UPDATE 6 (SUPERSEDED BY THE UPDATE ABOVE)
 
 This section supersedes "UPDATE 5" immediately below it (kept for
 provenance) and every older handoff.

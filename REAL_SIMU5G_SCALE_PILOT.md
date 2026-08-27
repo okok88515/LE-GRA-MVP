@@ -1,4 +1,4 @@
-# Real Simu5G scale pilot (research direction 4, phase 1: SUMO network + routes)
+# Real Simu5G scale pilot (research direction 4: SUMO network, routes, and RF calibration)
 
 Date: 2026-08-27
 
@@ -7,16 +7,26 @@ Date: 2026-08-27
 `POST_CQI_RESEARCH_ROADMAP_ZH.md` direction 4: every real Simu5G
 validation in this project (including direction 2's confirmatory pass) is
 fixed at 24 vehicles, a scale carried over from earlier P3.6 scenario
-design, not chosen for these experiments. The user's own published paper
-uses 50 VU. This phase asks: can the 24-vehicle road network be scaled up
-to at least 100 vehicles while preserving vehicle density (area scaled
-proportionally to vehicle count, "option B" from the design discussion),
-without becoming a hand-tuned, hypothesis-driven redesign?
+design, not chosen for these experiments. The user's paper uses 50 VU per
+multimedia service, 150 total across 3 services -- either reference is
+larger than 24. This asks: can the 24-vehicle road network be scaled up
+meaningfully (target: at least 100) while preserving vehicle density (area
+scaled proportionally to vehicle count, "option B" from the design
+discussion), without becoming a hand-tuned, hypothesis-driven redesign?
 
-This is phase 1 only: SUMO-level network and route design, validated with
-SUMO alone (no OMNeT++/Simu5G, no RF calibration, no CQI data). Phase 2
-(CQI-histogram-only tx-power calibration) and phase 3 (small pilot through
-the full OMNeT++/Simu5G pipeline) are not done yet.
+**Summary of where this landed, since the investigation went through
+several corrections**: the network/route design scales cleanly via the
+same `netgenerate` tool that built the original. But the actual achievable
+scale is far below the 100 target -- a real, diagnosed bottleneck in how
+Veins/TraCI attaches vehicles under load caps things much lower, and the
+project's existing "fixed closed population" data model (every user present
+for the whole trajectory) further constrains the usable number to
+**N=40**, decided together with the user after evaluating the alternative
+(redesigning the data model for a "rolling population") and judging it not
+worth the methodological risk it would introduce for direction 2's
+temporal closed-loop machinery. This is a real, load-bearing limitation on
+this direction's ambitions, not a rounding choice -- documented in full
+below.
 
 ## Finding: the original network is algorithmically generated, not hand-authored
 
@@ -35,20 +45,24 @@ round-robined across the 4 routes with a 0.3s stagger, globally sorted by
 depart time (SUMO silently truncates an unsorted route file -- the exact
 P3.6 bug `omnetpp.ini`'s header comment already documents avoiding).
 
-## Design: same topology, longer edges
+## Phase 1: SUMO network + routes (initial design)
 
 Two ways to enlarge the network were tried:
 
-1. **More grid cells** (`grid.number=5`, same 200m spacing -> 800x800m):
-   rejected after testing, because routes then cross 2 additional
-   signal-controlled junctions the original design never had (only the
-   single center junction is unregulated) -- this changes the qualitative
-   route design, not just its scale.
+1. **More grid cells** (`grid.number=5`, same 200m spacing -> 800x800m,
+   full-span routes crossing the whole grid): rejected after testing,
+   because routes then cross 2 additional signal-controlled junctions the
+   original design never had (only the single center junction is
+   unregulated) -- this changes the qualitative route design, not just its
+   scale.
 2. **Longer edges, same grid** (`grid.number=3`, `grid.length=400` ->
-   800x800m): kept. Same 9-junction topology as the original, same 4
-   routes each crossing exactly 2 edges through the single unregulated
-   center junction -- zero new signal interactions, a faithful scale-up of
-   the exact original design.
+   800x800m): first choice. Same 9-junction topology as the original, same
+   4 routes each crossing exactly 2 edges through the single unregulated
+   center junction -- zero new signal interactions on paper. **This was
+   later abandoned** (see phase 1.5) once the doubled route length turned
+   out to matter for a different reason: it roughly doubles per-vehicle
+   transit duration, which interacts badly with the fixed 90s budget once
+   real traffic dynamics are in play.
 
 ```
 netgenerate --grid --grid.number=3 --grid.length=400 --tls.unset=B1 \
@@ -66,7 +80,7 @@ is the equivalent center junction for a 3x3 grid.)
 global depart-time sort as the original) were generated as the base
 pre-per-seed-patch template.
 
-## A real bug found and fixed: insertion queueing at higher vehicle counts
+### A real bug found and fixed: insertion queueing at higher vehicle counts
 
 Headless `sumo` (not the full OMNeT++/Simu5G stack -- cheap, seconds not
 minutes) on the first 100-vehicle draft showed only 71-72 of 100 vehicles
@@ -80,57 +94,217 @@ to open up the `minGap+length=6.5m` gap a follower needs to insert safely --
 but the route file staggers same-route departures by only 1.2s (25
 vehicles/route at a 0.3s round-robin over 4 routes). Each follower waits on
 the one ahead, and the delay compounds across many more vehicles per route
-than the original's 6/route, eventually exceeding the fixed 90s window for
-a growing tail of vehicles. Confirmed this is scale-driven, not a network
+than the original's 6/route. Confirmed this was scale-driven, not a network
 bug, by running the same check against the original file (no queueing) and
-against a variant with 2 lanes per edge instead of 1 (no improvement --
-confirming lane count wasn't the actual constraint).
+against a 2-lane variant (no improvement -- ruling out lane count as the
+constraint). Fixed at the SUMO layer with `departSpeed="max" departPos="base"`
+on every vehicle: all 100 then insert successfully, average depart delay
+drops from ~5s to 0.42s. **This SUMO-only result later turned out to be
+insufficient** -- see phase 1.5.
 
-Fixed with SUMO's standard technique for this exact situation: `departSpeed="max"
-departPos="base"` on every vehicle (insert already at cruising speed rather
-than accelerating from a stop). Result: all 100 vehicles insert
-successfully (0 waiting), average depart delay drops from ~5s to 0.42s, and
-reasoning from the aggregate statistics there is an approximately 30+
-second window where all or nearly all 100 vehicles are simultaneously
-present in the simulation -- comfortably above the ~15 contiguous seconds
-`parse_real_simu5g_data.build_scenarios` needs for full 25-band coverage
-across all users.
+## Phase 1.5: a deeper bug only the real OMNeT++/Simu5G pipeline revealed
 
-## What changed vs. the original 24-vehicle scenario
+Once the scenario was actually run through the full coupled pipeline (not
+just headless SUMO), the picture changed substantially. This section
+records the diagnostic process because the wrong-turns are as informative
+as the destination.
 
-| | Original (validated) | Scale pilot (phase 1 only) |
+### First real run: peak simultaneous coverage far below what SUMO predicted
+
+`run_p3_7_seed.sh` was generalized with a `P3_7_OMNETPP_CONFIG` env var
+override (previously hardcoded to `P3_7_Clean_DL`; the new scenario's
+config is named `P3_9_Scale_Pilot_DL`, deliberately not reusing the P3.7
+name). First real run also needed a second bug fix: the hand-authored
+`heterogeneous.sumocfg` accidentally included a `<random_number><seed
+value="1"/></random_number>` block copied from an already-patched
+committed file, but `run_p3_7_seed.sh` *also* injects its own
+`<random_number>` block via `sed` -- two such blocks crashes
+`veins_launchd`'s SUMO-config patcher with a latent bug in that script
+itself (`set_sumoconfig_option` references an out-of-scope `file_dst_name`
+in its error path, so the duplicate-node error becomes an opaque
+`NameError` instead of a clear message). Fixed by removing the block from
+the base template (the pristine original template has no `<random_number>`
+element at all -- `run_p3_7_seed.sh` is solely responsible for it).
+
+With that fixed, the run completed (135s wall-clock -- the first real
+timing data at this scale, ~4.6x the original's ~29s) but the resulting
+radio data showed **zero** 5-consecutive-second windows with all 100 users
+covered, and peak simultaneous coverage of only 54/100 -- nowhere near
+SUMO's prediction that all 100 would be present together for 30+ seconds.
+
+### Wrong turn: blamed mobility congestion, tried a shorter/tighter design
+
+Suspected the doubled route length (phase 1's `grid.length=400` choice)
+combined with single-lane congestion. Switched to the `grid.number=5`
+design (rejected in phase 1) but used only the 2 edges touching the center
+junction -- matching the original's exact route geometry (~384m, no
+intermediate signaled junction) on the larger 800x800m network. This
+worked exactly as hoped at the SUMO level (100/100 inserted, 65 complete
+within 90s, RouteLength/Duration closely matching the original) and
+improved the CQI histogram match. **But it made the real coupled-pipeline
+peak coverage worse, not better (54 -> 44 with a tight 0.05s stagger)**,
+directly falsifying the mobility-congestion hypothesis.
+
+### Real diagnosis: compounding attachment delay, not mobility
+
+Compared each vehicle's *actual* first-appearance time (in both
+`raw_mobility.csv` and `raw_radio.csv` -- identical, ruling out a
+radio-specific cause) against its *nominal* scheduled depart time. The
+first ~30 vehicles insert almost exactly on schedule (~0.2s constant
+offset); delay then grows sharply and compounds -- vehicle 95 of 100
+(nominal depart 28.5s) doesn't actually appear until t=82.2s, a 53.7s
+delay. This is consistent with congestion in Veins/TraCI's own
+vehicle-attachment handling scaling with how many vehicles are *already*
+being tracked, not with route geometry -- each additional attachment
+request queues behind a growing backlog. Confirmed the mechanism runs
+backwards from a naive "just insert faster" fix: **tightening the stagger
+made it worse** (0.3s->0.05s dropped peak coverage 54->44 at N=100, and
+50->44 at N=70), while **loosening it helped** (0.5s stagger at N=70
+lifted peak coverage to 61/70, 87%) -- spacing attachment *requests*
+further apart reduces how deep the backlog gets, the opposite of what
+fixes pure insertion-from-rest queueing.
+
+### Reducing total requested vehicles helps disproportionately
+
+N=100 requested -> peak 54 (54%). N=70 requested (same loose 0.5s stagger)
+-> peak 61 (87%). This is not proportional scaling -- fewer total
+attachment *requests* means less backlog ever builds up, so a much higher
+fraction succeeds. This, not route geometry, is now believed to be the
+dominant constraint on how many vehicles this pipeline can usably support
+in a 90s run.
+
+### The project's fixed-population data model cuts the usable number further
+
+`parse_real_simu5g_data.py`'s `build_scenarios` requires a *fixed,
+contiguous* set of user ids `range(N_USERS)` to all have full 25-band
+coverage for 5 consecutive seconds -- it assumes a closed population
+present for the whole trajectory, matching the original 24-vehicle design
+(where nearly all 24 are present nearly the whole 90s) and matching what
+direction 2's temporal closed-loop machinery needs (`previous_quality`
+tracked per user id across consecutive snapshots requires stable user
+identity).
+
+The scale-pilot's vehicles, by contrast, form a *rolling* population --
+continuously entering and exiting, never all simultaneously present. An
+"any N of the currently-covered set" analysis found up to 13 usable
+5-second windows at N=50 (out of 61-70 peak coverage) -- comparable to the
+original's 15 -- but that number does NOT hold when the code requires
+*specifically* ids `0..N-1`: testing this directly gave **zero** usable
+windows at N=50 with ids 0-49 fixed (peak coverage of exactly 50/50 was
+reached, but only for 4 consecutive seconds, one second short of the 5
+needed, and the specific set of 50 covered wasn't consistently ids 0-49
+anyway).
+
+**This was a genuine architectural fork, put to the user rather than
+decided unilaterally**: (1) redesign `build_scenarios` to support a rolling
+population (larger achievable N, ~50-60, but requires rethinking whether
+direction 2's `previous_quality`-tracking methodology still makes sense
+when user identity isn't stable across snapshots), or (2) keep the
+existing fixed-population model unmodified and accept whatever smaller N
+it can reliably support. **The user chose (2)** -- no core parsing/temporal
+logic changes, smaller scale accepted.
+
+### Final validated design
+
+Tried 70 vehicles requested at 0.5s stagger first (peak coverage 61/70,
+87%) -- but checking the *specific* contiguous ids 0..49 needed by
+`build_scenarios` (not just "any 50 of the 61-70 covered") found zero
+usable windows at N=50: peak coverage among ids 0-49 specifically did
+reach exactly 50/50, but only for 4 consecutive seconds, one short of the
+5 needed, since ids depart across a wider span (34.5s at 70 vehicles) than
+fits comfortably against the ~35-39s transit duration.
+
+Reduced to exactly **50 vehicles requested** (0.5s stagger, same
+`grid.number=3`/`grid.length=400` short-route topology from phase 1.5) so
+the full requested population's nominal depart span (24.5s) leaves more
+margin against transit duration, then evaluated contiguous `range(0,N)` for
+decreasing N until a workable margin appeared. Confirmed **identical**
+usable-window counts across all three dispersion levels (mobility/
+attachment timing does not depend on tx power, as expected) on one pilot
+seed each:
+
+| N (contiguous ids 0..N-1) | usable 5s windows |
+|---|---:|
+| 50 | 0 |
+| 48 | 1 |
+| 45 | 3 |
+| 42 | 4 |
+| **40** | **5** |
+| 38 | 6 |
+| 35 | 8 |
+
+**N=40 was chosen** as a reasonable, validated-with-margin target -- not
+the largest technically-achievable number (35 has more margin) but close
+to it, balancing "as large as practical" against "some buffer, not the
+exact edge of what just barely worked in one pilot seed."
+
+## CQI histogram vs. the original 24-vehicle scenario
+
+At N=40 (within its own usable windows), tx power carried over unchanged
+from the original 24-vehicle low/mid/high values:
+
+| Dispersion | Original 24-vehicle (mean, std) | New 800x800m/N=40 (mean, std) |
+|---|---|---|
+| low | 14.761, 0.602 | 14.400, 1.327 |
+| mid | 12.583, 2.182 | 12.145, 2.581 |
+| high | 9.188, 3.010 | 8.750, 3.385 |
+
+A consistent, physically-explicable direction at all three dispersion
+levels: slightly lower mean, slightly wider spread -- the network area is
+4x larger, so even with gNB positions scaled proportionally, the
+farthest-from-gNB users are physically farther away in absolute terms,
+increasing path loss somewhat. **The user, presented with this table,
+chose to accept it as-is** rather than spend further pilot-run budget
+chasing a tighter tx-power match.
+
+## What changed vs. the original 24-vehicle scenario (final state)
+
+| | Original (validated) | Scale pilot (final) |
 |---|---|---|
 | Network | 3x3 grid, 200m spacing, 400x400m | 3x3 grid, 400m spacing, 800x800m |
-| Vehicles | 24 | 100 |
-| Route length | ~386m (2 edges) | ~775m (2 edges) |
-| gNB positions | (200,80) / (200,320) | (400,160) / (400,640) -- same relative offset, **not yet RF-calibrated** |
-| `*.server.numApps` | 24 | 100 |
-| Vehicle insertion | default (from rest) | `departSpeed="max" departPos="base"` (needed at this vehicle count) |
-| tx power per dispersion | low 30/20dBm, mid 15/10dBm, high 5/0dBm | unchanged (carried over, **not yet validated at this scale**) |
+| Route topology | 2 edges through unregulated center | same (short, center-adjacent only) |
+| Vehicles requested | 24 | 50 |
+| Vehicles used by the parser (`N_USERS`) | 24 (nearly all present ~whole run) | **40** (fixed population, validated with margin) |
+| Departure stagger | 0.3s round-robin | 0.5s round-robin (looser -- reduces attachment backlog) |
+| gNB positions | (200,80) / (200,320) | (400,160) / (400,640) -- same relative offset |
+| `*.server.numApps` | 24 | 50 |
+| Vehicle insertion | default (from rest) | `departSpeed="max" departPos="base"` |
+| tx power per dispersion | low 30/20dBm, mid 15/10dBm, high 5/0dBm | unchanged (accepted with a small mean/std offset, see above) |
+| Data model | fixed closed population | fixed closed population (unchanged -- user's explicit choice) |
 
 `generate_seeded_route.py`'s hardcoded `len(vehicles) != 24` check was
-generalized to accept any non-empty vehicle list, so the existing per-seed
-speed-factor patching machinery works unmodified at the new scale.
+generalized to accept any non-empty vehicle list. `run_p3_7_seed.sh` gained
+a `P3_7_OMNETPP_CONFIG` env var (defaults to `P3_7_Clean_DL`, fully
+backward compatible) so it can run the new scenario's `P3_9_Scale_Pilot_DL`
+config.
 
-## Not yet done (phase 2 and beyond)
+## What N=40 means for the original goal
 
-- **RF/CQI-histogram calibration.** gNB positions and tx power were carried
-  over by simple proportional scaling, not validated. Whether 2 gNBs give
-  adequate, sensibly-shaped coverage over an 800x800m area is a genuinely
-  open question flagged when this direction was scoped -- this phase did
-  not touch it. The committed discipline: calibrate by CQI histogram shape
-  only, never by looking at grouping-method comparisons, matching
-  `p3_7_clean_validation_scenario`'s original methodology.
-- **No OMNeT++/Simu5G run yet.** Only headless SUMO (mobility-only) has
-  been exercised. The full radio-layer pipeline, `veins_launchd`, and the
-  real per-band CQI computation are all still untested at this scale.
-- **No seed-runner integration.** `run_p3_7_seed.sh` hardcodes the OMNeT++
-  config name `P3_7_Clean_DL`; the new scenario's config is
-  `P3_9_Scale_Pilot_DL` (different name, deliberately, to avoid silently
-  reusing the P3.7 config for a different scenario). The runner script
-  needs a config-name parameter before it can run this scenario.
-- **Wall-clock cost at this scale is still unmeasured** -- the original
-  aim of doing a cheap pilot before generating any real seed batch.
+The original target was "at least 100," informed partly by the paper's own
+150-total-user scale. **N=40 falls well short of both.** This is an
+honest, load-bearing limitation, not a rounding choice -- worth restating
+plainly: the achievable scale in this real-data pipeline is capped by a
+diagnosed Veins/TraCI attachment-congestion mechanism, further constrained
+by the project's existing fixed-population data model. Still a real
+improvement over 24 (67% more users), and any future push toward the
+original 100+ target would need to revisit the rolling-population
+architectural question this session deliberately did not resolve.
+
+## Not yet done
+
+- **`N_USERS` is still hardcoded to 24 in `parse_real_simu5g_data.py`.**
+  Needs updating to 40 (or made a parameter) before any real seed
+  generation or parsing can use this scenario -- not done yet.
+- **Only single-seed pilots (seeds 1-7, mostly reused across iterations)
+  have been run.** No multi-seed batch, no QA validation pass, no
+  confirmatory discipline applied yet -- this whole investigation is
+  exploratory infrastructure work, not a validated dataset.
+- **Wall-clock cost per seed is now known** (66-135s across various
+  vehicle counts tested, final design ~47-49s at N=70 requested) but a
+  full multi-seed batch's cost has not been measured.
+- **The rolling-population architecture question is explicitly parked, not
+  resolved** -- if a future push toward the original 100+ target happens,
+  this is where that work would need to start.
 
 ## Reproduction
 
@@ -144,6 +318,7 @@ source /home/opp_env/.nix-profile/etc/profile.d/nix.sh
 printf '<command>\nexit\n' | opp_env shell -w /home/opp_env/p3_5_workspace --no-chdir -q
 ```
 
-Scenario templates for review: `real_simu5g_data/p3_9_scale_pilot_scenario/{low,mid,high}/`.
-Not yet committed -- this is phase 1 of an in-progress direction, pending
-phase 2's RF calibration before being treated as validated.
+Final scenario templates (50 vehicles, 0.5s stagger, `N_USERS=40` target):
+`real_simu5g_data/p3_9_scale_pilot_scenario/{low,mid,high}/`. Validated
+via single-seed pilots per dispersion; not yet run through a real
+multi-seed batch or QA pass.

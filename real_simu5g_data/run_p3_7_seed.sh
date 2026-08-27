@@ -30,6 +30,7 @@ dispersion="${1:?dispersion must be low, mid, or high}"
 seed="${2:?seed must be a non-negative integer}"
 output_root="${3:-/home/opp_env/p3_5_workspace/p3_7_multiseed_v3_outputs}"
 scenario_root="${P3_7_SCENARIO_ROOT:-/home/opp_env/p3_5_workspace/p3_7_recovery/scenarios}"
+omnetpp_config="${P3_7_OMNETPP_CONFIG:-P3_7_Clean_DL}"
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 
 case "$dispersion" in
@@ -124,7 +125,7 @@ test -s "$output/launchd.pid"
 
 started_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 started_epoch="$(date +%s)"
-opp_run -u Cmdenv -f "$scenario/omnetpp.ini" -c P3_7_Clean_DL \
+opp_run -u Cmdenv -f "$scenario/omnetpp.ini" -c "$omnetpp_config" \
   --output-scalar-file="$output/coupled.sca" \
   --output-vector-file="$output/coupled.vec" \
   -l "$INET_ROOT/src/INET" \
