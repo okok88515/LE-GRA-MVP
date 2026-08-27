@@ -23,8 +23,8 @@ def build(input_path: Path, output_path: Path, metadata_path: Path, seed: int) -
         raise ValueError("input route must contain vType id='car'")
 
     vehicles = root.findall("vehicle")
-    if len(vehicles) != 24:
-        raise ValueError(f"expected 24 vehicles, found {len(vehicles)}")
+    if not vehicles:
+        raise ValueError("route file has no <vehicle> entries")
 
     rng = random.Random(seed)
     factors: dict[str, float] = {}

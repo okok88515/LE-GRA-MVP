@@ -1,8 +1,84 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-26 (direction 2 confirmatory validation + direction 3 step 1 result)
+Last updated: 2026-08-27 (direction 4 phase 1: SUMO scale-pilot network/routes)
 
-## CURRENT HANDOFF — 2026-08-26 UPDATE 5 (AUTHORITATIVE; READ THIS FIRST)
+## CURRENT HANDOFF — 2026-08-27 UPDATE 6 (AUTHORITATIVE; READ THIS FIRST)
+
+This section supersedes "UPDATE 5" immediately below it (kept for
+provenance) and every older handoff.
+
+### Direction 4 (scale validation) phase 1 done: SUMO network + routes for 100 vehicles
+
+Full writeup: `REAL_SIMU5G_SCALE_PILOT.md`. User wants at least 100
+vehicles (vs the current 24, carried over from earlier P3.6 scenario
+design); chose "option B" (scale the road network area proportionally to
+hold vehicle density roughly constant) over "option A" (same 400x400m area,
+just denser) after discussion -- B extends an already-validated mechanism
+(more users -> more outlier probability, per `dispersion-and-scale-calibration`)
+rather than betting on an untested one (interference-driven degradation).
+
+This phase is SUMO-level only -- no OMNeT++/Simu5G run yet, no RF
+calibration. Key findings:
+
+- The original 24-vehicle network is `netgenerate`-generated (a 3x3 grid,
+  200m spacing -> 400x400m), not hand-authored -- its exact generation
+  command is preserved as a comment in `heterogeneous.net.xml`. This
+  substantially de-risked scaling: re-run the same tool with different
+  parameters rather than hand-edit compiled SUMO XML.
+- Chose to keep the SAME 3x3 topology but stretch `grid.length` 200m->400m
+  (800x800m, ~4x area) rather than add more grid cells (`grid.number=5`)
+  -- the latter was tried first and rejected because it makes routes cross
+  2 additional signal-controlled junctions the original design never had
+  (only the center junction is unregulated); the chosen approach is a
+  faithful scale-up with zero new signal interactions.
+- Junction naming changed between the original SUMO 0.20.0 (`row/col`, e.g.
+  `1/1`) and the current SUMO 1.22.0 (`letter+number`, e.g. `B1`) --
+  confirmed by inspection, not guessed.
+- 100 vehicles generated across the same 4 cross-routes, same 0.3s
+  round-robin stagger, same global depart-time sort as the original (SUMO
+  silently truncates an unsorted route file -- a known P3.6-era bug the
+  original scenario's own comments already document avoiding).
+- **Found and fixed a real bug via cheap headless-SUMO validation** (no
+  OMNeT++ needed, seconds not minutes): at 100 vehicles, ~29% never
+  inserted into the simulation within the fixed 90s window -- SUMO's
+  default from-rest insertion can't keep up with the higher per-route
+  vehicle count (delay compounds vehicle-to-vehicle, 25/route now vs
+  6/route originally). Confirmed scale-driven (not a network bug) by
+  running the same check against the original 24-vehicle file (zero
+  queueing) and a 2-lanes-per-edge variant (no improvement -- ruled out
+  lane count as the cause). Fixed with SUMO's standard technique for this:
+  `departSpeed="max" departPos="base"` on every vehicle. Result: all 100
+  insert successfully, ~30+ second window with all/most vehicles
+  simultaneously present -- comfortably above the ~15s the real-data parser
+  needs for full 25-band coverage.
+- gNB positions scaled proportionally ((400,160)/(400,640), same relative
+  offset as the original); tx power per dispersion level carried over
+  unchanged. **Neither is RF-calibrated yet** -- pending phase 2.
+- Generalized `generate_seeded_route.py`'s hardcoded `!= 24` vehicle-count
+  check to accept any non-empty vehicle list.
+
+Scenario templates for review: `real_simu5g_data/p3_9_scale_pilot_scenario/{low,mid,high}/`
+(not yet committed to git -- pending phase 2 validation before being
+treated as a finished artifact).
+
+### What is next (phase 2 and beyond, not started)
+
+1. **Phase 2**: CQI-histogram-only tx-power calibration -- same discipline
+   as `p3_7_clean_validation_scenario`'s original methodology (look only at
+   the resulting CQI histogram shape, never at grouping-method comparisons,
+   before accepting a calibration). Whether 2 gNBs give adequate coverage
+   over 800x800m is a genuinely open question this phase didn't touch.
+2. **Phase 3**: small pilot (2-3 seeds) through the full OMNeT++/Simu5G
+   pipeline to validate it runs end-to-end at this scale and to finally
+   measure real wall-clock cost per run (still completely unmeasured).
+   `run_p3_7_seed.sh` needs a config-name parameter first -- it currently
+   hardcodes `-c P3_7_Clean_DL`; the new scenario's config is deliberately
+   named `P3_9_Scale_Pilot_DL` instead of reusing the P3.7 name.
+3. **Phase 4**: full seed generation and the same battery of method
+   comparisons (CQI/cost/switching/regret-graph/trend) already run at the
+   24-vehicle scale.
+
+## CURRENT HANDOFF — 2026-08-26 UPDATE 5 (SUPERSEDED BY THE UPDATE ABOVE)
 
 This section supersedes "UPDATE 4" immediately below it (kept for
 provenance) and every older handoff.
