@@ -52,6 +52,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--distro", default="LE-GRA-opp-env")
+    parser.add_argument(
+        "--scenario-root", default=None,
+        help="Override P3_7_SCENARIO_ROOT (WSL-native path), e.g. for a differently-scaled scenario",
+    )
+    parser.add_argument(
+        "--omnetpp-config", default=None,
+        help="Override P3_7_OMNETPP_CONFIG (defaults to P3_7_Clean_DL if unset)",
+    )
     return parser.parse_args()
 
 
@@ -69,14 +77,20 @@ def main() -> None:
         f"Starting/resuming {total} runs: dispersions={dispersions}, seeds={seeds}",
         flush=True,
     )
+    env_prefix: list[str] = []
+    if args.scenario_root:
+        env_prefix.append(f"P3_7_SCENARIO_ROOT={args.scenario_root}")
+    if args.omnetpp_config:
+        env_prefix.append(f"P3_7_OMNETPP_CONFIG={args.omnetpp_config}")
+    command = (["env", *env_prefix] if env_prefix else []) + [
+        "bash", "--noprofile", "--norc",
+        runner_wsl,
+        ",".join(str(seed) for seed in seeds),
+        ",".join(dispersions),
+        args.output_root,
+    ]
     subprocess.run(
-        [
-            "wsl", "-d", args.distro, "--", "bash", "--noprofile", "--norc",
-            runner_wsl,
-            ",".join(str(seed) for seed in seeds),
-            ",".join(dispersions),
-            args.output_root,
-        ],
+        ["wsl", "-d", args.distro, "--", *command],
         cwd=REPO_ROOT,
         check=True,
     )

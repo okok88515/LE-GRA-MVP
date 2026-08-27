@@ -109,25 +109,36 @@ def build_scenarios(
     history_len: int = 5,
     radio_path: Path | None = None,
     mobility_path: Path | None = None,
+    n_users: int = N_USERS,
+    gnb_pos: dict[int, tuple[float, float]] | None = None,
 ) -> list[mvp.Scenario]:
+    """`n_users` and `gnb_pos` default to this project's original 24-vehicle
+    scenario constants (`N_USERS`, `GNB_POS`) for full backward
+    compatibility. Pass explicit overrides for a differently-scaled
+    scenario -- e.g. the direction-4 scale pilot uses `n_users=40,
+    gnb_pos={1: (400.0, 160.0), 2: (400.0, 640.0)}`
+    (`REAL_SIMU5G_SCALE_PILOT.md`)."""
+
+    if gnb_pos is None:
+        gnb_pos = GNB_POS
     radio, gnb_of = load_radio(radio_path or (DATA_DIR / "raw_radio.csv"))
     mobility = load_mobility(mobility_path or (DATA_DIR / "raw_mobility.csv"))
 
     all_buckets = sorted({b for b, _ in radio})
     usable_buckets = [
         t for t in all_buckets
-        if all((t - lag, car) in radio and len(radio[(t - lag, car)]) == N_BANDS for lag in range(history_len) for car in range(N_USERS))
+        if all((t - lag, car) in radio and len(radio[(t - lag, car)]) == N_BANDS for lag in range(history_len) for car in range(n_users))
     ]
 
     scenarios = []
     for t in usable_buckets:
-        band_cqi_now = np.zeros((N_USERS, N_BANDS), dtype=float)
-        history = np.zeros((N_USERS, history_len), dtype=float)
-        distance = np.zeros(N_USERS, dtype=float)
-        speed = np.zeros(N_USERS, dtype=float)
-        direction = np.zeros(N_USERS, dtype=float)
+        band_cqi_now = np.zeros((n_users, N_BANDS), dtype=float)
+        history = np.zeros((n_users, history_len), dtype=float)
+        distance = np.zeros(n_users, dtype=float)
+        speed = np.zeros(n_users, dtype=float)
+        direction = np.zeros(n_users, dtype=float)
 
-        for car in range(N_USERS):
+        for car in range(n_users):
             for lag in range(history_len):
                 bucket = t - (history_len - 1 - lag)
                 bands = radio[(bucket, car)]
@@ -139,7 +150,7 @@ def build_scenarios(
 
             x, y, spd = mobility[(t, car)]
             gnb_id = gnb_of[(t, car)]
-            gx, gy = GNB_POS[gnb_id]
+            gx, gy = gnb_pos[gnb_id]
             distance[car] = float(np.hypot(x - gx, y - gy))
             speed[car] = spd
             if spd > 0.5:
@@ -154,21 +165,21 @@ def build_scenarios(
         rb_rates = mvp.cqi_to_rate_kbps(band_cqi_now)
         rb_available = max(1, int(round(rb_budget_ratio * N_BANDS)))
 
-        nan_col = np.full(N_USERS, np.nan)
+        nan_col = np.full(n_users, np.nan)
         scenario = mvp.Scenario(
-            features=np.zeros((N_USERS, 1), dtype=np.float32),
+            features=np.zeros((n_users, 1), dtype=np.float32),
             cqi_history=history,
             cqi_now=cqi_now,
             rb_rates=rb_rates,
             rb_available=rb_available,
-            previous_quality=np.zeros(N_USERS, dtype=int),
+            previous_quality=np.zeros(n_users, dtype=int),
             distance=distance,
             speed=speed,
             direction_to_gnb=direction,
             rsrp_dbm=nan_col.copy(),
             rsrq_db=nan_col.copy(),
             wideband_sinr_db=nan_col.copy(),
-            rb_sinr_db=np.full((N_USERS, N_BANDS), np.nan),
+            rb_sinr_db=np.full((n_users, N_BANDS), np.nan),
             mcs=nan_col.copy(),
             dispersion="real_p3_7",
             speed_history=None,
