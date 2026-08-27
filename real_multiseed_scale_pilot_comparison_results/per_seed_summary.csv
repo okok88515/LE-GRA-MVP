@@ -1,0 +1,451 @@
+dispersion,load,seed,method,mean_utility,n_scenarios
+high,heavy,seed_0001,CQI k-means,-0.6091015574055747,5
+high,heavy,seed_0001,CQI+cost 2-way union (paper method),-0.5622374746996003,5
+high,heavy,seed_0001,CQI+cost+switching 3-way union (former headline),-0.5622374746996003,5
+high,heavy,seed_0001,CQI+cost+regret-graph 3-way union,-0.5622374746996003,5
+high,heavy,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.5622374746996003,5
+high,heavy,seed_0002,CQI k-means,-0.5193991200956136,5
+high,heavy,seed_0002,CQI+cost 2-way union (paper method),-0.4810414694151362,5
+high,heavy,seed_0002,CQI+cost+switching 3-way union (former headline),-0.4810414694151362,5
+high,heavy,seed_0002,CQI+cost+regret-graph 3-way union,-0.24387982401912273,5
+high,heavy,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.24387982401912273,5
+high,heavy,seed_0003,CQI k-means,-0.4114906907123488,5
+high,heavy,seed_0003,CQI+cost 2-way union (paper method),-0.37955077870278736,5
+high,heavy,seed_0003,CQI+cost+switching 3-way union (former headline),-0.37955077870278736,5
+high,heavy,seed_0003,CQI+cost+regret-graph 3-way union,-0.258506432025497,5
+high,heavy,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.258506432025497,5
+high,heavy,seed_0004,CQI k-means,-0.5707439067250972,5
+high,heavy,seed_0004,CQI+cost 2-way union (paper method),-0.27761086669322604,5
+high,heavy,seed_0004,CQI+cost+switching 3-way union (former headline),-0.27761086669322604,5
+high,heavy,seed_0004,CQI+cost+regret-graph 3-way union,-0.257610866693226,5
+high,heavy,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.257610866693226,5
+high,heavy,seed_0005,CQI k-means,-0.4164148614087619,5
+high,heavy,seed_0005,CQI+cost 2-way union (paper method),-0.3295507787027874,5
+high,heavy,seed_0005,CQI+cost+switching 3-way union (former headline),-0.3295507787027874,5
+high,heavy,seed_0005,CQI+cost+regret-graph 3-way union,-0.2,5
+high,heavy,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.2,5
+high,heavy,seed_0006,CQI k-means,-0.6634306027219101,5
+high,heavy,seed_0006,CQI+cost 2-way union (paper method),-0.4805951253800778,5
+high,heavy,seed_0006,CQI+cost+switching 3-way union (former headline),-0.4805951253800778,5
+high,heavy,seed_0006,CQI+cost+regret-graph 3-way union,-0.4805951253800778,5
+high,heavy,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.4805951253800778,5
+high,heavy,seed_0007,CQI k-means,-0.4850729520414325,5
+high,heavy,seed_0007,CQI+cost 2-way union (paper method),-0.42492417069641314,5
+high,heavy,seed_0007,CQI+cost+switching 3-way union (former headline),-0.42492417069641314,5
+high,heavy,seed_0007,CQI+cost+regret-graph 3-way union,-0.3474620853482066,5
+high,heavy,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.3474620853482066,5
+high,heavy,seed_0008,CQI k-means,-0.5962660800637425,2
+high,heavy,seed_0008,CQI+cost 2-way union (paper method),-0.32499999999999996,2
+high,heavy,seed_0008,CQI+cost+switching 3-way union (former headline),-0.32499999999999996,2
+high,heavy,seed_0008,CQI+cost+regret-graph 3-way union,-0.3,2
+high,heavy,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.3,2
+high,heavy,seed_0009,CQI k-means,-0.5396995600478067,5
+high,heavy,seed_0009,CQI+cost 2-way union (paper method),-0.5288039947155359,5
+high,heavy,seed_0009,CQI+cost+switching 3-way union (former headline),-0.5288039947155359,5
+high,heavy,seed_0009,CQI+cost+regret-graph 3-way union,-0.4788039947155358,5
+high,heavy,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.4788039947155358,5
+high,heavy,seed_0010,CQI k-means,-0.5998483413928263,5
+high,heavy,seed_0010,CQI+cost 2-way union (paper method),-0.5549241706964131,5
+high,heavy,seed_0010,CQI+cost+switching 3-way union (former headline),-0.5549241706964131,5
+high,heavy,seed_0010,CQI+cost+regret-graph 3-way union,-0.47492417069641313,5
+high,heavy,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),-0.47492417069641313,5
+high,light,seed_0001,CQI k-means,0.20227439558443402,5
+high,light,seed_0001,CQI+cost 2-way union (paper method),0.2074875056929471,5
+high,light,seed_0001,CQI+cost+switching 3-way union (former headline),0.2074875056929471,5
+high,light,seed_0001,CQI+cost+regret-graph 3-way union,0.2074875056929471,5
+high,light,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.2074875056929471,5
+high,light,seed_0002,CQI k-means,0.22950094043275943,5
+high,light,seed_0002,CQI+cost 2-way union (paper method),0.23836798429015937,5
+high,light,seed_0002,CQI+cost+switching 3-way union (former headline),0.23836798429015937,5
+high,light,seed_0002,CQI+cost+regret-graph 3-way union,0.23836798429015937,5
+high,light,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.23836798429015937,5
+high,light,seed_0003,CQI k-means,0.2219986881966546,5
+high,light,seed_0003,CQI+cost 2-way union (paper method),0.2245708971326727,5
+high,light,seed_0003,CQI+cost+switching 3-way union (former headline),0.2245708971326727,5
+high,light,seed_0003,CQI+cost+regret-graph 3-way union,0.2245708971326727,5
+high,light,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.2245708971326727,5
+high,light,seed_0004,CQI k-means,0.2216106204462241,5
+high,light,seed_0004,CQI+cost 2-way union (paper method),0.25277208163206366,5
+high,light,seed_0004,CQI+cost+switching 3-way union (former headline),0.25277208163206366,5
+high,light,seed_0004,CQI+cost+regret-graph 3-way union,0.25277208163206366,5
+high,light,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.25277208163206366,5
+high,light,seed_0005,CQI k-means,0.2324309178080576,5
+high,light,seed_0005,CQI+cost 2-way union (paper method),0.24733508631894846,5
+high,light,seed_0005,CQI+cost+switching 3-way union (former headline),0.24733508631894846,5
+high,light,seed_0005,CQI+cost+regret-graph 3-way union,0.24733508631894846,5
+high,light,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.24733508631894846,5
+high,light,seed_0006,CQI k-means,0.20238081354491522,5
+high,light,seed_0006,CQI+cost 2-way union (paper method),0.20765116718382565,5
+high,light,seed_0006,CQI+cost+switching 3-way union (former headline),0.20765116718382565,5
+high,light,seed_0006,CQI+cost+regret-graph 3-way union,0.20765116718382565,5
+high,light,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.20765116718382565,5
+high,light,seed_0007,CQI k-means,0.21034593228095214,5
+high,light,seed_0007,CQI+cost 2-way union (paper method),0.2173501730540071,5
+high,light,seed_0007,CQI+cost+switching 3-way union (former headline),0.2173501730540071,5
+high,light,seed_0007,CQI+cost+regret-graph 3-way union,0.2173501730540071,5
+high,light,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.2173501730540071,5
+high,light,seed_0008,CQI k-means,0.19820428111793653,2
+high,light,seed_0008,CQI+cost 2-way union (paper method),0.22690944970396087,2
+high,light,seed_0008,CQI+cost+switching 3-way union (former headline),0.22690944970396087,2
+high,light,seed_0008,CQI+cost+regret-graph 3-way union,0.22690944970396087,2
+high,light,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.22690944970396087,2
+high,light,seed_0009,CQI k-means,0.20803339620011388,5
+high,light,seed_0009,CQI+cost 2-way union (paper method),0.22437731123922097,5
+high,light,seed_0009,CQI+cost+switching 3-way union (former headline),0.22437731123922097,5
+high,light,seed_0009,CQI+cost+regret-graph 3-way union,0.22437731123922097,5
+high,light,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.22437731123922097,5
+high,light,seed_0010,CQI k-means,0.19226850501627793,5
+high,light,seed_0010,CQI+cost 2-way union (paper method),0.1943173459487107,5
+high,light,seed_0010,CQI+cost+switching 3-way union (former headline),0.1943173459487107,5
+high,light,seed_0010,CQI+cost+regret-graph 3-way union,0.1943173459487107,5
+high,light,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.1943173459487107,5
+high,medium,seed_0001,CQI k-means,0.0,5
+high,medium,seed_0001,CQI+cost 2-way union (paper method),0.0,5
+high,medium,seed_0001,CQI+cost+switching 3-way union (former headline),0.0,5
+high,medium,seed_0001,CQI+cost+regret-graph 3-way union,0.0,5
+high,medium,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.0,5
+high,medium,seed_0002,CQI k-means,0.06249494525561598,5
+high,medium,seed_0002,CQI+cost 2-way union (paper method),0.06786833724924175,5
+high,medium,seed_0002,CQI+cost+switching 3-way union (former headline),0.06786833724924175,5
+high,medium,seed_0002,CQI+cost+regret-graph 3-way union,0.06876390258151271,5
+high,medium,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.06876390258151271,5
+high,medium,seed_0003,CQI k-means,0.05806291341857911,5
+high,medium,seed_0003,CQI+cost 2-way union (paper method),0.058958478750850064,5
+high,medium,seed_0003,CQI+cost+switching 3-way union (former headline),0.058958478750850064,5
+high,medium,seed_0003,CQI+cost+regret-graph 3-way union,0.06074960941539197,5
+high,medium,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.06074960941539197,5
+high,medium,seed_0004,CQI k-means,0.07242630485315289,5
+high,medium,seed_0004,CQI+cost 2-way union (paper method),0.08227752350813344,5
+high,medium,seed_0004,CQI+cost+switching 3-way union (former headline),0.08227752350813344,5
+high,medium,seed_0004,CQI+cost+regret-graph 3-way union,0.09836340520478602,5
+high,medium,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.09836340520478602,5
+high,medium,seed_0005,CQI k-means,0.08846633989147379,5
+high,medium,seed_0005,CQI+cost 2-way union (paper method),0.10010868921099625,5
+high,medium,seed_0005,CQI+cost+switching 3-way union (former headline),0.10010868921099625,5
+high,medium,seed_0005,CQI+cost+regret-graph 3-way union,0.10010868921099625,5
+high,medium,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.10010868921099625,5
+high,medium,seed_0006,CQI k-means,0.017911306645419185,5
+high,medium,seed_0006,CQI+cost 2-way union (paper method),0.017911306645419185,5
+high,medium,seed_0006,CQI+cost+switching 3-way union (former headline),0.017911306645419185,5
+high,medium,seed_0006,CQI+cost+regret-graph 3-way union,0.03283835460398658,5
+high,medium,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.03283835460398658,5
+high,medium,seed_0007,CQI k-means,0.07953358398092317,5
+high,medium,seed_0007,CQI+cost 2-way union (paper method),0.07953358398092317,5
+high,medium,seed_0007,CQI+cost+switching 3-way union (former headline),0.07953358398092317,5
+high,medium,seed_0007,CQI+cost+regret-graph 3-way union,0.07953358398092317,5
+high,medium,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.07953358398092317,5
+high,medium,seed_0008,CQI k-means,0.02910587329880617,2
+high,medium,seed_0008,CQI+cost 2-way union (paper method),0.02910587329880617,2
+high,medium,seed_0008,CQI+cost+switching 3-way union (former headline),0.02910587329880617,2
+high,medium,seed_0008,CQI+cost+regret-graph 3-way union,0.03134478662948357,2
+high,medium,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.03134478662948357,2
+high,medium,seed_0009,CQI k-means,0.08597427189801207,5
+high,medium,seed_0009,CQI+cost 2-way union (paper method),0.08955653322709592,5
+high,medium,seed_0009,CQI+cost+switching 3-way union (former headline),0.08955653322709592,5
+high,medium,seed_0009,CQI+cost+regret-graph 3-way union,0.08955653322709592,5
+high,medium,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.08955653322709592,5
+high,medium,seed_0010,CQI k-means,0.016120175980877265,5
+high,medium,seed_0010,CQI+cost 2-way union (paper method),0.02597139463585781,5
+high,medium,seed_0010,CQI+cost+switching 3-way union (former headline),0.02597139463585781,5
+high,medium,seed_0010,CQI+cost+regret-graph 3-way union,0.027762525300399726,5
+high,medium,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.027762525300399726,5
+low,heavy,seed_0001,CQI k-means,0.28523268076944114,5
+low,heavy,seed_0001,CQI+cost 2-way union (paper method),0.308792044686366,5
+low,heavy,seed_0001,CQI+cost+switching 3-way union (former headline),0.308792044686366,5
+low,heavy,seed_0001,CQI+cost+regret-graph 3-way union,0.308792044686366,5
+low,heavy,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.308792044686366,5
+low,heavy,seed_0002,CQI k-means,0.2852326807694412,5
+low,heavy,seed_0002,CQI+cost 2-way union (paper method),0.3088176638586379,5
+low,heavy,seed_0002,CQI+cost+switching 3-way union (former headline),0.3088176638586379,5
+low,heavy,seed_0002,CQI+cost+regret-graph 3-way union,0.3088176638586379,5
+low,heavy,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.3088176638586379,5
+low,heavy,seed_0003,CQI k-means,0.35593639169248764,5
+low,heavy,seed_0003,CQI+cost 2-way union (paper method),0.35593639169248764,5
+low,heavy,seed_0003,CQI+cost+switching 3-way union (former headline),0.35593639169248764,5
+low,heavy,seed_0003,CQI+cost+regret-graph 3-way union,0.35593639169248764,5
+low,heavy,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.35593639169248764,5
+low,heavy,seed_0004,CQI k-means,0.32057172664482847,5
+low,heavy,seed_0004,CQI+cost 2-way union (paper method),0.34415670973402523,5
+low,heavy,seed_0004,CQI+cost+switching 3-way union (former headline),0.34415670973402523,5
+low,heavy,seed_0004,CQI+cost+regret-graph 3-way union,0.34415670973402523,5
+low,heavy,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.34415670973402523,5
+low,heavy,seed_0005,CQI k-means,0.33237702777556277,5
+low,heavy,seed_0005,CQI+cost 2-way union (paper method),0.33237702777556277,5
+low,heavy,seed_0005,CQI+cost+switching 3-way union (former headline),0.33237702777556277,5
+low,heavy,seed_0005,CQI+cost+regret-graph 3-way union,0.33237702777556277,5
+low,heavy,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.33237702777556277,5
+low,heavy,seed_0006,CQI k-means,0.3088176638586379,5
+low,heavy,seed_0006,CQI+cost 2-way union (paper method),0.32059734581710037,5
+low,heavy,seed_0006,CQI+cost+switching 3-way union (former headline),0.32059734581710037,5
+low,heavy,seed_0006,CQI+cost+regret-graph 3-way union,0.32059734581710037,5
+low,heavy,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.32059734581710037,5
+low,heavy,seed_0007,CQI k-means,0.21450335067412282,5
+low,heavy,seed_0007,CQI+cost 2-way union (paper method),0.21450335067412282,5
+low,heavy,seed_0007,CQI+cost+switching 3-way union (former headline),0.21450335067412282,5
+low,heavy,seed_0007,CQI+cost+regret-graph 3-way union,0.21450335067412282,5
+low,heavy,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.21450335067412282,5
+low,heavy,seed_0008,CQI k-means,0.32057172664482847,5
+low,heavy,seed_0008,CQI+cost 2-way union (paper method),0.33237702777556277,5
+low,heavy,seed_0008,CQI+cost+switching 3-way union (former headline),0.33237702777556277,5
+low,heavy,seed_0008,CQI+cost+regret-graph 3-way union,0.33237702777556277,5
+low,heavy,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.33237702777556277,5
+low,heavy,seed_0009,CQI k-means,0.32057172664482847,5
+low,heavy,seed_0009,CQI+cost 2-way union (paper method),0.32057172664482847,5
+low,heavy,seed_0009,CQI+cost+switching 3-way union (former headline),0.32057172664482847,5
+low,heavy,seed_0009,CQI+cost+regret-graph 3-way union,0.32057172664482847,5
+low,heavy,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.32057172664482847,5
+low,heavy,seed_0010,CQI k-means,0.32057172664482847,5
+low,heavy,seed_0010,CQI+cost 2-way union (paper method),0.32057172664482847,5
+low,heavy,seed_0010,CQI+cost+switching 3-way union (former headline),0.32057172664482847,5
+low,heavy,seed_0010,CQI+cost+regret-graph 3-way union,0.32057172664482847,5
+low,heavy,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.32057172664482847,5
+low,light,seed_0001,CQI k-means,0.5290781116502739,5
+low,light,seed_0001,CQI+cost 2-way union (paper method),0.5290781116502739,5
+low,light,seed_0001,CQI+cost+switching 3-way union (former headline),0.5290781116502739,5
+low,light,seed_0001,CQI+cost+regret-graph 3-way union,0.5290781116502739,5
+low,light,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.5290781116502739,5
+low,light,seed_0002,CQI k-means,0.5230181514517515,5
+low,light,seed_0002,CQI+cost 2-way union (paper method),0.5247495686513293,5
+low,light,seed_0002,CQI+cost+switching 3-way union (former headline),0.5247495686513293,5
+low,light,seed_0002,CQI+cost+regret-graph 3-way union,0.5247495686513293,5
+low,light,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.5247495686513293,5
+low,light,seed_0003,CQI k-means,0.5290781116502739,5
+low,light,seed_0003,CQI+cost 2-way union (paper method),0.5290781116502739,5
+low,light,seed_0003,CQI+cost+switching 3-way union (former headline),0.5290781116502739,5
+low,light,seed_0003,CQI+cost+regret-graph 3-way union,0.5290781116502739,5
+low,light,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.5290781116502739,5
+low,light,seed_0004,CQI k-means,0.5256152772511181,5
+low,light,seed_0004,CQI+cost 2-way union (paper method),0.528212403050485,5
+low,light,seed_0004,CQI+cost+switching 3-way union (former headline),0.528212403050485,5
+low,light,seed_0004,CQI+cost+regret-graph 3-way union,0.528212403050485,5
+low,light,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.528212403050485,5
+low,light,seed_0005,CQI k-means,0.527346694450696,5
+low,light,seed_0005,CQI+cost 2-way union (paper method),0.527346694450696,5
+low,light,seed_0005,CQI+cost+switching 3-way union (former headline),0.527346694450696,5
+low,light,seed_0005,CQI+cost+regret-graph 3-way union,0.527346694450696,5
+low,light,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.527346694450696,5
+low,light,seed_0006,CQI k-means,0.5256152772511182,5
+low,light,seed_0006,CQI+cost 2-way union (paper method),0.5264809858509072,5
+low,light,seed_0006,CQI+cost+switching 3-way union (former headline),0.5264809858509072,5
+low,light,seed_0006,CQI+cost+regret-graph 3-way union,0.5264809858509072,5
+low,light,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.5264809858509072,5
+low,light,seed_0007,CQI k-means,0.5169581912532288,5
+low,light,seed_0007,CQI+cost 2-way union (paper method),0.5205145641806374,5
+low,light,seed_0007,CQI+cost+switching 3-way union (former headline),0.5205145641806374,5
+low,light,seed_0007,CQI+cost+regret-graph 3-way union,0.5205145641806374,5
+low,light,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.5205145641806374,5
+low,light,seed_0008,CQI k-means,0.5290781116502739,5
+low,light,seed_0008,CQI+cost 2-way union (paper method),0.5290781116502739,5
+low,light,seed_0008,CQI+cost+switching 3-way union (former headline),0.5290781116502739,5
+low,light,seed_0008,CQI+cost+regret-graph 3-way union,0.5290781116502739,5
+low,light,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.5290781116502739,5
+low,light,seed_0009,CQI k-means,0.5256152772511182,5
+low,light,seed_0009,CQI+cost 2-way union (paper method),0.5256152772511182,5
+low,light,seed_0009,CQI+cost+switching 3-way union (former headline),0.5256152772511182,5
+low,light,seed_0009,CQI+cost+regret-graph 3-way union,0.5256152772511182,5
+low,light,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.5256152772511182,5
+low,light,seed_0010,CQI k-means,0.5290781116502739,5
+low,light,seed_0010,CQI+cost 2-way union (paper method),0.5290781116502739,5
+low,light,seed_0010,CQI+cost+switching 3-way union (former headline),0.5290781116502739,5
+low,light,seed_0010,CQI+cost+regret-graph 3-way union,0.5290781116502739,5
+low,light,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.5290781116502739,5
+low,medium,seed_0001,CQI k-means,0.44718417808401834,5
+low,medium,seed_0001,CQI+cost 2-way union (paper method),0.44718417808401834,5
+low,medium,seed_0001,CQI+cost+switching 3-way union (former headline),0.44718417808401834,5
+low,medium,seed_0001,CQI+cost+regret-graph 3-way union,0.44718417808401834,5
+low,medium,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.44718417808401834,5
+low,medium,seed_0002,CQI k-means,0.4378016891769744,5
+low,medium,seed_0002,CQI+cost 2-way union (paper method),0.44092719051915086,5
+low,medium,seed_0002,CQI+cost+switching 3-way union (former headline),0.44092719051915086,5
+low,medium,seed_0002,CQI+cost+regret-graph 3-way union,0.44092719051915086,5
+low,medium,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.44092719051915086,5
+low,medium,seed_0003,CQI k-means,0.44718417808401834,5
+low,medium,seed_0003,CQI+cost 2-way union (paper method),0.44718417808401834,5
+low,medium,seed_0003,CQI+cost+switching 3-way union (former headline),0.44718417808401834,5
+low,medium,seed_0003,CQI+cost+regret-graph 3-way union,0.44718417808401834,5
+low,medium,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.44718417808401834,5
+low,medium,seed_0004,CQI k-means,0.4418227558514218,5
+low,medium,seed_0004,CQI+cost 2-way union (paper method),0.4458438225258692,5
+low,medium,seed_0004,CQI+cost+switching 3-way union (former headline),0.4458438225258692,5
+low,medium,seed_0004,CQI+cost+regret-graph 3-way union,0.4458438225258692,5
+low,medium,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.4458438225258692,5
+low,medium,seed_0005,CQI k-means,0.44450346696772003,5
+low,medium,seed_0005,CQI+cost 2-way union (paper method),0.44450346696772003,5
+low,medium,seed_0005,CQI+cost+switching 3-way union (former headline),0.44450346696772003,5
+low,medium,seed_0005,CQI+cost+regret-graph 3-way union,0.44450346696772003,5
+low,medium,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.44450346696772003,5
+low,medium,seed_0006,CQI k-means,0.44450346696772003,5
+low,medium,seed_0006,CQI+cost 2-way union (paper method),0.44450346696772003,5
+low,medium,seed_0006,CQI+cost+switching 3-way union (former headline),0.44450346696772003,5
+low,medium,seed_0006,CQI+cost+regret-graph 3-way union,0.44450346696772003,5
+low,medium,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.44450346696772003,5
+low,medium,seed_0007,CQI k-means,0.4364613336188253,5
+low,medium,seed_0007,CQI+cost 2-way union (paper method),0.4378016891769744,5
+low,medium,seed_0007,CQI+cost+switching 3-way union (former headline),0.4378016891769744,5
+low,medium,seed_0007,CQI+cost+regret-graph 3-way union,0.4378016891769744,5
+low,medium,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.4378016891769744,5
+low,medium,seed_0008,CQI k-means,0.44718417808401834,5
+low,medium,seed_0008,CQI+cost 2-way union (paper method),0.44718417808401834,5
+low,medium,seed_0008,CQI+cost+switching 3-way union (former headline),0.44718417808401834,5
+low,medium,seed_0008,CQI+cost+regret-graph 3-way union,0.44718417808401834,5
+low,medium,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.44718417808401834,5
+low,medium,seed_0009,CQI k-means,0.4418227558514218,5
+low,medium,seed_0009,CQI+cost 2-way union (paper method),0.4418227558514218,5
+low,medium,seed_0009,CQI+cost+switching 3-way union (former headline),0.4418227558514218,5
+low,medium,seed_0009,CQI+cost+regret-graph 3-way union,0.4418227558514218,5
+low,medium,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.4418227558514218,5
+low,medium,seed_0010,CQI k-means,0.44718417808401834,5
+low,medium,seed_0010,CQI+cost 2-way union (paper method),0.44718417808401834,5
+low,medium,seed_0010,CQI+cost+switching 3-way union (former headline),0.44718417808401834,5
+low,medium,seed_0010,CQI+cost+regret-graph 3-way union,0.44718417808401834,5
+low,medium,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.44718417808401834,5
+mid,heavy,seed_0001,CQI k-means,0.051047223939444664,5
+mid,heavy,seed_0001,CQI+cost 2-way union (paper method),0.06821462385976658,5
+mid,heavy,seed_0001,CQI+cost+switching 3-way union (former headline),0.06821462385976658,5
+mid,heavy,seed_0001,CQI+cost+regret-graph 3-way union,0.07911018919203754,5
+mid,heavy,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.07911018919203754,5
+mid,heavy,seed_0002,CQI k-means,0.07433192257848958,5
+mid,heavy,seed_0002,CQI+cost 2-way union (paper method),0.07433192257848958,5
+mid,heavy,seed_0002,CQI+cost+switching 3-way union (former headline),0.07433192257848958,5
+mid,heavy,seed_0002,CQI+cost+regret-graph 3-way union,0.07507870656574109,5
+mid,heavy,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.07507870656574109,5
+mid,heavy,seed_0003,CQI k-means,-0.026414861408761908,5
+mid,heavy,seed_0003,CQI+cost 2-way union (paper method),0.023585138591238085,5
+mid,heavy,seed_0003,CQI+cost+switching 3-way union (former headline),0.023585138591238085,5
+mid,heavy,seed_0003,CQI+cost+regret-graph 3-way union,0.05358513859123808,5
+mid,heavy,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.05358513859123808,5
+mid,heavy,seed_0004,CQI k-means,0.1289614078470181,5
+mid,heavy,seed_0004,CQI+cost 2-way union (paper method),0.1289614078470181,5
+mid,heavy,seed_0004,CQI+cost+switching 3-way union (former headline),0.1289614078470181,5
+mid,heavy,seed_0004,CQI+cost+regret-graph 3-way union,0.1289614078470181,5
+mid,heavy,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.1289614078470181,5
+mid,heavy,seed_0005,CQI k-means,0.10388557854343121,5
+mid,heavy,seed_0005,CQI+cost 2-way union (paper method),0.10388557854343121,5
+mid,heavy,seed_0005,CQI+cost+switching 3-way union (former headline),0.10388557854343121,5
+mid,heavy,seed_0005,CQI+cost+regret-graph 3-way union,0.10388557854343121,5
+mid,heavy,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.10388557854343121,5
+mid,heavy,seed_0006,CQI k-means,0.0940343598884507,5
+mid,heavy,seed_0006,CQI+cost 2-way union (paper method),0.09940775188207646,5
+mid,heavy,seed_0006,CQI+cost+switching 3-way union (former headline),0.09940775188207646,5
+mid,heavy,seed_0006,CQI+cost+regret-graph 3-way union,0.10537914651793426,5
+mid,heavy,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.10537914651793426,5
+mid,heavy,seed_0007,CQI k-means,0.11284123186614084,5
+mid,heavy,seed_0007,CQI+cost 2-way union (paper method),0.11284123186614084,5
+mid,heavy,seed_0007,CQI+cost+switching 3-way union (former headline),0.11284123186614084,5
+mid,heavy,seed_0007,CQI+cost+regret-graph 3-way union,0.11284123186614084,5
+mid,heavy,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.11284123186614084,5
+mid,heavy,seed_0008,CQI k-means,0.11284123186614084,5
+mid,heavy,seed_0008,CQI+cost 2-way union (paper method),0.11284123186614084,5
+mid,heavy,seed_0008,CQI+cost+switching 3-way union (former headline),0.11284123186614084,5
+mid,heavy,seed_0008,CQI+cost+regret-graph 3-way union,0.1323948878310825,5
+mid,heavy,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.1323948878310825,5
+mid,heavy,seed_0009,CQI k-means,0.07701861857530246,5
+mid,heavy,seed_0009,CQI+cost 2-way union (paper method),0.08015453586932794,5
+mid,heavy,seed_0009,CQI+cost+switching 3-way union (former headline),0.08015453586932794,5
+mid,heavy,seed_0009,CQI+cost+regret-graph 3-way union,0.08015453586932794,5
+mid,heavy,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.08015453586932794,5
+mid,heavy,seed_0010,CQI k-means,0.02507582930358685,5
+mid,heavy,seed_0010,CQI+cost 2-way union (paper method),0.02821174659761233,5
+mid,heavy,seed_0010,CQI+cost+switching 3-way union (former headline),0.02821174659761233,5
+mid,heavy,seed_0010,CQI+cost+regret-graph 3-way union,0.02821174659761233,5
+mid,heavy,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.02821174659761233,5
+mid,light,seed_0001,CQI k-means,0.37140574976578067,5
+mid,light,seed_0001,CQI+cost 2-way union (paper method),0.37578158018231966,5
+mid,light,seed_0001,CQI+cost+switching 3-way union (former headline),0.37578158018231966,5
+mid,light,seed_0001,CQI+cost+regret-graph 3-way union,0.3775498134347026,5
+mid,light,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.3775498134347026,5
+mid,light,seed_0002,CQI k-means,0.37168583639088076,5
+mid,light,seed_0002,CQI+cost 2-way union (paper method),0.3778413487658822,5
+mid,light,seed_0002,CQI+cost+switching 3-way union (former headline),0.3778413487658822,5
+mid,light,seed_0002,CQI+cost+regret-graph 3-way union,0.3809270401642553,5
+mid,light,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.3809270401642553,5
+mid,light,seed_0003,CQI k-means,0.3680588223473785,5
+mid,light,seed_0003,CQI+cost 2-way union (paper method),0.37512877517358423,5
+mid,light,seed_0003,CQI+cost+switching 3-way union (former headline),0.37512877517358423,5
+mid,light,seed_0003,CQI+cost+regret-graph 3-way union,0.3752228239505965,5
+mid,light,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.3752228239505965,5
+mid,light,seed_0004,CQI k-means,0.4058689330704823,5
+mid,light,seed_0004,CQI+cost 2-way union (paper method),0.412695083463253,5
+mid,light,seed_0004,CQI+cost+switching 3-way union (former headline),0.412695083463253,5
+mid,light,seed_0004,CQI+cost+regret-graph 3-way union,0.412695083463253,5
+mid,light,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.412695083463253,5
+mid,light,seed_0005,CQI k-means,0.38484469357541,5
+mid,light,seed_0005,CQI+cost 2-way union (paper method),0.39610781857583266,5
+mid,light,seed_0005,CQI+cost+switching 3-way union (former headline),0.39610781857583266,5
+mid,light,seed_0005,CQI+cost+regret-graph 3-way union,0.39610781857583266,5
+mid,light,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.39610781857583266,5
+mid,light,seed_0006,CQI k-means,0.3852725712696438,5
+mid,light,seed_0006,CQI+cost 2-way union (paper method),0.4081153382336267,5
+mid,light,seed_0006,CQI+cost+switching 3-way union (former headline),0.4081153382336267,5
+mid,light,seed_0006,CQI+cost+regret-graph 3-way union,0.4081153382336267,5
+mid,light,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.4081153382336267,5
+mid,light,seed_0007,CQI k-means,0.3820216552155429,5
+mid,light,seed_0007,CQI+cost 2-way union (paper method),0.38664076701056704,5
+mid,light,seed_0007,CQI+cost+switching 3-way union (former headline),0.38664076701056704,5
+mid,light,seed_0007,CQI+cost+regret-graph 3-way union,0.38664076701056704,5
+mid,light,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.38664076701056704,5
+mid,light,seed_0008,CQI k-means,0.3831450022096419,5
+mid,light,seed_0008,CQI+cost 2-way union (paper method),0.3962351713611839,5
+mid,light,seed_0008,CQI+cost+switching 3-way union (former headline),0.3962351713611839,5
+mid,light,seed_0008,CQI+cost+regret-graph 3-way union,0.3962351713611839,5
+mid,light,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.3962351713611839,5
+mid,light,seed_0009,CQI k-means,0.38171867117828373,5
+mid,light,seed_0009,CQI+cost 2-way union (paper method),0.3948983415551729,5
+mid,light,seed_0009,CQI+cost+switching 3-way union (former headline),0.3948983415551729,5
+mid,light,seed_0009,CQI+cost+regret-graph 3-way union,0.3948983415551729,5
+mid,light,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.3948983415551729,5
+mid,light,seed_0010,CQI k-means,0.36169581624446956,5
+mid,light,seed_0010,CQI+cost 2-way union (paper method),0.3668548091522836,5
+mid,light,seed_0010,CQI+cost+switching 3-way union (former headline),0.3668548091522836,5
+mid,light,seed_0010,CQI+cost+regret-graph 3-way union,0.36949571032477857,5
+mid,light,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.36949571032477857,5
+mid,medium,seed_0001,CQI k-means,0.2803857737534301,5
+mid,medium,seed_0001,CQI+cost 2-way union (paper method),0.28572481962881746,5
+mid,medium,seed_0001,CQI+cost+switching 3-way union (former headline),0.28572481962881746,5
+mid,medium,seed_0001,CQI+cost+regret-graph 3-way union,0.2946232294211296,5
+mid,medium,seed_0001,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.2946232294211296,5
+mid,medium,seed_0002,CQI k-means,0.28055750434462234,5
+mid,medium,seed_0002,CQI+cost 2-way union (paper method),0.29037437688136447,5
+mid,medium,seed_0002,CQI+cost+switching 3-way union (former headline),0.29037437688136447,5
+mid,medium,seed_0002,CQI+cost+regret-graph 3-way union,0.291235596095397,5
+mid,medium,seed_0002,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.291235596095397,5
+mid,medium,seed_0003,CQI k-means,0.2723714805873095,5
+mid,medium,seed_0003,CQI+cost 2-way union (paper method),0.28652879531245257,5
+mid,medium,seed_0003,CQI+cost+switching 3-way union (former headline),0.28652879531245257,5
+mid,medium,seed_0003,CQI+cost+regret-graph 3-way union,0.28652879531245257,5
+mid,medium,seed_0003,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.28652879531245257,5
+mid,medium,seed_0004,CQI k-means,0.30777806431243315,5
+mid,medium,seed_0004,CQI+cost 2-way union (paper method),0.32875956684305807,5
+mid,medium,seed_0004,CQI+cost+switching 3-way union (former headline),0.32875956684305807,5
+mid,medium,seed_0004,CQI+cost+regret-graph 3-way union,0.32875956684305807,5
+mid,medium,seed_0004,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.32875956684305807,5
+mid,medium,seed_0005,CQI k-means,0.30635716838928795,5
+mid,medium,seed_0005,CQI+cost 2-way union (paper method),0.31150158626132407,5
+mid,medium,seed_0005,CQI+cost+switching 3-way union (former headline),0.31150158626132407,5
+mid,medium,seed_0005,CQI+cost+regret-graph 3-way union,0.3132812682197866,5
+mid,medium,seed_0005,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.3132812682197866,5
+mid,medium,seed_0006,CQI k-means,0.29552830538605346,5
+mid,medium,seed_0006,CQI+cost 2-way union (paper method),0.32020342997685847,5
+mid,medium,seed_0006,CQI+cost+switching 3-way union (former headline),0.32020342997685847,5
+mid,medium,seed_0006,CQI+cost+regret-graph 3-way union,0.32212243448170136,5
+mid,medium,seed_0006,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.32212243448170136,5
+mid,medium,seed_0007,CQI k-means,0.28498953618165923,5
+mid,medium,seed_0007,CQI+cost 2-way union (paper method),0.30788497881400184,5
+mid,medium,seed_0007,CQI+cost+switching 3-way union (former headline),0.30788497881400184,5
+mid,medium,seed_0007,CQI+cost+regret-graph 3-way union,0.30788497881400184,5
+mid,medium,seed_0007,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.30788497881400184,5
+mid,medium,seed_0008,CQI k-means,0.31188719488337824,5
+mid,medium,seed_0008,CQI+cost 2-way union (paper method),0.32397080867664063,5
+mid,medium,seed_0008,CQI+cost+switching 3-way union (former headline),0.32397080867664063,5
+mid,medium,seed_0008,CQI+cost+regret-graph 3-way union,0.32397080867664063,5
+mid,medium,seed_0008,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.32397080867664063,5
+mid,medium,seed_0009,CQI k-means,0.280749006018275,5
+mid,medium,seed_0009,CQI+cost 2-way union (paper method),0.31713517216507936,5
+mid,medium,seed_0009,CQI+cost+switching 3-way union (former headline),0.31713517216507936,5
+mid,medium,seed_0009,CQI+cost+regret-graph 3-way union,0.31891485412354187,5
+mid,medium,seed_0009,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.31891485412354187,5
+mid,medium,seed_0010,CQI k-means,0.27412826513361294,5
+mid,medium,seed_0010,CQI+cost 2-way union (paper method),0.2750238304658839,5
+mid,medium,seed_0010,CQI+cost+switching 3-way union (former headline),0.2750238304658839,5
+mid,medium,seed_0010,CQI+cost+regret-graph 3-way union,0.2750238304658839,5
+mid,medium,seed_0010,CQI+cost+switching+regret-graph 4-way union (confirmatory-validated best),0.2750238304658839,5

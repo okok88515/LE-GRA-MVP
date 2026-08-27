@@ -255,8 +255,18 @@ OMNeT++/Simu5G後，同時在線峰值只有54/100——headless SUMO的預測�
 (2)`parse_real_simu5g_data.py`的`usable_buckets`只檢查radio完整性、
 沒檢查mobility完整性，這個新規模的滾動人口設計會踩到這個洞(原本24台車
 設計從未觸發過)，已修好並確認對原始資料零影響。最終30/30通過QA，147個
-可用場景，CQI histogram跟單一seed pilot的發現一致。**這批資料目前只是
-基礎設施驗證完成，還沒拿去跑任何分組方法的比較分析**。
+可用場景，CQI histogram跟單一seed pilot的發現一致。
+
+**再往下一步**：拿這批N=40資料跑了方向一的方法比較(snapshot-level)，
+詳見`REAL_SIMU5G_SCALE_PILOT_METHOD_COMPARISON.md`。結果：switching在
+snapshot-level完全沒貢獻(3-way跟2-way數字一模一樣，4-way跟regret-graph
+3-way一模一樣)——這是預期中的，因為`previous_quality`全部歸零，switching
+本來就沒訊號可用。**regret-graph的優勢確實複製了，而且在N=40比N=24更
+明顯**——high dispersion+heavy load這個regret-graph機制最該發揮的情境，
+比2-way union多贏0.074、8/10 seed全勝，比N=24時的幅度更大。這剛好呼應
+`dispersion-and-scale-calibration`那份合成資料的規模效應預測：使用者
+越多、population裡出現極端outlier的機率越高，regret-graph的機制正好
+是抓這種outlier的，N=40給了這個機制更多發揮空間。仍是10-seed exploratory。
 
 2026-08-26 使用者提出的顧慮：目前所有真實 Simu5G 驗證(含 confirmatory
 gating)都固定在 **24 台車**，這是沿用更早期 P3.6 場景設計的規模，不是

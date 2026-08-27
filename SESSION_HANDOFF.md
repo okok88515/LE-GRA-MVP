@@ -1,8 +1,52 @@
 # MBS Grouping Research Session Handoff
 
-Last updated: 2026-08-27 (direction 4: scale pilot N=40, validated 10-seed batch + QA pass done)
+Last updated: 2026-08-27 (direction 4: regret-graph finding replicates, stronger, at N=40)
 
-## CURRENT HANDOFF — 2026-08-27 UPDATE 8 (AUTHORITATIVE; READ THIS FIRST)
+## CURRENT HANDOFF — 2026-08-27 UPDATE 9 (AUTHORITATIVE; READ THIS FIRST)
+
+This section supersedes "UPDATE 8" immediately below it (kept for
+provenance) and every older handoff.
+
+### Direction 4: the regret-graph finding replicates at N=40 -- and is stronger there
+
+Full writeup: `REAL_SIMU5G_SCALE_PILOT_METHOD_COMPARISON.md`. Ran the
+project's established method families (`run_real_multiseed_scale_pilot_comparison.py`,
+mirroring direction 1's own snapshot-level methodology) on the newly
+validated N=40 batch. Two findings:
+
+1. Switching contributes exactly nothing at snapshot level here (3-way
+   switching == 2-way, 4-way == regret-graph 3-way, byte-for-byte, in
+   every one of 9 cells) -- expected, not a bug: `previous_quality=0`
+   everywhere at snapshot level means the switching feature carries zero
+   real information, confirming the candidate-union machinery correctly
+   never selects it.
+2. **Regret-graph's advantage over the CQI+cost 2-way union replicates,
+   and is larger at N=40 than it was at N=24** -- most dramatically at
+   high dispersion + heavy load: +0.074 utility over the 2-way union (vs
+   CQI alone: 2-way +0.1067, regret-graph +0.1807), regret-graph winning 8
+   of 10 seeds outright there. This matches what the project's own
+   synthetic scale-effect finding
+   (`dispersion-and-scale-calibration` memory) already predicted: more
+   users mechanically raises the odds of a severe outlier existing in a
+   given snapshot, and that is exactly the condition regret-graph's
+   feasibility-aware edges detect and CQI's linear-distance clustering
+   misses. N=40 gives that mechanism more raw material than N=24 did.
+
+Still exploratory (seeds 1..10, the only seeds this scale has ever had) --
+no confirmatory claim.
+
+### What is next (not started)
+
+1. Confirmatory validation at N=40 needs a fresh, untouched seed range
+   (new Simu5G generation at this scale).
+2. Temporal closed-loop evaluation at N=40 has not been attempted (this
+   pass was snapshot-level only) -- the scale's 5-consecutive-second
+   usable windows are temporally contiguous, so it's plausible future
+   work.
+3. Direction 3's trend features have not been tested at this scale.
+4. The rolling-population architecture question remains parked.
+
+## CURRENT HANDOFF — 2026-08-27 UPDATE 8 (SUPERSEDED BY THE UPDATE ABOVE)
 
 This section supersedes "UPDATE 7" immediately below it (kept for
 provenance) and every older handoff.
