@@ -1,0 +1,106 @@
+<routes>
+  <vType id="car_seed_0" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.92109561" />
+  <vType id="car_seed_1" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.95493930" />
+  <vType id="car_seed_2" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.01846406" />
+  <vType id="car_seed_3" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.95686545" />
+  <vType id="car_seed_4" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.08818295" />
+  <vType id="car_seed_5" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.02247044" />
+  <vType id="car_seed_6" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.14026463" />
+  <vType id="car_seed_7" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.01229551" />
+  <vType id="car_seed_8" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.02513428" />
+  <vType id="car_seed_9" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.08667170" />
+  <vType id="car_seed_10" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.97185263" />
+  <vType id="car_seed_11" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.09514591" />
+  <vType id="car_seed_12" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.92759372" />
+  <vType id="car_seed_13" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.88200679" />
+  <vType id="car_seed_14" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.93619462" />
+  <vType id="car_seed_15" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.11330118" />
+  <vType id="car_seed_16" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.02486716" />
+  <vType id="car_seed_17" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.00161861" />
+  <vType id="car_seed_18" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.95068667" />
+  <vType id="car_seed_19" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.12070059" />
+  <vType id="car_seed_20" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.02808693" />
+  <vType id="car_seed_21" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.12889845" />
+  <vType id="car_seed_22" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.03719819" />
+  <vType id="car_seed_23" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.10671527" />
+  <vType id="car_seed_24" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.96848727" />
+  <vType id="car_seed_25" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.98553001" />
+  <vType id="car_seed_26" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.87765644" />
+  <vType id="car_seed_27" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.01645834" />
+  <vType id="car_seed_28" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.04480897" />
+  <vType id="car_seed_29" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.97170046" />
+  <vType id="car_seed_30" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.01413520" />
+  <vType id="car_seed_31" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.92985288" />
+  <vType id="car_seed_32" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.01796721" />
+  <vType id="car_seed_33" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.08749198" />
+  <vType id="car_seed_34" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.98867855" />
+  <vType id="car_seed_35" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.04883793" />
+  <vType id="car_seed_36" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.02141005" />
+  <vType id="car_seed_37" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.12266761" />
+  <vType id="car_seed_38" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.96623595" />
+  <vType id="car_seed_39" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.94848076" />
+  <vType id="car_seed_40" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.13693402" />
+  <vType id="car_seed_41" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.00672374" />
+  <vType id="car_seed_42" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.97229582" />
+  <vType id="car_seed_43" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.01930032" />
+  <vType id="car_seed_44" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.03274303" />
+  <vType id="car_seed_45" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.03800448" />
+  <vType id="car_seed_46" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.10841996" />
+  <vType id="car_seed_47" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.93717621" />
+  <vType id="car_seed_48" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="1.01870437" />
+  <vType id="car_seed_49" accel="0.8" decel="4.5" sigma="1.0" length="4" minGap="2.5" maxSpeed="13.89" guiShape="passenger" speedFactor="0.97283528" />
+  <route id="1" edges="C1C2 C2C3" />
+  <route id="2" edges="C3C2 C2C1" />
+  <route id="3" edges="D2C2 C2B2" />
+  <route id="4" edges="B2C2 C2D2" />
+  <vehicle id="0" type="car_seed_0" route="1" depart="0.0" departSpeed="max" departPos="base" />
+  <vehicle id="1" type="car_seed_1" route="2" depart="0.5" departSpeed="max" departPos="base" />
+  <vehicle id="2" type="car_seed_2" route="3" depart="1.0" departSpeed="max" departPos="base" />
+  <vehicle id="3" type="car_seed_3" route="4" depart="1.5" departSpeed="max" departPos="base" />
+  <vehicle id="4" type="car_seed_4" route="1" depart="2.0" departSpeed="max" departPos="base" />
+  <vehicle id="5" type="car_seed_5" route="2" depart="2.5" departSpeed="max" departPos="base" />
+  <vehicle id="6" type="car_seed_6" route="3" depart="3.0" departSpeed="max" departPos="base" />
+  <vehicle id="7" type="car_seed_7" route="4" depart="3.5" departSpeed="max" departPos="base" />
+  <vehicle id="8" type="car_seed_8" route="1" depart="4.0" departSpeed="max" departPos="base" />
+  <vehicle id="9" type="car_seed_9" route="2" depart="4.5" departSpeed="max" departPos="base" />
+  <vehicle id="10" type="car_seed_10" route="3" depart="5.0" departSpeed="max" departPos="base" />
+  <vehicle id="11" type="car_seed_11" route="4" depart="5.5" departSpeed="max" departPos="base" />
+  <vehicle id="12" type="car_seed_12" route="1" depart="6.0" departSpeed="max" departPos="base" />
+  <vehicle id="13" type="car_seed_13" route="2" depart="6.5" departSpeed="max" departPos="base" />
+  <vehicle id="14" type="car_seed_14" route="3" depart="7.0" departSpeed="max" departPos="base" />
+  <vehicle id="15" type="car_seed_15" route="4" depart="7.5" departSpeed="max" departPos="base" />
+  <vehicle id="16" type="car_seed_16" route="1" depart="8.0" departSpeed="max" departPos="base" />
+  <vehicle id="17" type="car_seed_17" route="2" depart="8.5" departSpeed="max" departPos="base" />
+  <vehicle id="18" type="car_seed_18" route="3" depart="9.0" departSpeed="max" departPos="base" />
+  <vehicle id="19" type="car_seed_19" route="4" depart="9.5" departSpeed="max" departPos="base" />
+  <vehicle id="20" type="car_seed_20" route="1" depart="10.0" departSpeed="max" departPos="base" />
+  <vehicle id="21" type="car_seed_21" route="2" depart="10.5" departSpeed="max" departPos="base" />
+  <vehicle id="22" type="car_seed_22" route="3" depart="11.0" departSpeed="max" departPos="base" />
+  <vehicle id="23" type="car_seed_23" route="4" depart="11.5" departSpeed="max" departPos="base" />
+  <vehicle id="24" type="car_seed_24" route="1" depart="12.0" departSpeed="max" departPos="base" />
+  <vehicle id="25" type="car_seed_25" route="2" depart="12.5" departSpeed="max" departPos="base" />
+  <vehicle id="26" type="car_seed_26" route="3" depart="13.0" departSpeed="max" departPos="base" />
+  <vehicle id="27" type="car_seed_27" route="4" depart="13.5" departSpeed="max" departPos="base" />
+  <vehicle id="28" type="car_seed_28" route="1" depart="14.0" departSpeed="max" departPos="base" />
+  <vehicle id="29" type="car_seed_29" route="2" depart="14.5" departSpeed="max" departPos="base" />
+  <vehicle id="30" type="car_seed_30" route="3" depart="15.0" departSpeed="max" departPos="base" />
+  <vehicle id="31" type="car_seed_31" route="4" depart="15.5" departSpeed="max" departPos="base" />
+  <vehicle id="32" type="car_seed_32" route="1" depart="16.0" departSpeed="max" departPos="base" />
+  <vehicle id="33" type="car_seed_33" route="2" depart="16.5" departSpeed="max" departPos="base" />
+  <vehicle id="34" type="car_seed_34" route="3" depart="17.0" departSpeed="max" departPos="base" />
+  <vehicle id="35" type="car_seed_35" route="4" depart="17.5" departSpeed="max" departPos="base" />
+  <vehicle id="36" type="car_seed_36" route="1" depart="18.0" departSpeed="max" departPos="base" />
+  <vehicle id="37" type="car_seed_37" route="2" depart="18.5" departSpeed="max" departPos="base" />
+  <vehicle id="38" type="car_seed_38" route="3" depart="19.0" departSpeed="max" departPos="base" />
+  <vehicle id="39" type="car_seed_39" route="4" depart="19.5" departSpeed="max" departPos="base" />
+  <vehicle id="40" type="car_seed_40" route="1" depart="20.0" departSpeed="max" departPos="base" />
+  <vehicle id="41" type="car_seed_41" route="2" depart="20.5" departSpeed="max" departPos="base" />
+  <vehicle id="42" type="car_seed_42" route="3" depart="21.0" departSpeed="max" departPos="base" />
+  <vehicle id="43" type="car_seed_43" route="4" depart="21.5" departSpeed="max" departPos="base" />
+  <vehicle id="44" type="car_seed_44" route="1" depart="22.0" departSpeed="max" departPos="base" />
+  <vehicle id="45" type="car_seed_45" route="2" depart="22.5" departSpeed="max" departPos="base" />
+  <vehicle id="46" type="car_seed_46" route="3" depart="23.0" departSpeed="max" departPos="base" />
+  <vehicle id="47" type="car_seed_47" route="4" depart="23.5" departSpeed="max" departPos="base" />
+  <vehicle id="48" type="car_seed_48" route="1" depart="24.0" departSpeed="max" departPos="base" />
+  <vehicle id="49" type="car_seed_49" route="2" depart="24.5" departSpeed="max" departPos="base" />
+</routes>

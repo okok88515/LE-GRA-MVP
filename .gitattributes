@@ -12,3 +12,4 @@ real_simu5g_data/high_raw_radio.csv filter=lfs diff=lfs merge=lfs -text
 # Multi-seed archives are compressed per run and remain independently
 # addressable. Git LFS keeps future seed expansion out of normal Git history.
 real_simu5g_multiseed_data/**/*.csv.gz filter=lfs diff=lfs merge=lfs -text
+real_simu5g_scale_pilot_multiseed_data/**/*.csv.gz filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,53 @@
+{
+  "dataset": "real_simu5g_multiseed_data",
+  "protocol_version": "3.0",
+  "status": "validated",
+  "dispersions": [
+    "low",
+    "mid",
+    "high"
+  ],
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "runs": 30,
+  "usable_scenarios": 147,
+  "unique_mobility_trajectories": 10,
+  "same_mobility_across_dispersions_for_each_seed": true,
+  "by_dispersion": {
+    "low": {
+      "runs": 10,
+      "usable_scenarios": 50,
+      "mean_of_run_cqi_means": 14.5845,
+      "mean_of_run_cqi_stds": 0.9815188937863251,
+      "min_run_cqi_mean": 14.4,
+      "max_run_cqi_mean": 14.66
+    },
+    "mid": {
+      "runs": 10,
+      "usable_scenarios": 50,
+      "mean_of_run_cqi_means": 12.0985,
+      "mean_of_run_cqi_stds": 2.7756648971186357,
+      "min_run_cqi_mean": 11.84,
+      "max_run_cqi_mean": 12.315
+    },
+    "high": {
+      "runs": 10,
+      "usable_scenarios": 47,
+      "mean_of_run_cqi_means": 9.00975,
+      "mean_of_run_cqi_stds": 3.583792332789254,
+      "min_run_cqi_mean": 8.68,
+      "max_run_cqi_mean": 9.59
+    }
+  },
+  "qa_csv": "multiseed_qa_scale_pilot.csv"
+}

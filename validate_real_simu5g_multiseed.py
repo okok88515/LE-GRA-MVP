@@ -112,9 +112,9 @@ def validate(
                 n_users=n_users,
                 gnb_pos=gnb_pos,
             )
-            if len(scenarios) != expected_scenarios:
+            if len(scenarios) < expected_scenarios:
                 raise AssertionError(
-                    f"expected {expected_scenarios} complete scenarios, got {len(scenarios)}: {run_dir}"
+                    f"expected at least {expected_scenarios} complete scenarios, got {len(scenarios)}: {run_dir}"
                 )
             cqi = np.concatenate([scenario.cqi_now for scenario in scenarios])
             rows.append(

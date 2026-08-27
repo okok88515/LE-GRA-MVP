@@ -128,6 +128,7 @@ def build_scenarios(
     usable_buckets = [
         t for t in all_buckets
         if all((t - lag, car) in radio and len(radio[(t - lag, car)]) == N_BANDS for lag in range(history_len) for car in range(n_users))
+        and all((t, car) in mobility for car in range(n_users))
     ]
 
     scenarios = []
