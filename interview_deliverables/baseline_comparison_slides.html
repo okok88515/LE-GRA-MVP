@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Baseline Comparison Slides</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0b0d10;
+    --surface: #14171c;
+    --surface-2: #1b1f26;
+    --ink: #eef1f4;
+    --ink-soft: #9aa2af;
+    --ink-faint: #666e7c;
+    --line: #262b33;
+    --ref: #60a5fa;
+    --ref-soft: rgba(96,165,250,0.14);
+    --win: #4ade80;
+    --win-soft: rgba(74,222,128,0.14);
+    --loss: #f87171;
+    --loss-soft: rgba(248,113,113,0.14);
+    --tie: #6b7280;
+    --gold: #fbbf24;
+    --naive: #94a3b8;
+    --display: 'Archivo', 'IBM Plex Sans', sans-serif;
+    --body: 'IBM Plex Sans', sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  /* This deck is deliberately dark-first and single-theme (a presentation/
+     control-room aesthetic), matching the artifact-design skill's allowance
+     for a committed single visual world -- background and every color are
+     still explicit literals rather than relying on the host theme. */
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck { }
+  .slide {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4.5rem 6vw 4rem;
+    scroll-snap-align: start;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .deck { scroll-snap-type: y proximity; }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ref);
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  h1.slide-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(1.7rem, 4vw, 2.8rem);
+    line-height: 1.15;
+    margin: 0 0 0.8rem;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  p.slide-sub {
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    max-width: 44rem;
+    margin: 0 0 2.2rem;
+    line-height: 1.7;
+  }
+
+  /* Title slide */
+  .title-slide { justify-content: center; align-items: flex-start; }
+  .title-slide .big {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: clamp(2.2rem, 6vw, 4.2rem);
+    line-height: 1.08;
+    max-width: 50rem;
+    margin: 0 0 1.2rem;
+  }
+  .meta-line {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+
+  /* method cards */
+  .method-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .method-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.3rem 1.2rem;
+  }
+  .method-card.ref { border-color: var(--ref); box-shadow: 0 0 0 1px var(--ref) inset; }
+  .method-card .tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    margin-bottom: 0.5rem;
+  }
+  .method-card.ref .tag { color: var(--ref); }
+  .method-card h4 { margin: 0 0 0.6rem; font-family: var(--display); font-size: 1.05rem; font-weight: 700; }
+  .method-card p { margin: 0; font-size: 0.86rem; color: var(--ink-soft); line-height: 1.6; }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 1rem;
+    margin-top: 0.8rem;
+  }
+  .why-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--tie);
+    border-radius: 0 12px 12px 0;
+    padding: 1.1rem 1.15rem;
+  }
+  .why-card.verdict-bad { border-left-color: var(--loss); }
+  .why-card.verdict-mixed { border-left-color: var(--gold); }
+  .why-card.verdict-good { border-left-color: var(--win); }
+  .why-card.verdict-ref { border-left-color: var(--ref); }
+  .why-card .why-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 0.6rem; margin-bottom: 0.55rem;
+  }
+  .why-card h4 { margin: 0; font-family: var(--display); font-size: 0.98rem; font-weight: 700; }
+  .why-card .badge {
+    font-family: var(--mono); font-size: 0.66rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem; border-radius: 999px; white-space: nowrap;
+  }
+  .why-card.verdict-bad .badge { color: var(--loss); background: var(--loss-soft); }
+  .why-card.verdict-mixed .badge { color: var(--gold); background: rgba(251,191,36,0.14); }
+  .why-card.verdict-good .badge { color: var(--win); background: var(--win-soft); }
+  .why-card.verdict-ref .badge { color: var(--ref); background: var(--ref-soft); }
+  .why-card p { margin: 0; font-size: 0.82rem; color: var(--ink-soft); line-height: 1.6; }
+  @media (max-width: 68rem) { .why-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  @media (max-width: 40rem) { .why-grid { grid-template-columns: 1fr; } }
+
+  /* charts */
+  .chart-wrap { margin-top: 1.5rem; }
+  svg.chart { width: 100%; height: auto; overflow: visible; }
+  .axis-label { font-family: var(--mono); font-size: 11px; fill: var(--ink-faint); }
+  .bar-label { font-family: var(--mono); font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .cat-label { font-family: var(--body); font-size: 12px; fill: var(--ink-soft); }
+  .grid-line { stroke: var(--line); stroke-width: 1; }
+  .zero-line { stroke: var(--ink-faint); stroke-width: 1.5; }
+
+  .legend { display: flex; gap: 1.4rem; flex-wrap: wrap; margin-top: 1.2rem; font-size: 0.85rem; color: var(--ink-soft); }
+  .legend .dot { display: inline-block; width: 0.65rem; height: 0.65rem; border-radius: 3px; margin-right: 0.45rem; vertical-align: -0.05rem; }
+
+  .result-note {
+    margin-top: 1.6rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 10px 10px 0;
+    padding: 1rem 1.3rem;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    max-width: 52rem;
+  }
+  .result-note strong { color: var(--ink); }
+
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    margin-top: 1.4rem;
+  }
+  table.data-table th, table.data-table td {
+    padding: 0.5rem 0.7rem;
+    text-align: right;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+  }
+  table.data-table th { color: var(--ink-faint); font-weight: 500; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.06em; }
+  table.data-table td:first-child, table.data-table th:first-child { text-align: left; font-family: var(--body); color: var(--ink); }
+  table.data-table .win-cell { color: var(--win); }
+  table.data-table .loss-cell { color: var(--loss); }
+
+  .takeaway-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; max-width: 46rem; }
+  .takeaway-list li {
+    display: flex; gap: 1rem; align-items: flex-start;
+    font-size: 1.05rem; line-height: 1.65; color: var(--ink-soft);
+  }
+  .takeaway-list .num {
+    font-family: var(--mono); font-weight: 700; color: var(--ref);
+    font-size: 1.1rem; flex: none; width: 1.6rem;
+  }
+  .takeaway-list strong { color: var(--ink); }
+
+  /* nav */
+  .dots {
+    position: fixed;
+    right: 1.4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    z-index: 20;
+  }
+  .dots button {
+    width: 0.55rem; height: 0.55rem;
+    border-radius: 50%;
+    border: 1px solid var(--ink-faint);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+  }
+  .dots button.active { background: var(--ref); border-color: var(--ref); }
+  .slide-num {
+    position: fixed;
+    left: 1.6rem;
+    bottom: 1.4rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    z-index: 20;
+  }
+
+  @media (max-width: 56rem) {
+    .method-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .dots { display: none; }
+  }
+  @media print {
+    .slide { min-height: auto; page-break-after: always; border-bottom: none; }
+    .dots, .slide-num { display: none; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: TITLE -->
+  <section class="slide title-slide" data-slide>
+    <div class="kicker">真實 Simu5G 驗證 &middot; 20-seed Confirmatory</div>
+    <h1 class="big">CQI k-means 與既有方法的<br>實證比較</h1>
+    <p class="slide-sub">已發表方法 vs. 兩個既有分組法（proxy 評分法、切割點+標準差門檻法），並附上新研究（候選聯集）作為延伸脈絡對照。</p>
+    <div class="meta-line">
+      <span>3 dispersion &times; 3 load &times; 20 seeds</span>
+      <span>real OMNeT++ / Simu5G / SUMO</span>
+      <span>2026-08-28</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: THE FOUR METHODS -->
+  <section class="slide" data-slide>
+    <div class="kicker">情境設定</div>
+    <h1 class="slide-title">四個方法，兩個維度的差異</h1>
+    <p class="slide-sub">候選怎麼產生、用什麼評分——這兩個維度上的差異，決定了誰輸誰贏。</p>
+    <div class="method-grid">
+      <div class="method-card">
+        <div class="tag">Method A</div>
+        <h4>Proxy 評分法</h4>
+        <p>k-means 產生候選（同你的方法），但用「群組人數 &times; 最低 CQI」加總平均的簡化公式評分——不接真實資源分配。</p>
+      </div>
+      <div class="method-card">
+        <div class="tag">Method B</div>
+        <h4>切割點 + 標準差門檻</h4>
+        <p>依 CQI 排序後搜尋所有連續切割點，標準差低於門檻（初始 0.5，找不到就放寬）才納入候選，再用真實資源分配評分挑最高分。</p>
+      </div>
+      <div class="method-card ref">
+        <div class="tag">參照基準</div>
+        <h4>CQI k-means（已發表）</h4>
+        <p>k-means 產生候選，用考慮真實 RB 資源分配限制的精確效用函數評分——本輪所有比較都以此為分母。</p>
+      </div>
+      <div class="method-card">
+        <div class="tag">延伸脈絡</div>
+        <h4>候選聯集（新研究）</h4>
+        <p>在已發表方法上疊加多個候選家族、共用同一套精確評分器，附可證明的效用不劣化保證。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: POOLED UTILITY -->
+  <section class="slide" data-slide>
+    <div class="kicker">Headline 結果</div>
+    <h1 class="slide-title">Pooled 平均效用（mid+high dispersion）</h1>
+    <p class="slide-sub">已發表方法在每一場都贏過兩個既有方法、也贏過完全不分組；新研究再往上疊加一層。</p>
+    <div class="chart-wrap"><svg class="chart" id="chart-pooled-utility" viewBox="0 0 900 380" role="img" aria-label="五個方法的平均效用長條圖：不分組 0.191，Method A 0.175，Method B 0.286，已發表方法 0.328，候選聯集 0.361"></svg></div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--naive)"></span>不分組（naive baseline）</span>
+      <span><span class="dot" style="background:var(--loss)"></span>低於已發表方法</span>
+      <span><span class="dot" style="background:var(--ref)"></span>已發表方法（參照）</span>
+      <span><span class="dot" style="background:var(--win)"></span>高於已發表方法</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 3b: ADR + FAIRNESS -->
+  <section class="slide" data-slide>
+    <div class="kicker">效用背後的兩個分量</div>
+    <h1 class="slide-title">平均資料率（ADR）與公平性</h1>
+    <p class="slide-sub">單看 fairness 會被騙——不分組的「假公平」來自大家一起差，不是好的分組設計。</p>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+      <div>
+        <div class="chart-wrap"><svg class="chart" id="chart-adr" viewBox="0 0 460 380" role="img" aria-label="六個方法的平均資料率長條圖，單位 kbps"></svg></div>
+      </div>
+      <div>
+        <div class="chart-wrap"><svg class="chart" id="chart-fairness" viewBox="0 0 460 380" role="img" aria-label="六個方法的 Jain fairness 指數長條圖"></svg></div>
+      </div>
+    </div>
+    <div class="result-note">
+      <strong>候選聯集的 fairness（0.921）逼近不分組（0.957）</strong>，但 ADR 是不分組的 1.5 倍——這才是「品質好又不犧牲公平」的真平衡。Method A fairness 全場最低（0.784），跟它機械性拆組、不管落差多大的機制一致。
+    </div>
+  </section>
+
+  <!-- SLIDE 3c: QUALITY-TIER DISTRIBUTION -->
+  <section class="slide" data-slide>
+    <div class="kicker">效用背後的第三個分量</div>
+    <h1 class="slide-title">使用者落在哪個畫質等級</h1>
+    <p class="slide-sub">堆疊長條圖：每個方法的使用者比例，依服務結果（未服務 &rarr; 最高畫質）分層。</p>
+    <div class="chart-wrap"><svg class="chart" id="chart-quality-tier" viewBox="0 0 900 420" role="img" aria-label="六個方法的畫質等級分佈堆疊長條圖，從未服務到畫質等級 5"></svg></div>
+    <div class="legend" id="quality-tier-legend"></div>
+  </section>
+
+  <!-- SLIDE 3d: UTILITY DECOMPOSITION -->
+  <section class="slide" data-slide>
+    <div class="kicker">把 utility 拆開看</div>
+    <h1 class="slide-title">Utility = 畫質分數 &minus; 未服務扣分 &minus; 切換懲罰</h1>
+    <p class="slide-sub">Method A 畫質分數其實不差，但未服務跟切換懲罰兩項一起蓋過它；連續切割上界靠更高的畫質分數，同時把兩項扣分都壓到最低。</p>
+    <div class="chart-wrap"><svg class="chart" id="chart-decomp" viewBox="0 0 950 420" role="img" aria-label="六個方法的 utility 分解圖：正向的畫質分數長條，跟負向的未服務扣分、切換懲罰長條，最終淨值標示為 utility"></svg></div>
+    <div class="legend">
+      <span><span class="dot" style="background:#4ade80"></span>畫質分數（正向）</span>
+      <span><span class="dot" style="background:#f87171"></span>未服務扣分</span>
+      <span><span class="dot" style="background:#fb923c"></span>切換懲罰</span>
+      <span><span class="dot" style="background:var(--ink)"></span>淨 utility（標記）</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: WIN/TIE/LOSS ACROSS SCOPES -->
+  <section class="slide" data-slide>
+    <div class="kicker">穩健性檢查</div>
+    <h1 class="slide-title">跨三種統計範圍的勝負場次</h1>
+    <p class="slide-sub">不只 pooled 平均數，三種範圍（mid+high／high-only／全部 9 格）都一致：不分組跟 Method A 全敗，Method B 幾乎全敗但 high-only 有回穩跡象。</p>
+    <div class="chart-wrap"><svg class="chart" id="chart-wtl" viewBox="0 0 1000 340" role="img" aria-label="不分組、Method A、Method B 在三種統計範圍下對已發表方法的勝平敗場次堆疊長條圖，滿分皆為 20 場"></svg></div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--win)"></span>勝</span>
+      <span><span class="dot" style="background:var(--tie)"></span>平</span>
+      <span><span class="dot" style="background:var(--loss)"></span>敗</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: PER-SCENARIO BREAKDOWN -->
+  <section class="slide" data-slide>
+    <div class="kicker">依情境拆解</div>
+    <h1 class="slide-title">9 個情境，效用差距 vs. 已發表方法</h1>
+    <p class="slide-sub">不分組跟 Method A 在重負載下崩得最兇（尤其不分組，high&middot;heavy 崩最多）；Method B 在多數情境仍輸，但有一塊區域反而贏。</p>
+    <div class="chart-wrap"><svg class="chart" id="chart-scenario" viewBox="0 0 1000 460" role="img" aria-label="九個 dispersion 與 load 組合下，不分組、Method A、Method B、候選聯集相對已發表方法的效用差距長條圖"></svg></div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--naive)"></span>不分組</span>
+      <span><span class="dot" style="background:#e879f9"></span>Method A</span>
+      <span><span class="dot" style="background:#38bdf8"></span>Method B</span>
+      <span><span class="dot" style="background:var(--win)"></span>候選聯集</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: METHOD B NUANCE -->
+  <section class="slide" data-slide>
+    <div class="kicker">誠實的細節</div>
+    <h1 class="slide-title">Method B 在高 dispersion + 輕/中負載反而贏</h1>
+    <p class="slide-sub">這不是整體結論的一部分，是拆解到情境層級才看得到的例外——目前還沒診斷出機制原因。</p>
+    <table class="data-table">
+      <thead><tr><th>情境</th><th>Δ 效用（vs. 已發表）</th><th>勝</th><th>平</th><th>敗</th></tr></thead>
+      <tbody>
+        <tr><td>high &middot; light</td><td class="win-cell">+0.01547</td><td>18</td><td>0</td><td>2</td></tr>
+        <tr><td>high &middot; medium</td><td class="win-cell">+0.01100</td><td>16</td><td>0</td><td>4</td></tr>
+        <tr><td>high &middot; heavy</td><td class="loss-cell">&minus;0.08210</td><td>3</td><td>0</td><td>17</td></tr>
+      </tbody>
+    </table>
+    <div class="result-note">
+      <strong>誠實的限制：</strong>Method B 在高 dispersion 下隨負載加重由勝轉敗，但目前只知道「有這個現象」，沒有驗證過背後的機制——不要在被追問「為什麼」時編一個聽起來合理的解釋。
+    </div>
+  </section>
+
+  <!-- SLIDE 7: WHY EACH METHOD WINS OR LOSES -->
+  <section class="slide" data-slide>
+    <div class="kicker">機制分析</div>
+    <h1 class="slide-title">每個方法表現好壞的真正原因</h1>
+    <p class="slide-sub">不是「誰比較聰明」，是每個方法的候選產生方式跟評分機制，各自踩中或踩空了哪個真實限制。</p>
+    <div class="why-grid">
+      <div class="why-card verdict-bad">
+        <div class="why-head"><h4>不分組</h4><span class="badge">最差之一</span></div>
+        <p>畫質卡死在全體 24 人裡最差的那一個；「fairness 最高」是假象——大家一起差，不是靠好的分組設計換來的公平。high&middot;heavy 崩得最兇（&minus;0.387），因為分散度大＋資源緊繃同時發生，卻完全不因應。</p>
+      </div>
+      <div class="why-card verdict-bad">
+        <div class="why-head"><h4>Method A</h4><span class="badge">全場最差</span></div>
+        <p>Proxy 公式（人數&times;最低CQI）數學上機械性偏好拆更多組，完全不管 RB 夠不夠——資源緊繃時，拆組的額外資源分配成本直接反噬，甚至比「不分組」自己這個候選還差。Fairness 全場最低（0.78），因為拆出的小群組畫質落差被放大又沒被評分機制注意到。</p>
+      </div>
+      <div class="why-card verdict-mixed">
+        <div class="why-head"><h4>Method B</h4><span class="badge">情境依賴</span></div>
+        <p>標準差門檻意外讓「隔離離群者」的候選容易通過篩選，在 high dispersion＋輕/中負載時這招真的划算、能贏過已發表方法。但篩選邏輯本身很粗糙——「門檻一放寬到有東西通過就停」——同一個搜尋空間裡的真正最優解比它高出 0.095，證明問題出在篩選機制,不是搜尋空間不夠大。</p>
+      </div>
+      <div class="why-card verdict-ref">
+        <div class="why-head"><h4>已發表方法</h4><span class="badge">參照基準</span></div>
+        <p>用真實 DP 評分，結構上保證「不會比不分組差」（k=1 本來就是候選之一）。但一維 k-means 最小化的是組內變異數，不是真正效用——遇到需要隔離少數嚴重離群者才划算的情境，k-means 常常找不到那個分法。且數學上保證只能產生 CQI 排序後的連續分組，看不到資源成本或 regret 上的非連續結構。</p>
+      </div>
+      <div class="why-card verdict-good">
+        <div class="why-head"><h4>候選聯集</h4><span class="badge">目前最佳</span></div>
+        <p>疊加的資源成本家族、regret 圖分群家族，都不受一維連續性限制，正好補上已發表方法的兩個盲點；用同一套精確 DP 評分器維持「不會更差」的保證。Fairness（0.921）逼近不分組的假公平，但 ADR 是它的 1.5 倍——是「品質好又不犧牲公平」的真平衡，不是用犧牲換來的數字。</p>
+      </div>
+      <div class="why-card">
+        <div class="why-head"><h4>連續切割上界</h4><span class="badge">參照值，非方法</span></div>
+        <p>用嚴謹 DP 窮舉「CQI 排序連續切割」這整個受限家族，證明就算被困在這個家族裡，也能比任何啟發式搜尋（Method B、k-means）更好。反過來說：它比候選聯集實際結果還高（0.382 vs 0.361），代表候選聯集自己的 k-means／圖分群搜尋一樣是啟發式的，也還沒觸頂——這是誠實的、還有進步空間的訊號，不是矛盾。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: TIME COMPLEXITY -->
+  <section class="slide" data-slide>
+    <div class="kicker">另一個維度的機制分析</div>
+    <h1 class="slide-title">每個方法的時間複雜度</h1>
+    <p class="slide-sub">看起來簡單的搜尋法反而最貴——因為沒有共用子問題的計算。</p>
+    <table class="data-table">
+      <thead><tr><th>方法</th><th>時間複雜度</th><th>推導依據</th></tr></thead>
+      <tbody>
+        <tr><td>不分組</td><td class="num">O(n&middot;R<sub>avail</sub>)</td><td style="text-align:left">分組決策 O(1)，成本全來自最終一次 DP 評分</td></tr>
+        <tr><td>Method A</td><td class="num">O(n&middot;R<sub>avail</sub>)</td><td style="text-align:left">k-means+proxy 評分共 O(n)，不需 DP；最終一次 DP 評分主導</td></tr>
+        <tr><td>Method B</td><td class="num loss-cell">O(n&sup3;)</td><td style="text-align:left">窮舉切割點 O(n&sup2;)，每種切法都重新從頭算 O(n)，沒有共用計算</td></tr>
+        <tr><td>已發表方法</td><td class="num">O(n&middot;R<sub>avail</sub>)</td><td style="text-align:left">3 個 k-means 候選各做一次 DP 評分（3 是常數）</td></tr>
+        <tr><td>候選聯集</td><td class="num">實測 O(n&sup2;)／理論 O(n&sup3;)</td><td style="text-align:left">未向量化 regret 迴圈是實測瓶頸；特徵分解是理論最差項</td></tr>
+        <tr><td>連續切割上界</td><td class="num win-cell">O(n&sup2;&middot;R<sub>avail</sub>)</td><td style="text-align:left">真正的動態規劃，子問題狀態共用重複利用</td></tr>
+      </tbody>
+    </table>
+    <div class="result-note">
+      <strong>反直覺的教訓：</strong>Method B（窮舉切割點＋篩選）看起來最陽春，複雜度卻是全場最高 O(n&sup3;)——因為它每個候選都從零重算，沒有共用任何子問題。連續切割上界用真正的動態規劃解一個更大的問題（不限群組數，Method B 限制最多 3 組），複雜度反而只要 O(n&sup2;&middot;R<sub>avail</sub>)，比 Method B 低一個 n 的次方——差別純粹在於有沒有共用子問題的計算。
+    </div>
+  </section>
+
+  <!-- SLIDE 9: ADR ROBUSTNESS CHECK -->
+  <section class="slide" data-slide>
+    <div class="kicker">穩健性檢查 &middot; 換一把尺</div>
+    <h1 class="slide-title">換成原論文的 ADR 指標，結論會反轉</h1>
+    <p class="slide-sub">同一批真實資料、同一個 20-seed confirmatory 協議，只把評分函式換成原論文的純 ADR（未服務=0分，無切換懲罰）。</p>
+    <div class="chart-wrap"><svg class="chart" id="chart-adr-robustness" viewBox="0 0 900 380" role="img" aria-label="六個方法在 ADR 指標下的平均資料率長條圖：不分組 877，Method A 1702，Method B 2036，已發表方法 1896，候選聯集 1973，連續切割上界 2146"></svg></div>
+    <div class="result-note">
+      <strong>Method B 反轉勝出</strong>——在 ADR 指標下贏過已發表方法（+140.6，20 場全勝）也贏過候選聯集（+140.6 vs +77.4）。原因跟第 8 頁的 utility 拆解完全吻合：Method B 靠激進拆組換來的高畫質分數，在 log-utility 下被未服務跟切換懲罰蓋過去；但 ADR 不看這兩項——沒服務到只算 0 分（不是 &minus;2），畫質忽高忽低也不扣分。拆組讓多數人吃到更高碼率，在純 ADR 下是純粹加分，沒有代價。這也解釋了新版 utility 加懲罰項的用意：不是為了讓候選聯集贏，是為了讓「犧牲部分使用者換平均碼率」這種行為現出原形。
+    </div>
+  </section>
+
+  <!-- SLIDE 10: TAKEAWAY -->
+  <section class="slide" data-slide>
+    <div class="kicker">總結</div>
+    <h1 class="slide-title">一句話版本</h1>
+    <ul class="takeaway-list">
+      <li><span class="num">01</span><span>已發表方法在<strong>兩個不同維度</strong>贏過既有方法：評分機制（vs. Method A 的 proxy 公式）、候選產生效率（vs. Method B 的窮舉+門檻搜尋）——但這個結論<strong>是在 log-utility 底下成立</strong>，換成原論文的 ADR 指標，Method B 反而會贏。</span></li>
+      <li><span class="num">02</span><span>Pooled 結果在 log-utility 下乾淨：已發表方法 <strong>20 場全勝</strong>兩個既有方法；但拆到情境層級，Method B 在<strong>高 dispersion + 輕/中負載</strong>其實會贏，換成 ADR 指標這個優勢還會擴大成全面反轉——結論會隨你怎麼定義「好」而改變，這是誠實揭露、不是矛盾。</span></li>
+      <li><span class="num">03</span><span>新研究（候選聯集）在<strong>兩種指標下都贏過</strong>已發表方法，是全部方法裡唯一一個不管用哪把尺量都站得住腳的。</span></li>
+    </ul>
+  </section>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<div class="slide-num" id="slide-num">1 / 7</div>
+
+<script>
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // ---- Slide 3: pooled utility bar chart ----
+  (function () {
+    const svg = document.getElementById("chart-pooled-utility");
+    const data = [
+      { label: "不分組\n（k=1）", value: 0.19059, color: "var(--naive)" },
+      { label: "Method A", value: 0.17484, color: "var(--loss)" },
+      { label: "Method B", value: 0.28640, color: "var(--loss)" },
+      { label: "已發表方法\n（參照）", value: 0.32780, color: "var(--ref)" },
+      { label: "候選聯集\n（新研究）", value: 0.36129, color: "var(--win)" },
+    ];
+    const W = 900, H = 380, padL = 60, padR = 30, padT = 30, padB = 70;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const maxV = 0.4;
+    const bw = plotW / data.length * 0.55;
+    const gap = plotW / data.length;
+
+    // grid lines
+    for (let g = 0; g <= 4; g++) {
+      const v = (maxV / 4) * g;
+      const y = padT + plotH - (v / maxV) * plotH;
+      svg.appendChild(el("line", { x1: padL, x2: W - padR, y1: y, y2: y, class: "grid-line" }));
+      const t = el("text", { x: padL - 10, y: y + 4, class: "axis-label", "text-anchor": "end" });
+      t.textContent = v.toFixed(2);
+      svg.appendChild(t);
+    }
+
+    data.forEach((d, i) => {
+      const cx = padL + gap * i + gap / 2;
+      const barH = (d.value / maxV) * plotH;
+      const y = padT + plotH - barH;
+      svg.appendChild(el("rect", {
+        x: cx - bw / 2, y: y, width: bw, height: barH,
+        fill: d.color, rx: 6,
+      }));
+      const vt = el("text", { x: cx, y: y - 10, class: "bar-label", "text-anchor": "middle" });
+      vt.textContent = d.value.toFixed(4);
+      svg.appendChild(vt);
+      d.label.split("\n").forEach((line, li) => {
+        const lt = el("text", { x: cx, y: padT + plotH + 24 + li * 16, class: "cat-label", "text-anchor": "middle" });
+        lt.textContent = line;
+        svg.appendChild(lt);
+      });
+    });
+  })();
+
+  // ---- shared: simple single-series bar chart used by ADR + fairness ----
+  function renderSimpleBarChart(svg, data, opts) {
+    opts = opts || {};
+    const W = 460, H = 380, padL = opts.padL || 56, padR = 20, padT = 30, padB = 70;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const maxV = opts.maxV;
+    const fmt = opts.fmt || (v => v.toFixed(3));
+    const gap = plotW / data.length;
+    const bw = gap * 0.6;
+
+    for (let g = 0; g <= 4; g++) {
+      const v = (maxV / 4) * g;
+      const y = padT + plotH - (v / maxV) * plotH;
+      svg.appendChild(el("line", { x1: padL, x2: W - padR, y1: y, y2: y, class: "grid-line" }));
+      const t = el("text", { x: padL - 10, y: y + 4, class: "axis-label", "text-anchor": "end" });
+      t.textContent = opts.axisFmt ? opts.axisFmt(v) : v.toFixed(2);
+      svg.appendChild(t);
+    }
+
+    data.forEach((d, i) => {
+      const cx = padL + gap * i + gap / 2;
+      const barH = (d.value / maxV) * plotH;
+      const y = padT + plotH - barH;
+      svg.appendChild(el("rect", { x: cx - bw / 2, y: y, width: bw, height: barH, fill: d.color, rx: 5 }));
+      const vt = el("text", { x: cx, y: y - 8, class: "bar-label", "text-anchor": "middle", "font-size": "10.5" });
+      vt.textContent = fmt(d.value);
+      svg.appendChild(vt);
+      d.label.split("\n").forEach((line, li) => {
+        const lt = el("text", { x: cx, y: padT + plotH + 20 + li * 14, class: "cat-label", "text-anchor": "middle", "font-size": "10.5" });
+        lt.textContent = line;
+        svg.appendChild(lt);
+      });
+    });
+  }
+
+  const METHOD_ROW = [
+    { key: "NG", label: "不分組", color: "var(--naive)" },
+    { key: "A", label: "Method A", color: "var(--loss)" },
+    { key: "B", label: "Method B", color: "var(--loss)" },
+    { key: "PUB", label: "已發表\n方法", color: "var(--ref)" },
+    { key: "CU", label: "候選\n聯集", color: "var(--win)" },
+    { key: "OPT", label: "連續切割\n上界", color: "#a78bfa" },
+  ];
+
+  (function () {
+    const svg = document.getElementById("chart-adr");
+    const adr = { NG: 876.9, A: 1148.5, B: 1444.5, PUB: 1302.0, CU: 1316.1, OPT: 1537.9 };
+    const data = METHOD_ROW.map(m => ({ label: m.label, value: adr[m.key], color: m.color }));
+    renderSimpleBarChart(svg, data, { maxV: 1700, fmt: v => v.toFixed(0), axisFmt: v => v.toFixed(0) });
+  })();
+
+  (function () {
+    const svg = document.getElementById("chart-fairness");
+    const fairness = { NG: 0.9571, A: 0.7842, B: 0.8061, PUB: 0.8802, CU: 0.9212, OPT: 0.8769 };
+    const data = METHOD_ROW.map(m => ({ label: m.label, value: fairness[m.key], color: m.color }));
+    renderSimpleBarChart(svg, data, { maxV: 1.0, fmt: v => v.toFixed(3) });
+  })();
+
+  // ---- Slide 3c: quality-tier distribution stacked bars ----
+  (function () {
+    const svg = document.getElementById("chart-quality-tier");
+    const tierKeys = ["unserved", "q0", "q1", "q2", "q3", "q4", "q5"];
+    const tierColors = {
+      unserved: "#f87171", q0: "#94a3b8", q1: "#60a5fa", q2: "#38bdf8",
+      q3: "#4ade80", q4: "#a3e635", q5: "#fbbf24",
+    };
+    const tierLabels = {
+      unserved: "未服務", q0: "Q0", q1: "Q1", q2: "Q2", q3: "Q3", q4: "Q4", q5: "Q5",
+    };
+    const rows = [
+      { label: "不分組",       vals: { unserved: 0.043, q0: 0.236, q1: 0.423, q2: 0.199, q3: 0.099, q4: 0.000, q5: 0.000 } },
+      { label: "Method A",     vals: { unserved: 0.072, q0: 0.165, q1: 0.351, q2: 0.257, q3: 0.128, q4: 0.026, q5: 0.000 } },
+      { label: "Method B",     vals: { unserved: 0.035, q0: 0.167, q1: 0.359, q2: 0.202, q3: 0.166, q4: 0.071, q5: 0.000 } },
+      { label: "已發表方法",   vals: { unserved: 0.012, q0: 0.204, q1: 0.332, q2: 0.244, q3: 0.175, q4: 0.032, q5: 0.000 } },
+      { label: "候選聯集",     vals: { unserved: 0.005, q0: 0.201, q1: 0.311, q2: 0.281, q3: 0.173, q4: 0.028, q5: 0.000 } },
+      { label: "連續切割上界", vals: { unserved: 0.006, q0: 0.172, q1: 0.321, q2: 0.260, q3: 0.167, q4: 0.075, q5: 0.000 } },
+    ];
+    const W = 900, H = 420, padL = 140, padR = 40, padT = 20, padB = 30;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const rowH = plotH / rows.length;
+    const barH = rowH * 0.6;
+
+    rows.forEach((row, i) => {
+      const cy = padT + rowH * i + rowH / 2;
+      let xCursor = padL;
+      tierKeys.forEach(key => {
+        const frac = row.vals[key];
+        const w = frac * plotW;
+        if (w > 0.3) {
+          svg.appendChild(el("rect", { x: xCursor, y: cy - barH / 2, width: w, height: barH, fill: tierColors[key] }));
+          if (w > 24) {
+            const lt = el("text", { x: xCursor + w / 2, y: cy + 4, "text-anchor": "middle", "font-size": "10.5", fill: "#0b0d10", "font-family": "var(--mono)", "font-weight": "700" });
+            lt.textContent = (frac * 100).toFixed(0) + "%";
+            svg.appendChild(lt);
+          }
+        }
+        xCursor += w;
+      });
+      const lt = el("text", { x: padL - 14, y: cy + 4, class: "cat-label", "text-anchor": "end", "font-weight": "600" });
+      lt.textContent = row.label;
+      svg.appendChild(lt);
+    });
+
+    const legendWrap = document.getElementById("quality-tier-legend");
+    tierKeys.forEach(key => {
+      const span = document.createElement("span");
+      const dot = document.createElement("span");
+      dot.className = "dot";
+      dot.style.background = tierColors[key];
+      span.appendChild(dot);
+      span.appendChild(document.createTextNode(tierLabels[key]));
+      legendWrap.appendChild(span);
+    });
+  })();
+
+  // ---- Slide 3d: utility decomposition (diverging horizontal bars) ----
+  (function () {
+    const svg = document.getElementById("chart-decomp");
+    const rows = [
+      { label: "不分組",       quality: 0.30309, unserved: -0.08571, switching: -0.02679, utility: 0.19059 },
+      { label: "Method A",     quality: 0.36108, unserved: -0.14425, switching: -0.04199, utility: 0.17484 },
+      { label: "Method B",     quality: 0.40276, unserved: -0.06939, switching: -0.04696, utility: 0.28640 },
+      { label: "已發表方法",   quality: 0.38905, unserved: -0.02495, switching: -0.03630, utility: 0.32780 },
+      { label: "候選聯集",     quality: 0.39881, unserved: -0.01081, switching: -0.02671, utility: 0.36129 },
+      { label: "連續切割上界", quality: 0.42864, unserved: -0.01101, switching: -0.03599, utility: 0.38164 },
+    ];
+    const W = 950, H = 420, padL = 130, padR = 60, padT = 20, padB = 30;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const rowH = plotH / rows.length;
+    const barH = rowH * 0.5;
+    const maxPos = 0.45, maxNeg = 0.20;
+    const zeroX = padL + (maxNeg / (maxNeg + maxPos)) * plotW;
+    const scale = plotW / (maxNeg + maxPos);
+
+    svg.appendChild(el("line", { x1: zeroX, x2: zeroX, y1: padT, y2: padT + plotH, class: "zero-line" }));
+
+    rows.forEach((row, i) => {
+      const cy = padT + rowH * i + rowH / 2;
+      // positive: quality score
+      const qw = row.quality * scale;
+      svg.appendChild(el("rect", { x: zeroX, y: cy - barH / 2, width: qw, height: barH, fill: "#4ade80", rx: 2 }));
+      // negative: unserved penalty then switching penalty, stacked leftward
+      let xCursor = zeroX;
+      const negW1 = Math.abs(row.unserved) * scale;
+      svg.appendChild(el("rect", { x: xCursor - negW1, y: cy - barH / 2, width: negW1, height: barH, fill: "#f87171", rx: 2 }));
+      xCursor -= negW1;
+      const negW2 = Math.abs(row.switching) * scale;
+      svg.appendChild(el("rect", { x: xCursor - negW2, y: cy - barH / 2, width: negW2, height: barH, fill: "#fb923c", rx: 2 }));
+
+      // utility marker: net position from zero
+      const utilX = zeroX + row.utility * scale;
+      svg.appendChild(el("line", { x1: utilX, x2: utilX, y1: cy - barH / 2 - 6, y2: cy + barH / 2 + 6, stroke: "var(--ink)", "stroke-width": 2.5 }));
+      const ut = el("text", { x: utilX, y: cy - barH / 2 - 10, class: "bar-label", "text-anchor": "middle", "font-size": "11" });
+      ut.textContent = row.utility.toFixed(3);
+      svg.appendChild(ut);
+
+      const lt = el("text", { x: padL - 14, y: cy + 4, class: "cat-label", "text-anchor": "end", "font-weight": "600" });
+      lt.textContent = row.label;
+      svg.appendChild(lt);
+    });
+  })();
+
+  // ---- Slide 9: ADR robustness check ----
+  (function () {
+    const svg = document.getElementById("chart-adr-robustness");
+    const data = [
+      { label: "不分組", value: 876.9, color: "var(--naive)" },
+      { label: "Method A", value: 1702.3, color: "var(--loss)" },
+      { label: "Method B", value: 2036.3, color: "#a78bfa" },
+      { label: "已發表\n方法（參照）", value: 1895.8, color: "var(--ref)" },
+      { label: "候選\n聯集", value: 1973.2, color: "var(--win)" },
+      { label: "連續切割\n上界", value: 2146.4, color: "#a78bfa" },
+    ];
+    const W = 900, H = 380, padL = 66, padR = 30, padT = 30, padB = 70;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const maxV = 2400;
+    const gap = plotW / data.length;
+    const bw = gap * 0.55;
+
+    for (let g = 0; g <= 4; g++) {
+      const v = (maxV / 4) * g;
+      const y = padT + plotH - (v / maxV) * plotH;
+      svg.appendChild(el("line", { x1: padL, x2: W - padR, y1: y, y2: y, class: "grid-line" }));
+      const t = el("text", { x: padL - 10, y: y + 4, class: "axis-label", "text-anchor": "end" });
+      t.textContent = v.toFixed(0);
+      svg.appendChild(t);
+    }
+
+    data.forEach((d, i) => {
+      const cx = padL + gap * i + gap / 2;
+      const barH = (d.value / maxV) * plotH;
+      const y = padT + plotH - barH;
+      svg.appendChild(el("rect", { x: cx - bw / 2, y: y, width: bw, height: barH, fill: d.color, rx: 6 }));
+      const vt = el("text", { x: cx, y: y - 10, class: "bar-label", "text-anchor": "middle" });
+      vt.textContent = d.value.toFixed(0);
+      svg.appendChild(vt);
+      d.label.split("\n").forEach((line, li) => {
+        const lt = el("text", { x: cx, y: padT + plotH + 24 + li * 16, class: "cat-label", "text-anchor": "middle" });
+        lt.textContent = line;
+        svg.appendChild(lt);
+      });
+    });
+  })();
+
+  // ---- Slide 4: win/tie/loss stacked bars ----
+  (function () {
+    const svg = document.getElementById("chart-wtl");
+    const groups = [
+      { label: "不分組", scope: "mid+high", w: 0, t: 0, l: 20 },
+      { label: "不分組", scope: "high-only", w: 0, t: 0, l: 20 },
+      { label: "不分組", scope: "全部 9 格", w: 0, t: 0, l: 20 },
+      { label: "Method A", scope: "mid+high", w: 0, t: 0, l: 20 },
+      { label: "Method A", scope: "high-only", w: 0, t: 0, l: 20 },
+      { label: "Method A", scope: "全部 9 格", w: 0, t: 0, l: 20 },
+      { label: "Method B", scope: "mid+high", w: 0, t: 0, l: 20 },
+      { label: "Method B", scope: "high-only", w: 3, t: 0, l: 17 },
+      { label: "Method B", scope: "全部 9 格", w: 0, t: 0, l: 20 },
+    ];
+    const W = 1000, H = 340, padL = 50, padR = 30, padT = 30, padB = 76;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const total = 20;
+    const gap = plotW / groups.length;
+    const bw = gap * 0.5;
+
+    for (let g = 0; g <= 4; g++) {
+      const v = total / 4 * g;
+      const y = padT + plotH - (v / total) * plotH;
+      svg.appendChild(el("line", { x1: padL, x2: W - padR, y1: y, y2: y, class: "grid-line" }));
+      const t = el("text", { x: padL - 10, y: y + 4, class: "axis-label", "text-anchor": "end" });
+      t.textContent = v;
+      svg.appendChild(t);
+    }
+
+    groups.forEach((d, i) => {
+      const cx = padL + gap * i + gap / 2;
+      let yCursor = padT + plotH;
+      const segs = [
+        { v: d.w, color: "var(--win)" },
+        { v: d.t, color: "var(--tie)" },
+        { v: d.l, color: "var(--loss)" },
+      ];
+      segs.forEach(seg => {
+        const h = (seg.v / total) * plotH;
+        yCursor -= h;
+        if (seg.v > 0) {
+          svg.appendChild(el("rect", { x: cx - bw / 2, y: yCursor, width: bw, height: h, fill: seg.color, rx: 3 }));
+          if (h > 14) {
+            const lt = el("text", { x: cx, y: yCursor + h / 2 + 4, class: "bar-label", "text-anchor": "middle", fill: "#0b0d10" });
+            lt.textContent = seg.v;
+            svg.appendChild(lt);
+          }
+        }
+      });
+      const lt1 = el("text", { x: cx, y: padT + plotH + 24, class: "cat-label", "text-anchor": "middle", "font-weight": "600" });
+      lt1.textContent = d.label;
+      svg.appendChild(lt1);
+      const lt2 = el("text", { x: cx, y: padT + plotH + 42, class: "axis-label", "text-anchor": "middle" });
+      lt2.textContent = d.scope;
+      svg.appendChild(lt2);
+    });
+  })();
+
+  // ---- Slide 5: per-scenario grouped bars ----
+  (function () {
+    const svg = document.getElementById("chart-scenario");
+    const cells = [
+      { disp: "low", load: "light",  NG: 0.00000,  A: -0.05865, B: -0.01284, CU: 0.00000 },
+      { disp: "low", load: "medium", NG: 0.00044,  A: -0.09330, B: -0.01467, CU: -0.00044 },
+      { disp: "low", load: "heavy",  NG: 0.00000,  A: -0.34068, B: -0.08128, CU: 0.00000 },
+      { disp: "mid", load: "light",  NG: -0.07539, A: -0.06565, B: -0.01772, CU: 0.02118 },
+      { disp: "mid", load: "medium", NG: -0.06850, A: -0.07696, B: -0.02653, CU: 0.01303 },
+      { disp: "mid", load: "heavy",  NG: -0.04442, A: -0.34940, B: -0.14852, CU: 0.00380 },
+      { disp: "high", load: "light",  NG: -0.13677, A: -0.02286, B: 0.01547, CU: 0.04296 },
+      { disp: "high", load: "medium", NG: -0.11102, A: -0.05104, B: 0.01100, CU: 0.03148 },
+      { disp: "high", load: "heavy",  NG: -0.38717, A: -0.35185, B: -0.08210, CU: 0.08848 },
+    ];
+    const W = 1000, H = 460, padL = 60, padR = 30, padT = 30, padB = 90;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const maxAbs = 0.40;
+    const zeroY = padT + plotH * (maxAbs / (maxAbs * 2));
+    const gap = plotW / cells.length;
+    const seriesKeys = ["NG", "A", "B", "CU"];
+    const bw = gap * 0.17;
+    const colors = { NG: "var(--naive)", A: "#e879f9", B: "#38bdf8", CU: "var(--win)" };
+
+    // zero line + grid
+    [-0.4, -0.2, 0, 0.2].forEach(v => {
+      const y = padT + plotH - ((v + maxAbs) / (maxAbs * 2)) * plotH;
+      svg.appendChild(el("line", { x1: padL, x2: W - padR, y1: y, y2: y, class: v === 0 ? "zero-line" : "grid-line" }));
+      const t = el("text", { x: padL - 10, y: y + 4, class: "axis-label", "text-anchor": "end" });
+      t.textContent = v.toFixed(1);
+      svg.appendChild(t);
+    });
+
+    cells.forEach((d, i) => {
+      const cx = padL + gap * i + gap / 2;
+      seriesKeys.forEach((key, j) => {
+        const v = d[key];
+        const barY0 = padT + plotH - ((0 + maxAbs) / (maxAbs * 2)) * plotH;
+        const barY1 = padT + plotH - ((v + maxAbs) / (maxAbs * 2)) * plotH;
+        const y = Math.min(barY0, barY1);
+        const h = Math.max(Math.abs(barY1 - barY0), 1.5);
+        const bx = cx - (seriesKeys.length / 2) * bw + j * bw;
+        svg.appendChild(el("rect", { x: bx, y: y, width: bw * 0.85, height: h, fill: colors[key], rx: 2 }));
+      });
+      const lt1 = el("text", { x: cx, y: padT + plotH + 24, class: "cat-label", "text-anchor": "middle", "font-weight": "600" });
+      lt1.textContent = d.disp;
+      svg.appendChild(lt1);
+      const lt2 = el("text", { x: cx, y: padT + plotH + 42, class: "axis-label", "text-anchor": "middle" });
+      lt2.textContent = d.load;
+      svg.appendChild(lt2);
+    });
+  })();
+
+  // ---- slide nav ----
+  const slides = Array.from(document.querySelectorAll("[data-slide]"));
+  const dotsWrap = document.getElementById("dots");
+  const slideNum = document.getElementById("slide-num");
+  slides.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.addEventListener("click", () => s.scrollIntoView({ behavior: "smooth" }));
+    dotsWrap.appendChild(b);
+  });
+  const dotEls = Array.from(dotsWrap.children);
+
+  function currentIndex() {
+    let idx = 0, best = Infinity;
+    slides.forEach((s, i) => {
+      const r = Math.abs(s.getBoundingClientRect().top);
+      if (r < best) { best = r; idx = i; }
+    });
+    return idx;
+  }
+  function updateNav() {
+    const idx = currentIndex();
+    dotEls.forEach((d, i) => d.classList.toggle("active", i === idx));
+    slideNum.textContent = (idx + 1) + " / " + slides.length;
+  }
+  document.addEventListener("scroll", () => window.requestAnimationFrame(updateNav), { passive: true });
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowRight" || e.key === " ") {
+      e.preventDefault();
+      const idx = Math.min(currentIndex() + 1, slides.length - 1);
+      slides[idx].scrollIntoView({ behavior: "smooth" });
+    } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      const idx = Math.max(currentIndex() - 1, 0);
+      slides[idx].scrollIntoView({ behavior: "smooth" });
+    }
+  });
+  updateNav();
+})();
+</script>
+
+</body>
+</html>

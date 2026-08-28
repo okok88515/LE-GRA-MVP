@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Interview Rehearsal Kit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #f3f4f6;
+    --surface: #ffffff;
+    --surface-2: #eceef1;
+    --ink: #1a1d24;
+    --ink-soft: #565d6b;
+    --ink-faint: #8a909c;
+    --line: #dde0e5;
+    --accent: #1f6f5c;
+    --accent-ink: #ffffff;
+    --accent-soft: #e2f0ec;
+    --accent-soft-line: #b9dcd2;
+    --warn: #9a5b12;
+    --warn-soft: #fbeedc;
+    --skip-bg: #f6f5f2;
+    --skip-line: #d8d4cb;
+    --shadow: 0 1px 2px rgba(20,22,28,0.04), 0 8px 24px rgba(20,22,28,0.06);
+    --serif-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161b;
+      --surface: #1c1f26;
+      --surface-2: #23262e;
+      --ink: #eceef2;
+      --ink-soft: #a7adba;
+      --ink-faint: #6d7381;
+      --line: #2c3039;
+      --accent: #4fb89b;
+      --accent-ink: #0c1512;
+      --accent-soft: #1b2b27;
+      --accent-soft-line: #2c463d;
+      --warn: #e0a857;
+      --warn-soft: #2e2515;
+      --skip-bg: #1f2128;
+      --skip-line: #2f323b;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161b;
+    --surface: #1c1f26;
+    --surface-2: #23262e;
+    --ink: #eceef2;
+    --ink-soft: #a7adba;
+    --ink-faint: #6d7381;
+    --line: #2c3039;
+    --accent: #4fb89b;
+    --accent-ink: #0c1512;
+    --accent-soft: #1b2b27;
+    --accent-soft-line: #2c463d;
+    --warn: #e0a857;
+    --warn-soft: #2e2515;
+    --skip-bg: #1f2128;
+    --skip-line: #2f323b;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans TC', 'IBM Plex Mono', system-ui, sans-serif;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 52rem; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+
+  header.page {
+    margin-bottom: 1.75rem;
+  }
+  .eyebrow {
+    font-family: var(--serif-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 900;
+    margin: 0 0 0.5rem;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: 0.98rem;
+    max-width: 40rem;
+  }
+
+  nav.tabs {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding: 0.7rem 0;
+    margin: 1.5rem -1.5rem 2rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    background: linear-gradient(var(--bg) 65%, transparent);
+    scrollbar-width: none;
+  }
+  nav.tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: none;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { border-color: var(--accent-soft-line); color: var(--ink); }
+  .tab-btn[aria-selected="true"] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+
+  .panel { display: none; animation: fade 0.25s ease; }
+  .panel.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.5rem 1.6rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.25rem;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .duration-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--serif-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    border-radius: 999px;
+    padding: 0.28rem 0.7rem;
+  }
+  .word-count {
+    font-family: var(--serif-mono);
+    font-size: 0.76rem;
+    color: var(--ink-faint);
+  }
+
+  .script-text {
+    font-size: 1.05rem;
+    line-height: 1.95;
+    color: var(--ink);
+  }
+  .script-text strong { color: var(--accent); font-weight: 700; }
+
+  .note {
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--line);
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+  }
+
+  /* 10-minute timeline */
+  .timeline { position: relative; }
+  .seg {
+    position: relative;
+    padding-left: 1.6rem;
+    padding-bottom: 1.7rem;
+    border-left: 2px solid var(--line);
+    margin-left: 0.55rem;
+  }
+  .seg:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .seg::before {
+    content: "";
+    position: absolute;
+    left: -0.44rem;
+    top: 0.2rem;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--accent-soft-line);
+  }
+  .seg-time {
+    font-family: var(--serif-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.15rem;
+  }
+  .seg-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.45rem;
+  }
+  .seg-body { color: var(--ink); font-size: 0.98rem; }
+  .seg-body .line { margin: 0 0 0.6rem; }
+
+  .skip-box {
+    background: var(--skip-bg);
+    border: 1px dashed var(--skip-line);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    margin-top: 0.5rem;
+  }
+  .skip-box .rb-label {
+    display: block;
+    font-family: var(--serif-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--warn);
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+  }
+  .skip-box ul { margin: 0; padding-left: 1.2rem; color: var(--ink-soft); font-size: 0.92rem; }
+  .skip-box li { margin-bottom: 0.35rem; }
+
+  /* resume */
+  .resume-block h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .resume-block h3::before {
+    content: "";
+    width: 0.5rem; height: 0.5rem;
+    border-radius: 2px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  ul.bullets { margin: 0 0 1.4rem; padding-left: 1.3rem; }
+  ul.bullets li { margin-bottom: 0.9rem; font-size: 0.97rem; line-height: 1.7; }
+  ul.bullets li:last-child { margin-bottom: 0; }
+
+  .fill {
+    background: var(--warn-soft);
+    color: var(--warn);
+    border-radius: 4px;
+    padding: 0.05rem 0.35rem;
+    font-family: var(--serif-mono);
+    font-size: 0.88em;
+    font-weight: 600;
+  }
+
+  .single-line-box {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem;
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+  .single-line-box .tag {
+    display: block;
+    font-family: var(--serif-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .divider-label {
+    font-family: var(--serif-mono);
+    font-size: 0.76rem;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 1.6rem 0 0.8rem;
+  }
+
+  footer.page {
+    margin-top: 3rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    font-family: var(--serif-mono);
+  }
+
+  @media print {
+    nav.tabs { display: none; }
+    .panel { display: block !important; page-break-before: always; }
+    .panel:first-of-type { page-break-before: avoid; }
+    body { background: #fff; }
+    .card { box-shadow: none; border: 1px solid #ccc; }
+  }
+
+  @media (max-width: 30rem) {
+    .wrap { padding: 1.6rem 1rem 4rem; }
+    .card { padding: 1.2rem 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="page">
+    <div class="eyebrow">面試講稿套件 &middot; Candidate-Union Grouping</div>
+    <h1>候選聯集分組方法 — 面試講稿套件</h1>
+    <p class="subtitle">30 秒電梯簡報、1 分鐘版本、10 分鐘完整講稿，以及中英文履歷寫法。切換上方分頁瀏覽，或直接列印全部內容。</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="講稿版本切換">
+    <button class="tab-btn" role="tab" aria-selected="true" data-panel="p30">⏱ 30 秒版</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-panel="p60">⏱ 1 分鐘版</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-panel="p600">⏱ 10 分鐘完整版</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-panel="rzh">📄 履歷（中文）</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-panel="ren">📄 履歷（英文）</button>
+  </nav>
+
+  <!-- 30 SECONDS -->
+  <section id="p30" class="panel active">
+    <div class="card">
+      <div class="meta-row">
+        <span class="duration-chip">⏱ 30 秒</span>
+        <span class="word-count">約 140 字 &middot; 只講：問題 ＋ 核心點子</span>
+      </div>
+      <p class="script-text">
+        我發表過一篇單一特徵 CQI k-means 的多播分組方法論文。後續我自己延伸這個方法，設計了一個「候選聯集」架構，讓好幾個獨立分組策略同時提案、用同一套精確評分器挑出最好的，並且證明多加一個策略絕不會讓結果變差——這個延伸版本在真實物理層模擬上驗證過。
+      </p>
+      <div class="note">用途：被問「講一下你做過什麼」時的開場，或電梯裡的即興回答。不放任何數字，目的是讓對方想追問，把數字留給後面。</div>
+    </div>
+  </section>
+
+  <!-- 1 MINUTE -->
+  <section id="p60" class="panel">
+    <div class="card">
+      <div class="meta-row">
+        <span class="duration-chip">⏱ 1 分鐘</span>
+        <span class="word-count">約 250 字 &middot; 加上：消融實驗結論 ＋ 誠實的限制</span>
+      </div>
+      <p class="script-text">
+        我發表過一篇單一特徵 CQI k-means 的多播分組方法論文，把分組問題形式化成一個分群任務。後續我自己延伸這個方法，設計了一個「候選聯集」架構，讓好幾個獨立分組策略同時提案、用同一套精確評分器挑出最好的，並且在數學上證明多加一個策略絕不會讓結果變差。但這個保證只代表「不會更差」，不代表「貢獻值得一提」，所以我在真實物理層模擬上做了完整的消融實驗，量化出哪些策略真的有貢獻、哪些該拿掉，最終效用比原本的 CQI baseline 再提升約 <strong>10%</strong>。我也誠實量測出這個方法在真正的部署規模下還有複雜度瓶頸，已經有具體但還沒完成的優化計畫。
+      </p>
+      <div class="note">「形式化成一個分群任務」這句話是暫定用語——如果原論文真正的技術亮點不是這句，換成你自己的說法。</div>
+    </div>
+  </section>
+
+  <!-- 10 MINUTES -->
+  <section id="p600" class="panel">
+    <div class="card">
+      <div class="meta-row">
+        <span class="duration-chip">⏱ 10 分鐘</span>
+        <span class="word-count">假設面試官完全沒背景 &middot; 主軸：架構＋驗證嚴謹度，不是「發明更聰明的演算法」</span>
+      </div>
+
+      <div class="timeline">
+        <div class="seg">
+          <div class="seg-time">0:00 &ndash; 0:30 &middot; 開場鉤子</div>
+          <div class="seg-title">用場景帶入，不要直接講學術定義</div>
+          <div class="seg-body">
+            <p class="line">「想像一場演唱會直播，五千人同時看同一段影片，但基地台的頻寬是固定的——這就是 MBS（multicast broadcast service）的核心問題：系統得把使用者切成幾個群組共用資源，但每個群組的畫質，只能跟裡面訊號最差的那個人一樣好。」</p>
+          </div>
+        </div>
+
+        <div class="seg">
+          <div class="seg-time">0:30 &ndash; 1:30 &middot; 基線與盲點</div>
+          <div class="seg-title">CQI 分組是強 baseline，但有明確盲點</div>
+          <div class="seg-body">
+            <p class="line">最直覺的分組方式：照 CQI（訊號品質指標）分。這是個很強的 baseline，但有明確的盲點——CQI 是單一寬頻數字，看不到兩件事：頻域選擇性差異（兩人 CQI 一樣，但在特定頻段的實際可用資源可能差很多）、以及真正的「放在一起的代價」（CQI 相近不代表配對代價小）。</p>
+          </div>
+        </div>
+
+        <div class="seg">
+          <div class="seg-time">1:30 &ndash; 3:30 &middot; 核心方法（全場重點）</div>
+          <div class="seg-title">候選聯集架構 ＋ 可證明的不劣化保證</div>
+          <div class="seg-body">
+            <p class="line">先講「架構上的巧思」，並帶到這是自己發表的 CQI k-means 論文之後、自己延伸做的後續研究：與其設計一個更複雜的單一演算法，不如讓好幾個各自便宜的分組策略「各自提案」，然後用同一套精確的資源分配評分器（動態規劃）去評分，取分數最高的。因為評分是共用且精確的，數學上可以證明「多加一個策略，絕不會比不加更差」——這個保證是這個方法最核心的設計，值得花時間講清楚，因為它是後面「怎麼決定要不要留一個策略」的基礎。</p>
+          </div>
+        </div>
+
+        <div class="seg">
+          <div class="seg-time">3:30 &ndash; 4:00 &middot; 驗證方式</div>
+          <div class="seg-title">一句話帶過，功能只是建立可信度</div>
+          <div class="seg-body">
+            <p class="line">「這不是紙上談兵，是在真實的 OMNeT++/Simu5G 物理層模擬上跑的，搭配 SUMO 交通模擬產生車輛移動，用了 confirmatory/exploratory 分離的協議避免自己騙自己。」</p>
+          </div>
+        </div>
+
+        <div class="seg">
+          <div class="seg-time">4:00 &ndash; 6:30 &middot; Headline 結果（第二重點）</div>
+          <div class="seg-title">冪集消融 ＋ 情境交叉反轉的故事</div>
+          <div class="seg-body">
+            <p class="line">「我們一開始有三個候選策略，但『加了不會變差』這個保證是機械性保證的，不代表每個策略真的有貢獻多少。所以我們做了一個完整的冪集消融，把三個策略的七種組合，全部跟純 CQI 比較。結果發現：其中兩個策略（資源成本、還有一個抓『把兩人硬湊一組的真實代價』的圖分群方法）各自都有真實、獨立的貢獻；第三個（切換狀態感知）不管跟誰組合，貢獻都明顯小一截——所以我們把它拿掉了，不是憑感覺，是有量化依據。」</p>
+            <p class="line">「而且這兩個留下來的策略贏的地方不一樣——通道差異中等的情境下，資源成本領先；但通道差異越大、資源越吃緊，另一個策略反而反超，而且差距越拉越大——這剛好對應到它原本設計要抓的『嚴重離群使用者』情境。」</p>
+          </div>
+        </div>
+
+        <div class="seg">
+          <div class="seg-time">6:30 &ndash; 8:00 &middot; 誠實的轉折（第三重點）</div>
+          <div class="seg-title">最能展現研究素養的部分</div>
+          <div class="seg-body">
+            <p class="line">「方法驗證完之後，我們回頭算複雜度，一開始的分析說：某個步驟的漸進複雜度最差是三次方，另一個是二次方，照理說二次方那個應該還好。但我們實際去量測，才發現剛好相反——真正拖慢速度的不是那個三次方步驟，是另一個沒有向量化的迴圈，在真實資料上比預期慢了快 80 倍。這也讓我們算出一個誠實的數字：以目前這個沒優化的實作，在符合我們驗證過的更新頻率下，大概只能撐到 200 個使用者左右——跟 MBS 真正要服務的『數千人』差了一個數量級。」</p>
+          </div>
+        </div>
+
+        <div class="seg">
+          <div class="seg-time">8:00 &ndash; 9:00 &middot; 修復計畫</div>
+          <div class="seg-title">分階段、誠實標記未完成</div>
+          <div class="seg-body">
+            <p class="line">「我們已經有一個分階段的修復路徑：先向量化（風險低、不改演算法，估計能把天花板推到兩千到六千人），再做圖的稀疏化（才能真正解決漸進複雜度，但這其實是換了一個演算法，需要重新做一次驗證，不能直接信任）。這兩步目前都還沒做，是誠實列出來的未來工作，不是已經完成的事。」</p>
+          </div>
+        </div>
+
+        <div class="seg">
+          <div class="seg-time">9:00 &ndash; 9:30 &middot; 收尾一句話</div>
+          <div class="seg-title">回扣開場主軸</div>
+          <div class="seg-body">
+            <p class="line">「這個專案的核心價值，不是『我做出一個更準的分組演算法』，而是『我設計了一個可以安全疊加策略的架構，並且每一個要不要留下來的決定，都是用嚴謹的消融實驗量化出來的——包括誠實承認它現在還沒辦法撐到真正的部署規模』。」</p>
+          </div>
+        </div>
+
+        <div class="seg">
+          <div class="seg-time">9:30 &ndash; 10:00 &middot; 緩衝</div>
+          <div class="seg-title">開放提問</div>
+          <div class="seg-body"><p class="line">留 30 秒緩衝，不要卡在時間邊界上匆忙結束。</p></div>
+        </div>
+      </div>
+
+      <div class="skip-box">
+        <span class="rb-label">刻意不講，留給 Q&amp;A</span>
+        <ul>
+          <li>DP 動態規劃的完整推導／演算法細節</li>
+          <li>切換狀態那個「尾部風險」自我修正的完整故事（跟冪集消融結論重複）</li>
+          <li>SUMO 路網是合成的、發射功率細節、頻寬數字、n=40 規模驗證</li>
+          <li>五段延遲預算表格的完整版本（講稿只留一個數字：現在 200 人，目標數千人）</li>
+          <li>為什麼 ueTxPower 存在、跟 dispersion 的因果關係沒驗證過這件事</li>
+          <li>原論文相對於其他既有 CQI k-means 分組法的差異：贏過「群組人數加權最低 CQI」proxy 評分法是評分機制的差異；贏過「窮舉搜尋＋標準差門檻」法是候選產生效率的差異，兩者是不同維度、不要混為一談</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESUME ZH -->
+  <section id="rzh" class="panel">
+    <div class="card resume-block">
+      <h3>完整版（四條 bullet）</h3>
+      <ul class="bullets">
+        <li>發表<span class="fill">〔期刊/研討會名稱〕</span>：提出單一特徵 CQI k-means 多播分組方法，於兩個維度改進既有作法——以考慮真實 RB 資源分配限制的精確效用函數，取代既有方法「群組人數加權最低 CQI」的簡化評分公式；並以 k-means 取代窮舉搜尋加標準差門檻篩選（隨使用者數量呈組合爆炸、且需反覆調整門檻），高效產生候選，效用提升<span class="fill">〔具體數字〕</span></li>
+        <li>延伸上述方法，自行設計「候選聯集」架構——讓多個獨立分組策略在同一套精確動態規劃評分器下競爭——並以數學證明新增任一策略絕不會使系統效用變差，讓方法能安全疊加新特徵而不必擔心回歸風險</li>
+        <li>在真實 OMNeT++/Simu5G 物理層模擬上，透過 20-seed 冪集消融實驗量化每個候選特徵的獨立貢獻，據此精簡方法設計，效用較 CQI baseline 再提升約 10%</li>
+        <li>透過實測診斷出效能瓶頸與理論預期不符，並提出向量化與圖稀疏化的分階段優化方案</li>
+      </ul>
+
+      <div class="divider-label">空間不夠時 &middot; 單行精簡版</div>
+      <div class="single-line-box">
+        <span class="tag">Condensed</span>
+        延伸本人已發表之 CQI k-means 多播分組方法，自行設計候選聯集架構並以真實物理層模擬與冪集消融實驗驗證，效用較 baseline 提升約 10%。
+      </div>
+    </div>
+  </section>
+
+  <!-- RESUME EN -->
+  <section id="ren" class="panel">
+    <div class="card resume-block">
+      <h3>Full version (4 bullets)</h3>
+      <ul class="bullets">
+        <li>Published in <span class="fill">〔journal / conference name〕</span>: proposed a single-feature CQI k-means multicast grouping method, improving on prior work along two axes &mdash; an exact, resource-allocation-aware utility function in place of a simplified group-size-weighted minimum-CQI scoring formula, and efficient k-means-based candidate generation in place of brute-force search over a standard-deviation threshold (combinatorial in user count and requiring repeated threshold retuning) &mdash; achieving <span class="fill">〔specific figure〕</span> utility improvement</li>
+        <li>Extended the method with a self-designed candidate-union architecture &mdash; multiple independent grouping heuristics competing under one shared exact dynamic-programming evaluator &mdash; proving that adding any candidate family never degrades system utility, enabling safe extension with new heuristics without regression risk</li>
+        <li>Quantified each candidate feature's independent contribution via a full power-set ablation across 20 held-out seeds on real OMNeT++/Simu5G physical-layer simulation, streamlining the method design and achieving a further ~10% utility gain over the CQI-only baseline</li>
+        <li>Diagnosed a real performance bottleneck through direct profiling that contradicted the initial asymptotic analysis, and proposed a staged vectorization-then-sparsification optimization roadmap</li>
+      </ul>
+
+      <div class="divider-label">When space is tight &middot; condensed single line</div>
+      <div class="single-line-box">
+        <span class="tag">Condensed</span>
+        Extended my published CQI k-means multicast grouping method with a self-designed candidate-union architecture, validated via real physical-layer simulation and power-set ablation, achieving a ~10% utility gain over baseline.
+      </div>
+    </div>
+  </section>
+
+  <footer class="page">interview_prep_kit &middot; compiled 2026-08-27 &middot; source: candidate-union grouping research track</footer>
+</div>
+
+<script>
+  const buttons = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.setAttribute('aria-selected', 'false'));
+      panels.forEach(p => p.classList.remove('active'));
+      btn.setAttribute('aria-selected', 'true');
+      document.getElementById(btn.dataset.panel).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

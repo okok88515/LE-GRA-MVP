@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>候選聯集分組方法</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,500&family=Source+Code+Pro:wght@400;500&display=swap');
+
+  :root {
+    --paper: #f7f5ef;
+    --surface: #fdfcf8;
+    --surface-sunk: #efece3;
+    --ink: #201e19;
+    --ink-muted: #5c584c;
+    --ink-faint: #8b8778;
+    --rule: #d8d3c3;
+    --rule-strong: #b8b19c;
+    --accent: #2c3a63;
+    --accent-soft: #dfe3ee;
+    --result: #7a5a1e;
+    --result-soft: #f1e6cd;
+    --serif: 'Noto Serif TC', 'Source Han Serif TC', 'STIX Two Text', serif;
+    --math: 'STIX Two Text', 'Noto Serif TC', 'Cambria', 'Georgia', serif;
+    --sans: 'Noto Sans TC', 'Source Sans 3', -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'Source Code Pro', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #15181c;
+      --surface: #1b1f24;
+      --surface-sunk: #101215;
+      --ink: #e7e4da;
+      --ink-muted: #a5a091;
+      --ink-faint: #6d6a5e;
+      --rule: #33383f;
+      --rule-strong: #454b53;
+      --accent: #8fa1d6;
+      --accent-soft: #232c42;
+      --result: #d3ac5c;
+      --result-soft: #332c19;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #15181c;
+    --surface: #1b1f24;
+    --surface-sunk: #101215;
+    --ink: #e7e4da;
+    --ink-muted: #a5a091;
+    --ink-faint: #6d6a5e;
+    --rule: #33383f;
+    --rule-strong: #454b53;
+    --accent: #8fa1d6;
+    --accent-soft: #232c42;
+    --result: #d3ac5c;
+    --result-soft: #332c19;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .sheet { max-width: 42rem; margin: 0 auto; padding: 4rem 1.6rem 6rem; }
+
+  .kicker {
+    font-family: var(--sans);
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    text-align: center;
+    margin-bottom: 1.1rem;
+  }
+  h1.doc-title {
+    font-size: clamp(1.55rem, 4.6vw, 2.15rem);
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.5;
+    text-wrap: balance;
+    margin: 0 auto;
+    max-width: 30rem;
+  }
+  .byline {
+    text-align: center;
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    color: var(--ink-muted);
+    margin-top: 1rem;
+    line-height: 1.75;
+  }
+  .rule { border: none; border-top: 1px solid var(--rule-strong); margin: 2.2rem 0; }
+  .rule.thin { border-top: 1px solid var(--rule); margin: 2.6rem 0; }
+
+  .abstract { font-size: 0.97rem; color: var(--ink-muted); padding: 0 1rem; }
+  .abstract .label {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+
+  h2 {
+    font-size: 1.24rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    text-wrap: balance;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  h2 .sec-num { font-family: var(--sans); color: var(--accent); font-weight: 700; font-size: 1rem; }
+  h3 { font-size: 1.04rem; font-weight: 600; margin: 1.8rem 0 0.7rem; }
+  section.body-sec { margin-bottom: 2.6rem; }
+
+  p { margin: 0 0 1rem; }
+  p:last-child { margin-bottom: 0; }
+  em.term { font-style: normal; color: var(--ink); font-weight: 600; }
+  strong { font-weight: 600; }
+
+  .eqn { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; margin: 1.4rem 0; padding: 0.3rem 0; }
+  .eqn .expr { font-family: var(--math); font-size: 1.05rem; text-align: center; font-style: italic; overflow-x: auto; }
+  .eqn .tag { font-family: var(--sans); font-size: 0.8rem; color: var(--ink-faint); font-style: normal; white-space: nowrap; }
+  .var { font-family: var(--math); font-style: italic; }
+
+  .result-box {
+    border-left: 3px solid var(--result);
+    background: var(--result-soft);
+    padding: 0.9rem 1.15rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1.3rem 0;
+  }
+  .result-box .rb-label {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 0.74rem;
+    letter-spacing: 0.05em;
+    color: var(--result);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .result-box p { font-size: 0.95rem; }
+
+  .family-card {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.2rem 1.35rem;
+    margin: 1.1rem 0;
+    background: var(--surface);
+  }
+  .family-card h4 {
+    font-family: var(--sans);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+  }
+  .family-card .fc-name { font-size: 1.02rem; font-weight: 600; margin-bottom: 0.6rem; }
+
+  .algo {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.9;
+    background: var(--surface-sunk);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.1rem 1.3rem;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 1.2rem 0;
+  }
+  .algo .ln { color: var(--ink-faint); user-select: none; margin-right: 0.9em; }
+  .algo .kw { color: var(--accent); font-weight: 500; }
+
+  .table-wrap { overflow-x: auto; margin: 1.2rem 0; }
+  table { border-collapse: collapse; width: 100%; font-family: var(--sans); font-size: 0.87rem; min-width: 30rem; }
+  caption { font-family: var(--sans); font-size: 0.82rem; color: var(--ink-muted); text-align: left; caption-side: top; margin-bottom: 0.6rem; line-height: 1.6; }
+  th, td { text-align: left; padding: 0.55rem 0.85rem; border-bottom: 1px solid var(--rule); }
+  th { font-weight: 600; font-size: 0.78rem; color: var(--ink-faint); border-bottom: 1.5px solid var(--rule-strong); }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  td.win { color: var(--accent); font-weight: 600; }
+
+  .prop {
+    font-family: var(--sans);
+    font-size: 0.93rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 1.3rem 0;
+    line-height: 1.8;
+  }
+  .prop .p-label { font-weight: 700; font-family: var(--serif); margin-right: 0.4rem; }
+
+  ol.steps, ul.plain { font-size: 0.98rem; padding-left: 1.6rem; margin: 0 0 1rem; }
+  ol.steps li, ul.plain li { margin-bottom: 0.5rem; }
+  ol.steps li:last-child, ul.plain li:last-child { margin-bottom: 0; }
+
+  footer { font-family: var(--sans); font-size: 0.8rem; color: var(--ink-faint); text-align: center; margin-top: 3.5rem; }
+
+  @media (max-width: 30rem) {
+    .eqn { grid-template-columns: 1fr; text-align: center; }
+    .eqn .tag { text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="sheet">
+
+  <div class="kicker">方法規格文件 &middot; 真實資料驗證</div>
+  <h1 class="doc-title">面向 CQI 感知多播分組的候選聯集 K-means 框架</h1>
+  <p class="byline">在已發表的單一特徵 CQI k-means 分組方法基礎上，擴充獨立產生的候選家族，並以資源塊預算下的精確效用評分選出最佳解。</p>
+
+  <hr class="rule">
+
+  <div class="abstract">
+    <span class="label">摘要</span>
+    <p>
+      多播影音傳輸讓多個使用者共享同一份無線資源，服務品質受限於群組中訊號最差的成員。單純以
+      <em class="term">CQI</em>（Channel Quality Indicator，通道品質指標）分組是一個很強的
+      baseline，但可證明對兩種結構性損失視而不見：CQI 對應速率的非線性，以及單一寬頻數值看不到的頻域選擇性差異。
+      本方法保留 CQI k-means 作為基礎，但把分組問題重新表述成一個
+      <em class="term">候選聯集</em>（candidate union）：各自運算成本低廉的分割式啟發法，各自針對每個群組數
+      <span class="var">k</span> = 1&hellip;<span class="var">K</span> 提出一組分組方案，每個方案都用同一套精確動態規劃資源分配器評分，
+      取分數最高者。因為評分是精確且共用的，加入一個候選家族可證明絕不會比不加入更差——但這個保證本身沒有告訴你一個家族實際貢獻了多少，
+      所以最終方法不是靠這個保證本身決定的，而是透過完整的冪集（power-set）消融實驗決定：把三個候選特徵家族的
+      全部 7 種非空組合，逐一拿去和單純 CQI 比較，測試場景是真實 OMNeT++/Simu5G 物理層模擬。其中兩個家族——資源成本，
+      以及成對精確效用遺憾（regret）圖——各自都帶來真實、穩定的增益（單獨的 regret-graph：在 120 個 confirmatory
+      測試案例中零敗場）；第三個家族，切換狀態感知，在各項指標上都持續明顯偏小，不論和哪個家族組合都一樣，
+      因此在這個量化基礎上被排除於最終方法之外。最終的兩家族聯集，其主導機制自身的效果，
+      在真實資料使用者規模從 24 人擴大到 40 人時不減反增。
+    </p>
+  </div>
+
+  <hr class="rule">
+
+  <section class="body-sec">
+    <h2><span class="sec-num">1</span> 問題形式化</h2>
+    <p>
+      一個基地台服務 <span class="var">n</span> 個影音多播使用者，共有 <span class="var">R</span>
+      個資源塊（resource block，RB），其中 <span class="var">R</span><sub>avail</sub> &le;
+      <span class="var">R</span> 是本次配置週期分配給此服務的預算。每個使用者
+      <span class="var">u</span> 針對每個頻帶 <span class="var">b</span> 回報其可達成速率
+      <span class="var">r</span><sub><span class="var">u</span>,<span class="var">b</span></sub>，
+      由回報的 CQI 推算而來。影片提供六種離散位元率之一：
+    </p>
+    <div class="eqn">
+      <div class="expr"><span class="var">B</span> = {200, 550, 1500, 3000, 5800, 7500} kbps，</div>
+      <div class="tag">(1)</div>
+    </div>
+    <p>
+      索引 <span class="var">q</span> = 0&hellip;5。使用者被分割成互不相交的多播群組
+      <span class="var">G</span><sub>1</sub>, &hellip;, <span class="var">G</span><sub><span class="var">M</span></sub>；
+      由於多播傳輸受限於訊號最差的接收端，一個群組在頻帶 <span class="var">b</span> 上的可達速率為：
+    </p>
+    <div class="eqn">
+      <div class="expr">
+        <span class="var">r</span><sub><span class="var">G</span>,<span class="var">b</span></sub>
+        = min<sub><span class="var">u</span>&isin;<span class="var">G</span></sub>
+        <span class="var">r</span><sub><span class="var">u</span>,<span class="var">b</span></sub>&nbsp;。
+      </div>
+      <div class="tag">(2)</div>
+    </div>
+    <p>
+      給定一個群組的速率剖面，達成目標位元率所需的最少 RB 數，是把該群組自己的頻帶依速率由強到弱貪婪消耗、
+      直到累積速率達標為止，可精確計算：
+    </p>
+    <div class="eqn">
+      <div class="expr">
+        <span class="var">c</span>(<span class="var">G</span>, <span class="var">q</span>)
+        = min { <span class="var">m</span> : &sum;<sub><span class="var">i</span>=1</sub><sup><span class="var">m</span></sup>
+        <span class="var">r</span><sup>&darr;</sup><sub><span class="var">G</span>,<span class="var">i</span></sub>
+        &ge; <span class="var">B</span>[<span class="var">q</span>] }，
+      </div>
+      <div class="tag">(3)</div>
+    </div>
+    <p>
+      其中 <span class="var">r</span><sup>&darr;</sup> 代表群組各頻帶速率由大到小排序；
+      若即使用滿所有頻帶也無法達標，則 <span class="var">c</span>(<span class="var">G</span>,<span class="var">q</span>)
+      = &infin;。分組問題即為：選擇一種分割方式與每個群組的畫質指派
+      <span class="var">q</span><sub><span class="var">G</span></sub> &isin; {&minus;1, 0, &hellip;, 5}
+      （&minus;1 代表未服務），在滿足 &sum;<sub><span class="var">G</span></sub>
+      <span class="var">c</span>(<span class="var">G</span>, <span class="var">q</span><sub><span class="var">G</span></sub>)
+      &le; <span class="var">R</span><sub>avail</sub> 的前提下，最大化總效用。
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">2</span> 效用函數</h2>
+    <p>每個被服務的使用者貢獻一個正規化到 [0,1] 的 log-bitrate QoE 分數：</p>
+    <div class="eqn">
+      <div class="expr">
+        <span class="var">s</span>(<span class="var">q</span>) =
+        <span style="display:inline-block; vertical-align:middle; text-align:center;">
+          <span style="display:block; border-bottom:1px solid var(--ink); padding:0 0.3em;">ln <span class="var">B</span>[<span class="var">q</span>] &minus; ln <span class="var">B</span>[0]</span>
+          <span style="display:block; padding:0 0.3em;">ln <span class="var">B</span>[5] &minus; ln <span class="var">B</span>[0]</span>
+        </span>，
+      </div>
+      <div class="tag">(4)</div>
+    </div>
+    <p>
+      並針對使用者前一個畫質等級 <span class="var">q</span><sub>prev</sub>，
+      以權重 <span class="var">&beta;</span> 懲罰切換行為。一個群組在畫質
+      <span class="var">q</span> 下的貢獻為：
+    </p>
+    <div class="eqn">
+      <div class="expr">
+        <span class="var">v</span>(<span class="var">G</span>, <span class="var">q</span>) =
+        &sum;<sub><span class="var">u</span>&isin;<span class="var">G</span></sub>
+        <span class="var">s</span>(<span class="var">q</span>) &minus;
+        <span class="var">&beta;</span>
+        <span style="display:inline-block; vertical-align:middle; text-align:center;">
+          <span style="display:block; border-bottom:1px solid var(--ink); padding:0 0.3em;">|<span class="var">q</span> &minus; <span class="var">q</span><sub>prev,<span class="var">u</span></sub>|</span>
+          <span style="display:block; padding:0 0.3em;">5</span>
+        </span>，
+      </div>
+      <div class="tag">(5)</div>
+    </div>
+    <p>
+      若未服務則為 &minus;2|<span class="var">G</span>|。整體效用是所選群組各自貢獻值的每人平均，
+      也是後面每一個候選分組方案最終被評判的依據。
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">3</span> 精確資源分配</h2>
+    <p>
+      給定一個固定的分割方式，選擇每個群組的畫質等級是一個 multiple-choice knapsack
+      （多選背包）問題：每個群組是一個 item class，每個畫質等級（或未服務）是一個互斥選項，
+      成本為 <span class="var">c</span>(<span class="var">G</span>,<span class="var">q</span>)、
+      價值為 <span class="var">v</span>(<span class="var">G</span>,<span class="var">q</span>)，
+      容量為 <span class="var">R</span><sub>avail</sub>。以動態規劃在累積 RB 用量上精確求解：
+    </p>
+    <div class="algo"><span class="ln">1</span>狀態：dp[u] = 恰好使用 u 個 RB 時能達到的最佳總價值
+<span class="ln">2</span>dp[0] &larr; 0
+<span class="ln">3</span><span class="kw">對</span>分割方式中每個群組 G：
+<span class="ln">4</span>  <span class="kw">對</span> G 每個可行的 (畫質, 成本) 選項：
+<span class="ln">5</span>    dp[u + 成本] &larr; max(dp[u + 成本], dp[u] + v(G, 畫質))
+<span class="ln">6</span><span class="kw">回傳</span> dp[u] 在 u &le; R_avail 範圍內的最大值</div>
+    <p>
+      這是唯一對一個分組方案評分的地方，而且是精確的——不是代理指標，也不是貪婪捷思法。
+      本方法中任何地方考慮的每一個候選分割方式，都是用這同一套 DP 評分。
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">4</span> 候選聯集架構</h2>
+    <p>
+      直接找出效用最大化的分割方式，是一個組合最佳化的集合分割問題。本方法不直接搜尋這個空間，
+      而是從幾個運算成本低廉、結構上彼此不同的啟發法（稱為「家族」）各自收集候選方案，
+      用上述 DP 精確評分，保留最佳者：
+    </p>
+    <ol class="steps">
+      <li>每個家族 <span class="var">f</span>，針對每個群組數 <span class="var">k</span> = 1&hellip;<span class="var">K</span>，
+        各提出一個分割方案——每個家族貢獻 <span class="var">K</span> 個候選方案。</li>
+      <li>所有家族的候選方案匯總、去除重複。</li>
+      <li>每個獨立的候選方案都用精確 DP（第 3 節）評分。</li>
+      <li>回傳分數最高的候選方案。</li>
+    </ol>
+    <div class="prop">
+      <span class="p-label">命題。</span>
+      因為每個候選方案都用同一個精確函式評分，候選集合中的最佳分數只會隨著加入更多家族而提升，不會下降。
+      因此在單一決策時刻，加入一個家族保證是弱優勢（weakly dominant）的：它不可能讓選出的分組變差，
+      只可能在真的出現更好的選項時改變結果。
+    </div>
+    <p>
+      這個保證只在單一決策時刻成立。在一連串時序決策中，被選出的分組會改變每個使用者的狀態
+      （<span class="var">q</span><sub>prev</sub>），進而影響「下一次」決策——擁有不同候選集合的兩個方法，
+      可能因此走上不同的軌跡，所以這個保證不會延伸到整條軌跡的累積效用，只保證每一個獨立步驟。
+      第 7 節會報告這件事在實務上何時真正有影響。
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">5</span> 候選家族</h2>
+
+    <div class="family-card">
+      <h4>家族一</h4>
+      <div class="fc-name">CQI k-means</div>
+      <p>在每個使用者目前的寬頻 CQI 上做一維 k-means。這是 baseline：運算快，且當 CQI 本身就能良好預測 RB 可行性時，這個方法就是正確的。</p>
+    </div>
+
+    <div class="family-card">
+      <h4>家族二</h4>
+      <div class="fc-name">資源成本 k-means（Resource-cost k-means）</div>
+      <p>
+        在一個六維的 per-user 向量 <span class="var">c</span><sub><span class="var">u</span></sub>
+        = ( <span class="var">c</span>(<span class="var">u</span>,0), &hellip;, <span class="var">c</span>(<span class="var">u</span>,5) )
+        上做 k-means，用公式 (3) 計算，把 <span class="var">u</span> 當作自己群組裡唯一的成員。
+        兩個寬頻 CQI 完全相同的使用者，如果各自頻帶的剖面形狀不同，所需的 RB 數可能差很多——
+        這個特徵是家族一看不到、這裡才看得到的。
+      </p>
+    </div>
+
+    <div class="family-card">
+      <h4>家族三</h4>
+      <div class="fc-name">精確 regret 譜分群（Exact-regret spectral graph）</div>
+      <p>
+        不是 k-means：一個成對親和圖（pairwise affinity graph），用譜嵌入（spectral embedding）分群。
+        對每個使用者 <span class="var">i</span>、以及每一對 (<span class="var">i</span>,<span class="var">j</span>)，
+        在一個「獨佔預算」（exclusive-budget）近似下計算單獨能達到的最佳價值——彷彿該使用者或該對使用者
+        獨佔了完整的 RB 預算，藉此避免對每一對都重複求解真正共享預算的 DP、造成
+        <span class="var">n</span><sup>2</sup> 倍的運算量：
+      </p>
+      <div class="eqn">
+        <div class="expr">
+          regret(<span class="var">i</span>,<span class="var">j</span>) =
+          <span class="var">v</span><sub>solo</sub>(<span class="var">i</span>) +
+          <span class="var">v</span><sub>solo</sub>(<span class="var">j</span>) &minus;
+          <span class="var">v</span><sub>pair</sub>(<span class="var">i</span>,<span class="var">j</span>)
+        </div>
+        <div class="tag">(6)</div>
+      </div>
+      <p>
+        轉換成親和度 <span class="var">w</span><sub><span class="var">ij</span></sub> = exp(&minus;regret / scale)，
+        scale 為所有正值 regret 的中位數。譜分群透過未正規化圖拉普拉斯矩陣
+        <span class="var">L</span> = <span class="var">D</span> &minus; <span class="var">W</span>
+        最小的 <span class="var">k</span> 個特徵向量嵌入使用者，再對嵌入結果做 k-means。
+        這個家族直接量測「把兩個使用者強制分在一起的真實代價」，而不是用一個代理距離——這很重要，
+        因為 CQI 對速率的映射在低端有很陡的非線性：兩個使用者數值上很小的 CQI 差距，
+        可能隱藏著很大的 RB 可行性斷崖，這是家族一與家族二的線性距離分群天生看不到的。
+      </p>
+    </div>
+
+    <p>
+      還有第四個候選——切換狀態感知，在聯合座標（CQI、前一個畫質等級）上做 k-means——
+      同樣被實作出來，並透過第 7 節的完整冪集消融測試過。結果顯示不論和哪些家族組合，
+      它在各項指標上的貢獻都明顯小於家族二與家族三，因此在這個量化基礎上被排除於最終方法之外，
+      而不是憑假設排除。
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">6</span> 最終方法</h2>
+    <p>已驗證的方法把三個家族聯集起來，用精確 DP 分數挑選：</p>
+    <div class="algo"><span class="ln">1</span><span class="kw">函式</span> 分組(scenario, K, beta)：
+<span class="ln">2</span>  候選方案 &larr; []
+<span class="ln">3</span>  候選方案 += CQI_kmeans(scenario.cqi, K)
+<span class="ln">4</span>  候選方案 += 成本_kmeans(resource_cost(scenario), K)
+<span class="ln">5</span>  候選方案 += 譜分群(regret_affinity(scenario, beta), K)
+<span class="ln">6</span>  <span class="kw">回傳</span> unique(候選方案) 中 exact_DP_utility(&middot;, scenario, beta) 最大者</div>
+    <p>
+      群組數在每個家族內部都掃過 1&hellip;<span class="var">K</span>（已驗證設定中
+      <span class="var">K</span>=3）；k-means 每次呼叫用 10 次隨機重啟。先前上線的版本曾額外包含切換狀態感知；
+      第 7 節報告移除它背後的完整消融結果。
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">7</span> 實證驗證</h2>
+    <p>
+      在真實的 OMNeT++ 6.3 / INET 4.6 / Simu5G 1.4 / Veins 5.3 物理層模擬上評估，
+      搭配 SUMO 產生的車輛移動軌跡（不是合成 CQI 產生器）——兩個 gNB，per-band CQI 回報直接從模擬器記錄，
+      含真實的 handover 與排程動態。
+    </p>
+
+    <h3>冪集消融：拆解每個家族各自的貢獻</h3>
+    <p>
+      聯集保證（第 4 節）代表家族越多的方法在架構上不可能輸給家族較少的版本，所以「零敗場」本身
+      永遠不能證明某個家族真的有實質貢獻。為了誠實拆解貢獻，把三個候選家族——資源成本、切換狀態感知、
+      regret-graph——的全部 7 種非空組合，直接拿去和單純 CQI 比較，測試對象是 20 個 held-out confirmatory
+      真實資料 seed，走真正的 temporal closed loop（120 組 seed &times; cell 比較，取兩個未飽和 dispersion
+      等級的 pooled 結果）：
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>每種組合相對於單純 CQI 的 &Delta; 效用，20 個 confirmatory seed &times; 6 個 cell（120 筆比較）</caption>
+        <thead>
+          <tr><th>組合</th><th>&Delta; 效用</th><th>95% CI</th><th>勝 / 平 / 敗</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>+ 資源成本</td><td class="num">+0.0215</td><td class="num">[+0.0169, +0.0266]</td><td class="num">104 / 10 / 6</td></tr>
+          <tr><td>+ 切換狀態</td><td class="num">+0.0048</td><td class="num">[+0.0035, +0.0061]</td><td class="num">73 / 38 / 9</td></tr>
+          <tr><td>+ regret-graph</td><td class="num win">+0.0272</td><td class="num">[+0.0225, +0.0320]</td><td class="num win">105 / 15 / 0</td></tr>
+          <tr><td>+ 成本 + 切換</td><td class="num">+0.0230</td><td class="num">[+0.0184, +0.0280]</td><td class="num">105 / 10 / 5</td></tr>
+          <tr><td>+ 成本 + regret-graph <em>（最終方法）</em></td><td class="num win">+0.0335</td><td class="num">[+0.0282, +0.0389]</td><td class="num win">108 / 8 / 4</td></tr>
+          <tr><td>+ 切換 + regret-graph</td><td class="num">+0.0287</td><td class="num">[+0.0238, +0.0337]</td><td class="num">106 / 11 / 3</td></tr>
+          <tr><td>+ 成本 + 切換 + regret-graph</td><td class="num">+0.0342</td><td class="num">[+0.0291, +0.0395]</td><td class="num">107 / 8 / 5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">結果</span>
+      <p>
+        兩個乾淨、各自獨立的故事，加上一個明確的排除。家族三（regret-graph）單獨是三者中最強的
+        單一貢獻者——平均增益比資源成本還大，而且是全部組合中唯一在 120 筆 confirmatory 比較裡
+        <strong>零敗場</strong>的。資源成本是第二強、且獨立地真實有效。切換狀態感知在它出現的
+        每一種組合裡，貢獻都是三者中最小的——單獨時（+0.0048，大約只有資源成本自身效果的五分之一），
+        疊加在另外兩者之上時也一樣（+0.0342 對 +0.0335，只多了 +0.0007，這個差距甚至沒有超出自身信賴區間的寬度，
+        跟雜訊難以區分）。最終選擇兩家族方法（成本 + regret-graph），是根據這個量化基礎，而不是憑假設：
+        在 confirmatory 規模下，它已經拿到聯集能拿到的幾乎全部增益（+0.0335，佔四家族最大值 +0.0342 的絕大部分），
+        而且兩個家族各自的貢獻都有獨立、扎實的證據，不像三家族版本裡有一個家族其實是被另外兩個「帶著走」。
+      </p>
+    </div>
+
+    <h3>情境拆解：各家族的優勢分別來自哪裡</h3>
+    <p>
+      上面的 pooled 數字，是在六個 cell（mid/high dispersion &times; light/medium/heavy load）上取平均；
+      low dispersion 被排除，因為它會飽和——CQI 本身在那裡已經接近最優，任何組合的貢獻都接近零。
+      把最終方法保留下來的兩個家族，按 cell 拆開來看（而不是 pooled 在一起），會發現它們不是在同一個地方、
+      用同一個理由獲勝：
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>資源成本 vs. regret-graph 相對於單純 CQI 的 &Delta; 效用，按 cell 拆解（每格 20 個 seed）</caption>
+        <thead>
+          <tr><th>Dispersion</th><th>Load</th><th>+ 資源成本</th><th>+ regret-graph</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>mid</td><td>light</td><td class="num win">+0.0199 (19/0/1)</td><td class="num">+0.0169 (18/2/0)</td></tr>
+          <tr><td>mid</td><td>medium</td><td class="num win">+0.0117 (18/0/2)</td><td class="num">+0.0102 (18/2/0)</td></tr>
+          <tr><td>mid</td><td>heavy</td><td class="num win">+0.0028 (10/10/0)</td><td class="num">+0.0026 (9/11/0)</td></tr>
+          <tr><td>high</td><td>light</td><td class="num win">+0.0285 (20/0/0)</td><td class="num">+0.0218 (20/0/0)</td></tr>
+          <tr><td>high</td><td>medium</td><td class="num">+0.0157 (18/0/2)</td><td class="num win">+0.0282 (20/0/0)</td></tr>
+          <tr><td>high</td><td>heavy</td><td class="num">+0.0504 (19/0/1)</td><td class="num win">+0.0836 (20/0/0)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">結果</span>
+      <p>
+        呈現的是一次交叉反轉，不是固定排名。在 mid dispersion，資源成本在每一種 load 條件下都小幅領先——
+        使用者間的通道差異還不夠大，平衡 RB 成本是主要的槓桿。到了 high dispersion，排名反轉：
+        regret-graph 反超資源成本，而且隨著負載加重差距持續擴大，從 high&middot;light 的大致相當，
+        一路拉大到 high&middot;heavy 時 regret-graph 的貢獻達到資源成本的 <strong>1.7 倍</strong>
+        （+0.0836 對 +0.0504）。這正好對應第 5 節的機制：通道分散度大，正是產生嚴重離群使用者的原因；
+        RB 預算緊，正是漏掉一個離群使用者代價變大的原因——這兩個條件正是精確 regret 圖被設計來偵測、
+        而線性距離 k-means 天生偵測不到的。
+      </p>
+    </div>
+
+    <h3>規模泛化：留下來的機制效果不減反增</h3>
+    <p>
+      最終的兩家族方法，在一個獨立產生的真實資料場景上重新評估，使用者數 <span class="var">n</span>=40
+      （從 <span class="var">n</span>=24 提高），是目前這套模擬 pipeline 能穩定支援的最大規模。
+      家族三自身的貢獻——透過跟「只有資源成本」的方法比較來衡量——在使用者規模變大時效果更大，
+      在它鎖定的資源稀缺情境下最明顯：
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>家族三相對於單純資源成本的邊際效用，high dispersion + heavy load</caption>
+        <thead>
+          <tr><th>使用者規模</th><th>&Delta; 效用</th><th>勝場數</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="var">n</span> = 24</td><td class="num">真實但幅度中等</td><td class="num">&mdash;</td></tr>
+          <tr><td><span class="var">n</span> = 40</td><td class="num win">+0.0740</td><td class="num win">8 / 10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">結果</span>
+      <p>
+        與第 5 節的機制一致：使用者規模越大，任一次分配時刻出現極端劣勢通道使用者的機率就越高，
+        這正是家族三被設計來偵測、而家族一與家族二的線性距離分群無法偵測到的情境。
+      </p>
+    </div>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">8</span> 複雜度</h2>
+    <p>
+      每次分配時刻，有兩塊運算：精確 DP 評分（每個獨立候選方案跑一次），
+      以及家族三的候選產生（跑一次，K 個群組數共用）。這兩塊的成長方式並不一樣，
+      而主導項也不是單純看漸進複雜度會以為的那一個。
+    </p>
+
+    <h3>DP 資源分配：便宜，而且比公式暗示的還便宜</h3>
+    <p>
+      <code>allocate_and_evaluate</code> 是一個 multiple-choice knapsack：
+      對每個群組（共 <span class="var">M</span> 個），對每個可達到的 RB 用量狀態
+      （最多 <span class="var">R</span><sub>avail</sub>+1 個），對每個畫質選項
+      （|<span class="var">B</span>|&nbsp;=&nbsp;6 個），都會呼叫一次
+      <code>value_fn</code> 並疊代最佳解。慣常的寫法會把每個候選方案的成本上界寫成
+      O(<span class="var">M</span> &middot; <span class="var">R</span><sub>avail</sub>
+      &middot; |<span class="var">B</span>|)——但 <code>value_fn</code> 本身要花 O(|group|)，
+      而且它不依賴正在被疊代進去的 RB 用量狀態，所以在每個能到達某個群組的最多
+      <span class="var">R</span><sub>avail</sub>+1 個狀態裡，都被一模一樣地重新計算了一次。
+      把所有群組加總（<span class="var">M</span> 個群組把全部 <span class="var">n</span>
+      個使用者分割掉），更精確的上界其實是 O(<span class="var">n</span> &middot;
+      <span class="var">R</span><sub>avail</sub>)——這是一個真實、但不算大的低效率：
+      只要把價值計算搬到 RB 用量迴圈外面，就能把 <span class="var">R</span><sub>avail</sub>
+      這個因子完全去掉。用真實資料實測，這一切在絕對時間上都不重要：
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>每個被評分候選方案的 DP 成本，真實資料複製擴大 <span class="var">n</span>、RB 預算固定</caption>
+        <thead>
+          <tr><th><span class="var">n</span></th><th>DP / 候選方案</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>24</td><td class="num">0.58 ms</td></tr>
+          <tr><td>96</td><td class="num">0.79 ms</td></tr>
+          <tr><td>288</td><td class="num">0.92 ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <span class="var">n</span> 成長 12 倍，這一步的時間成長不到 2 倍。成本不在這裡。
+    </p>
+
+    <h3>成本真正在哪裡——以及一個修正</h3>
+    <p>
+      家族三有兩個子步驟：建構 O(<span class="var">n</span><sup>2</sup>) 的 pairwise
+      regret matrix（<code>pairwise_exact_regret_matrix</code>），然後透過拉普拉斯矩陣最小的
+      <span class="var">k</span> 個特徵向量做嵌入（稠密特徵分解為 O(<span
+      class="var">n</span><sup>3</sup>)），對每個 <span class="var">k</span>&nbsp;=&nbsp;1&hellip;<span
+      class="var">K</span> 各跑一次。這份文件先前的版本寫「使用者數較大時特徵分解的運算量會主導整體成本」，
+      這個判斷單純是從漸進複雜度的階數推論出來的。實際量測結果卻推翻了它：
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>家族三各子步驟成本，真實資料複製擴大 <span class="var">n</span></caption>
+        <thead>
+          <tr><th><span class="var">n</span></th><th>Regret-matrix 構建</th><th>譜嵌入（&times;<span class="var">K</span>=3）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>24</td><td class="num">22.5 ms</td><td class="num">2.5 ms</td></tr>
+          <tr><td>96</td><td class="num">253 ms</td><td class="num">6.5 ms</td></tr>
+          <tr><td>288</td><td class="num" style="color:var(--result)">2375 ms</td><td class="num">31 ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">結果——上面那個複雜度說法是錯的</span>
+      <p>
+        在 <span class="var">n</span>=288 時，regret-matrix 的構建比原本以為會主導成本的特徵分解慢了
+        77 倍。原因是實作方式，不是漸進複雜度本身：<code>pairwise_exact_regret_matrix</code>
+        是一個沒有向量化的 Python 雙層迴圈，逐對呼叫函式，跑過
+        <span class="var">n</span>&sup2;/2 組配對；而 <code>np.linalg.eigh</code>
+        則是單一次向量化的 LAPACK 呼叫。在這個 pipeline 目前支援的任何規模下，
+        帶有巨大單次運算常數的 O(<span class="var">n</span><sup>2</sup>)，
+        都贏過用最佳化數值程式碼跑的 O(<span class="var">n</span><sup>3</sup>)——
+        特徵分解的較差階數理應反超的交叉點還沒被測到，需要比這裡測試過的規模大得多的
+        <span class="var">n</span> 才會出現。
+      </p>
+    </div>
+
+    <h3>在 MBS 規模下的意義</h3>
+    <p>
+      MBS 本來就是明確的多使用者情境——一個群組是數百到數千個接收端，不是目前驗證過的幾十個。
+      另外用 <span class="var">n</span>=504 和 <span class="var">n</span>=816 兩個真實資料點，
+      把 regret-matrix 構建的成長乾淨地擬合成 build(<span class="var">n</span>) &asymp; 0.02566
+      &middot; <span class="var">n</span><sup>2</sup> ms（只用 <span class="var">n</span>=816 這個點
+      去預測 <span class="var">n</span>=504 的結果，誤差只有 0.4%）；特徵分解在這個範圍內
+      一直比它小兩個數量級，不是限制所在。把這條擬合公式反過來用，對每一個重新分組的延遲預算，
+      可以算出目前這個未向量化的實作最多能撐到多大的 <span class="var">n</span>：
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>在給定重新分組延遲預算下，目前實作最多能支援的 <span class="var">n</span></caption>
+        <thead>
+          <tr><th>延遲預算</th><th>對應的意義</th><th>最大 <span class="var">n</span></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1 秒</td><td>第 7 節 confirmatory 數字實際測量時用的真實重新分組節奏</td><td class="num" style="color:var(--result)">&asymp; 200</td></tr>
+          <tr><td>5 秒</td><td>稍微放寬、仍算接近即時的節奏</td><td class="num" style="color:var(--result)">&asymp; 440</td></tr>
+          <tr><td>10 秒</td><td>把分配與分組拆成不同節奏之後</td><td class="num" style="color:var(--result)">&asymp; 620</td></tr>
+          <tr><td>1 分鐘</td><td>只有低移動性 MBS 場景（例如場館內固定觀眾）才站得住腳</td><td class="num" style="color:var(--result)">&asymp; 1,500</td></tr>
+          <tr><td>5 分鐘</td><td>幾乎確定對任何真實部署都太慢</td><td class="num" style="color:var(--result)">&asymp; 3,400</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">誠實的限制</span>
+      <p>
+        照這個方法實際驗證過的節奏來看，目前的實作大概只能支援 <span class="var">n</span> &asymp; 200——
+        比 MBS 數千使用者的目標整整差了一個數量級。就算把重新分組間隔放寬到需要另外論證合理性的程度
+        （對應第 7 節討論過的「把分組節奏跟每次 DP 分配節奏拆開」），天花板也只能到幾千，
+        而且那是在 5 分鐘這種對大多數部署都不切實際的節奏下才到得了。這不是單靠漸進複雜度分析就能發現的，
+        必須實際量測這個實作才會浮現。從這個診斷可以直接推出兩個具體、但目前都還沒做的修正：
+        把 <code>pairwise_exact_regret_matrix</code> 用 numpy broadcasting 向量化，取代現在的
+        Python 雙層迴圈（單這一步的常數因子有機會降低 100&ndash;1000 倍——大致就是目前測到的
+        200 人天花板跟 MBS 數千人目標之間的差距）；以及把稠密特徵分解換成只取需要的特徵向量的
+        稀疏/截斷解法（<code>eigsh</code>），並且先把目前全連通的 affinity graph 稀疏化成
+        k-nearest-neighbor graph。這兩者都還沒實作、沒驗證；在 MBS 規模下，候選聯集架構本身提供的
+        退路——拿掉家族三，只保留兩個 O(<span class="var">n</span>) 的家族——是今天就能用的誠實部署選項，
+        代價已經在第 7 節被精確量化，不是空談。
+      </p>
+    </div>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">9</span> 未來方向：向量化與 kNN 稀疏化</h2>
+    <p>
+      第 8 節已經追出家族三真正的成本來源，是沒有向量化的 O(<span
+      class="var">n</span><sup>2</sup>) Python 迴圈，不是特徵分解，
+      也量化出目前的天花板（在驗證過的 1 秒節奏下 &asymp; 200 人）。
+      從這個診斷可以直接推出兩個具體的修正方向——但它們買到的東西不一樣，
+      只有其中一個是「免費的午餐」。
+    </p>
+
+    <h3>向量化：同樣的計算，更小的常數</h3>
+    <p>
+      把 <code>pairwise_exact_regret_matrix</code> 裡的雙層 Python 迴圈換成 numpy
+      broadcasting——把 <code>best_solo_value</code> 對所有配對一次算完，用向量化的陣列運算
+      取代 <span class="var">n</span>&sup2;/2 次個別的 Python 函式呼叫——是這類效能問題的標準解法，
+      通常能拿到 100&ndash;1000 倍的常數因子改善，而且<strong>完全不改變計算內容</strong>：算的還是每一對的精確
+      regret。把這個倍率套進第 8 節擬合出的成本公式（build(<span class="var">n</span>) &asymp;
+      0.02566 &middot; <span class="var">n</span><sup>2</sup> ms），可以把 1 秒天花板從
+      <span class="var">n</span>&asymp;200 推到大約 <span class="var">n</span>&asymp;2,000&ndash;6,000——
+      已經涵蓋 MBS 目標範圍的大部分，而且因為演算法本身完全沒變，Section 7 的所有 confirmatory
+      結果跟精確性保證都完全不受影響。老實的限制是：這只是把牆推遠，不是把牆拆掉。
+      計算本身還是 O(<span class="var">n</span><sup>2</sup>)；<span class="var">n</span>
+      夠大的時候，同樣的天花板還是會出現，只是出現得比較晚。這是風險最低、報酬最高的第一步，
+      也是應該排在下面那一步之前先做的事。
+    </p>
+
+    <h3>kNN 稀疏化：一個不同的演算法，需要自己的驗證</h3>
+    <p>
+      要拿到漸進上更好的階數，前提是一開始就不去對所有 <span class="var">n</span>&sup2;/2
+      組配對都算精確 regret。標準做法是：先用一個便宜的 proxy 距離——家族一、二本來就有的
+      CQI 或 resource-cost 特徵向量——透過 KD-tree 或 ball-tree 找出每個使用者的 <span
+      class="var">k</span> 個最近鄰居（建樹成本 O(<span class="var">n</span> log <span
+      class="var">n</span>)，查詢加總成本 O(<span class="var">n</span> log <span
+      class="var">n</span>)），然後<strong>只對這 O(<span class="var">n</span>&middot;<span
+      class="var">k</span>) 組候選配對</strong>去算真正的精確 regret；不在候選鄰居範圍內的配對，
+      直接給 affinity 0，不再評估。搭配稀疏圖之後，特徵分解也可以從稠密的
+      <code>np.linalg.eigh</code> 換成迭代解法（<code>eigsh</code>，基於 Lanczos），
+      每次迭代成本是 O(nnz) = O(<span class="var">n</span>&middot;<span class="var">k</span>)，
+      跑在現在已經稀疏化的拉普拉斯矩陣上。
+    </p>
+    <div class="result-box">
+      <span class="rb-label">這不只是「同一件事的更快版本」</span>
+      <p>
+        把精確 regret 的評估範圍限縮在 proxy 距離定義的鄰域內，等於假設「proxy 距離判定為遠」的配對，
+        真正的 regret 也一定不重要。第 5 節本身就是在警告這個假設可能不成立：兩個寬頻 CQI 完全相同的
+        使用者，per-band 的 RB 成本剖面仍然可能差很多——這正是家族二跟精確 regret
+        公式存在的理由，而不是單純依賴 CQI 距離就夠。用 CQI-only 或 resource-cost-only
+        的 proxy 建出來的 kNN 圖，有系統性漏掉「精確公式本來就是設計來抓住」的那些離群配對的風險。
+        這不是一個順便提一下的假設性但書——這是一個真實、還沒被量測過的風險，要把這一節的修正真正做完，
+        需要照第 7 節的做法跑一次自己的 confirmatory 消融，把稀疏近似版本跟目前的精確全配對版本
+        直接比較過，才能被信任成可以直接替換上去的版本。同樣地，迭代特徵分解那個接近 O(<span
+        class="var">n</span> log <span class="var">n</span>) 的表現，取決於圖的 spectral gap，
+        是稀疏譜分群文獻裡常見的<strong>典型情況經驗宣稱</strong>，不是最壞情況下的保證。
+      </p>
+    </div>
+    <p>
+      這兩個修正是互補的，不是二選一，而且有先後順序：先做向量化，因為它風險低（演算法、保證都不變），
+      而且已經能補上大部分通往 MBS 規模的差距；再做 kNN 稀疏化，因為它才是真正拆掉漸進天花板、
+      而不只是把牆推遠的做法，但它改變了實際在計算什麼，在 MBS 規模下被信任之前，需要自己的
+      confirmatory 驗證。截至本文件為止，兩者都還沒實作。
+    </p>
+  </section>
+
+  <hr class="rule thin">
+
+  <section class="body-sec" style="margin-bottom:0;">
+    <h2><span class="sec-num">&sect;</span> 總結</h2>
+    <p>
+      已發表的單一特徵 CQI k-means 方法，能乾淨地擴充成一個候選聯集——CQI、資源成本、
+      以及成對精確效用 regret——由一個精確 DP 評分器統一起來，讓每一次擴充在決策層級上都可證明是安全的。
+      第三個候選，切換狀態感知，同樣透過完整的冪集消融測試過，但在量化基礎上被排除：
+      不論和哪個家族組合、不論在哪種 dispersion 或 load 條件下，它的貢獻都明顯小於另外兩者。
+      在真實物理層模擬上，confirmatory 測試顯示保留下來的兩家族方法嚴格優於單純 CQI；
+      資源成本家族在中度通道分散情境下領先，regret-graph 家族則在分散度與負載都吃緊時反超並持續拉開差距，
+      而且它的貢獻會隨著真實資料使用者規模擴大而持續增加。這個貢獻目前還不是「免費」的：
+      實際量測（而不是只看漸進複雜度的階數）顯示，家族三的候選產生才是這個方法真正的成本瓶頸，
+      而在 MBS 真正的目標規模——數百到數千個使用者——下，目前這個沒有向量化的實作，
+      在任何可用的重新分組節奏下都不可行（第 8 節）。這個架構本身提供的退路——拿掉家族三、
+      只保留兩個 O(<span class="var">n</span>) 的家族——是今天就能用、代價已被精確量化的部署選項
+      （第 7 節）；要在不放棄這個機制的情況下補上這個差距，有一條具體、分階段的路徑——先向量化，
+      再做 kNN 稀疏化——已經在第 9 節寫清楚，兩個步驟目前都還沒做。
+    </p>
+  </section>
+
+  <footer>方法規格文件整理於 2026-08-27，資料來源為 real-Simu5G 驗證工作。</footer>
+</div>
+
+</body>
+</html>

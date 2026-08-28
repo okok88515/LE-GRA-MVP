@@ -106,7 +106,17 @@ def run_method_trajectory(
     dispersion: str,
     load: str,
     seed: str,
+    value_fn=None,
 ) -> list[dict]:
+    """`value_fn` is forwarded to `allocate_and_evaluate` for the final
+    quality-assignment/scoring step (default None -> `group_quality_value`);
+    pass `mvp.group_adr_value` to score trajectories by raw ADR instead,
+    matching the original published paper's objective (see
+    `run_real_multiseed_baseline_comparison_adr.py`). This does not affect
+    how `method` itself decides groupings -- only how the resulting
+    grouping is scored and how quality tiers get allocated under the RB
+    budget."""
+
     if len(scenarios) < 2:
         raise ValueError(f"{dispersion}/{seed}/{load} needs at least two snapshots")
 
@@ -117,7 +127,7 @@ def run_method_trajectory(
     for step, base_scenario in enumerate(scenarios):
         scenario = replace(base_scenario, previous_quality=previous_quality.copy())
         groups = method(scenario)
-        result = mvp.allocate_and_evaluate(groups, scenario, SWITCH_BETA)
+        result = mvp.allocate_and_evaluate(groups, scenario, SWITCH_BETA, value_fn=value_fn)
         if result.user_quality is None:
             raise RuntimeError("allocator did not return its per-user quality assignment")
 

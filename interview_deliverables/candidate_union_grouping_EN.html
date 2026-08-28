@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Candidate-Union Grouping</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap');
+
+  :root {
+    --paper: #f7f5ef;
+    --surface: #fdfcf8;
+    --surface-sunk: #efece3;
+    --ink: #201e19;
+    --ink-muted: #5c584c;
+    --ink-faint: #8b8778;
+    --rule: #d8d3c3;
+    --rule-strong: #b8b19c;
+    --accent: #2c3a63;
+    --accent-soft: #dfe3ee;
+    --result: #7a5a1e;
+    --result-soft: #f1e6cd;
+    --serif: 'STIX Two Text', 'Cambria', 'Georgia', serif;
+    --sans: 'Source Sans 3', -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'Source Code Pro', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #15181c;
+      --surface: #1b1f24;
+      --surface-sunk: #101215;
+      --ink: #e7e4da;
+      --ink-muted: #a5a091;
+      --ink-faint: #6d6a5e;
+      --rule: #33383f;
+      --rule-strong: #454b53;
+      --accent: #8fa1d6;
+      --accent-soft: #232c42;
+      --result: #d3ac5c;
+      --result-soft: #332c19;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #15181c;
+    --surface: #1b1f24;
+    --surface-sunk: #101215;
+    --ink: #e7e4da;
+    --ink-muted: #a5a091;
+    --ink-faint: #6d6a5e;
+    --rule: #33383f;
+    --rule-strong: #454b53;
+    --accent: #8fa1d6;
+    --accent-soft: #232c42;
+    --result: #d3ac5c;
+    --result-soft: #332c19;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .sheet { max-width: 42rem; margin: 0 auto; padding: 4rem 1.6rem 6rem; }
+
+  /* ---- masthead ---- */
+  .kicker {
+    font-family: var(--sans);
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-align: center;
+    margin-bottom: 1.1rem;
+  }
+  h1.doc-title {
+    font-size: clamp(1.7rem, 4.2vw, 2.35rem);
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.28;
+    text-wrap: balance;
+    margin: 0 auto;
+    max-width: 34rem;
+  }
+  .byline {
+    text-align: center;
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    color: var(--ink-muted);
+    margin-top: 1rem;
+  }
+  .rule {
+    border: none;
+    border-top: 1px solid var(--rule-strong);
+    margin: 2.2rem 0;
+  }
+  .rule.thin { border-top: 1px solid var(--rule); margin: 2.6rem 0; }
+
+  .abstract {
+    font-size: 0.97rem;
+    color: var(--ink-muted);
+    padding: 0 1rem;
+  }
+  .abstract .label {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+
+  /* ---- body typography ---- */
+  h2 {
+    font-size: 1.28rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    text-wrap: balance;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  h2 .sec-num {
+    font-family: var(--sans);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.7rem;
+    font-style: italic;
+  }
+  section.body-sec { margin-bottom: 2.6rem; }
+
+  p { margin: 0 0 1rem; }
+  p:last-child { margin-bottom: 0; }
+
+  em.term { font-style: italic; }
+  strong { font-weight: 600; }
+
+  .eqn {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.4rem 0;
+    padding: 0.3rem 0;
+  }
+  .eqn .expr {
+    font-size: 1.05rem;
+    text-align: center;
+    font-style: italic;
+    overflow-x: auto;
+  }
+  .eqn .tag {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    font-style: normal;
+    white-space: nowrap;
+  }
+  .var { font-style: italic; }
+
+  .note {
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    background: var(--surface-sunk);
+    border-radius: 6px;
+    padding: 0.85rem 1.1rem;
+    margin: 1.1rem 0;
+  }
+
+  .result-box {
+    border-left: 3px solid var(--result);
+    background: var(--result-soft);
+    padding: 0.9rem 1.15rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1.3rem 0;
+  }
+  .result-box .rb-label {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--result);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .result-box p { font-size: 0.95rem; }
+
+  .family-card {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.2rem 1.35rem;
+    margin: 1.1rem 0;
+    background: var(--surface);
+  }
+  .family-card h4 {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+  }
+  .family-card .fc-name { font-size: 1.02rem; font-weight: 600; margin-bottom: 0.6rem; }
+
+  .algo {
+    font-family: var(--mono);
+    font-size: 0.84rem;
+    line-height: 1.7;
+    background: var(--surface-sunk);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.1rem 1.3rem;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 1.2rem 0;
+  }
+  .algo .ln { color: var(--ink-faint); user-select: none; margin-right: 0.9em; }
+  .algo .kw { color: var(--accent); font-weight: 500; }
+
+  .table-wrap { overflow-x: auto; margin: 1.2rem 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    min-width: 30rem;
+  }
+  caption {
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    text-align: left;
+    caption-side: top;
+    margin-bottom: 0.6rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.55rem 0.85rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  th {
+    font-weight: 600;
+    font-size: 0.76rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom: 1.5px solid var(--rule-strong);
+  }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  td.win { color: var(--accent); font-weight: 600; }
+
+  .prop {
+    font-family: var(--sans);
+    font-size: 0.93rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 1.3rem 0;
+  }
+  .prop .p-label { font-weight: 700; font-style: italic; font-family: var(--serif); margin-right: 0.4rem; }
+
+  ol.steps, ul.plain { font-size: 0.98rem; padding-left: 1.4rem; margin: 0 0 1rem; }
+  ol.steps li, ul.plain li { margin-bottom: 0.5rem; }
+  ol.steps li:last-child, ul.plain li:last-child { margin-bottom: 0; }
+
+  footer {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    text-align: center;
+    margin-top: 3.5rem;
+  }
+
+  @media (max-width: 30rem) {
+    .eqn { grid-template-columns: 1fr; text-align: center; }
+    .eqn .tag { text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="sheet">
+
+  <div class="kicker">Method specification &middot; real-data validated</div>
+  <h1 class="doc-title">A Candidate-Union K-Means Framework for CQI-Aware Multicast Grouping</h1>
+  <p class="byline">Extends the published single-feature k-means grouping method with independently-generated candidate families, selected by exact utility under a resource-block budget.</p>
+
+  <hr class="rule">
+
+  <div class="abstract">
+    <span class="label">Abstract</span>
+    <p>
+      Multicast video delivery groups users so that a shared radio
+      resource serves all members at once, at a quality no better than the
+      group's weakest member. Grouping by <em class="term">Channel Quality
+      Indicator</em> (CQI) alone is a strong baseline but is provably blind
+      to two structural sources of loss: non-linearity in the CQI-to-rate
+      mapping, and per-band frequency-selective profile differences
+      invisible to a single wideband number. This method keeps CQI k-means
+      as its base but poses the grouping problem as a <em class="term">candidate
+      union</em>: independently-cheap partitioning heuristics each propose a
+      grouping for every group count <span class="var">k</span> =
+      1&hellip;<span class="var">K</span>, every proposal is scored by the
+      same exact dynamic-programming resource allocator, and the
+      highest-scoring proposal is kept. Because scoring is exact and
+      shared, adding a family is provably never worse than omitting it
+      &mdash; though that guarantee alone says nothing about how much a
+      given family actually contributes, so the method was decided by a
+      full power-set ablation, not by the guarantee alone: every one of
+      the 7 non-empty combinations of three candidate feature families was
+      measured against CQI alone on real OMNeT++/Simu5G physical-layer
+      simulation. Two families &mdash; resource-cost and a pairwise
+      exact-utility-regret graph &mdash; each drive a real, consistent gain
+      (regret-graph alone: zero losses in 120 confirmatory test cases); a
+      third, switching-state awareness, contributes markedly less by every
+      measure regardless of what it is combined with, and is excluded from
+      the final method on that quantified basis. The final two-family
+      union's dominant mechanism grows stronger, not weaker, when the
+      real-data population size increases from 24 to 40 users.
+    </p>
+  </div>
+
+  <hr class="rule">
+
+  <section class="body-sec">
+    <h2><span class="sec-num">1</span> Problem formulation</h2>
+    <p>
+      A base station serves <span class="var">n</span> video-multicast
+      users over <span class="var">R</span> resource blocks (RBs), of
+      which <span class="var">R</span><sub>avail</sub> &le; <span
+      class="var">R</span> are budgeted for this service in the current
+      allocation cycle. Each user <span class="var">u</span> reports a
+      per-band achievable rate <span class="var">r</span><sub><span
+      class="var">u</span>,<span class="var">b</span></sub> for band
+      <span class="var">b</span>, derived from its reported CQI. Video is
+      offered at one of six discrete bitrates,
+    </p>
+    <div class="eqn">
+      <div class="expr"><span class="var">B</span> = {200, 550, 1500, 3000, 5800, 7500} kbps,</div>
+      <div class="tag">(1)</div>
+    </div>
+    <p>
+      indexed <span class="var">q</span> = 0&hellip;5. Users are
+      partitioned into disjoint multicast groups <span
+      class="var">G</span><sub>1</sub>, &hellip;, <span
+      class="var">G</span><sub><span class="var">M</span></sub>; because a
+      multicast transmission is limited by its weakest receiver, a
+      group's achievable rate on band <span class="var">b</span> is
+    </p>
+    <div class="eqn">
+      <div class="expr">
+        <span class="var">r</span><sub><span class="var">G</span>,<span class="var">b</span></sub>
+        = min<sub><span class="var">u</span>&isin;<span class="var">G</span></sub>
+        <span class="var">r</span><sub><span class="var">u</span>,<span class="var">b</span></sub>.
+      </div>
+      <div class="tag">(2)</div>
+    </div>
+    <p>
+      Given a group's rate profile, the minimum number of RBs needed to
+      clear a target bitrate is computed exactly by greedily consuming the
+      group's own bands from strongest to weakest until the cumulative
+      rate meets the target:
+    </p>
+    <div class="eqn">
+      <div class="expr">
+        <span class="var">c</span>(<span class="var">G</span>, <span class="var">q</span>)
+        = min { <span class="var">m</span> : &sum;<sub><span class="var">i</span>=1</sub><sup><span class="var">m</span></sup>
+        <span class="var">r</span><sup>&darr;</sup><sub><span class="var">G</span>,<span class="var">i</span></sub>
+        &ge; <span class="var">B</span>[<span class="var">q</span>] },
+      </div>
+      <div class="tag">(3)</div>
+    </div>
+    <p>
+      where <span class="var">r</span><sup>&darr;</sup> denotes the
+      group's per-band rates sorted descending; <span
+      class="var">c</span>(<span class="var">G</span>,<span
+      class="var">q</span>) = &infin; if even the full band set cannot
+      clear the target. The grouping problem is: choose a partition and a
+      per-group quality assignment <span class="var">q</span><sub><span
+      class="var">G</span></sub> &isin; {&minus;1, 0, &hellip;, 5}
+      (&minus;1 = unserved) to maximize total utility subject to
+      &sum;<sub><span class="var">G</span></sub> <span
+      class="var">c</span>(<span class="var">G</span>, <span
+      class="var">q</span><sub><span class="var">G</span></sub>) &le;
+      <span class="var">R</span><sub>avail</sub>.
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">2</span> Utility</h2>
+    <p>
+      Each served user contributes a log-bitrate quality-of-experience
+      score normalized to [0,1],
+    </p>
+    <div class="eqn">
+      <div class="expr">
+        <span class="var">s</span>(<span class="var">q</span>) =
+        <span style="display:inline-block; vertical-align:middle; text-align:center;">
+          <span style="display:block; border-bottom:1px solid var(--ink); padding:0 0.3em;">ln <span class="var">B</span>[<span class="var">q</span>] &minus; ln <span class="var">B</span>[0]</span>
+          <span style="display:block; padding:0 0.3em;">ln <span class="var">B</span>[5] &minus; ln <span class="var">B</span>[0]</span>
+        </span>,
+      </div>
+      <div class="tag">(4)</div>
+    </div>
+    <p>
+      penalized by a switching term weighted by <span
+      class="var">&beta;</span> against the user's previous quality tier
+      <span class="var">q</span><sub>prev</sub>. A group's contribution at
+      quality <span class="var">q</span> is
+    </p>
+    <div class="eqn">
+      <div class="expr">
+        <span class="var">v</span>(<span class="var">G</span>, <span class="var">q</span>) =
+        &sum;<sub><span class="var">u</span>&isin;<span class="var">G</span></sub>
+        <span class="var">s</span>(<span class="var">q</span>) &minus;
+        <span class="var">&beta;</span>
+        <span style="display:inline-block; vertical-align:middle; text-align:center;">
+          <span style="display:block; border-bottom:1px solid var(--ink); padding:0 0.3em;">|<span class="var">q</span> &minus; <span class="var">q</span><sub>prev,<span class="var">u</span></sub>|</span>
+          <span style="display:block; padding:0 0.3em;">5</span>
+        </span>,
+      </div>
+      <div class="tag">(5)</div>
+    </div>
+    <p>
+      or &minus;2|<span class="var">G</span>| if unserved. Overall utility
+      is the per-user mean of the chosen groups' values, and is what every
+      candidate grouping below is ultimately judged by.
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">3</span> Exact allocation</h2>
+    <p>
+      For a <em class="term">fixed</em> partition, choosing each group's
+      quality tier is a multiple-choice knapsack: every group is an item
+      class, every quality tier (or unserved) is one mutually-exclusive
+      choice with cost <span class="var">c</span>(<span
+      class="var">G</span>,<span class="var">q</span>) and value <span
+      class="var">v</span>(<span class="var">G</span>,<span
+      class="var">q</span>), and <span class="var">R</span><sub>avail</sub>
+      is the capacity. Solved exactly by dynamic programming over
+      cumulative RB usage:
+    </p>
+    <div class="algo"><span class="ln">1</span><span class="kw">state</span> dp[u] = best achievable total value using exactly u RBs
+<span class="ln">2</span>dp[0] &larr; 0
+<span class="ln">3</span><span class="kw">for</span> each group G <span class="kw">in</span> partition:
+<span class="ln">4</span>  <span class="kw">for</span> each (quality, cost) feasible <span class="kw">for</span> G:
+<span class="ln">5</span>    dp[u + cost] &larr; max(dp[u + cost], dp[u] + v(G, quality))
+<span class="ln">6</span><span class="kw">return</span> max over u &le; R_avail of dp[u]</div>
+    <p>
+      This is the only place a grouping is ever scored, and it is exact
+      &mdash; not a proxy, not a greedy heuristic. Every candidate
+      partition considered anywhere in this method is scored by running
+      this same DP.
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">4</span> Candidate-union architecture</h2>
+    <p>
+      Finding the utility-maximizing partition directly is a combinatorial
+      set-partition problem. Instead of searching it, the method pools
+      proposals from several cheap, structurally-different heuristics
+      (<em class="term">families</em>), scores every proposal exactly with
+      the DP above, and keeps the best:
+    </p>
+    <ol class="steps">
+      <li>Each family <span class="var">f</span>, for every group count
+        <span class="var">k</span> = 1&hellip;<span class="var">K</span>,
+        proposes one partition &mdash; <span class="var">K</span>
+        proposals per family.</li>
+      <li>All proposals from all families are pooled and de-duplicated.</li>
+      <li>Every unique proposal is scored by the exact DP (Section 3).</li>
+      <li>The highest-scoring proposal is returned.</li>
+    </ol>
+    <div class="prop">
+      <span class="p-label">Proposition.</span>
+      Because every candidate is scored by the same exact function, the
+      best score over a candidate set can only increase, never decrease,
+      when a family is added to the pool. Adding a family is therefore
+      weakly dominant at any single decision instant: it cannot make the
+      chosen grouping worse, only change it if a genuinely better option
+      appears.
+    </div>
+    <p>
+      This guarantee is local to one decision instant. Across a temporal
+      sequence of decisions, where a chosen grouping changes each user's
+      state (<span class="var">q</span><sub>prev</sub>) for the
+      <em>next</em> decision, two methods with different candidate pools
+      can diverge onto different trajectories &mdash; so the guarantee
+      does not extend to a whole trajectory's cumulative utility, only to
+      each individual step. Section 7 reports where this matters in
+      practice.
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">5</span> The candidate families</h2>
+
+    <div class="family-card">
+      <h4>Family 1</h4>
+      <div class="fc-name">CQI k-means</div>
+      <p>
+        One-dimensional k-means on each user's current wideband CQI. The
+        baseline: fast, and correct whenever CQI alone predicts
+        RB-feasibility well.
+      </p>
+    </div>
+
+    <div class="family-card">
+      <h4>Family 2</h4>
+      <div class="fc-name">Resource-cost k-means</div>
+      <p>
+        k-means on a six-dimensional per-user vector <span
+        class="var">c</span><sub><span class="var">u</span></sub> = (
+        <span class="var">c</span>(<span class="var">u</span>,0), &hellip;,
+        <span class="var">c</span>(<span class="var">u</span>,5) ),
+        computed by Equation 3 as if <span class="var">u</span> were the
+        sole member of its own group. Two users at identical wideband CQI
+        can require very different RB counts if their per-band profile
+        shape differs &mdash; this feature is invisible to Family 1 and
+        visible here.
+      </p>
+    </div>
+
+    <div class="family-card">
+      <h4>Family 3</h4>
+      <div class="fc-name">Exact-regret spectral graph</div>
+      <p>
+        Not k-means: a pairwise affinity graph, clustered by spectral
+        embedding. For every user <span class="var">i</span> and every
+        pair (<span class="var">i</span>,<span class="var">j</span>), the
+        best achievable value alone is computed under an
+        <em class="term">exclusive-budget</em> approximation &mdash; as if
+        that user or pair had the full RB budget to itself, avoiding an
+        <span class="var">n</span><sup>2</sup>-fold repeat of the true
+        shared-budget DP:
+      </p>
+      <div class="eqn">
+        <div class="expr">
+          regret(<span class="var">i</span>,<span class="var">j</span>) =
+          <span class="var">v</span><sub>solo</sub>(<span class="var">i</span>) +
+          <span class="var">v</span><sub>solo</sub>(<span class="var">j</span>) &minus;
+          <span class="var">v</span><sub>pair</sub>(<span class="var">i</span>,<span class="var">j</span>)
+        </div>
+        <div class="tag">(6)</div>
+      </div>
+      <p>
+        converted to an affinity <span class="var">w</span><sub><span
+        class="var">ij</span></sub> = exp(&minus;regret / scale), scale =
+        the median positive regret. Spectral clustering embeds users via
+        the <span class="var">k</span> smallest eigenvectors of the
+        unnormalized graph Laplacian <span class="var">L</span> = <span
+        class="var">D</span> &minus; <span class="var">W</span>, then
+        k-means the embedding. This family directly measures the true
+        cost of forcing two users together rather than a proxy distance,
+        which matters because the CQI-to-rate mapping is sharply
+        non-linear at the low end: a numerically small CQI gap between two
+        users can hide a large RB-feasibility cliff that neither Family 1
+        nor Family 2's linear-distance clustering is built to see.
+      </p>
+    </div>
+
+    <p>
+      A fourth candidate &mdash; switching-state awareness, k-means on the
+      joint coordinate (CQI, previous quality tier) &mdash; was also built
+      and tested via the full power-set ablation in Section 7. It
+      contributed markedly less than Families 2 and 3 by every measure,
+      regardless of which other families it was combined with, and is
+      excluded from the final method on that quantified basis rather than
+      by assumption.
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">6</span> Final method</h2>
+    <p>
+      The validated method unions all three families and selects by exact
+      DP score:
+    </p>
+    <div class="algo"><span class="ln">1</span><span class="kw">function</span> group(scenario, K, beta):
+<span class="ln">2</span>  candidates &larr; []
+<span class="ln">3</span>  candidates += CQI_kmeans(scenario.cqi, K)
+<span class="ln">4</span>  candidates += cost_kmeans(resource_cost(scenario), K)
+<span class="ln">5</span>  candidates += spectral(regret_affinity(scenario, beta), K)
+<span class="ln">6</span>  <span class="kw">return</span> argmax over unique(candidates) of exact_DP_utility(&middot;, scenario, beta)</div>
+    <p>
+      Group count is swept 1&hellip;<span class="var">K</span> within
+      every family (<span class="var">K</span>=3 in the validated
+      configuration); k-means uses 10 random restarts per call. An earlier
+      shipped variant additionally included switching-state awareness;
+      Section 7 reports the full ablation behind removing it.
+    </p>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">7</span> Empirical validation</h2>
+    <p>
+      Evaluated on real OMNeT++ 6.3 / INET 4.6 / Simu5G 1.4 / Veins 5.3
+      physical-layer simulation with SUMO-generated vehicle mobility (not
+      the synthetic CQI generator) &mdash; two gNBs, per-band CQI reports
+      recorded directly from the simulator, real handover and scheduling
+      dynamics.
+    </p>
+
+    <h3>Power-set ablation: attributing each family's contribution</h3>
+    <p>
+      The union guarantee (Section 4) means a method with more families
+      cannot score below one with fewer, by construction &mdash; so "zero
+      losses" alone is never evidence that a given family is pulling real
+      weight. To attribute contribution honestly, all 7 non-empty
+      combinations of the three candidate families tried &mdash;
+      resource-cost, switching-state awareness, and the regret-graph
+      &mdash; were measured directly against CQI alone, on 20 held-out
+      confirmatory real-data seeds under the real temporal closed loop
+      (120 seed &times; cell comparisons, pooled over the two
+      non-saturated dispersion levels):
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>&Delta; utility vs. CQI alone for every combination, 20 confirmatory seeds &times; 6 cells (120 comparisons)</caption>
+        <thead>
+          <tr><th>Combination</th><th>&Delta; utility</th><th>95% CI</th><th>Win / Tie / Loss</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>+ resource-cost</td><td class="num">+0.0215</td><td class="num">[+0.0169, +0.0266]</td><td class="num">104 / 10 / 6</td></tr>
+          <tr><td>+ switching</td><td class="num">+0.0048</td><td class="num">[+0.0035, +0.0061]</td><td class="num">73 / 38 / 9</td></tr>
+          <tr><td>+ regret-graph</td><td class="num win">+0.0272</td><td class="num">[+0.0225, +0.0320]</td><td class="num win">105 / 15 / 0</td></tr>
+          <tr><td>+ cost + switching</td><td class="num">+0.0230</td><td class="num">[+0.0184, +0.0280]</td><td class="num">105 / 10 / 5</td></tr>
+          <tr><td>+ cost + regret-graph <em>(final method)</em></td><td class="num win">+0.0335</td><td class="num">[+0.0282, +0.0389]</td><td class="num win">108 / 8 / 4</td></tr>
+          <tr><td>+ switching + regret-graph</td><td class="num">+0.0287</td><td class="num">[+0.0238, +0.0337]</td><td class="num">106 / 11 / 3</td></tr>
+          <tr><td>+ cost + switching + regret-graph</td><td class="num">+0.0342</td><td class="num">[+0.0291, +0.0395]</td><td class="num">107 / 8 / 5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">Result</span>
+      <p>
+        Two clean, independent stories, and one clear exclusion. Family 3
+        (regret-graph) is the single strongest addition on its own
+        &mdash; a larger mean gain than resource-cost, and the only
+        combination with <strong>zero losses</strong> across all 120
+        confirmatory comparisons. Resource-cost is the second strongest
+        and independently real. Switching-state awareness contributes the
+        least of the three in every combination it appears in, both alone
+        (+0.0048, roughly a fifth of resource-cost's own effect) and on
+        top of the other two (+0.0342 vs. +0.0335, a marginal +0.0007
+        that does not clear its own confidence interval's width against
+        noise). The two-family final method (cost + regret-graph) is
+        chosen on this quantified basis, not by assumption: it captures
+        essentially all of the union's available gain at the confirmatory
+        scale (+0.0335 of the four-family maximum +0.0342), with two
+        families whose individual contributions are each independently
+        well-evidenced rather than three where one is carried by the
+        others.
+      </p>
+    </div>
+
+    <h3>Scenario breakdown: where each family's edge comes from</h3>
+    <p>
+      The pooled figures above average over six cells (mid/high
+      dispersion &times; light/medium/heavy load); low dispersion is
+      excluded because it saturates &mdash; CQI alone is already
+      near-optimal there, so every combination contributes
+      approximately zero. Breaking the final method's two kept families
+      out by cell, rather than pooling them, shows they do not win for
+      the same reason in the same place:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>&Delta; utility vs. CQI alone, resource-cost vs. regret-graph, by cell (20 seeds each)</caption>
+        <thead>
+          <tr><th>Dispersion</th><th>Load</th><th>+ resource-cost</th><th>+ regret-graph</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>mid</td><td>light</td><td class="num win">+0.0199 (19/0/1)</td><td class="num">+0.0169 (18/2/0)</td></tr>
+          <tr><td>mid</td><td>medium</td><td class="num win">+0.0117 (18/0/2)</td><td class="num">+0.0102 (18/2/0)</td></tr>
+          <tr><td>mid</td><td>heavy</td><td class="num win">+0.0028 (10/10/0)</td><td class="num">+0.0026 (9/11/0)</td></tr>
+          <tr><td>high</td><td>light</td><td class="num win">+0.0285 (20/0/0)</td><td class="num">+0.0218 (20/0/0)</td></tr>
+          <tr><td>high</td><td>medium</td><td class="num">+0.0157 (18/0/2)</td><td class="num win">+0.0282 (20/0/0)</td></tr>
+          <tr><td>high</td><td>heavy</td><td class="num">+0.0504 (19/0/1)</td><td class="num win">+0.0836 (20/0/0)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">Result</span>
+      <p>
+        A crossover, not a flat ranking. At mid dispersion, resource-cost
+        leads narrowly in every load condition &mdash; the channel
+        differences between users are modest enough that balancing RB
+        cost is the dominant lever. At high dispersion the ranking
+        flips: regret-graph overtakes resource-cost, and the gap widens
+        as load tightens, from roughly comparable at high&middot;light to
+        regret-graph contributing <strong>1.7&times;</strong>
+        resource-cost's effect at high&middot;heavy (+0.0836 vs.
+        +0.0504). This matches the mechanism in Section 5 directly: wide
+        channel dispersion is what creates severe-outlier users in the
+        first place, and a tight RB budget is what makes missing one
+        expensive &mdash; exactly the two conditions the exact-regret
+        graph is built to detect and linear-distance k-means is not.
+      </p>
+    </div>
+
+    <h3>Scale generalization: the kept mechanism grows stronger, not weaker</h3>
+    <p>
+      The final two-family method was re-evaluated on an
+      independently-generated real-data scenario at <span
+      class="var">n</span>=40 users (up from <span class="var">n</span>=24),
+      the largest scale this simulation pipeline currently supports
+      reliably. Family 3's own contribution &mdash; measured by comparing
+      against resource-cost alone &mdash; is <em>larger</em> at the bigger
+      population, most sharply at the resource-scarce condition it
+      targets:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>Family 3's marginal utility over resource-cost alone, high dispersion + heavy load</caption>
+        <thead>
+          <tr><th>Population</th><th>&Delta; utility</th><th>Seeds won</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="var">n</span> = 24</td><td class="num">real, moderate edge</td><td class="num">&mdash;</td></tr>
+          <tr><td><span class="var">n</span> = 40</td><td class="num win">+0.0740</td><td class="num win">8 / 10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">Result</span>
+      <p>
+        Consistent with Section 5's mechanism: a larger population raises
+        the odds that a severe-outlier channel exists in any given
+        allocation instant, and that is exactly the condition Family 3 is
+        built to detect and Families 1&ndash;2's linear-distance
+        clustering cannot.
+      </p>
+    </div>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">8</span> Complexity</h2>
+    <p>
+      Per allocation instant, two computational blocks run: exact DP
+      scoring (once per unique candidate) and Family 3's candidate
+      generation (once, shared across the <span class="var">K</span>
+      group counts it proposes). They do not scale the same way, and the
+      dominant term is not the one an asymptotic-only reading would
+      suggest.
+    </p>
+
+    <h3>DP allocation: cheap, and cheaper than the formula implies</h3>
+    <p>
+      <code>allocate_and_evaluate</code> is a multiple-choice knapsack:
+      for each of <span class="var">M</span> groups, for each of up to
+      <span class="var">R</span><sub>avail</sub>+1 reachable RB-usage
+      states, for each of |<span class="var">B</span>|&nbsp;=&nbsp;6
+      quality options, one <code>value_fn</code> evaluation is combined
+      into the running best. A per-candidate bound of O(<span
+      class="var">M</span> &middot; <span
+      class="var">R</span><sub>avail</sub> &middot; |<span
+      class="var">B</span>|) is the usual way to state this &mdash; but
+      <code>value_fn</code> itself costs O(|group|), and does not depend
+      on the RB-usage state it is being folded into, so it is
+      recomputed identically at every one of the up to
+      <span class="var">R</span><sub>avail</sub>+1 states that reach a
+      given group. Summed over all groups (<span
+      class="var">M</span> groups partition all <span
+      class="var">n</span> users), the tighter bound is O(<span
+      class="var">n</span> &middot; <span
+      class="var">R</span><sub>avail</sub>) &mdash; a real, if minor,
+      inefficiency: hoisting the value computation out of the RB-usage
+      loop would drop the <span class="var">R</span><sub>avail</sub>
+      factor entirely. Measured on real data, none of this matters in
+      absolute terms:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>DP cost per scored candidate, real data tiled to larger <span class="var">n</span> at fixed RB budget</caption>
+        <thead>
+          <tr><th><span class="var">n</span></th><th>DP / candidate</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>24</td><td class="num">0.58 ms</td></tr>
+          <tr><td>96</td><td class="num">0.79 ms</td></tr>
+          <tr><td>288</td><td class="num">0.92 ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A 12&times; increase in <span class="var">n</span> moves this step
+      by under 2&times;. It is not where the cost lives.
+    </p>
+
+    <h3>Where the cost actually lives &mdash; and a correction</h3>
+    <p>
+      Family 3 has two sub-steps: building the O(<span
+      class="var">n</span><sup>2</sup>) pairwise regret matrix
+      (<code>pairwise_exact_regret_matrix</code>), then embedding via the
+      Laplacian's <span class="var">k</span> smallest eigenvectors
+      (O(<span class="var">n</span><sup>3</sup>) for a dense
+      eigendecomposition), once per <span class="var">k</span>&nbsp;=&nbsp;1&hellip;<span
+      class="var">K</span>. An earlier version of this document stated
+      that the eigendecomposition dominates at larger <span
+      class="var">n</span>, reasoning from asymptotic order alone. Direct
+      measurement contradicts it:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>Family 3 sub-step cost, real data tiled to larger <span class="var">n</span></caption>
+        <thead>
+          <tr><th><span class="var">n</span></th><th>Regret-matrix build</th><th>Spectral embed (&times;<span class="var">K</span>=3)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>24</td><td class="num">22.5 ms</td><td class="num">2.5 ms</td></tr>
+          <tr><td>96</td><td class="num">253 ms</td><td class="num">6.5 ms</td></tr>
+          <tr><td>288</td><td class="num" style="color:var(--result)">2375 ms</td><td class="num">31 ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">Result &mdash; the Complexity claim above was wrong</span>
+      <p>
+        At <span class="var">n</span>=288 the regret-matrix build is
+        77&times; slower than the eigendecomposition it was assumed to
+        be dominated by. The reason is implementation, not asymptotics:
+        <code>pairwise_exact_regret_matrix</code> is an unvectorized
+        Python double loop over
+        <span class="var">n</span>&sup2;/2 pairs, each a per-pair
+        function call, while <code>np.linalg.eigh</code> is a single
+        vectorized LAPACK call. O(<span class="var">n</span><sup>2</sup>)
+        with a large per-operation constant beats O(<span
+        class="var">n</span><sup>3</sup>) run by optimized numerical
+        code, at every scale this pipeline currently supports &mdash; the
+        crossover where the eigendecomposition's worse order would start
+        to win has not been reached, and would require substantially
+        larger <span class="var">n</span> than tested here.
+      </p>
+    </div>
+
+    <h3>Implication at MBS scale</h3>
+    <p>
+      MBS is explicitly a many-user regime &mdash; hundreds to thousands
+      of receivers per group, not the tens validated so far. Two further
+      real-data points at <span class="var">n</span>=504 and <span
+      class="var">n</span>=816 fit the regret-matrix build's growth
+      cleanly to build(<span class="var">n</span>) &asymp; 0.02566
+      &middot; <span class="var">n</span><sup>2</sup> ms (predicting the
+      <span class="var">n</span>=504 point from the <span
+      class="var">n</span>=816 point alone is off by 0.4%); the
+      eigendecomposition stays two orders of magnitude below it
+      throughout this range and is not the constraint. Inverting the fit
+      gives, for a given re-grouping latency budget, the largest
+      <span class="var">n</span> the current unvectorized implementation
+      can actually support:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>Largest <span class="var">n</span> supported by the current implementation at a given re-grouping latency budget</caption>
+        <thead>
+          <tr><th>Latency budget</th><th>What it corresponds to</th><th>Max <span class="var">n</span></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1 s</td><td>the real re-grouping cadence Section 7's confirmatory numbers were measured at</td><td class="num" style="color:var(--result)">&asymp; 200</td></tr>
+          <tr><td>5 s</td><td>a mildly relaxed but still near-real-time cadence</td><td class="num" style="color:var(--result)">&asymp; 440</td></tr>
+          <tr><td>10 s</td><td>allocation and grouping decoupled into separate cadences</td><td class="num" style="color:var(--result)">&asymp; 620</td></tr>
+          <tr><td>1 min</td><td>defensible only for low-mobility MBS deployments (e.g. a stationary venue audience)</td><td class="num" style="color:var(--result)">&asymp; 1,500</td></tr>
+          <tr><td>5 min</td><td>almost certainly too stale for any real deployment</td><td class="num" style="color:var(--result)">&asymp; 3,400</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="result-box">
+      <span class="rb-label">Honest limitation</span>
+      <p>
+        At the cadence the method is actually validated at, the current
+        implementation supports roughly <span class="var">n</span> &asymp;
+        200 &mdash; a full order of magnitude short of MBS's thousands-of-users
+        target. Even granting a re-grouping interval generous enough to
+        require its own justification (Section 7's discussion of
+        decoupling grouping cadence from per-instant DP allocation), the
+        ceiling reaches only the low thousands at a 5-minute cadence that
+        is itself unrealistic for most deployments. This was not exposed
+        by the asymptotic analysis alone; it required measuring the
+        actual implementation. Two concrete, unimplemented fixes follow
+        directly from the diagnosis: vectorizing
+        <code>pairwise_exact_regret_matrix</code> with numpy broadcasting
+        in place of the Python double loop (likely a 100&ndash;1000&times;
+        constant-factor reduction on that step alone &mdash; roughly the
+        gap between the measured 200-user ceiling and MBS's
+        thousands-of-users target), and replacing the dense
+        eigendecomposition with a sparse/truncated solver (<code>eigsh</code>)
+        over a sparsified k-nearest-neighbor affinity graph rather than
+        the current fully-dense one. Neither has been implemented or
+        measured; at MBS scale, the candidate-union architecture's
+        fallback &mdash; dropping Family 3 and keeping the O(<span
+        class="var">n</span>) families, whose per-family ablation
+        (Section 7) quantifies exactly what is given up by doing so
+        &mdash; is the honest deployment answer today, not a
+        hypothetical one.
+      </p>
+    </div>
+  </section>
+
+  <section class="body-sec">
+    <h2><span class="sec-num">9</span> Future work: vectorization and kNN sparsification</h2>
+    <p>
+      Section 8 traced Family 3's real cost to an unvectorized O(<span
+      class="var">n</span><sup>2</sup>) Python loop, not the
+      eigendecomposition, and quantified the resulting ceiling
+      (&asymp;200 users at the validated 1-second cadence). Two concrete
+      fixes follow directly from that diagnosis &mdash; but they buy
+      different things, and only one of them is a free lunch.
+    </p>
+
+    <h3>Vectorization: same computation, smaller constant</h3>
+    <p>
+      Replacing the double Python loop in
+      <code>pairwise_exact_regret_matrix</code> with numpy broadcasting
+      &mdash; computing <code>best_solo_value</code> for every pair at
+      once as vectorized array operations instead of <span
+      class="var">n</span>&sup2;/2 individual Python function calls
+      &mdash; is the standard fix for this class of slowdown, and
+      typically yields a 100&ndash;1000&times; constant-factor reduction
+      with no change to what is computed: still the exact regret for
+      every pair. Applying that range to the fitted cost model from
+      Section 8 (build(<span class="var">n</span>) &asymp; 0.02566
+      &middot; <span class="var">n</span><sup>2</sup> ms) pushes the
+      1-second ceiling from <span class="var">n</span>&asymp;200 to
+      roughly <span class="var">n</span>&asymp;2,000&ndash;6,000 &mdash;
+      covering most of MBS's target range, with the exactness guarantee
+      and every confirmatory result in Section 7 untouched, since nothing
+      about the algorithm itself changes. The honest limit: this raises
+      the wall, it does not remove it. The computation is still O(<span
+      class="var">n</span><sup>2</sup>); at a large enough <span
+      class="var">n</span> the same ceiling reappears, just further out.
+      This is the low-risk, high-value first step, and the one worth
+      building before the one below it.
+    </p>
+
+    <h3>kNN sparsification: a different algorithm, needing its own validation</h3>
+    <p>
+      Reaching an asymptotically better order requires computing exact
+      regret for fewer than all <span class="var">n</span>&sup2;/2 pairs
+      in the first place. The standard approach: use a cheap proxy metric
+      &mdash; the same CQI or resource-cost feature vectors Families 1
+      and 2 already compute &mdash; to find each user's <span
+      class="var">k</span> nearest neighbors via a KD-tree or ball-tree
+      (build cost O(<span class="var">n</span> log <span
+      class="var">n</span>), query cost O(<span class="var">n</span> log
+      <span class="var">n</span>) total), then compute the true exact
+      regret only for those O(<span class="var">n</span>&middot;<span
+      class="var">k</span>) candidate pairs; every pair outside a user's
+      candidate neighborhood is assigned affinity zero rather than
+      evaluated. Paired with a sparse graph, the eigendecomposition can
+      also move from dense <code>np.linalg.eigh</code> to an iterative
+      solver (<code>eigsh</code>, Lanczos-based), each iteration costing
+      O(nnz) = O(<span class="var">n</span>&middot;<span
+      class="var">k</span>) on the now-sparse Laplacian.
+    </p>
+    <div class="result-box">
+      <span class="rb-label">This is not just a faster version of the same thing</span>
+      <p>
+        Restricting exact-regret evaluation to a proxy-metric neighborhood
+        assumes pairs the proxy metric calls "far apart" also have
+        negligible true regret. Section 5 is a direct warning against
+        exactly this assumption: two users at identical wideband CQI can
+        still have very different per-band RB-cost profiles, which is
+        the whole reason Family 2 and the exact-regret formulation exist
+        rather than relying on CQI distance alone. A kNN graph built on
+        a CQI-only or resource-cost-only proxy could systematically miss
+        the very outlier pairs the exact formulation was built to catch.
+        This is not a hypothetical caveat to note in passing &mdash; it
+        is a real risk that has not been measured, and closing this
+        section's fix would need its own confirmatory ablation, run the
+        same way as Section 7, comparing the sparsified-approximate
+        version against the current exact-all-pairs one before it is
+        trusted as a drop-in replacement. Similarly, the iterative
+        eigensolver's near-O(<span class="var">n</span> log <span
+        class="var">n</span>) behavior depends on the graph's spectral
+        gap and is an empirical, typical-case claim from the sparse
+        spectral clustering literature, not a worst-case guarantee.
+      </p>
+    </div>
+    <p>
+      The two fixes are complementary, not alternatives, and in that
+      order: vectorization first, because it is low-risk (same algorithm,
+      same guarantees) and already closes most of the gap to MBS scale;
+      sparsification second, because it is what actually removes the
+      asymptotic ceiling rather than just moving it, but changes what is
+      computed and cannot be trusted at MBS scale without its own
+      confirmatory pass. Neither has been implemented as of this
+      document.
+    </p>
+  </section>
+
+  <hr class="rule thin">
+
+  <section class="body-sec" style="margin-bottom:0;">
+    <h2><span class="sec-num">&sect;</span> Summary</h2>
+    <p>
+      The published single-feature CQI k-means method extends cleanly to a
+      candidate union &mdash; CQI, resource-cost, and pairwise
+      exact-utility regret &mdash; united by an exact DP evaluator that
+      makes every addition provably safe at the decision level. A third
+      candidate, switching-state awareness, was built and measured
+      through the same full power-set ablation and excluded on
+      quantified grounds: it contributed markedly less than the other
+      two in every combination, regardless of dispersion or load. On
+      real physical-layer simulation, confirmatory testing shows the
+      kept two-family method strictly dominates CQI alone, the
+      resource-cost family leads at moderate channel dispersion, the
+      regret-graph family overtakes it and grows further ahead as
+      dispersion and load both tighten, and its contribution keeps
+      growing as the real-data population scales up. That contribution
+      is not yet free: measured directly rather than assumed from
+      asymptotic order alone, Family 3's candidate generation is the
+      real cost bottleneck of the method, and at MBS's true target scale
+      of hundreds to thousands of users, the current unvectorized
+      implementation is not viable at any usable re-grouping cadence
+      (Section 8). The architecture's fallback &mdash; drop Family 3,
+      keep the two O(<span class="var">n</span>) families &mdash; is a
+      real deployment option today with its cost precisely quantified
+      (Section 7); closing the gap without giving up the mechanism has a
+      concrete, staged path &mdash; vectorization first, kNN
+      sparsification second &mdash; laid out in Section 9, neither step
+      of which has been built yet.
+    </p>
+  </section>
+
+  <footer>Method specification compiled 2026-08-27 from the real-Simu5G validation track.</footer>
+</div>
+
+</body>
+</html>

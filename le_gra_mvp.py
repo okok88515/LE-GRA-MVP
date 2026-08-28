@@ -3300,6 +3300,74 @@ def cqi_cost_switching_regret_trend_hybrid_grouping(
     return best_candidate_groups(scenario, candidates, switch_beta)
 
 
+def cqi_switching_hybrid_kmeans_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """CQI union switching-aware joint[CQI,previous_quality] -- a 2-way
+    union WITHOUT resource-cost. Written 2026-08-27 to complete the full
+    power-set ablation over {cost, switching, regret-graph} combined with
+    the CQI base, requested to precisely attribute each family's isolated
+    contribution rather than only contribution on top of the paper's own
+    CQI+cost union."""
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    switching = np.column_stack([cqi_rep, scenario.previous_quality.reshape(-1, 1).astype(float)])
+    switching_rep = ((switching - switching.mean(axis=0)) / (switching.std(axis=0) + 1e-6)).astype(np.float32)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(switching_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
+def cqi_regret_graph_hybrid_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """CQI union the regret-graph family -- a 2-way union WITHOUT
+    resource-cost. Not the same as `exact_regret_graph_grouping` (which
+    drops the CQI candidates entirely). Written 2026-08-27, see
+    `cqi_switching_hybrid_kmeans_grouping`."""
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    affinity = pairwise_exact_regret_matrix(scenario, switch_beta)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + graph_candidate_groups(affinity, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
+def cqi_switching_regret_graph_hybrid_grouping(
+    scenario: Scenario,
+    max_groups: int,
+    switch_beta: float,
+    kmeans_n_init: int = 10,
+    kmeans_seed: int = 0,
+) -> list[list[int]]:
+    """CQI union switching union regret-graph -- a 3-way union WITHOUT
+    resource-cost. Written 2026-08-27, see
+    `cqi_switching_hybrid_kmeans_grouping`."""
+
+    cqi_rep = scenario.cqi_now.reshape(-1, 1).astype(float)
+    switching = np.column_stack([cqi_rep, scenario.previous_quality.reshape(-1, 1).astype(float)])
+    switching_rep = ((switching - switching.mean(axis=0)) / (switching.std(axis=0) + 1e-6)).astype(np.float32)
+    affinity = pairwise_exact_regret_matrix(scenario, switch_beta)
+    candidates = (
+        kmeans_candidate_groups(cqi_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + kmeans_candidate_groups(switching_rep, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+        + graph_candidate_groups(affinity, max_groups, kmeans_n_init=kmeans_n_init, kmeans_seed=kmeans_seed)
+    )
+    return best_candidate_groups(scenario, candidates, switch_beta)
+
+
 def main() -> None:
     """CLI entry point.
 

@@ -1,0 +1,227 @@
+<title>論文段落投影片</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.35.0/dist/umd/lucide.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Noto Sans TC', 'Inter', sans-serif; background:#f1f5f9; }
+  .num { font-family: 'Inter', 'Noto Sans TC', sans-serif; }
+  .slide {
+    width: 100%; max-width: 1280px; aspect-ratio: 16/9;
+    background: white; margin: 40px auto;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.12);
+    border-radius: 16px; overflow: hidden; position: relative;
+    display: flex; flex-direction: column;
+  }
+  .tag { position:absolute; top:-30px; left:0; font-family:monospace; font-size:14px; color:#64748b; }
+  .dot-pattern { background-image: radial-gradient(#14b8a6 0.5px, transparent 0.5px); background-size: 22px 22px; opacity: 0.12; }
+  .section-head { display:flex; align-items:center; gap:16px; margin-bottom: 28px; }
+  .bar { width:8px; height:40px; background:#14b8a6; border-radius:999px; }
+</style>
+
+<div class="p-8">
+
+<!-- SLIDE 1: 研究動機與問題 -->
+<div class="slide p-16">
+  <div class="tag">Slide 1/5 — 取代原 p2 + p3</div>
+  <div class="absolute inset-0 dot-pattern"></div>
+  <div class="relative z-10 flex flex-col h-full">
+    <div class="section-head"><div class="bar"></div><h2 class="text-4xl font-bold text-slate-800">研究動機與問題</h2></div>
+    <p class="text-lg text-slate-500 mb-8 -mt-4 ml-6">基地台資源有限，如何分配給多媒體群播服務，兼顧效能與公平</p>
+    <div class="grid grid-cols-2 gap-10 flex-grow items-center">
+      <div class="bg-slate-50 rounded-3xl p-10 border border-slate-200 flex items-center justify-center relative">
+        <div class="relative w-full aspect-square max-w-sm">
+          <svg class="absolute inset-0 w-full h-full" viewBox="0 0 384 384" role="img" aria-label="以基地台為中心、向後傾斜的三層同心圓地面，圈的半徑代表距離，基地台以天線塔立於地面中心，CQI 好的車輛落在最內圈，CQI 最差的落在最外圈">
+            <defs>
+              <radialGradient id="domeGrad" cx="50%" cy="42%" r="60%">
+                <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.22"/>
+                <stop offset="55%" stop-color="#14b8a6" stop-opacity="0.09"/>
+                <stop offset="100%" stop-color="#14b8a6" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="planeShade" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.5"/>
+                <stop offset="55%" stop-color="#ffffff" stop-opacity="0.05"/>
+                <stop offset="100%" stop-color="#0f172a" stop-opacity="0.10"/>
+              </linearGradient>
+              <clipPath id="planeClip">
+                <ellipse cx="192" cy="192" rx="185" ry="93"/>
+              </clipPath>
+            </defs>
+
+            <!-- tilted ground plane -->
+            <ellipse cx="192" cy="192" rx="185" ry="93" fill="url(#domeGrad)"/>
+            <ellipse cx="192" cy="192" rx="185" ry="93" fill="url(#planeShade)" clip-path="url(#planeClip)"/>
+            <ellipse cx="192" cy="192" rx="185" ry="93" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 6" opacity="0.55"/>
+            <ellipse cx="192" cy="192" rx="155" ry="78" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 6" opacity="0.65"/>
+            <ellipse cx="192" cy="192" rx="100" ry="50" fill="none" stroke="#2dd4bf" stroke-width="1.5" opacity="0.85"/>
+
+            <!-- car contact shadows -->
+            <ellipse cx="178" cy="161" rx="13" ry="5" fill="#0f172a" opacity="0.12"/>
+            <ellipse cx="257" cy="171" rx="13" ry="5" fill="#0f172a" opacity="0.12"/>
+            <ellipse cx="323" cy="229" rx="13" ry="5" fill="#0f172a" opacity="0.12"/>
+            <ellipse cx="65" cy="168" rx="13" ry="5" fill="#0f172a" opacity="0.12"/>
+            <ellipse cx="162" cy="282" rx="15" ry="6" fill="#0f172a" opacity="0.14"/>
+
+            <!-- gNB mast, lifting the tower above the plane -->
+            <line x1="192" y1="192" x2="192" y2="141" stroke="#5eead4" stroke-width="2"/>
+            <ellipse cx="192" cy="192" rx="15" ry="7" fill="#0f172a" opacity="0.16"/>
+          </svg>
+          <div class="absolute" style="top:50%;left:50%;transform:translate(-50%,-50%) translate(0px,-52px)">
+            <div class="flex flex-col items-center">
+              <i data-lucide="radio-tower" class="w-14 h-14 text-teal-600" stroke-width="1.5"></i>
+              <div class="text-xs font-bold text-teal-700 text-center mt-1 num">gNB</div>
+            </div>
+          </div>
+          <div class="absolute flex flex-col items-center" style="top:50%;left:50%;transform:translate(-50%,-50%) translate(-14px,-39px)">
+            <i data-lucide="car" class="w-10 h-10 text-emerald-500" stroke-width="1.5"></i>
+            <div class="text-[11px] text-emerald-600 font-bold text-center mt-1">CQI 好</div>
+          </div>
+          <div class="absolute flex flex-col items-center" style="top:50%;left:50%;transform:translate(-50%,-50%) translate(65px,-27px)">
+            <i data-lucide="car" class="w-10 h-10 text-emerald-500" stroke-width="1.5"></i>
+          </div>
+          <div class="absolute flex flex-col items-center" style="top:50%;left:50%;transform:translate(-50%,-50%) translate(131px,31px)">
+            <i data-lucide="car" class="w-10 h-10 text-amber-500" stroke-width="1.5"></i>
+            <div class="text-[11px] text-amber-600 font-bold text-center mt-1">CQI 中等</div>
+          </div>
+          <div class="absolute flex flex-col items-center" style="top:50%;left:50%;transform:translate(-50%,-50%) translate(-127px,-30px)">
+            <i data-lucide="car" class="w-10 h-10 text-amber-500" stroke-width="1.5"></i>
+          </div>
+          <div class="absolute flex flex-col items-center" style="top:50%;left:50%;transform:translate(-50%,-50%) translate(-30px,84px)">
+            <i data-lucide="car" class="w-12 h-12 text-red-500" stroke-width="1.5"></i>
+            <div class="text-[12px] text-red-600 font-extrabold text-center mt-1">CQI 最差</div>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-6">
+        <div class="p-6 border-l-4 border-teal-500 bg-teal-50 rounded-r-2xl">
+          <h3 class="text-xl font-bold text-teal-800 mb-2">情境</h3>
+          <p class="text-slate-600 text-lg">單一基地台，多個使用者共享同一份多播內容，各自 CQI 不同</p>
+        </div>
+        <div class="p-6 border-l-4 border-red-500 bg-red-50 rounded-r-2xl">
+          <h3 class="text-xl font-bold text-red-800 mb-2 flex items-center gap-2"><i data-lucide="triangle-alert" class="w-5 h-5" stroke-width="1.5"></i> 問題</h3>
+          <p class="text-slate-700 text-lg">群組品質卡在 CQI 最差的那個使用者，拖累全體</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: 既有方法 -->
+<div class="slide p-16">
+  <div class="tag">Slide 2/5 — 取代原 p4</div>
+  <div class="section-head"><div class="bar"></div><h2 class="text-4xl font-bold text-slate-800">既有方法：誰弱在哪一層</h2></div>
+  <p class="text-lg text-slate-500 mb-8 -mt-4 ml-6">兩層架構——分群（產生候選）、算 utility（評分挑選）——弱點剛好在不同層</p>
+
+  <div class="grid grid-cols-[120px_1fr_1fr] gap-4 flex-grow">
+    <div></div>
+    <div class="text-center text-2xl font-extrabold text-slate-700">Method A</div>
+    <div class="text-center text-2xl font-extrabold text-slate-700">Method B</div>
+
+    <div class="flex flex-col items-end justify-center pr-2 text-right">
+      <div class="text-xl font-extrabold text-slate-700">分群</div>
+      <div class="text-sm text-slate-400">(產生候選)</div>
+    </div>
+    <div class="rounded-3xl border-2 border-emerald-400 bg-emerald-50 p-6 flex flex-col items-center justify-center text-center">
+      <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2"><i data-lucide="circle-check" class="w-6 h-6" stroke-width="1.5"></i></div>
+      <div class="text-xl font-bold text-slate-800">對 CQI 做 k-means</div>
+      <div class="text-sm text-slate-500 mt-1">跟已發表方法相同</div>
+    </div>
+    <div class="rounded-3xl border-2 border-red-400 bg-red-50 p-6 flex flex-col items-center justify-center text-center">
+      <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center mb-2"><i data-lucide="triangle-alert" class="w-6 h-6" stroke-width="1.5"></i></div>
+      <div class="text-xl font-bold text-red-800">篩選邏輯太粗糙</div>
+      <div class="text-sm text-red-600 mt-1">門檻一達標就停止找</div>
+    </div>
+
+    <div class="flex flex-col items-end justify-center pr-2 text-right">
+      <div class="text-xl font-extrabold text-slate-700">算 utility</div>
+      <div class="text-sm text-slate-400">(評分挑選)</div>
+    </div>
+    <div class="rounded-3xl border-2 border-red-400 bg-red-50 p-6 flex flex-col items-center justify-center text-center">
+      <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center mb-2"><i data-lucide="triangle-alert" class="w-6 h-6" stroke-width="1.5"></i></div>
+      <div class="text-xl font-bold text-red-800">評分公式太簡化</div>
+      <div class="text-sm text-red-600 mt-1">只看CQI高低，不管資源夠不夠</div>
+    </div>
+    <div class="rounded-3xl border-2 border-emerald-400 bg-emerald-50 p-6 flex flex-col items-center justify-center text-center">
+      <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2"><i data-lucide="circle-check" class="w-6 h-6" stroke-width="1.5"></i></div>
+      <div class="text-xl font-bold text-slate-800">真實效益評分</div>
+      <div class="text-sm text-slate-500 mt-1">跟已發表方法相同</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: 我們的方法 -->
+<div class="slide p-16">
+  <div class="tag">Slide 3/5 — 新增</div>
+  <div class="section-head"><div class="bar"></div><h2 class="text-4xl font-bold text-slate-800">我們的方法：把 utility 融進分群本身</h2></div>
+  <p class="text-lg text-slate-500 mb-8 -mt-4 ml-6">不是先分群、再評分——是在 k-means 收斂過程中，直接挑 utility 最大化的那一步</p>
+
+  <div class="grid grid-cols-3 gap-8 flex-grow items-stretch">
+    <div class="rounded-3xl border border-slate-200 bg-white p-6 opacity-60">
+      <h3 class="text-lg font-bold text-slate-500 mb-4 text-center">Method A</h3>
+      <div class="text-sm text-slate-500 bg-slate-50 rounded-xl p-3 mb-2 text-center">對 CQI 做 k-means</div>
+      <div class="text-sm text-red-500 bg-red-50 rounded-xl p-3 text-center flex items-center justify-center gap-1"><i data-lucide="triangle-alert" class="w-4 h-4" stroke-width="1.5"></i> 評分公式太簡化</div>
+    </div>
+    <div class="rounded-3xl border border-slate-200 bg-white p-6 opacity-60">
+      <h3 class="text-lg font-bold text-slate-500 mb-4 text-center">Method B</h3>
+      <div class="text-sm text-red-500 bg-red-50 rounded-xl p-3 mb-2 text-center flex items-center justify-center gap-1"><i data-lucide="triangle-alert" class="w-4 h-4" stroke-width="1.5"></i> 篩選邏輯太粗糙</div>
+      <div class="text-sm text-slate-500 bg-slate-50 rounded-xl p-3 text-center">真實效益評分</div>
+    </div>
+    <div class="rounded-3xl border-2 border-teal-500 bg-teal-50 p-8 shadow-xl relative scale-105 flex flex-col justify-center">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 bg-teal-500 text-white text-xs font-bold rounded-full uppercase tracking-widest whitespace-nowrap">我們的方法</div>
+      <div class="flex justify-center gap-3 mb-3 text-teal-600">
+        <i data-lucide="circle-check" class="w-8 h-8" stroke-width="1.5"></i>
+        <i data-lucide="circle-check" class="w-8 h-8" stroke-width="1.5"></i>
+      </div>
+      <h3 class="text-xl font-bold text-teal-800 mb-4 text-center">兩層不是分開的兩步</h3>
+      <ul class="text-sm text-teal-900 space-y-2 text-center">
+        <li>k-means++ 收斂過程中，每一步都用真實效益公式評分</li>
+        <li>取效益最大化的那一步當作分群結果</li>
+        <li>再遍歷所有候選子群組數，找出效益最高的 k</li>
+      </ul>
+      <div class="text-center text-teal-700 font-bold text-sm mt-4">utility 貫穿整個分群過程</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: 模擬場景 -->
+<div class="slide p-16">
+  <div class="tag">Slide 4/5 — 取代原 p5 + p6</div>
+  <div class="section-head"><div class="bar"></div><h2 class="text-4xl font-bold text-slate-800">模擬場景</h2></div>
+  <div class="grid grid-cols-2 gap-10 flex-grow">
+    <div class="overflow-hidden border border-slate-200 rounded-2xl h-fit">
+      <table class="w-full text-left border-collapse">
+        <tr class="bg-teal-50 border-b border-slate-200"><td class="p-5 font-bold text-teal-800 w-1/3">模擬場景</td><td class="p-5 text-slate-600">單基地台（半徑 600 公尺）、150 個使用者，範圍內任意移動</td></tr>
+        <tr class="border-b border-slate-200"><td class="p-5 font-bold text-slate-700 bg-slate-50">資源單位</td><td class="p-5 text-slate-600">基地台每秒 100,000 個 RB，群播服務最多用其中 36,000 個</td></tr>
+        <tr class="bg-teal-50"><td class="p-5 font-bold text-teal-800">用戶需求</td><td class="p-5 text-slate-600">3 部影片，各 5 種畫質，每部影片各 50 名使用者觀看</td></tr>
+      </table>
+    </div>
+    <div class="space-y-4">
+      <h3 class="text-xl font-bold text-slate-700 mb-2">評估指標</h3>
+      <div class="p-6 bg-slate-50 rounded-2xl">
+        <div class="font-bold text-slate-800 text-lg">ADR <span class="text-sm font-normal text-slate-400">Average Data Rate</span></div>
+        <p class="text-slate-500 mt-1">平均每位用戶取得的位元率——衡量系統效能</p>
+      </div>
+      <div class="p-6 bg-slate-50 rounded-2xl">
+        <div class="font-bold text-slate-800 text-lg">UDI <span class="text-sm font-normal text-slate-400">User Dissatisfaction Index</span></div>
+        <p class="text-slate-500 mt-1">使用者「失望程度」，越低代表分配越公平——衡量公平性</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: 實驗結果 -->
+<div class="slide p-16">
+  <div class="tag">Slide 5/5 — 取代原 p7（舊表與新版 p4 衝突，移除）+ p8-9</div>
+  <div class="section-head"><div class="bar"></div><h2 class="text-4xl font-bold text-slate-800">實驗結果</h2></div>
+  <p class="text-base text-slate-400 mb-6 -mt-4 ml-6">原 p7 舊方法比較表跟新版第4頁定義衝突，已移除；p8/p9 真實圖表我沒有數據，先留版位</p>
+  <div class="grid grid-cols-2 gap-8 flex-grow">
+    <div class="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center text-slate-400 text-xl text-center p-6">原 p8 圖表<br>（ADR 比較，貼回真實圖）</div>
+    <div class="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center text-slate-400 text-xl text-center p-6">原 p9 圖表<br>（UDI 比較，貼回真實圖）</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+  lucide.createIcons();
+</script>

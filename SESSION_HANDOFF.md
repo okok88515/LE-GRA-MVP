@@ -8556,3 +8556,127 @@ closed ablation baselines under it.**
    slide dataset: only `utility` was recomputed so far; each additional
    metric needs its own re-evaluation pass over the same 1800 scenarios
    (~1.6h at n=150 for utility alone, so budget accordingly).
+
+## August 28 update: 20-seed baseline/power-set confirmatory results (objective-flip finding) + paper-section slide deck redesign
+
+Written by Claude Code. Two independent, unfinished threads are being handed off
+to Codex in this entry, both uncommitted as of this writing (committed and pushed
+together right after this entry, commit noted below applies to both).
+
+### Thread 1: real-data baseline & power-set confirmatory comparisons (n_users=24, 20 seeds)
+
+New files: `baseline_prior_methods.py` (Method A/B reimplementations, see its own
+docstring for exact definitions), `run_real_multiseed_baseline_comparison.py`,
+`run_real_multiseed_baseline_comparison_adr.py`, `run_real_multiseed_power_set_confirmatory.py`,
+`compute_quality_tier_distribution.py`. Also 3 new hybrid grouping functions added to
+`le_gra_mvp.py` (`cqi_switching_hybrid_kmeans_grouping`, `cqi_regret_graph_hybrid_grouping`,
+`cqi_switching_regret_graph_hybrid_grouping` -- 2-way/3-way unions of {CQI, switching,
+regret-graph} WITHOUT resource-cost, completing the power-set), and `run_real_multiseed_temporal_closed_loop.py`'s
+`run_method_trajectory` now takes an optional `value_fn` forwarded to `allocate_and_evaluate`,
+so a trajectory can be scored by raw ADR (`mvp.group_adr_value`) instead of the project's
+own extended log-utility (`mvp.group_quality_value`) without touching how any method decides
+its groupings.
+
+**Why Method A/B exist:** per the interview-prep-context memory, the actual published paper
+(Huang & Liao, MSWiM 2025) only compares CQI-based k-means variants against each other, never
+against a truly different clustering signal. `baseline_prior_methods.py` reimplements two
+different prior-published points of comparison the user described from memory (Method A:
+same k-means candidates as the published method, but selects with a crude proxy score
+instead of real allocation utility; Method B: no k-means, contiguous cut-point search under
+a CQI-stddev admissibility threshold, but already uses real utility for selection) so the
+published method's own advantage, and this project's further candidate-union advantage on
+top of it, can be quantified against something other than a strawman.
+
+**Results, all on the 20-seed real Simu5G multiseed dataset** (`comparison_per_seed.csv` /
+`pooled_summary.csv` in each `real_multiseed_*_results/` dir; `mid_high_6_cells` = the
+project's standard reporting scope):
+
+- `real_multiseed_baseline_comparison_results/` (utility-scored, matches this project's own
+  convention): published CQI k-means beats both Method A and Method B in 20/20 seeds
+  at every scope (mid_high_6_cells diff vs Method A: +0.153, vs Method B: +0.041, both
+  CI95 excluding 0); this project's own `Candidate_union_final` beats published CQI k-means
+  in 20/20 seeds (+0.033); the exact-DP `OptimalCutpoint_upperbound` sits further above still.
+- **`real_multiseed_baseline_comparison_adr_results/` (same 20 seeds, scored by raw ADR
+  instead -- the objective the paper itself actually used): the ranking partially flips.**
+  Method B beats published CQI k-means in 20/20 seeds under ADR (+140.6 kbps at
+  mid_high_6_cells), reversing its utility-scored 20/20 loss. Method A still loses to
+  published in 20/20 seeds either way. `Candidate_union_final` still beats published under
+  ADR too (20/20, +77.4 kbps), so that specific claim is objective-robust, but "published
+  method beats Method B" is NOT objective-robust -- it only holds under this project's own
+  utility function, not under the paper's actual raw-ADR objective. Do not state the
+  Method-B comparison as settled in an interview without picking (and disclosing) which
+  objective is meant.
+- `real_multiseed_power_set_confirmatory_results/`: full attribution of the three extra
+  candidate families (cost, switching, regret-graph) on top of CQI, all 7 non-empty unions,
+  same 20 seeds. Every single union beats CQI alone in 20/20 seeds at every scope. Individually,
+  `CQI+regret-graph` is the strongest single family (+0.0272 at mid_high_6_cells, beating
+  `CQI+cost`'s +0.0215 and `CQI+switching`'s +0.0048); the full 4-way union
+  `CQI+cost+switching+regret-graph` is the best overall (+0.0342), but the marginal gain from
+  switching on top of cost+regret-graph is small (+0.0342 vs +0.0333 for cost+regret-graph
+  alone) -- switching's contribution is real but the smallest of the three families.
+
+None of these three result sets have been reconciled with the real-data-multiseed-baseline
+memory's earlier 10-seed run (`real_multiseed_baseline_results/`, 2026-08-25, n_users=24) --
+that run used a different method set (resource-cost/multi-feature k-means, not Method A/B)
+and found CQI-vs-resource-cost genuinely mixed and load-dependent. The two are complementary,
+not conflicting, but were not cross-checked for e.g. identical seed/scenario generation.
+
+### Thread 2: paper-section slide deck, redesigned in a new visual style
+
+`interview_deliverables/paper_section_slides.html` -- a 5-slide narrative explainer (research
+motivation, existing-method weaknesses, our method, simulation scenario, results
+placeholder) intended to visualize exactly the Method A/B framing from Thread 1 above (slide 2's
+"Method A: 對 CQI 做 k-means but 篩選邏輯太粗糙" / "Method B: 篩選邏輯太粗糙 but 真實效益評分"
+maps directly to `baseline_prior_methods.py`'s Method A/B). This supersedes the visual style
+(not the content) of the earlier `interview_deliverables/baseline_comparison_slides.html` and
+`candidate_union_grouping_EN.html` / `candidate_union_grouping_ZH.html` decks, which used a
+dark/academic-yellow style respectively; this new one follows a teal/white "modern SaaS" style
+the user pointed to from an unrelated reference deck.
+
+**Still unfinished / left as placeholders:**
+- Slide 5 has two dashed placeholder boxes where the real ADR/UDI comparison charts should go
+  (no chart images were available this session -- the numeric results above could be charted
+  from `real_multiseed_baseline_comparison_results/comparison_per_seed.csv` if useful for this
+  slide specifically, though note that CSV's methods don't exactly match the slide's abstract
+  "Method A / Method B / 我們的方法" three-way framing -- would need deciding whether the slide
+  means the published-paper comparison (`baseline_comparison_results`) or the power-set
+  ablation (`power_set_confirmatory_results`) before plotting anything real there).
+- Only 5 slides exist; no results/discussion beyond the placeholder slide.
+
+**Technical notes for whoever continues this (only relevant if still using Claude Code's
+Artifact publishing, not Codex):** the Artifact viewer's CSP only allows scripts (not
+stylesheets/images/fetches) from `cdnjs.cloudflare.com`, `cdn.jsdelivr.net/npm/`,
+`cdn.tailwindcss.com`, and `code.jquery.com` -- `unpkg.com` (Lucide's official CDN docs)
+is silently blocked, no visible error. Icons in this deck load via
+`https://cdn.jsdelivr.net/npm/lucide@1.35.0/dist/umd/lucide.min.js` (pinned version, verified
+to exist against jsdelivr's package listing before use) instead, with `lucide.createIcons()`
+called at the end of `<body>`.
+
+### Repo state at this handoff
+
+- Modified: `le_gra_mvp.py` (3 new hybrid grouping functions, additive only),
+  `run_real_multiseed_temporal_closed_loop.py` (added optional `value_fn` param, additive only).
+- New scripts: `baseline_prior_methods.py`, `compute_quality_tier_distribution.py`,
+  `run_real_multiseed_baseline_comparison.py`, `run_real_multiseed_baseline_comparison_adr.py`,
+  `run_real_multiseed_power_set_confirmatory.py`.
+- New result directories: `real_multiseed_baseline_comparison_results/`,
+  `real_multiseed_baseline_comparison_adr_results/`, `real_multiseed_power_set_confirmatory_results/`.
+- New/updated deliverables in `interview_deliverables/`: `paper_section_slides.html` (new, this
+  session), plus already-present-but-uncommitted `baseline_comparison_slides.html`,
+  `candidate_union_grouping_EN.html`, `candidate_union_grouping_ZH.html`, `interview_prep_kit.html`
+  (built in an earlier session, never previously committed).
+- All of the above committed and pushed to `origin/main` immediately after this entry.
+
+### Recommended next step
+
+1. Decide which of the two Thread-1 result sets (published-vs-Method-A/B, or the power-set
+   ablation) Slide 5 of `paper_section_slides.html` is actually meant to chart, then replace
+   its two placeholder boxes with real bar charts from the matching `comparison_per_seed.csv`.
+2. If asked to make a clean, single "our published method vs. prior art" claim for an
+   interview: use the utility-scored comparison (published beats both Method A and Method B,
+   20/20 seeds), but be ready for a follow-up on objective choice -- the ADR-scored flip on
+   Method B is a real, already-discovered wrinkle, not a bug to paper over.
+3. Reconcile or explicitly scope-note the relationship between this session's Method-A/B
+   20-seed run and the 2026-08-25 resource-cost/multi-feature 10-seed run before using both
+   in the same document -- they answer different questions (prior published art vs. this
+   project's own later ablations) but a reader won't know that unless it's stated.
