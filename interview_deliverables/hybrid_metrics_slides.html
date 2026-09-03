@@ -1,0 +1,1055 @@
+<title>候選聯集方法比較</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface:      #fcfcfb;
+    --plane:        #f9f9f7;
+    --ink:          #0b0b0b;
+    --ink-2:        #52514e;
+    --ink-muted:    #898781;
+    --grid:         #e1e0d9;
+    --baseline:     #c3c2b7;
+    --border:       rgba(11,11,11,0.10);
+    --card-shadow:  0 1px 2px rgba(11,11,11,0.05), 0 10px 30px rgba(11,11,11,0.06);
+
+    --s1: #2a78d6; /* No grouping */
+    --s2: #eb6834; /* CQI k-means */
+    --s3: #1baf7a; /* Resource-cost k-means */
+    --s4: #eda100; /* Multi-feature k-means */
+    --s5: #e87ba4; /* Offline teacher */
+    --s6: #008300; /* Hybrid 2-way */
+    --s7: #7c5cd6; /* 4-way hybrid (tested, superseded -- Joint's contribution turned out negligible) */
+    --s8: #c23b3b; /* near-optimal ceiling (multikey-corrected) */
+    --s9: #0c8599; /* final adopted method: 3-way CQI+Cost+Switching (Joint dropped) */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface:      #1a1a19;
+      --plane:        #0d0d0d;
+      --ink:          #ffffff;
+      --ink-2:        #c3c2b7;
+      --ink-muted:    #898781;
+      --grid:         #2c2c2a;
+      --baseline:     #383835;
+      --border:       rgba(255,255,255,0.10);
+      --card-shadow:  0 1px 2px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.45);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #a58ee8; --s8: #d9584f; --s9: #3bc9db;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface:      #1a1a19;
+    --plane:        #0d0d0d;
+    --ink:          #ffffff;
+    --ink-2:        #c3c2b7;
+    --ink-muted:    #898781;
+    --grid:         #2c2c2a;
+    --baseline:     #383835;
+    --border:       rgba(255,255,255,0.10);
+    --card-shadow:  0 1px 2px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.45);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #a58ee8; --s8: #d9584f; --s9: #3bc9db;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--plane);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    overflow: hidden;
+  }
+
+  .deck { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .slide { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; padding: 4.5vh 5vw; }
+  .slide.active { display: flex; }
+
+  .card {
+    width: min(1180px, 100%);
+    max-height: 100%;
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 38px 48px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .kicker { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; }
+  h1.big { font-size: 2.1rem; margin: 0; font-weight: 700; line-height: 1.25; text-wrap: balance; }
+  h2.slide-title { font-size: 1.5rem; margin: 0; font-weight: 700; line-height: 1.3; }
+  .subtitle { color: var(--ink-2); font-size: 0.94rem; margin: 0; max-width: 80ch; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 10px 0 2px; border-top: 1px solid var(--grid); margin-top: 2px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.8rem; color: var(--ink-2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+
+  .panel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .panel {
+    background: var(--plane);
+    border: 1px solid var(--grid);
+    border-radius: 14px;
+    padding: 14px 16px 10px;
+  }
+  .panel h3 { font-size: 0.86rem; margin: 0 0 4px; font-weight: 700; text-align: center; }
+  .panel .panel-sub { font-size: 0.68rem; color: var(--ink-muted); text-align: center; margin: 0 0 10px; }
+
+  .chart-wrap { position: relative; overflow-x: auto; }
+  svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
+  .bar-label { font-size: 12px; fill: var(--ink); font-weight: 700; }
+  .val-label { font-size: 9.5px; fill: var(--ink-muted); font-weight: 500; }
+  .cat-label { font-size: 11.5px; fill: var(--ink-2); }
+  .cat-label.ceiling { font-style: italic; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline-rule { stroke: var(--baseline); stroke-width: 1; }
+  .axis-tick { font-size: 10px; fill: var(--ink-muted); }
+
+  .tooltip {
+    position: absolute; pointer-events: none;
+    background: var(--ink); color: var(--surface);
+    font-size: 12px; padding: 6px 10px; border-radius: 8px;
+    transform: translate(-50%, -130%);
+    white-space: nowrap; opacity: 0; transition: opacity 0.1s ease; z-index: 5; font-weight: 600;
+  }
+
+  .insight { margin-top: 2px; padding: 13px 18px; background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; font-size: 0.9rem; color: var(--ink-2); }
+  .insight strong { color: var(--ink); }
+
+  .formula-steps { display: flex; flex-direction: column; gap: 10px; }
+  .formula-step { background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; padding: 14px 20px; }
+  .formula-step .step-label { font-size: 0.76rem; color: var(--ink-muted); font-weight: 700; letter-spacing: 0.04em; margin-bottom: 7px; }
+  .formula-step .formula { margin: 2px 0; overflow-x: auto; }
+  .formula-step .formula math { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Noto Serif TC", serif; font-size: 1.28rem; color: var(--ink); }
+  .formula-step .formula-def { margin: 2px 0 0; font-size: 0.82rem; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+  .formula-step .note { margin: 8px 0 0; font-size: 0.82rem; color: var(--ink-2); }
+
+  .table-toggle {
+    align-self: flex-start; font-size: 0.76rem; color: var(--ink-2);
+    background: none; border: 1px solid var(--grid); border-radius: 20px;
+    padding: 5px 14px; cursor: pointer; font-family: inherit;
+  }
+  .table-toggle:hover { border-color: var(--ink-muted); color: var(--ink); }
+  .table-toggle:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; display: none; }
+  table.data-table.shown { display: table; }
+  table.data-table th, table.data-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  table.data-table th { color: var(--ink-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  table.wtl-table { width: 100%; border-collapse: separate; border-spacing: 8px; }
+  table.wtl-table th { font-size: 0.76rem; color: var(--ink-muted); font-weight: 700; padding: 4px; }
+  table.wtl-table th.corner { visibility: hidden; }
+  table.wtl-table td.wtl-cell {
+    border-radius: 10px; padding: 10px 8px; text-align: center; border: 1px solid var(--grid);
+  }
+  table.wtl-table .wtl-count { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  table.wtl-table .wtl-diff { font-size: 0.74rem; color: var(--ink-2); margin-top: 2px; }
+  table.wtl-table td.wtl-strong { background: var(--s6); border-color: var(--s6); }
+  table.wtl-table td.wtl-strong .wtl-count { color: #ffffff; }
+  table.wtl-table td.wtl-strong .wtl-diff { color: rgba(255,255,255,0.85); }
+  table.wtl-table td.wtl-mixed { background: var(--plane); border-color: var(--s6); border-width: 1.5px; }
+  table.wtl-table td.wtl-mixed .wtl-count { color: var(--s6); }
+  table.wtl-table td.wtl-tie { background: var(--plane); }
+  table.wtl-table td.wtl-tie .wtl-count { color: var(--ink-muted); }
+
+  table.spec-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  table.spec-table th, table.spec-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  table.spec-table th { color: var(--ink-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  table.spec-table td.spec-name { font-weight: 700; white-space: nowrap; }
+  table.spec-table td.spec-name .spec-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; }
+  table.spec-table tr.spec-aside td { opacity: 0.6; font-style: italic; }
+  table.spec-table td.spec-dim { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px 5px 9px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; border: 1.5px solid var(--chip-color); color: var(--ink); background: var(--plane); white-space: nowrap; }
+  .chip .chip-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--chip-color); flex: none; }
+  .recipe-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .recipe-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 16px; background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; }
+  .recipe-row.recipe-ours { border-color: var(--s9); border-width: 1.5px; }
+  .recipe-row .recipe-label { font-size: 0.78rem; color: var(--ink-muted); font-weight: 700; min-width: 168px; flex: none; }
+  .recipe-row .recipe-chips { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .recipe-row .op { color: var(--ink-muted); font-weight: 700; font-size: 1rem; }
+
+  .mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .mini-panel h3 { font-size: 0.86rem; margin: 0 0 8px; color: var(--ink-2); font-weight: 700; text-align: center; }
+
+  .takeaways { display: flex; flex-direction: column; gap: 12px; margin-top: 2px; }
+  .takeaway { display: flex; gap: 14px; align-items: flex-start; padding: 12px 18px; background: var(--plane); border: 1px solid var(--grid); border-radius: 12px; }
+  .takeaway .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex: none; }
+  .takeaway p { margin: 0; font-size: 0.9rem; color: var(--ink-2); }
+  .takeaway p strong { color: var(--ink); }
+
+  .nav { position: absolute; bottom: 20px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 18px; z-index: 10; }
+  .nav button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--card-shadow); }
+  .nav button:disabled { opacity: 0.3; cursor: default; }
+  .nav button:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+  .dots { display: flex; gap: 6px; }
+  .dots button { width: 8px; height: 8px; border-radius: 50%; border: none; padding: 0; box-shadow: none; background: var(--baseline); }
+  .dots button.on { background: var(--ink); width: 20px; border-radius: 5px; }
+  .counter { font-size: 0.76rem; color: var(--ink-muted); font-variant-numeric: tabular-nums; min-width: 3.4em; text-align: center; }
+
+  @media (max-width: 900px) {
+    .panel-grid, .mini-grid { grid-template-columns: 1fr; }
+    .card { padding: 26px 20px 24px; }
+  }
+</style>
+
+<div class="deck" id="deck">
+  <div id="slides"></div>
+  <div class="nav">
+    <button id="prevBtn" aria-label="上一頁">‹</button>
+    <div class="dots" id="dots"></div>
+    <span class="counter" id="counter"></span>
+    <button id="nextBtn" aria-label="下一頁">›</button>
+  </div>
+</div>
+
+<script>
+/* ---------- shared method identity ---------- */
+const DISP_METHODS = [
+  { key: "no_grouping", label: "No grouping",          short: "不分組",       color: "var(--s1)" },
+  { key: "cqi",         label: "CQI k-means",           short: "CQI",         color: "var(--s2)" },
+  { key: "cost",        label: "Resource-cost k-means",  short: "Resource-cost", color: "var(--s3)" },
+  { key: "multi",       label: "Multi-feature k-means",  short: "Multi-feature", color: "var(--s4)" },
+  { key: "teacher",     label: "近似最優解(multikey修正版)", short: "近似最優解",   color: "var(--s5)", ceiling: true },
+  { key: "ours",        label: "CQI+Cost+Switching 候選聯集(我們的方法)", short: "候選聯集(我們)", color: "var(--s9)", ours: true },
+];
+
+/* ---------- dispersion-stratified data (50 users, aligned mode, medium load, 30 seeds x 20 scenarios/cell) ----------
+   "mid" here uses a recalibrated CQI-dispersion formula ("mid_v2" in le_gra_mvp.py): the
+   original "mid" branch rarely pushed worst-case CQI below ~9 (checked directly: p5=9 across
+   720 draws), so a single unified "no grouping" bottleneck stayed mild -- unlike the published
+   paper's own mid-dispersed condition. mid_v2 widens the distance range and steepens the slope
+   so a real low-CQI tail exists, calibrated against the resulting CQI histogram alone (not
+   against any grouping-method outcome) before this comparison was run. Also moved from 24 to
+   50 users, matching the paper's own single-MMS scale (Section 4: "when the number of VUs is
+   50") -- confirmed directly that user count amplifies the no-grouping collapse independently
+   of dispersion (e.g. mid_v2 ADR: no-grouping was 84% of teacher at 24 users, 65% at 50 users). */
+const DISPERSIONS = [
+  { key: "low",  label: "Low-dispersed(集中)" },
+  { key: "mid",  label: "Mid-dispersed(重新校準)" },
+  { key: "high", label: "High-dispersed(分散)" },
+];
+
+/* teacher = multikey-corrected near-optimal for utility (validated true ceiling, see
+   teacher-contiguity-limitation memory); for the other 5 metrics teacher uses the cheap
+   "_fast" DP instead (no multikey ADR/fairness data collected) -- still a reasonable
+   reference for those, just not re-verified as the exact global optimum on those metrics. */
+const DISP_DATA = {
+  utility: {
+    low:  { no_grouping: 0.9318, cqi: 0.9408, cost: 0.9329, multi: 0.9429, teacher: 0.9515, ours: 0.9514 },
+    mid:  { no_grouping: 0.6702, cqi: 0.7055, cost: 0.7359, multi: 0.7281, teacher: 0.7781, ours: 0.7388 },
+    high: { no_grouping: 0.1229, cqi: 0.3756, cost: 0.3210, multi: 0.3584, teacher: 0.4417, ours: 0.3937 },
+  },
+  adr_kbps: {
+    low:  { no_grouping: 7500.00, cqi: 6974.45, cost: 7436.56, multi: 6828.87, teacher: 7374.09, ours: 6351.44 },
+    mid:  { no_grouping: 2923.42, cqi: 3665.43, cost: 4502.99, multi: 3995.55, teacher: 4847.06, ours: 4453.08 },
+    high: { no_grouping: 550.00,  cqi: 1979.57, cost: 1340.33, multi: 1759.27, teacher: 1877.63, ours: 1809.84 },
+  },
+  served_ratio: {
+    low:  { no_grouping: 1.0000, cqi: 1.0000, cost: 1.0000, multi: 1.0000, teacher: 1.0000, ours: 1.0000 },
+    mid:  { no_grouping: 1.0000, cqi: 1.0000, cost: 0.9997, multi: 1.0000, teacher: 0.9980, ours: 0.9997 },
+    high: { no_grouping: 1.0000, cqi: 1.0000, cost: 0.9914, multi: 0.9965, teacher: 0.9994, ours: 0.9999 },
+  },
+  average_quality: {
+    low:  { no_grouping: 5.0000, cqi: 4.6909, cost: 4.9627, multi: 4.6056, teacher: 4.9259, ours: 4.3244 },
+    mid:  { no_grouping: 2.9483, cqi: 3.0626, cost: 3.3436, multi: 3.2008, teacher: 3.5351, ours: 3.3323 },
+    high: { no_grouping: 1.0000, cqi: 1.7932, cost: 1.6146, multi: 1.7755, teacher: 1.9552, ours: 1.8065 },
+  },
+  system_spectral_efficiency: {
+    low:  { no_grouping: 250.00, cqi: 232.48, cost: 247.89, multi: 227.63, teacher: 245.80, ours: 211.71 },
+    mid:  { no_grouping: 97.45,  cqi: 122.18, cost: 150.10, multi: 133.19, teacher: 161.57, ours: 148.44 },
+    high: { no_grouping: 18.33,  cqi: 65.99,  cost: 44.68,  multi: 58.64,  teacher: 62.59,  ours: 60.33 },
+  },
+  fairness: {
+    low:  { no_grouping: 1.0000, cqi: 0.9880, cost: 0.9981, multi: 0.9856, teacher: 0.9964, ours: 0.9847 },
+    mid:  { no_grouping: 1.0000, cqi: 0.7996, cost: 0.8365, multi: 0.8317, teacher: 0.8748, ours: 0.8316 },
+    high: { no_grouping: 1.0000, cqi: 0.6267, cost: 0.7906, multi: 0.6459, teacher: 0.7100, ours: 0.6708 },
+  },
+};
+
+const METRIC_META = [
+  { id: "utility",    title: "效用分數 (Utility Score)",     unit: "", decimals: 3,
+    insight: "150人規模：<strong>我們的方法(候選聯集)在低離散度已經幾乎完全逼近真正的近似最優解</strong>(0.9514 vs 0.9515，只差0.0001)；中離散度達最優解的 <strong>94.9%</strong>(CQI只有90.7%)；高離散度達 <strong>89.1%</strong>(CQI 85.0%)，是目前離最優解最遠的一格，還有進步空間。這裡的「近似最優解」用的是已驗證的多排序鍵ensemble修正版(offline_teacher_groups_multikey)，不是單一排序鍵的DP——修正前的版本在低離散度甚至會輸給multi-feature/CQI k-means(見後面方法邏輯頁的完整說明)，換成修正版後才真正是每一格最高分。" },
+  { id: "adr_kbps",   title: "平均資料速率 ADR (kbps)",       unit: " kbps", decimals: 0,
+    insight: "150人規模：中離散度時「不分組」ADR 只剩最優解的 <strong>60.3%</strong>，高離散度崩到 <strong>27.8%</strong>(原論文 Method C 在高離散度是 15.2%，量級相符)。<strong>我們的方法在中離散度ADR(91.9%)反而贏過CQI(75.6%)</strong>，但低/高離散度時ADR略低於CQI——這不是缺陷：我們的方法選分組是為了最大化utility(含公平性、換頻穩定性)，不是原始平均速率，兩者目標本來就不同，ADR只是附帶觀察到的結果，不是被優化的對象(見「Utility 公式」頁)。" },
+  { id: "served_ratio", title: "服務覆蓋率 (Served Ratio)",   unit: "", decimals: 4, isPercentMetric: true,
+    insight: "這項指標在所有離散度、所有方法下都貼著 100%——不太能區分方法優劣，真正的差異在「服務到什麼畫質」，不是「有沒有服務到」(見左側 ADR / 畫質等級)。" },
+  { id: "average_quality", title: "平均畫質等級 (0–5)",        unit: " 級", decimals: 2,
+    insight: "高離散度時「不分組」平均只能給到 <strong>1.00 級</strong>(最優解 1.96 級的 51%)；中離散度時我們的方法(3.33 級，94.3%)明顯贏過 CQI(3.06 級，86.6%)——這是使用者實際會感覺到的畫質落差。" },
+  { id: "system_spectral_efficiency", title: "系統頻譜效率 (bps/Hz)", unit: " bps/Hz", decimals: 2,
+    insight: "跟 ADR 呈現完全一致的排序(兩者本質上是同一個底層效果的不同量測角度)：中離散度時「不分組」只剩 60.3% 的頻譜效率，高離散度時只剩 27.8%；我們的方法在中離散度(91.9%)穩定領先CQI(75.6%)。" },
+  { id: "fairness", title: "公平性 (Jain's Fairness Index)", unit: "", decimals: 4, isPercentMetric: true,
+    insight: "⚠️ <strong>「不分組」在每一格公平性都是完美的1.0000</strong>——這不是優點：把所有人塞進同一組，大家拿到「同樣差」的畫質，數學上就是完全公平，但utility/ADR/畫質三項指標同時墊底(見左側各頁)。公平性必須跟其他指標一起看，單獨看沒有意義。<br><br>真正有意義的比較是分組方法之間：<strong>我們的方法在中離散度(0.8316)、高離散度(0.6708)都贏過CQI(0.7996 / 0.6267)</strong>——換頻穩定性感知的候選聯集，除了utility變好，公平性也一併改善，不是犧牲公平性換utility。低離散度時我們的方法公平性(0.9847)略低於CQI(0.9880)，差距很小(<0.4個百分點)。" },
+];
+
+/* ---------- CQI+resource-cost hybrid candidate experiment (2026-08-25) ----------
+   Source: run_hybrid_candidate_experiment.py, same protocol as the dispersion-
+   breakdown slides (150 users, aligned mode, medium load = run_standard_matrix.
+   LOAD_RATIOS["medium"]=0.25, 30 seeds x 20 scenarios/cell = 600 scenarios/cell),
+   selection objective = the SAME log-utility formula as the formula slide (NOT
+   the ADR-only objective explored separately, see `adr-objective-experiment`
+   memory -- that experiment found ADR-as-objective does NOT make resource-cost/
+   multi-feature beat CQI at high dispersion; this hybrid-candidate mechanism is
+   what actually does). */
+const HYBRID_METHODS = [
+  { key: "no_grouping", label: "No grouping",                       short: "不分組",         color: "var(--s1)" },
+  { key: "cqi",         label: "CQI k-means(現有 baseline)",          short: "CQI(現有)",       color: "var(--s2)" },
+  { key: "cost",        label: "Resource-cost k-means",              short: "Resource-cost",   color: "var(--s3)" },
+  { key: "multi",       label: "Multi-feature k-means",              short: "Multi-feature",   color: "var(--s5)" },
+  { key: "joint",       label: "CQI+Cost 聯合clustering(單一,反例)",  short: "Joint(反例)",     color: "var(--ink-muted)" },
+  { key: "hybrid",      label: "候選聯集 2-way(CQI+Cost，論文方法，已驗證真實資料)", short: "2-way(真實驗證)", color: "var(--s6)" },
+  { key: "hybrid3",     label: "候選聯集 3-way(+Joint)",              short: "3-way(+Joint)",       color: "var(--s4)" },
+  { key: "hybrid4",     label: "候選聯集 4-way(+Joint+Switching，測試版)", short: "4-way(測試)", color: "var(--s7)" },
+  { key: "final",       label: "候選聯集 3-way(+Switching，捨棄Joint，我們最終的方法)", short: "3-way(我們)", color: "var(--s9)", ours: true },
+  { key: "near_optimal", label: "近似最優解(多排序鍵ensemble修正版)",      short: "近似最優解",   color: "var(--s8)", ceiling: true },
+];
+
+// near_optimal = offline_teacher_groups_multikey (see teacher-contiguity-limitation memory) --
+// closes the "fast" DP's contiguity-assumption gap to the true global optimum almost entirely
+// (100% match in 195/195 small-n brute-force tests, 0% net loss at n=150 low dispersion).
+// "final" = cqi_cost_switching_hybrid_kmeans_grouping (CQI+Cost+Switching, NO Joint) --
+// mathematically can never beat "hybrid4" (its candidate pool is a strict subset), only tie
+// or lose to it; empirically the loss is negligible (see HYBRID_FINAL_VS_4WAY below), so it
+// was adopted 2026-08-25 as the simpler final method.
+const HYBRID_DATA = {
+  low:  { no_grouping: 0.9318, cqi: 0.9408, cost: 0.9329, multi: 0.9429, joint: 0.9379, hybrid: 0.9408, hybrid3: 0.9413, hybrid4: 0.9514, final: 0.9514, near_optimal: 0.9515 },
+  mid:  { no_grouping: 0.6702, cqi: 0.7055, cost: 0.7359, multi: 0.7281, joint: 0.7333, hybrid: 0.7377, hybrid3: 0.7456, hybrid4: 0.7464, final: 0.7388, near_optimal: 0.7781 },
+  high: { no_grouping: 0.1229, cqi: 0.3756, cost: 0.3210, multi: 0.3584, joint: 0.3147, hybrid: 0.3836, hybrid3: 0.3855, hybrid4: 0.3946, final: 0.3937, near_optimal: 0.4417 },
+};
+
+// win/tie/loss vs plain CQI k-means, counted per scenario (out of 600/dispersion)
+// (deck-wide convention: the "mid" display key is the mid_v2-calibrated dispersion level)
+// After removing k-means++ (2026-08-25): the 2-way/3-way/4-way unions now share the exact
+// same plain-random-restart CQI candidate family (same seed) as the CQI k-means baseline
+// itself, so the CQI candidate inside every union is never worse than the baseline's own --
+// losses vs CQI have gone to ZERO everywhere, not just mostly-zero as before.
+const HYBRID_VS_CQI = {
+  low:  { win: 0,   tie: 600, loss: 0 },
+  mid:  { win: 513, tie: 87,  loss: 0 },
+  high: { win: 141, tie: 459, loss: 0 },
+};
+const HYBRID3_VS_CQI = {
+  low:  { win: 95,  tie: 505, loss: 0 },
+  mid:  { win: 543, tie: 57,  loss: 0 },
+  high: { win: 185, tie: 415, loss: 0 },
+};
+const HYBRID4_VS_CQI = {
+  low:  { win: 555, tie: 45,  loss: 0 },
+  mid:  { win: 543, tie: 57,  loss: 0 },
+  high: { win: 306, tie: 294, loss: 0 },
+};
+// "final" (our adopted method, CQI+Cost+Switching, no Joint) vs plain CQI k-means
+const HYBRID_FINAL_VS_CQI = {
+  low:  { win: 555, tie: 45,  loss: 0 },
+  mid:  { win: 515, tie: 85,  loss: 0 },
+  high: { win: 295, tie: 305, loss: 0 },
+};
+// "final" vs "hybrid4" (the version WITH Joint) -- final can only tie or lose here, never
+// win, since dropping a candidate family can never raise the achievable DP score. This is
+// literally "how much does dropping Joint cost" in scenario counts.
+const HYBRID_FINAL_VS_4WAY = {
+  low:  { win: 0, tie: 600, loss: 0 },
+  mid:  { win: 0, tie: 391, loss: 209 },
+  high: { win: 0, tie: 570, loss: 30 },
+};
+
+/* ---------- hybrid method, REAL Simu5G data (10 seeds x 3 dispersion x 3 load) ----------
+   Source: run_real_multiseed_baseline.py after adding the hybrid method, same
+   real_simu5g_multiseed_data as the main real-data slide. win/tie/loss counted in SEEDS
+   (10 per cell), not the 15 within-seed snapshots -- see real-data-multiseed-baseline memory. */
+const HYBRID_REAL_LOADS = [
+  { key: "light",  label: "Light" },
+  { key: "medium", label: "Medium" },
+  { key: "heavy",  label: "Heavy" },
+];
+const HYBRID_REAL_WTL = {
+  low:  { light: { win: 0,  tie: 10, loss: 0, diff:  0.0000 }, medium: { win: 0,  tie: 10, loss: 0, diff:  0.0000 }, heavy: { win: 0, tie: 10, loss: 0, diff:  0.0000 } },
+  mid:  { light: { win: 10, tie: 0,  loss: 0, diff:  0.0055 }, medium: { win: 10, tie: 0,  loss: 0, diff:  0.0055 }, heavy: { win: 5, tie: 5,  loss: 0, diff:  0.0012 } },
+  high: { light: { win: 10, tie: 0,  loss: 0, diff:  0.0121 }, medium: { win: 10, tie: 0,  loss: 0, diff:  0.0088 }, heavy: { win: 9, tie: 1,  loss: 0, diff:  0.0416 } },
+};
+function wtlTier(cell) {
+  if (cell.win >= 9) return "wtl-strong";
+  if (cell.win === 0 && cell.loss === 0) return "wtl-tie";
+  return "wtl-mixed";
+}
+
+function fmtNum(v, decimals) {
+  return v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+/* ---------- % of best mini bar chart (paper Figure-4 style) ---------- */
+function buildPctChart(values, methodList, unit, decimals) {
+  const width = 320, rowH = 30, gap = 10, leftPad = 100, topPad = 6;
+  const best = Math.max(...methodList.map(m => values[m.key]));
+  const plotRight = width - 44;
+  const height = topPad + methodList.length * (rowH + gap) - gap + 4;
+
+  // Category label sits to the LEFT of its own bar, vertically centered on
+  // the same row -- never stacked above/below a bar, which earlier testing
+  // showed readers misattribute to the neighboring row (see
+  // dispersion_and_scale_calibration.md / session notes 2026-08-20).
+  let svg = `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="百分比長條圖">`;
+  [0, 25, 50, 75, 100].forEach(t => {
+    const x = leftPad + (t / 100) * (plotRight - leftPad);
+    svg += `<line class="gridline" x1="${x}" y1="${topPad - 2}" x2="${x}" y2="${height - 2}" />`;
+  });
+  methodList.forEach((m, i) => {
+    const v = values[m.key];
+    const pct = best > 0 ? (v / best) * 100 : 0;
+    const y = topPad + i * (rowH + gap);
+    const barY = y + rowH * 0.18;
+    const barH = rowH * 0.64;
+    const barW = Math.max(((pct / 100) * (plotRight - leftPad)), 2);
+    svg += `<text class="cat-label${m.ceiling ? " ceiling" : ""}" x="${leftPad - 8}" y="${barY + barH / 2 + 4}" text-anchor="end">${m.short}</text>`;
+    svg += `<rect class="bar" data-idx="${i}" x="${leftPad}" y="${barY}" width="${barW}" height="${barH}" rx="3" fill="${m.color}" />`;
+    svg += `<text class="bar-label" x="${leftPad + barW + 6}" y="${barY + barH / 2 + 4}">${pct.toFixed(1)}%</text>`;
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+function attachPctHover(container, methodList, values, unit, decimals) {
+  const svg = container.querySelector("svg.chart");
+  const tooltip = container.querySelector(".tooltip");
+  const best = Math.max(...methodList.map(m => values[m.key]));
+  svg.querySelectorAll("rect.bar").forEach((rect, i) => {
+    const m = methodList[i];
+    const v = values[m.key];
+    const pct = best > 0 ? (v / best) * 100 : 0;
+    const show = (evt) => {
+      const box = container.getBoundingClientRect();
+      tooltip.style.left = (evt.clientX - box.left) + "px";
+      tooltip.style.top = (evt.clientY - box.top) + "px";
+      tooltip.textContent = m.label + " · " + fmtNum(v, decimals) + unit + " · " + pct.toFixed(1) + "% of best";
+      tooltip.style.opacity = "1";
+    };
+    rect.addEventListener("mousemove", show);
+    rect.addEventListener("mouseenter", show);
+    rect.addEventListener("mouseleave", () => { tooltip.style.opacity = "0"; });
+  });
+}
+
+function buildDispersionMetricSlide(meta) {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const panels = DISPERSIONS.map(d => {
+    const values = DISP_DATA[meta.id][d.key];
+    return `
+      <div class="panel">
+        <h3>${d.label}</h3>
+        <p class="panel-sub">% 為該情境下相對「最佳方法」的比例</p>
+        <div class="chart-wrap" data-metric="${meta.id}" data-disp="${d.key}"><div class="tooltip"></div></div>
+      </div>`;
+  }).join("");
+
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Metric · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格)</span>
+      <h2 class="slide-title">${meta.title}</h2>
+      <div class="legend">
+        ${DISP_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}${m.ceiling ? "(utility頁用已驗證的多排序鍵ensemble修正版；其餘4頁用較便宜的單排序鍵版本，未重新驗證是否仍是每格最高分)" : ""}</span>`).join("")}
+      </div>
+      <div class="panel-grid">${panels}</div>
+      <button class="table-toggle" type="button">顯示數據表</button>
+      <table class="data-table">
+        <thead><tr><th>方法</th><th>Low</th><th>Mid</th><th>High</th></tr></thead>
+        <tbody>
+          ${DISP_METHODS.map(m => `<tr><td>${m.label}</td>${DISPERSIONS.map(d => {
+            const v = DISP_DATA[meta.id][d.key][m.key];
+            return `<td>${fmtNum(v, meta.decimals)}${meta.unit}</td>`;
+          }).join("")}</tr>`).join("")}
+        </tbody>
+      </table>
+      <div class="insight">${meta.insight}</div>
+    </div>
+  `;
+
+  el.querySelectorAll(".chart-wrap").forEach(wrap => {
+    const disp = wrap.getAttribute("data-disp");
+    const values = DISP_DATA[meta.id][disp];
+    const svg = buildPctChart(values, DISP_METHODS, meta.unit, meta.decimals);
+    wrap.insertAdjacentHTML("afterbegin", svg);
+    attachPctHover(wrap, DISP_METHODS, values, meta.unit, meta.decimals);
+  });
+
+  const toggle = el.querySelector(".table-toggle");
+  const table = el.querySelector(".data-table");
+  toggle.addEventListener("click", () => {
+    const shown = table.classList.toggle("shown");
+    toggle.textContent = shown ? "隱藏數據表" : "顯示數據表";
+  });
+  return el;
+}
+
+/* ---------- real Simu5G data slide (10-seed multiseed dataset, medium load) ----------
+   Source: real_multiseed_baseline_results/summary_across_seeds.csv (load=medium), from
+   run_real_multiseed_baseline.py over real_simu5g_multiseed_data/ (10 independently-seeded
+   OMNeT++/INET/Simu5G/Veins/SUMO runs per dispersion, validated 2026-08-25). Supersedes the
+   original single-seed (n=15, one run) pilot -- the seed is the independent unit here (10 per
+   dispersion), NOT the 15 snapshots within one run, which come from one mobility trajectory. */
+const REAL_DATA = {
+  title: "真實資料驗證：Simu5G + SUMO(10-seed)",
+  subtitle: "在真實5G網路模擬(非合成模擬器)上，依離散度分層檢視5種方法(效用分數，medium負載，每格 10 個獨立seed × 15 情境/seed；seed才是獨立樣本，不是150個情境)。",
+  dispersions: [
+    { key: "low",  label: "Low(集中)", values: { no_grouping: 0.44828, cqi: 0.44828, cost: 0.44828, multi: 0.44828, teacher: 0.44828 } },
+    { key: "mid",  label: "Mid",       values: { no_grouping: 0.31472, cqi: 0.35461, cost: 0.35475, multi: 0.35488, teacher: 0.37224 } },
+    { key: "high", label: "High(分散)", values: { no_grouping: 0.06926, cqi: 0.16097, cost: 0.15049, multi: 0.15470, teacher: 0.20674 } },
+  ],
+};
+
+const REAL_DATA_METHODS = DISP_METHODS.filter(m => m.key !== "ours");
+
+function buildRealDataMiniChart(values) {
+  const width = 300, rowH = 34, gap = 10, leftPad = 96, rightPad = 60, topPad = 6;
+  const plotW = width - leftPad - rightPad;
+  const raw = REAL_DATA_METHODS.map(m => values[m.key]);
+  const minV = Math.min(0, ...raw);
+  const maxV = Math.max(...raw) * 1.15;
+  const scale = v => ((v - minV) / (maxV - minV)) * plotW;
+  const zeroX = leftPad + scale(0);
+  const height = topPad + REAL_DATA_METHODS.length * (rowH + gap);
+  let svg = `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="真實資料效用長條圖">`;
+  REAL_DATA_METHODS.forEach((m, i) => {
+    const v = values[m.key];
+    const y = topPad + i * (rowH + gap);
+    const barY = y + rowH * 0.16, barH = rowH * 0.56;
+    const vx = leftPad + scale(v);
+    const x0 = Math.min(zeroX, vx), w = Math.abs(vx - zeroX);
+    svg += `<text class="cat-label" x="${leftPad - 8}" y="${y + rowH / 2 + 4}" text-anchor="end">${m.short}</text>`;
+    svg += `<rect class="bar" x="${x0}" y="${barY}" width="${Math.max(w, 1)}" height="${barH}" rx="3" fill="${m.color}" />`;
+    const anchor = vx >= zeroX ? "start" : "end";
+    svg += `<text class="bar-label" x="${vx + (vx >= zeroX ? 6 : -6)}" y="${barY + barH / 2 + 4}" text-anchor="${anchor}" style="font-size:11px;">${fmtNum(v, 3)}</text>`;
+  });
+  svg += `<line class="baseline-rule" x1="${zeroX}" y1="${topPad - 2}" x2="${zeroX}" y2="${height - 2}" />`;
+  svg += `</svg>`;
+  return svg;
+}
+
+function buildRealDataSlide(data) {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const panels = data.dispersions.map(d => `<div class="mini-panel"><h3>${d.label}</h3>${buildRealDataMiniChart(d.values)}</div>`).join("");
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Bonus · 真實 Simu5G + SUMO + Veins 模擬，10 個獨立seed(非合成資料)</span>
+      <h2 class="slide-title">${data.title}</h2>
+      <p class="subtitle">${data.subtitle}</p>
+      <div class="legend">${REAL_DATA_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}</span>`).join("")}</div>
+      <div class="mini-grid">${panels}</div>
+      <div class="insight"><strong>「不分組」在中/高離散度的全部10個seed都輸給任何一種分組法</strong>，且差距隨離散度擴大(high: 0.069 vs CQI的0.161)——這是目前最扎實的真實資料證據，因為是10個獨立seed一致同方向，不是1次模擬。<strong>低離散度時5種方法完全打平</strong>(真實CQI緊貼上限的天花板效應)。「近似最優解」在中/高離散度仍穩定領先所有方法(10/10 seeds)，顯示還有進步空間。<br><br>⚠️ <strong>比舊版單一seed的發現更誠實的修正</strong>：先前只跑1個seed時，resource-cost在高離散度看起來明顯贏CQI(0.148 vs 0.119)；但擴大到10個獨立seed、同樣medium負載後，CQI反而在多數seed贏過resource-cost/multi-feature(8/10、7/10)——單一seed的方向性結論並不穩健，這正是「10-seed exploratory、20-seed才是confirmatory」這個分寸的意義所在。目前每格10個獨立seed，是方向性佐證，不是嚴謹統計確認。</div>
+    </div>
+  `;
+  return el;
+}
+
+/* ---------- user-count sensitivity slide ---------- */
+const USER_COUNT_LEVELS = [
+  { n: 24,  seq: "#b7d3f6", note: "30 seed × 20 情境/格" },
+  { n: 50,  seq: "#6da7ec", note: "30 seed × 20 情境/格" },
+  { n: 150, seq: "#2a78d6", note: "30 seed × 20 情境/格" },
+  { n: 300, seq: "#184f95", note: "15 seed × 10 情境/格" },
+  { n: 500, seq: "#0d366b", note: "10 seed × 6 情境/格" },
+];
+const USER_COUNT_ADR_PCT = {
+  mid:  { 24: 85.27, 50: 65.29, 150: 60.31, 300: 55.99, 500: 42.99 },
+  high: { 24: 24.90, 50: 22.62, 150: 27.78, 300: 31.02, 500: 31.99 },
+};
+const USER_COUNT_ADR_ABS = {
+  // absolute "No grouping" ADR (kbps) -- shows the high-dispersion floor
+  // effect the % ratio alone would obscure.
+  high: { 24: 791.3, 50: 573.8, 150: 550.0, 300: 550.0, 500: 550.0 },
+};
+
+function buildUserCountMiniChart(dispKey, showAbs) {
+  const width = 300, rowH = 34, gap = 10, leftPad = 118, topPad = 6;
+  const plotRight = width - 44;
+  const height = topPad + USER_COUNT_LEVELS.length * (rowH + gap) - gap + 4;
+  let svg = `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="使用者數量效應長條圖">`;
+  [0, 25, 50, 75, 100].forEach(t => {
+    const x = leftPad + (t / 100) * (plotRight - leftPad);
+    svg += `<line class="gridline" x1="${x}" y1="${topPad - 2}" x2="${x}" y2="${height - 2}" />`;
+  });
+  USER_COUNT_LEVELS.forEach((lvl, i) => {
+    const pct = USER_COUNT_ADR_PCT[dispKey][lvl.n];
+    const y = topPad + i * (rowH + gap);
+    const barY = y + rowH * 0.18, barH = rowH * 0.64;
+    const barW = Math.max(((pct / 100) * (plotRight - leftPad)), 2);
+    const absVal = showAbs && USER_COUNT_ADR_ABS[dispKey] ? USER_COUNT_ADR_ABS[dispKey][lvl.n] : null;
+    const label = `n=${lvl.n}人${absVal != null ? ` (${absVal.toFixed(0)}kbps)` : ""}`;
+    svg += `<text class="cat-label" x="${leftPad - 8}" y="${barY + barH / 2 + 4}" text-anchor="end">${label}</text>`;
+    svg += `<rect class="bar" x="${leftPad}" y="${barY}" width="${barW}" height="${barH}" rx="3" fill="${lvl.seq}" />`;
+    svg += `<text class="bar-label" x="${leftPad + barW + 6}" y="${barY + barH / 2 + 4}">${pct.toFixed(1)}%</text>`;
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+function buildUserCountSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Sensitivity · 「不分組」ADR 佔最佳方法百分比，隨使用者數量變化(aligned 模式 · medium 負載 · 全部皆完整樣本量)</span>
+      <h2 class="slide-title">使用者數量的影響</h2>
+      <p class="subtitle">同一份離散度設定下，把使用者數從 24 人一路拉到 500 人，「不分組」相對於最佳方法的差距如何變化——顏色深淺代表使用者數量(淺→深 = 24 → 500 人)，不是方法身分。</p>
+      <div class="panel-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="panel">
+          <h3>Mid-dispersed(重新校準)</h3>
+          <p class="panel-sub">單調遞減：85% → 65% → 60% → 56% → 43%</p>
+          <div class="chart-wrap">${buildUserCountMiniChart("mid", false)}</div>
+        </div>
+        <div class="panel">
+          <h3>High-dispersed</h3>
+          <p class="panel-sub">絕對值(括號內)從 150 人起卡在 550 kbps 不再往下掉</p>
+          <div class="chart-wrap">${buildUserCountMiniChart("high", true)}</div>
+        </div>
+      </div>
+      <div class="insight">中離散度呈現清楚、單調的趨勢(全部使用完整樣本量，30 seed × 20 情境/格起，人數越多樣本量沒有縮減)：使用者越多，「不分組」被拖垮得越嚴重(85.3% → 65.3% → 60.3% → 56.0% → 43.0%)——母體越大，出現極端低 CQI 使用者的機率越高。高離散度那格的百分比不是單調的(24.9%→22.6%→27.8%→31.0%→32.0%)，但<strong>這不是雜訊</strong>：看絕對值就懂了——「不分組」的ADR從150人開始精確卡在 <strong>550 kbps</strong>(剛好是第2畫質等級的位元率)不再下降，代表使用者一多，幾乎必然存在極端低CQI的使用者把整個群組釘死在這一級；百分比會晃動，是因為分母(當下最佳方法)隨人數變化，不是「不分組」自己變好了。</div>
+    </div>
+  `;
+  return el;
+}
+
+function buildTitleSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  el.innerHTML = `
+    <div class="card" style="align-items:flex-start;">
+      <span class="kicker">CQI+Resource-cost 候選聯集 · 方法比較</span>
+      <h1 class="big">依 CQI 離散度分層的方法比較</h1>
+      <p class="subtitle">先講清楚<strong>我們的方法</strong>——CQI k-means 聯集 resource-cost、CQI+換頻穩定性聯合，三種候選一起挑DP實際評分最高者(曾經測過加入第4個「CQI+cost聯合」候選來源，發現貢獻小到可以忽略，已拿掉)——的邏輯與why-not-alternatives，再用同一套六指標(utility、ADR、服務覆蓋率、畫質等級、頻譜效率、公平性)、依 CQI 離散度分層(仿原論文 Figure 4)驗證：150 位使用者、30 seed × 20 情境/格，每個方法用「佔該情境最佳方法的百分比」呈現，同時保留絕對數值。之後補使用者數量效應、真實 Simu5G 10-seed 資料上的驗證。</p>
+      <div class="legend" style="margin-top:12px;">
+        ${DISP_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.label}</span>`).join("")}
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+function buildFormulaSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const M_SUM_I_G = `<munder><mo>&#x2211;</mo><mrow><mi>i</mi><mo>&#x2208;</mo><mi>G</mi></mrow></munder>`;
+  const M_SUM_K = `<munder><mo>&#x2211;</mo><mi>k</mi></munder>`;
+  const steps = [
+    {
+      label: "1. 畫質分數 -- log-normalized bitrate (0~1)",
+      math: `<math display="block">
+        <mi>b</mi><mo>(</mo><mi>q</mi><mo>)</mo><mo>=</mo>
+        <mfrac>
+          <mrow><mi>ln</mi><msub><mi>R</mi><mi>q</mi></msub><mo>&#x2212;</mo><mi>ln</mi><msub><mi>R</mi><mn>0</mn></msub></mrow>
+          <mrow><mi>ln</mi><msub><mi>R</mi><mn>5</mn></msub><mo>&#x2212;</mo><mi>ln</mi><msub><mi>R</mi><mn>0</mn></msub></mrow>
+        </mfrac>
+      </math>`,
+      def: "R₀..R₅ = 200, 550, 1500, 3000, 5800, 7500 kbps（q 對應的畫質等級，q ∈ {0,...,5}）",
+      note: "用log而不是原始kbps，是刻意的邊際效益遞減設計：把一個人從200→550 kbps跟從5800→7500 kbps，在utility裡看起來一樣重要，而不是後者的\"kbps差距\"大就給更高分數——這也是後面\"CQI k-means的原始ADR能超過近似最優解\"的根本原因(它們優化的目標不一樣)。",
+    },
+    {
+      label: "2. 換頻懲罰 -- 這裡本來就有 video quality fluctuation",
+      math: `<math display="block">
+        <msub><mtext>switch</mtext><mi>i</mi></msub><mo>(</mo><mi>q</mi><mo>)</mo><mo>=</mo>
+        <mfrac>
+          <mrow><mo>|</mo><mi>q</mi><mo>&#x2212;</mo><msub><mi>p</mi><mi>i</mi></msub><mo>|</mo></mrow>
+          <mn>5</mn>
+        </mfrac>
+      </math>`,
+      def: "p_i = 使用者 i 上一次的畫質等級（previous_quality_i，同樣落在 0~5）",
+      note: "這一項本來就存在於utility公式裡，只是是「單步」(跟上一次比)版本，不是「過去N步的變異數」版本。",
+    },
+    {
+      label: "3. 一個群組(multicast，共用同一個畫質q)的總價值",
+      math: `<math display="block">
+        <mi>V</mi><mo>(</mo><mi>G</mi><mo>,</mo><mi>q</mi><mo>)</mo><mo>=</mo>
+        <mrow><mo>{</mo>
+          <mtable columnalign="left" rowspacing="0.6em">
+            <mtr>
+              <mtd><mrow><mo>&#x2212;</mo><mn>2</mn><mo>&#x00D7;</mo><mo>|</mo><mi>G</mi><mo>|</mo></mrow></mtd>
+              <mtd><mtext>&#x2003;若 q = &#x2212;1（未服務）</mtext></mtd>
+            </mtr>
+            <mtr>
+              <mtd><mrow>${M_SUM_I_G}<mo>[</mo><mi>b</mi><mo>(</mo><mi>q</mi><mo>)</mo><mo>&#x2212;</mo><mi>&#x03B2;</mi><mo>&#x22C5;</mo><msub><mtext>switch</mtext><mi>i</mi></msub><mo>(</mo><mi>q</mi><mo>)</mo><mo>]</mo></mrow></mtd>
+              <mtd><mtext>&#x2003;若 q &#x2265; 0</mtext></mtd>
+            </mtr>
+          </mtable>
+        </mrow>
+      </math>`,
+      def: "β = switch_beta，本專案實驗多數設 0.5",
+      note: "同一群組每個人分數不同，是因為每個人自己的previous_quality不同，即使拿到同一個畫質q，換頻懲罰也不同。",
+    },
+    {
+      label: "4. RB可行性 -- multicast worst-user約束",
+      math: `<math display="block">
+        <msub><mi>rate</mi><mi>G</mi></msub><mo>(</mo><mi>j</mi><mo>)</mo><mo>=</mo>
+        <munder><mo movablelimits="false">min</mo><mrow><mi>i</mi><mo>&#x2208;</mo><mi>G</mi></mrow></munder>
+        <mi>rate</mi><mo>(</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo>)</mo>
+      </math>`,
+      def: "把各 RB 的 rate_G(j) 由大到小排序，取前 N 個使總和 ≥ R_q 的最小 N，記為 RBneed(G, q)（若窮舉所有RB仍不夠，此畫質對這個群組不可行）",
+      note: "這就是「多人共用同一份廣播訊號，只能配到讓最差成員也能解碼的傳輸速率」的實體限制——rate(i,j) 是使用者 i 在 RB j 上的速率，取群組內最差者。",
+    },
+    {
+      label: "5. 最佳化 -- exact DP / multiple-choice knapsack",
+      math: `<math display="block">
+        <munder><mo movablelimits="false">max</mo><mtext></mtext></munder>
+        ${M_SUM_K}<mi>V</mi><mo>(</mo><msub><mi>G</mi><mi>k</mi></msub><mo>,</mo><msub><mi>q</mi><mi>k</mi></msub><mo>)</mo>
+        <mspace width="1.4em"/>
+        <mtext>s.t.</mtext><mspace width="0.4em"/>
+        ${M_SUM_K}<mtext>RBneed</mtext><mo>(</mo><msub><mi>G</mi><mi>k</mi></msub><mo>,</mo><msub><mi>q</mi><mi>k</mi></msub><mo>)</mo>
+        <mo>&#x2264;</mo><msub><mi>RB</mi><mtext>available</mtext></msub>
+      </math>`,
+      def: "",
+      note: "每個群組是一個「物品類別」，每個畫質等級是一個「選項」，RB預算是背包容量——這是這個問題在「群組已固定」時可以用DP精確求解的原因。offline teacher做的事，是連分組本身也一起窮舉(但只窮舉「依資源成本排序後的連續切割」，見前頁「近似最優解」說明)，取整體utility最高的分組+畫質組合。",
+    },
+    {
+      label: "6. 最終回報的 utility 指標",
+      math: `<math display="block">
+        <mtext>utility</mtext><mo>=</mo>
+        <mfrac><mn>1</mn><mi>n</mi></mfrac>
+        ${M_SUM_K}<mi>V</mi><mo>(</mo><msub><mi>G</mi><mi>k</mi></msub><mo>,</mo><msub><mi>q</mi><mi>k</mi></msub><mo>)</mo>
+      </math>`,
+      def: "n = 總使用者數（每人平均效用）",
+      note: "投影片其他每一頁的\"utility\"數字，都是這個式子在不同方法/離散度下算出來的平均值。",
+    },
+  ];
+  el.innerHTML = `
+    <div class="card" style="align-items:flex-start;">
+      <span class="kicker">目標函數</span>
+      <h2 class="slide-title">Utility 公式：系統實際在優化什麼</h2>
+      <p class="subtitle">出自 <code>le_gra_mvp.py</code> 的 <code>group_quality_value</code> / <code>normalized_bitrate_score</code> / <code>allocate_and_evaluate</code>。這是一個「公平性加權的log-bitrate效用」，不是原始平均速率(ADR)——這也是後面幾頁「CQI在ADR/頻譜效率上贏過近似最優解」看起來矛盾、但其實是優化目標不同的根本原因。</p>
+      <div class="formula-steps">
+        ${steps.map(s => `
+          <div class="formula-step">
+            <div class="step-label">${s.label}</div>
+            <div class="formula">${s.math}</div>
+            ${s.def ? `<p class="formula-def">${s.def}</p>` : ""}
+            <p class="note">${s.note}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+function buildHybridFlowSvg() {
+  const LX = 40, LW = 260, LC = LX + LW / 2;
+  const RFX = 320, RFW = 560, RC = RFX + RFW / 2;
+  const colW = 176, gap = 16;
+  const col1 = { x: RFX, c: RFX + colW / 2 };
+  const col2 = { x: RFX + (colW + gap), c: RFX + (colW + gap) + colW / 2 };
+  const col3 = { x: RFX + 2 * (colW + gap), c: RFX + 2 * (colW + gap) + colW / 2 };
+  const rowY = { r1: 40, r2: 130, r3: 220, r4: 312, r5: 402, r6: 482 };
+  const H = 40;
+
+  const box = (x, y, w, h, lines, hi) => {
+    const stroke = hi ? "var(--s9)" : "currentColor";
+    const sw = hi ? 1.8 : 1.2;
+    const ty = y + h / 2 - (lines.length - 1) * 7;
+    const text = lines.map((line, i) =>
+      `<tspan x="${x + w / 2}" y="${ty + i * 14}">${line}</tspan>`
+    ).join("");
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" fill="var(--plane)" stroke="${stroke}" stroke-width="${sw}" />
+      <text x="${x + w / 2}" y="${ty}" text-anchor="middle" font-size="11.5" fill="currentColor">${text}</text>`;
+  };
+  const line = (x1, y1, x2, y2, hi) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2 - 2}" stroke="${hi ? "var(--s9)" : "currentColor"}" stroke-width="${hi ? 1.8 : 1.3}" marker-end="url(#${hi ? "arrowH" : "arrowN"})" />`;
+
+  let svg = `<svg viewBox="0 0 920 545" style="display:block; width:100%; height:auto;" role="img" aria-label="CQI k-means 與我們最終的3-way候選聯集方法流程比較">
+    <defs>
+      <marker id="arrowN" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+      <marker id="arrowH" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--s9)"/></marker>
+    </defs>
+    <text x="${LC}" y="24" text-anchor="middle" font-size="13.5" font-weight="700" fill="currentColor">① CQI k-means(現有)</text>
+    <text x="${RC}" y="24" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--s9)">② 候選聯集(我們的方法，3-way)</text>
+
+    ${box(LX, rowY.r1, LW, H, ["CQI"], false)}
+    <text x="${RC}" y="${rowY.r1 + H / 2 + 4}" text-anchor="middle" font-size="11.5" fill="var(--ink-muted)">輸入：CQI、Resource-cost 向量、前次畫質(previous_quality)</text>
+
+    ${line(LC, rowY.r1 + H, LC, rowY.r2, false)}
+
+    ${box(LX, rowY.r2, LW, H, ["k-means(隨機初始化)"], false)}
+    ${box(col1.x, rowY.r2, colW, H, ["k-means on CQI"], true)}
+    ${box(col2.x, rowY.r2, colW, H, ["k-means on Cost"], true)}
+    ${box(col3.x, rowY.r2, colW, H, ["k-means on [CQI,前次畫質]"], true)}
+
+    ${line(LC, rowY.r2 + H, LC, rowY.r3, false)}
+    ${line(col1.c, rowY.r2 + H, RC - 130, rowY.r3, true)}
+    ${line(col2.c, rowY.r2 + H, RC, rowY.r3, true)}
+    ${line(col3.c, rowY.r2 + H, RC + 130, rowY.r3, true)}
+
+    ${box(LX, rowY.r3, LW, 44, ["候選分群(僅CQI, k=1..Kmax)"], false)}
+    ${box(RFX, rowY.r3, RFW, 44, ["候選聯集 = CQI ∪ Cost ∪ Switching"], true)}
+
+    ${line(LC, rowY.r3 + 44, LC, rowY.r4, false)}
+    ${line(RC, rowY.r3 + 44, RC, rowY.r4, false)}
+
+    ${box(LX, rowY.r4, LW, H, ["逐一 exact DP 分配 → 算 utility"], false)}
+    ${box(RFX, rowY.r4, RFW, H, ["逐一 exact DP 分配 → 算 utility"], false)}
+
+    ${line(LC, rowY.r4 + H, LC, rowY.r5, false)}
+    ${line(RC, rowY.r4 + H, RC, rowY.r5, false)}
+
+    ${box(LX, rowY.r5, LW, H, ["取 utility 最高的候選"], false)}
+    ${box(RFX, rowY.r5, RFW, H, ["取 utility 最高的候選"], false)}
+
+    ${line(LC, rowY.r5 + H, LC, rowY.r6, false)}
+    ${line(RC, rowY.r5 + H, RC, rowY.r6, false)}
+
+    ${box(LX, rowY.r6, LW, H, ["輸出：CQI k-means 分群"], false)}
+    ${box(RFX, rowY.r6, RFW, H, ["輸出：候選聯集分群(我們的方法)"], true)}
+
+    <line x1="${LX + LW + 20}" y1="${rowY.r4 - 8}" x2="${LX + LW + 20}" y2="${rowY.r5 + H + 8}" stroke="currentColor" stroke-width="1" stroke-dasharray="3,3" opacity="0.4" />
+    <text x="${LX + LW + 20}" y="${(rowY.r4 + rowY.r5 + H) / 2 + 4}" text-anchor="middle" font-size="10.5" fill="var(--ink-muted)" transform="rotate(-90 ${LX + LW + 20} ${(rowY.r4 + rowY.r5 + H) / 2})">兩邊機制完全相同</text>
+  </svg>`;
+  return svg;
+}
+
+function buildHybridLogicSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const steps = [
+    {
+      label: "現有 baseline 本來就在做什麼",
+      body: `<code>CQI k-means</code>不是「clustering完就結束」：它試 k=1..K<sub>max</sub> 每一種，每個 k 都真的用exact DP解一次資源分配、算出實際utility，取utility最高的 k 當最終分群——這個「產生候選、實際分配、挑最高分」的機制本來就存在，差別在候選<strong>只從CQI這一種representation來</strong>，而且k-means本身的初始中心點是<strong>plain random restart</strong>(隨機挑k個點當起始中心，跑10次取inertia最低者)。`,
+    },
+    {
+      label: "改動 1：CQI + Resource-cost 候選聯集",
+      body: `這就是使用者論文裡實際的方法：<strong>不要只從一種representation生成候選</strong>。分別對「CQI」跟「resource-cost向量」各自跑一輪plain random-restart k-means(k=1..K<sub>max</sub>，跟現有baseline同一種初始化，不是k-means++)，兩邊產生的候選分群<strong>取聯集</strong>，聯集裡的每一個候選都實際跑DP分配、算utility，最終取分數最高的那一個。CQI候選確保「至少不會比單獨CQI k-means差」，resource-cost候選則是「額外的機會」——當resource-cost這個representation剛好切得更好時，聯集會自動選到它。<br><br><em>曾經測過k-means++初始化(D²機率加權選起始中心點)當作額外變因，單獨測時有小幅、不穩定的效果；因為候選聯集本身才是要驗證的核心機制，2026-08-25移除k-means++，全部改回跟baseline一致的plain random-restart，讓結果100%歸因於候選聯集，不跟初始化方式混在一起。</em>`,
+    },
+    {
+      label: "改動 2：為什麼不直接對 [CQI, Cost] 做一次 2 維 clustering？",
+      body: `直覺會想：與其分開跑兩次k-means再聯集，直接把CQI跟resource-cost向量<strong>合併成一個特徵空間，跑一次joint clustering</strong>不是更簡單嗎？實測發現<strong>這樣反而是三種方法裡最差的</strong>：高離散度時utility只有0.3147，比單獨CQI(0.3756)、單獨resource-cost(0.3210)都差(雖然還是比「不分組」的0.1229好很多)。原因是joint clustering被迫用<strong>同一組分群同時滿足CQI相似度跟resource-cost相似度兩個目標</strong>，是一種妥協；而分開產生候選、實際跑DP評分後才挑最高分，等於是<strong>依情境自動選用當下最合適的representation</strong>，不需要妥協。<br><br>但這不代表joint clustering完全沒用——<strong>把它加進聯集當「第三個候選來源」</strong>(CQI候選∪Cost候選∪Joint候選)，結果三個離散度都比原本的2-way聯集更好(低+0.0006、中+0.0079、高+0.0019)，而且0個變差。因為聯集只會挑「當下實際分數最高」的那個候選，Joint clustering單獨很差不影響大局，只要它偶爾能找到CQI跟resource-cost都沒找到的切法，就是純粹的加分——這就是<strong>聯集「只會更好、不會更差」的核心機制</strong>。`,
+    },
+    {
+      label: "改動 3：換頻穩定性也能是候選聯集的一部分",
+      body: `Utility公式本來就有換頻懲罰(跟上次畫質比跳動多少)，但CQI/Cost/Joint clustering<strong>在做分群當下完全沒看過previous_quality這個資訊</strong>——換頻懲罰只在DP選擇候選時被動地影響結果，clustering本身沒有機會主動去找「換頻穩定」的分法。使用者論文原本的方法也沒考慮這個維度，但既然utility公式已經在算它，讓候選聯集也能主動照顧到它，理論上只會更好。<br><br>做法：加第4個候選來源，直接對<strong>[CQI, 前次畫質]</strong>做k-means clustering，讓「目前畫質狀態相近的人」有機會被分在一起。實測(150人規模，600情境/離散度，此時候選池是①CQI∪②Cost∪③Joint∪④Switching共4個來源)：<strong>低離散度utility從0.9413(3-way，只有①②③)跳到0.9514(4-way)，553/600情境變好、0個變差</strong>，而且0.9514已經幾乎完全逼近獨立驗證過的真正近似最優解(0.9515，只差0.0001)；中離散度小幅進步(0.7456→0.7464，19/600變好、0個變差)；高離散度也有感提升(0.3855→0.3946，191/600變好、0個變差)。同樣是「聯集只會更好、不會更差」的機制。`,
+    },
+    {
+      label: "改動 4：候選來源變成4個，會不會太多了？拿掉③試試看",
+      body: `到這裡候選池已經有4個來源(①②③④)，值得回頭檢查：③(Joint[CQI,Cost])早在改動2就已經知道<strong>單獨用它是最差的</strong>，加進聯集後貢獻多大？直接測試「拿掉③、只留①②④」(3-way)，跟保留③的4-way逐情境比較：<br><br><strong>低離散度時，4-way在全部600個情境裡，一次都沒有選到③這個候選</strong>——拿掉③後utility完全不變(0.9514，600/600情境逐一比對都相同，連ADR等其他5項指標也完全一致)；高離散度時③也只在30/600(5%)情境裡被選中，平均貢獻只有+0.0009；唯一有感的是中離散度，③在209/600(35%)情境被選中，平均貢獻+0.0076(相對0.7464不到1.1%)。<br><br><strong>2026-08-25決定拿掉③</strong>：用它換來的中離散度小幅提升，不值得多維護一個候選家族(多一次k-means、多一輪DP評分)。拿掉③之後對CQI k-means依然保持<strong>0個loss</strong>(低555勝/45平/0負、中515勝/85平/0負、高295勝/305平/0負)。<strong>最終方法 = ①CQI ∪ ②Resource-cost ∪ ④Switching 的3-way聯集</strong>——這是全份投影片接下來所有比較的「我們的方法」。`,
+    },
+    {
+      label: "用的是哪個utility？",
+      body: `跟前面「Utility 公式」那頁完全一樣的<strong>公平性加權log-utility</strong>(log-bitrate分數 − 換頻懲罰)，不是稍早另外測試的「純ADR目標」。稍早那個實驗發現：把目標函數換成純ADR，並不會讓resource-cost/multi-feature在高離散度贏過CQI，甚至讓CQI領先更多——真正有效的不是換目標函數，是這裡的「候選聯集」這個候選產生機制本身。`,
+    },
+  ];
+  el.innerHTML = `
+    <div class="card" style="align-items:flex-start;">
+      <span class="kicker">我們的方法 · 2026-08-25</span>
+      <h2 class="slide-title">候選聯集：CQI + Resource-cost + 換頻穩定性</h2>
+      <p class="subtitle">出自 <code>le_gra_mvp.py</code> 的 <code>cqi_cost_switching_hybrid_kmeans_grouping</code>。重現並延伸使用者論文裡「CQI k-means + resource-cost概念」的實際方法：分群依據仍以CQI為主，三邊都用跟現有baseline同一種plain random-restart k-means，聯集resource-cost、CQI+換頻狀態聯合，三種候選一起挑最高分——這是全份投影片接下來所有比較的「我們的方法」(曾經測過加入第4個「CQI+Cost聯合」候選來源做成4-way，但發現貢獻小到可以忽略，2026-08-25決定拿掉，詳見下方改動4)。</p>
+      <figure class="chart-wrap" style="margin:4px 0 2px; flex-shrink:0;">
+        ${buildHybridFlowSvg()}
+        <figcaption class="panel-sub" style="margin-top:6px;">候選聯集比CQI k-means多出兩個候選來源(青框)：①resource-cost候選、②CQI+前次畫質聯合candidate(換頻穩定性)——三邊k-means都用同一種plain random-restart初始化，聯集之後，兩邊用完全相同的DP分配+挑最高分機制。</figcaption>
+      </figure>
+      <div class="formula-steps">
+        ${steps.map(s => `
+          <div class="formula-step">
+            <div class="step-label">${s.label}</div>
+            ${s.math ? `<div class="formula">${s.math}</div>` : ""}
+            ${s.def ? `<p class="formula-def">${s.def}</p>` : ""}
+            <p class="note">${s.body}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+/* ---------- candidate source spec table ---------- */
+const CANDIDATE_SOURCES = [
+  { tag: "①", name: "CQI", color: "var(--s2)", feature: "<code>cqi_now</code> — 目前這一刻的wideband CQI", dim: "1維", norm: "無(原始值)",
+    insight: "現有baseline本來就用的representation，放進聯集是「保底」：①的候選永遠都在池子裡，所以聯集<strong>永遠不會比單獨CQI k-means差</strong>，其他來源只能加分、不能扣分。" },
+  { tag: "②", name: "Resource-cost", color: "var(--s3)", feature: "<code>user_resource_cost_vector(rb_rates)</code> — 6個畫質等級(200/550/1500/3000/5800/7500 kbps)各自需要幾個RB", dim: "6維", norm: "無(原始值，同單位)",
+    insight: "同樣的CQI，不同使用者因per-RB profile不同，達到同一畫質實際要用的RB數可能差很多——這是CQI看不到的「真實傳輸成本」差異。加進聯集後，當cost比CQI更能反映實際分群優劣時，DP評分會自動選到它。" },
+  { tag: "④", name: "Joint[CQI, 前次畫質]", color: "var(--s9)", feature: "①+<code>previous_quality</code> 串接(見下方說明)", dim: "2維", norm: "z-score",
+    insight: "Utility公式本來就有換頻懲罰，但①②做clustering時完全沒看過<code>previous_quality</code>——懲罰只在DP選候選時被動生效，clustering沒機會主動找「換頻穩定」的切法。加入④等於把這個盲點也交給聯集處理——比2-way(①②)進步：低+0.0106、中+0.0333、高+0.0181(vs CQI)，<strong>三個離散度對CQI都是0個變差</strong>。這是我們最終保留的第3個候選來源。" },
+];
+const CANDIDATE_SOURCES_ASIDE = [
+  { tag: "③", name: "Joint[CQI, Cost]（已測試，最終捨棄）", feature: "①+② 串接成一個向量", dim: "7維(1+6)", norm: "z-score",
+    insight: "假設「同時看CQI+Cost相似度」能找到①②各自都找不到的切法。實測<strong>單獨用它是所有方法裡最差的</strong>(被迫同時滿足兩個目標，是一種妥協)，放進聯集(①②③④四合一，見下方4-way)時，貢獻也小到可以忽略：低離散度<strong>600情境裡0次被選中</strong>(完全等於①②④的3-way)，高離散度僅30/600(5%)次被選中(+0.0009)，只有中離散度有感(209/600次，+0.0076)。<strong>2026-08-25決定捨棄</strong>——用它換來的中離散度小幅提升，不值得多維護一個候選家族。" },
+  { tag: "⑤", name: "RB-profile(側支實驗)", feature: "<code>rb_rates</code> 的 mean/min/max/std", dim: "4維", norm: "z-score",
+    insight: "假設per-RB rate的「形狀」(不只平均值)藏有CQI/Cost都看不到的資訊，在ambiguous模式應該更有感。實測只帶來小幅、跟情境模式無關的加分，沒有驗證到原本的假設——列為側支實驗，未納入主線方法。" },
+];
+const RECIPES = [
+  { label: "2-way(論文方法)", tags: ["①", "②"], ours: false },
+  { label: "Joint單一(反例，無聯集)", tags: ["③"], ours: false },
+  { label: "3-way(+Joint)", tags: ["①", "②", "③"], ours: false },
+  { label: "4-way(+Joint+Switching，測試版)", tags: ["①", "②", "③", "④"], ours: false },
+  { label: "3-way(我們最終的方法，捨棄Joint)", tags: ["①", "②", "④"], ours: true },
+  { label: "RB-profile 3-way(側支實驗)", tags: ["①", "②", "⑤"], ours: false },
+];
+function chipFor(tag) {
+  const all = CANDIDATE_SOURCES.concat(CANDIDATE_SOURCES_ASIDE.map(s => ({ ...s, color: "var(--ink-muted)" })));
+  const s = all.find(x => x.tag === tag);
+  return `<span class="chip" style="--chip-color:${s.color}"><span class="chip-dot"></span>${s.tag} ${s.name}</span>`;
+}
+
+function buildCandidateSpecSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Spec · 候選來源規格表</span>
+      <h2 class="slide-title">候選來源，各用了哪些變因？</h2>
+      <p class="subtitle">每個來源各自對自己的特徵空間跑 k=1..K<sub>max</sub> 的 k-means(plain random-restart)，所有產生出的候選分群方案<strong>取聯集</strong>放進同一個池子，最後由exact DP實際評分、取utility最高者。下表是每個來源實際用的變因。</p>
+      <table class="spec-table">
+        <thead><tr><th>候選來源</th><th>特徵(實際變因)</th><th>維度・正規化</th><th>為什麼加入 → 如何改進utility</th></tr></thead>
+        <tbody>
+          ${CANDIDATE_SOURCES.map(s => `<tr>
+            <td class="spec-name"><span class="spec-dot" style="background:${s.color}"></span>${s.tag} ${s.name}</td>
+            <td>${s.feature}</td>
+            <td class="spec-dim">${s.dim}<br>${s.norm}</td>
+            <td>${s.insight}</td>
+          </tr>`).join("")}
+          ${CANDIDATE_SOURCES_ASIDE.map(s => `<tr class="spec-aside">
+            <td class="spec-name">${s.tag} ${s.name}</td>
+            <td>${s.feature}</td>
+            <td class="spec-dim">${s.dim}<br>${s.norm}</td>
+            <td>${s.insight}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+      <div class="insight">⚠️ <strong><code>previous_quality</code> 不是「上一次的CQI」</strong>，是「上一次被分配到的影片畫質等級」(0~5的整數，對應到200/550/1500/3000/5800/7500 kbps六個等級中的哪一個)。在整份投影片使用的<code>aligned</code>模式下，<code>previous_quality = cqi_now // 3</code>——是目前CQI的一個粗化、<strong>幾乎確定性</strong>的函數(相關係數約0.98)，不是真正獨立的歷史狀態，所以④帶來的獨立資訊量本來就有限；<code>ambiguous</code>模式下previous_quality會疊加隨機擾動、不再是CQI的確定性函數，理論上④應該更有價值，但目前尚未針對這點重新驗證。</div>
+      <p style="margin:6px 0 0; font-size:0.76rem; color:var(--ink-muted); font-weight:700; letter-spacing:0.04em;">2-way ~ 我們最終的方法，怎麼一步步組成的</p>
+      <div class="recipe-list">
+        ${RECIPES.map(r => `
+          <div class="recipe-row${r.ours ? " recipe-ours" : ""}">
+            <span class="recipe-label">${r.label}</span>
+            <span class="recipe-chips">
+              ${r.tags.map((t, i) => (i > 0 ? `<span class="op">∪</span>` : "") + chipFor(t)).join("")}
+            </span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+function buildHybridResultsSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const panels = DISPERSIONS.map(d => `
+    <div class="panel">
+      <h3>${d.label}</h3>
+      <p class="panel-sub">% 為該情境下相對「最佳方法」的比例；vs CQI(現有)：3-way(我們最終的方法) ${HYBRID_FINAL_VS_CQI[d.key].win}勝/${HYBRID_FINAL_VS_CQI[d.key].tie}平/${HYBRID_FINAL_VS_CQI[d.key].loss}負(共600情境)</p>
+      <div class="chart-wrap" data-disp="${d.key}"><div class="tooltip"></div></div>
+    </div>`).join("");
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Ablation · 效用分數 (Utility Score) · 依 CQI 離散度分層(150 使用者 · aligned 模式 · medium 負載 · 30 seed × 20 情境/格)</span>
+      <h2 class="slide-title">為什麼是這個設計：從單一方法到我們最終的 3-way 候選聯集</h2>
+      <p class="subtitle">下面每個百分比都是 <strong>utility</strong>(跟前面「Utility 公式」頁同一套公平性加權log-utility)，不是ADR。這頁展示候選聯集怎麼一步步疊上來、又怎麼被簡化回3個來源的，以及為什麼每一步都合理。</p>
+      <div class="legend">${HYBRID_METHODS.map(m => `<span class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${m.short}${m.ceiling ? "(多排序鍵ensemble修正版，已確認接近真實全域最優解——小規模195/195brute-force全命中，n=150低離散度0%淨損失)" : ""}</span>`).join("")}</div>
+      <div class="panel-grid">${panels}</div>
+      <div class="insight">⚠️ <strong>「Joint(反例)」— 直接把CQI跟resource-cost合併成一個特徵空間做單一clustering，反而是最差的方法之一</strong>：高離散度時只有近似最優解的71.3%，甚至輸給單獨的resource-cost(72.7%)，因為被迫用同一組分群同時滿足兩個目標，是一種妥協。<br><br>✅ <strong>把Joint加進聯集(3-way+Joint)、再加換頻穩定性(4-way)，兩次都只有變好、沒有變差(0個loss)</strong>：低離散度從2-way的98.9%一路推到4-way的<strong>100.0%(幾乎完全命中近似最優解，只差0.0001)</strong>；中離散度2-way(94.8%)→3-way+Joint(95.8%)→4-way(95.9%)；高離散度2-way(86.8%)→3-way+Joint(87.3%)→4-way(89.3%)。每一步都是「多加一個候選來源，讓聯集自動挑當下最合適的」，即使新加的來源單獨測很差(像Joint)也不影響大局——這就是候選聯集<strong>只會變好、不會變差的核心機制</strong>。<br><br>🔧 <strong>但候選來源到4個了，值得回頭檢查每一個是否都必要</strong>：把③(Joint)拿掉、只留①CQI+②Cost+④Switching(3-way，我們最終的方法)，逐情境比對4-way——<strong>低離散度600/600情境完全相同(Joint從未被選中)</strong>，高離散度僅30/600(5%)情境用到Joint(+0.0009)，只有中離散度有感(209/600，+0.0076，佔比不到1.1%)。拿掉Joint後的最終3-way仍達到近似最優解的<strong>低100.0%／中94.9%／高89.1%</strong>——跟保留Joint的4-way幾乎沒有差距，但少維護一個候選家族，故事更簡單：<strong>候選聯集比CQI k-means對600個情境保持0個loss</strong>(低555勝/45平/0負、中515勝/85平/0負、高295勝/305平/0負)。<br><br>💡 <strong>移除k-means++後(2026-08-25)</strong>：所有聯集變體在三個離散度對CQI k-means的勝負從原本偶有小輸(如舊版低離散度10負、高離散度62~77負)全部變成<strong>0負</strong>——因為候選聯集裡的CQI候選現在跟baseline用同一個seed、同一種plain random-restart，保證至少打平，不會再輸。</div>
+    </div>
+  `;
+  el.querySelectorAll(".chart-wrap").forEach(wrap => {
+    const disp = wrap.getAttribute("data-disp");
+    const values = HYBRID_DATA[disp];
+    const svg = buildPctChart(values, HYBRID_METHODS, "", 4);
+    wrap.insertAdjacentHTML("afterbegin", svg);
+    attachPctHover(wrap, HYBRID_METHODS, values, "", 4);
+  });
+  return el;
+}
+
+function buildHybridRealDataSlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const dispRowLabel = { low: "低離散度", mid: "中離散度", high: "高離散度" };
+  const rows = DISPERSIONS.map(d => `
+    <tr>
+      <th>${dispRowLabel[d.key]}</th>
+      ${HYBRID_REAL_LOADS.map(l => {
+        const c = HYBRID_REAL_WTL[d.key][l.key];
+        const tier = wtlTier(c);
+        return `<td class="wtl-cell ${tier}">
+          <div class="wtl-count">${c.win}勝 / ${c.tie}平 / ${c.loss}負</div>
+          <div class="wtl-diff">${c.diff >= 0 ? "+" : ""}${c.diff.toFixed(4)} vs CQI</div>
+        </td>`;
+      }).join("")}
+    </tr>`).join("");
+  el.innerHTML = `
+    <div class="card">
+      <span class="kicker">Bonus · 效用分數 (Utility Score) · 真實 Simu5G + SUMO + Veins，10 個獨立seed(非合成資料)</span>
+      <h2 class="slide-title">Hybrid 方法在真實資料上的驗證(效用分數)</h2>
+      <p class="subtitle">同一份10-seed真實資料集(見前面「真實資料驗證」頁)，把Hybrid <strong>2-way</strong>方法(CQI∪Cost，論文方法)加進三方法比較——每一格是10個獨立seed對CQI k-means的<strong>utility</strong>勝/平/負(跟「Utility 公式」頁同一套公平性加權log-utility，不是ADR)，深綠=9~10勝，外框綠=有輸有贏但淨值仍正向，白底=完全打平。<em>我們最終的3-way方法(CQI+Cost+換頻穩定性，捨棄Joint)目前只在合成資料驗證過，真實資料驗證待補。</em></p>
+      <table class="wtl-table">
+        <thead><tr><th class="corner"></th>${HYBRID_REAL_LOADS.map(l => `<th>${l.label} 負載</th>`).join("")}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="insight"><strong>9個(離散度×負載)組合裡，Hybrid在任何一格都沒有輸過一次(0負)</strong>——5格是10/10或9/1全勝(mid×light/medium、high×light/medium、high×heavy的9勝1平)，其餘都是打平或平打平(low×all三格全平、mid×heavy是5勝5平0負)。對比同一份真實資料上單獨測的resource-cost/multi-feature(在mid×heavy、high×medium都是2~3勝、7~8負)，Hybrid明顯更穩定——這跟合成資料的發現完全一致(合成資料上2-way/3-way/4-way聯集移除k-means++後同樣是0負)，而且真實資料上的表現又更乾淨。<br><br>💡 移除k-means++後，mid×heavy這一格從舊版的4勝4平2負進步到5勝5平0負(+0.0012 vs CQI)——這是唯一一格數字有感變動的地方，其餘8格win/tie/loss結構基本不變。</div>
+    </div>
+  `;
+  return el;
+}
+
+function buildTakeawaySlide() {
+  const el = document.createElement("div");
+  el.className = "slide";
+  const items = [
+    { color: "var(--s1)", html: "<strong>「不分組」的表現完全取決於離散度、也受使用者數量放大</strong>：低離散度時它甚至是最好的(不需要分組)，中離散度已有感知得到的差距(150人時約60%)，高離散度崩到只剩最優解的 28%——跟原論文 Method C 的量級一致。使用者數從24人拉到500人時，中離散度的ADR差距單調擴大(85%→65%→60%→56%→43%)；高離散度時「不分組」的絕對ADR從150人起卡在550kbps不再下降(見「使用者數量的影響」頁)。" },
+    { color: "var(--s9)", html: "<strong>Headline：候選聯集(CQI+Resource-cost+換頻穩定性，3-way)在合成與真實資料上都不輸 CQI k-means</strong>——這是簡化過的最終版本：曾經測過加入第4個「CQI+Cost聯合」候選來源(4-way)，但發現它的貢獻小到可以忽略(低離散度600情境裡從未被選中、高離散度僅5%情境用到)，2026-08-25決定拿掉，換來更簡單的3個候選來源、幾乎沒有代價。最終3-way在三個離散度都達到近似最優解的89%以上(低100.0%、中94.9%、高89.1%)，其中低離散度已幾乎完全逼近最優解(0.9514 vs 0.9515，只差0.0001)；真實10-seed資料上2-way版本(論文原始方法)在全部9個(離散度×負載)組合都沒有輸過一次(0負)，utility、average quality、fairness三項指標在中/高離散度同時都贏過CQI(不是犧牲公平性換utility)。關鍵機制是「聯集」本身：同一份[CQI,cost]直接做單一joint clustering在高離散度還是輸給單獨resource-cost(0.3147 vs 0.3210)；分開產生候選、實際跑DP評分後再挑最高分，才能讓每種representation只在它真正有優勢的情境被採用。2026-08-25移除k-means++當作候選產生時的初始化變因後(全部改回跟baseline一致的plain random-restart)，所有聯集變體對CQI k-means的勝負在三個離散度都變成0負——這是目前最站得住腳、不需要深度學習的核心結果。" },
+    { color: "var(--s5)", html: "<strong>「近似最優解」用的是驗證過的多排序鍵ensemble修正版</strong>(offline_teacher_groups_multikey，不是單一排序鍵的原始版)：原始版DP只在「依資源成本排序後取連續切割」的受限空間內窮舉，低離散度時因CQI大量重複值(只剩13/14/15三種)而失真，utility甚至會被multi-feature/CQI k-means超過；換成修正版後，utility指標在每一格都確實是最高分。中/高離散度時所有啟發式方法(含我們最終的3-way方法)都還沒觸頂，還有進步空間；高離散度時 CQI 的原始 ADR 甚至超過它，因為它優化的是含公平性的 log-utility，不是原始平均速率，兩者目標不同。ADR/served_ratio/quality/spectral_efficiency/fairness這5項指標目前仍用較便宜的單排序鍵版本當參考，尚未重新驗證是否仍是每格最高分。" },
+    { color: "var(--s2)", html: "<strong>真實 Simu5G 資料(10 個獨立seed)</strong>複現了「離散度才是分組價值的關鍵」——中/高離散度時「不分組」在全部10個seed都輸；但也修正了先前只跑1個seed時「resource-cost明顯贏CQI」的結論：擴大到10個seed後，同樣負載下CQI反而多數時候贏，方向不穩健，不能只憑1個seed下定論。" },
+  ];
+  el.innerHTML = `
+    <div class="card" style="align-items:flex-start;">
+      <span class="kicker">總結</span>
+      <h2 class="slide-title">結論</h2>
+      <div class="takeaways">${items.map(it => `<div class="takeaway"><span class="dot" style="background:${it.color}"></span><p>${it.html}</p></div>`).join("")}</div>
+    </div>
+  `;
+  return el;
+}
+
+/* ---------- assemble deck ---------- */
+const slidesEl = document.getElementById("slides");
+const slideEls = [
+  buildTitleSlide(),
+  buildFormulaSlide(),
+  buildHybridLogicSlide(),
+  buildCandidateSpecSlide(),
+  buildHybridResultsSlide(),
+  ...METRIC_META.map(buildDispersionMetricSlide),
+  buildUserCountSlide(),
+  buildRealDataSlide(REAL_DATA),
+  buildHybridRealDataSlide(),
+  buildTakeawaySlide(),
+];
+slideEls.forEach(s => slidesEl.appendChild(s));
+
+let current = 0;
+const dotsEl = document.getElementById("dots");
+slideEls.forEach((_, i) => {
+  const b = document.createElement("button");
+  b.setAttribute("aria-label", "第 " + (i + 1) + " 頁");
+  b.addEventListener("click", () => goTo(i));
+  dotsEl.appendChild(b);
+});
+const counterEl = document.getElementById("counter");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+function render() {
+  slideEls.forEach((s, i) => s.classList.toggle("active", i === current));
+  [...dotsEl.children].forEach((d, i) => d.classList.toggle("on", i === current));
+  counterEl.textContent = (current + 1) + " / " + slideEls.length;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === slideEls.length - 1;
+}
+function goTo(i) { current = Math.max(0, Math.min(slideEls.length - 1, i)); render(); }
+prevBtn.addEventListener("click", () => goTo(current - 1));
+nextBtn.addEventListener("click", () => goTo(current + 1));
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight" || e.key === " ") { goTo(current + 1); e.preventDefault(); }
+  if (e.key === "ArrowLeft") { goTo(current - 1); e.preventDefault(); }
+});
+render();
+</script>
